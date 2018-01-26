@@ -1,0 +1,8 @@
+__pycache__/
+*.py[cod]
+*.swp
+
+geckodriver.log # selenium
+
+data/
+!*.example.*
