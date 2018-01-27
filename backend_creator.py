@@ -8,11 +8,17 @@ import sys
 import time
 
 import discord
+import gi
+gi.require_version('Notify', '0.7') # warnings if I don't do this ¯⧹_(ツ)_⧸¯
+from gi.repository import Notify
 import selenium.webdriver
 from selenium.common.exceptions import NoSuchElementException
 
+from bot import EmojiConnoisseur
 
 bot = discord.Client(self_bot=True)
+connoisseur = EmojiConnoisseur()
+Notify.init(__name__)
 
 
 def print_status(status_message, synchronous=False):
@@ -42,7 +48,7 @@ async def on_ready():
 	#await create_guilds(prefix='Emoji Backend ', limit=100)
 	#await clear_guilds()
 	#await rename_guilds()
-	await add_bot_to_guilds()
+	add_bot_to_guilds()
 	#await bot.logout()
 	return
 
@@ -87,7 +93,7 @@ def wait_for_element(driver, css_selector, delay=0.25):
 			time.sleep(delay)
 			continue
 
-def wait_for_url(driver, url, delay=0.5):
+def wait_for_url(driver, url, delay=0.25):
 	while driver.current_url != url:
 		time.sleep(delay)
 
@@ -97,13 +103,13 @@ def add_bot_to_guilds():
 	driver = selenium.webdriver.Firefox()
 	perms = discord.Permissions.none()
 	perms.manage_emojis = True
-	oauth_url =	discord.utils.oauth_url(405953712113057794, perms)
+	oauth_url =	discord.utils.oauth_url(connoisseur.client_id, perms)
 	driver.get(oauth_url)
 
-	print('Waiting for you to log in!')
+	notify('Waiting for you to log in')
 	wait_for_url(driver, oauth_url) # oauth URL redirects to login page if logged out
 
-	for guild in bot.guilds:
+	for i, guild in enumerate(bot.guilds, 1):
 		driver.get(oauth_url)
 
 		wait_for_element(driver, 'select > option[value="{}"]'.format(guild.id)).click()
@@ -112,6 +118,11 @@ def add_bot_to_guilds():
 		wait_for_element(driver, '.recaptcha-checkbox-checkmark').click()
 		driver.switch_to.default_content() # switch back out
 		wait_for_url(driver, 'https://discordapp.com/oauth2/authorized')
+		notify('{} guild{} down, {} to go!'.format(i, 's' if i > 1 else '', len(bot.guilds) - i))
+
+
+def notify(message):
+	Notify.Notification.new(message).show()
 
 
 def main():
