@@ -84,9 +84,7 @@ class Discordlist(StatsAPI):
 def setup(bot):
 	for Cog in (DiscordPwStats, DiscordBotList, Discordlist):
 		stats_config = bot.config['tokens']['stats']
-		if stats_config.get(Cog.config_section):
+		if stats_config.get(Cog.config_section) is not None:
 			bot.add_cog(Cog(bot))
 		else:
-			print(
-				Cog.config_section,
-				"was not loaded! Please make sure it's configured properly.")
+			print(Cog.config_section, "was not loaded! Please make sure it's configured properly.")

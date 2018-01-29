@@ -4,7 +4,6 @@
 """a selfbot that creates guilds"""
 
 from functools import wraps
-import sys
 import time
 
 import discord

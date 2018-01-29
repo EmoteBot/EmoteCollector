@@ -7,36 +7,37 @@ from pathlib import Path
 import discord
 from discord.ext import commands
 
-from util import log
+from utils import log, MockContext
 import db
 
 
 class EmojiConnoisseur(commands.Bot):
 	cogs_path = 'cogs'
 
-	def __init__(bot, *args, **kwargs):
-		bot.config = db.CONFIG
-		bot.db = {
-			'emojis': db.EMOJIS,
-			'blacklists': db.BLACKLISTS}
-		super().__init__(command_prefix=commands.when_mentioned_or('ec'), *args, **kwargs)
+	def __init__(self, *args, **kwargs):
+		self.config = db.CONFIG
+		self.db = db.DB
+		super().__init__(command_prefix=commands.when_mentioned_or('ec/'), *args, **kwargs)
 
-	async def on_ready(bot):
+	async def on_ready(self):
 		separator = '━'
 		messages = (
-			'Logged in as: %s' % bot.user,
-			'ID: %s' % bot.user.id)
+			'Logged in as: %s' % self.user,
+			'ID: %s' % self.user.id)
 		separator *= len(max(messages, key=len))
 		log(separator, *messages, separator, sep='\n')
 
-	def run(bot, *args, **kwargs):
-		for extension in (p.stem for p in Path(bot.cogs_path).glob('*.py')):
+	async def on_message(self, message):
+		await self.invoke(await self.get_context(message, cls=MockContext))
+
+	def run(self, *args, **kwargs):
+		for extension in (p.stem for p in Path(self.cogs_path).glob('*.py')):
 			try:
-				bot.load_extension(bot.cogs_path+'.'+extension)
+				self.load_extension(self.cogs_path+'.'+extension)
 			except Exception as e:
 				log('Failed to load', extension)
 				log(traceback.format_exc())
-		super().run(bot.config['tokens']['discord'], *args, **kwargs)
+		super().run(self.config['tokens']['discord'], *args, **kwargs)
 
 
 # defined in a function so it can be run from a REPL if need be
