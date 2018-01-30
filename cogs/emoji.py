@@ -94,6 +94,11 @@ class Emotes:
 		finally:
 			await asyncio.sleep(0.5)
 			await message.remove_reaction(emote_str, context.guild.me)
+			try:
+				await context.message.delete()
+			except discord.errors.Forbidden:
+				pass
+
 
 	@commands.command()
 	async def react2(self, context, message: int = None):
