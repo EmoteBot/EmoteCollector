@@ -131,7 +131,7 @@ class Emotes:
 			await emote.delete()
 			return await context.send(success_message)
 
-	@commands.command()
+	@commands.command(aliases=['create'])
 	async def add(self, context, *args):
 		"""Add a new emote to the bot. You can use it like this:
 		`ec/add :thonkang:` (if you already have that emote)
