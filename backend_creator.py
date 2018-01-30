@@ -102,7 +102,7 @@ def add_bot_to_guilds():
 	driver = selenium.webdriver.Firefox()
 	perms = discord.Permissions.none()
 	perms.manage_emojis = True
-	oauth_url =	discord.utils.oauth_url(connoisseur.client_id, perms)
+	oauth_url = discord.utils.oauth_url(connoisseur.client_id, perms)
 	driver.get(oauth_url)
 
 	notify('Waiting for you to log in')
