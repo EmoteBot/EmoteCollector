@@ -54,7 +54,7 @@ class Emotes:
 			await message.channel.send(''.join(emotes))
 
 	@commands.command()
-	async def react(self, context, name, message: int = None, channel: int = None):
+	async def react(self, context, name, message, channel: int = None):
 		"""Add a reaction to a message. Sad reacts only please.
 		`ec/add <name> <message ID> [channel ID]`
 		You can get the message ID by enabling developer mode (in Settings→Appearance),
