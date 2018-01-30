@@ -8,7 +8,7 @@ import time
 
 import discord
 import gi
-gi.require_version('Notify', '0.7') # warnings if I don't do this ¯⧹_(ツ)_⧸¯
+gi.require_version('Notify', '0.7')  # warnings if I don't do this ¯⧹_(ツ)_⧸¯
 from gi.repository import Notify
 import selenium.webdriver
 from selenium.common.exceptions import NoSuchElementException

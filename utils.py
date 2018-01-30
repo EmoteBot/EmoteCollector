@@ -8,6 +8,15 @@ import sys as _sys
 from discord.ext.commands import Context as _Context
 
 
+"""More owners, other than Emoji Backend 0. If more backend accounts are needed, add them here."""
+EXTRA_OWNERS = (140516693242937345,)
+
+
+async def is_owner(context):
+	user = context.author
+	return user.id in EXTRA_OWNERS or await context.bot.is_owner(user)
+
+
 class MockContext(_Context):
 	async def mock(self, content, **kwargs):
 		def mock(char):
@@ -19,7 +28,7 @@ def typing(func):
 	@_wraps(func)
 	async def wrapped(context, *args, **kwargs):
 		async with context.sleeping():
-			func(context, *args, **kwargs)
+			await func(context, *args, **kwargs)
 	return wrapped
 
 

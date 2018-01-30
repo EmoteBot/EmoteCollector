@@ -28,7 +28,21 @@ class EmojiConnoisseur(commands.Bot):
 		log(separator, *messages, separator, sep='\n')
 
 	async def on_message(self, message):
+		# inject the mock function
 		await self.invoke(await self.get_context(message, cls=MockContext))
+
+	# https://github.com/Rapptz/RoboDanny/blob/ca75fae7de132e55270e53d89bc19dd2958c2ae0/bot.py#L77-L85
+	async def on_command_error(self, context, error):
+		if isinstance(error, commands.NoPrivateMessage):
+			await context.author.send('This command cannot be used in private messages.')
+		elif isinstance(error, commands.DisabledCommand):
+			await context.author.send('Sorry. This command is disabled and cannot be used.')
+		elif isinstance(error, commands.UserInputError):
+			await context.send(error)
+		elif isinstance(error, commands.CommandInvokeError):
+			log('In %s:' % context.command.qualified_name)
+			traceback.print_tb(error.original.__traceback__)
+			log('{0.__class__.__name__}: {0}'.format(error.original))
 
 	def run(self, *args, **kwargs):
 		for extension in (p.stem for p in Path(self.cogs_path).glob('*.py')):

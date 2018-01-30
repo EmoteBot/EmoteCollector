@@ -11,7 +11,7 @@ import aiohttp
 import discord
 from discord.ext import commands
 
-from utils import log, typing
+from utils import log, is_owner
 
 
 class Emotes:
@@ -27,7 +27,7 @@ class Emotes:
 		for guild in self.bot.guilds:
 			# FIXME find a way to do this without hardcoding every backend account ID
 			# If more backend accounts are needed, add them here.
-			if guild.owner.id == 402664342182690816:
+			if await self.bot.is_owner(guild.owner):
 				self.guilds.append(guild)
 		self.guilds.sort(key=lambda guild: guild.name)
 
@@ -48,8 +48,6 @@ class Emotes:
 				try:
 					emotes.append(await self.get_formatted(name))
 				except:
-					#log('Retrieving', name, 'from the DB failed somehow.')
-					#log(traceback.format_exc())
 					pass
 			if not emotes:
 				return
@@ -100,28 +98,6 @@ class Emotes:
 				pass
 
 
-	@commands.command()
-	async def react2(self, context, message: int = None):
-		emote_str = ':test:407030315194777600'
-		message = await channel.get_message(message)
-		await message.add_reaction(emote_str)
-
-		def check(reaction, user):
-			print('Got reaction', reaction.emoji)
-			checks = (
-				reaction.message.id == message.id,
-				user == context.message.author,
-				id == getattr(reaction.emoji, 'id', None))  # unicode emoji have no id
-			for check in checks:
-				print(check)
-			return all(checks)
-
-		try:
-			await self.bot.wait_for('reaction_add', timeout=30, check=check)
-		except asyncio.TimeoutError:
-			await message.remove_reaction(emote_str, context.guild.me)
-
-
 	@commands.command(aliases=['remove'])
 	async def delete(self, context, name):
 		"""Deletes an emote from the bot. You must own it."""
@@ -131,9 +107,12 @@ class Emotes:
 			animated, name, id, author = await self.get(name)
 		except EmoteNotFoundError:
 			return await context.mock("%s doesn't exist!" % name)
-		if author != context.author.id:
+		# By De Morgan's laws, this is equivalent to (not is_owner and not emote_author)
+		# but I think this is clearer :P
+		if not (await is_owner(context) or author == context.author.id):
 			return await context.mock(
-				"You're not the author of %s!" % self.format_emote(animated, name, id, author))
+				"You're not the author of %s!" % self.format_emote(animated, name, id))
+
 		log('Trying to delete', name, id)
 
 		await self.bot.db.execute('DELETE FROM connoisseur.emojis WHERE name ILIKE $1', name)
@@ -188,7 +167,7 @@ class Emotes:
 				url = self.emote_url(match.group(2))
 
 		else:
-			await context.mock('Your message had no emotes and no name!')
+			return await context.mock('Your message had no emotes and no name!')
 
 		await self.add_safe(context, name, url)
 
