@@ -187,6 +187,9 @@ class Emotes:
 			else:
 				url = self.emote_url(match.group(2))
 
+		else:
+			await context.mock('Your message had no emotes and no name!')
+
 		await self.add_safe(context, name, url)
 
 	async def add_safe(self, context, name, url):
