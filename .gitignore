@@ -5,5 +5,5 @@ __pycache__/
 # selenium
 geckodriver.log
 
+!data/*.example.*
 data/
-!*.example.*
