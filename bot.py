@@ -2,7 +2,6 @@
 # encoding: utf-8
 
 import traceback
-from pathlib import Path
 
 import discord
 from discord.ext import commands
@@ -45,7 +44,7 @@ class EmojiConnoisseur(commands.Bot):
 			log('{0.__class__.__name__}: {0}'.format(error.original))
 
 	def run(self, *args, **kwargs):
-		for extension in (p.stem for p in Path(self.cogs_path).glob('*.py')):
+		for extension in ('emoji', 'admin', 'external.stats', 'external.misc'):
 			try:
 				self.load_extension(self.cogs_path+'.'+extension)
 			except Exception as e:
