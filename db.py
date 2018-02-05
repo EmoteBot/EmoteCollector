@@ -23,7 +23,7 @@ async def _get_db():
 			'name VARCHAR(32) NOT NULL,'
 			'id BIGINT NOT NULL UNIQUE,'
 			'author BIGINT NOT NULL)')
-	await db.execute('CREATE TABLE IF NOT EXISTS connoisseur.blacklists(id bigint NOT NULL)')
+	await db.execute('CREATE TABLE IF NOT EXISTS connoisseur.blacklists(id bigint NOT NULL UNIQUE)')
 	return db
 
 
