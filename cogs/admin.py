@@ -3,6 +3,7 @@
 
 from discord.ext import commands
 
+from cogs.utils.checks import is_owner
 
 class Admin:
     """Commands for admins only!"""
@@ -15,12 +16,12 @@ class Admin:
         )
 
     @commands.command()
-    @commands.is_owner()
+    @is_owner()
     async def reload(self, context, *, cog: str):
         """Reload a cog.
-        The cog is expected to be located in `reactor_bot.cogs`.
+        The cog is expected to be located in `cogs/`.
         """
-        cog = 'reactor_bot.cogs.' + cog
+        cog = self.bot.cogs_path + '.' + cog
 
         try:
             self.bot.unload_extension(cog)
