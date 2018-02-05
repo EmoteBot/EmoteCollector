@@ -26,9 +26,9 @@ class MockContext(_Context):
 
 def typing(func):
 	@_wraps(func)
-	async def wrapped(context, *args, **kwargs):
-		async with context.sleeping():
-			await func(context, *args, **kwargs)
+	async def wrapped(self, context, *args, **kwargs):
+		async with context.typing():
+			await func(self, context, *args, **kwargs)
 	return wrapped
 
 

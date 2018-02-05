@@ -11,7 +11,7 @@ import aiohttp
 import discord
 from discord.ext import commands
 
-from utils import log, is_owner
+from utils import log, is_owner, typing
 
 
 class Emotes:
@@ -99,6 +99,7 @@ class Emotes:
 
 
 	@commands.command(aliases=['remove'])
+	@typing
 	async def delete(self, context, name):
 		"""Deletes an emote from the bot. You must own it."""
 		success_message = '%s successfully deleted.' % name
@@ -132,6 +133,7 @@ class Emotes:
 			return await context.send(success_message)
 
 	@commands.command(aliases=['create'])
+	@typing
 	async def add(self, context, *args):
 		"""Add a new emote to the bot. You can use it like this:
 		`ec/add :thonkang:` (if you already have that emote)
