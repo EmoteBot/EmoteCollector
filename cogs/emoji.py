@@ -212,8 +212,11 @@ class Emotes:
 		await self.bot.db.execute('UPDATE connoisseur.emojis SET name = $2 WHERE id = $1', id, new_name)
 
 	@commands.command()
-	@checks.is_owner()
 	async def find(self, context, name):
+		"""Internal command to find out which backend server a given emote is in.
+		This is useful because emotes are added to random guilds to avoid rate limits.
+		"""
+
 		try:
 			animated, name, id, author = await self.get(name)
 		except EmoteNotFoundError:
