@@ -22,7 +22,8 @@ async def _get_db():
 		'CREATE TABLE IF NOT EXISTS connoisseur.emojis('
 			'name VARCHAR(32) NOT NULL,'
 			'id BIGINT NOT NULL UNIQUE,'
-			'author BIGINT NOT NULL)')
+			'author BIGINT NOT NULL,'
+			'animated BOOLEAN DEFAULT FALSE)')
 	await db.execute('CREATE TABLE IF NOT EXISTS connoisseur.blacklists(id bigint NOT NULL UNIQUE)')
 	return db
 
