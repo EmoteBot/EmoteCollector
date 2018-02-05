@@ -19,6 +19,7 @@ class EmojiConnoisseur(commands.Bot):
 		super().__init__(command_prefix=commands.when_mentioned_or('ec/'), *args, **kwargs)
 
 	async def on_ready(self):
+		self.client_id = (await self.application_info()).id
 		separator = '━'
 		messages = (
 			'Logged in as: %s' % self.user,
@@ -44,7 +45,7 @@ class EmojiConnoisseur(commands.Bot):
 			log('{0.__class__.__name__}: {0}'.format(error.original))
 
 	def run(self, *args, **kwargs):
-		for extension in ('emoji', 'admin', 'external.stats', 'external.misc'):
+		for extension in ('emoji', 'meta', 'admin', 'external.stats', 'external.misc'):
 			try:
 				self.load_extension(self.cogs_path+'.'+extension)
 			except Exception as e:
