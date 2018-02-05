@@ -4,14 +4,21 @@
 import asyncio
 import imghdr
 import functools
+import logging
+import random
 import re
 import traceback
 
 import aiohttp
+from bs4 import BeautifulSoup
 import discord
 from discord.ext import commands
 
+from cogs.utils import checks
 from utils import log, is_owner, typing
+
+
+logger = logging.getLogger('cogs.emoji')
 
 
 class Emotes:
@@ -22,7 +29,17 @@ class Emotes:
 		self.bot = bot
 		self.session = aiohttp.ClientSession()
 
+	def __unload(self):
+		self.session.close()
+
 	async def on_ready(self):
+		if hasattr(self, 'guilds') and self.guilds:
+			return
+
+		while not hasattr(self.bot, 'guilds'):
+			# bot isn't really ready yet
+			await asyncio.sleep(0.1)
+
 		self.guilds = []
 		for guild in self.bot.guilds:
 			# FIXME find a way to do this without hardcoding every backend account ID
@@ -30,6 +47,7 @@ class Emotes:
 			if await self.bot.is_owner(guild.owner):
 				self.guilds.append(guild)
 		self.guilds.sort(key=lambda guild: guild.name)
+		logger.info('In ' + str(len(self.guilds)) + ' backend guilds.')
 
 	async def on_message(self, message):
 		if message.author.bot:
@@ -75,8 +93,8 @@ class Emotes:
 			emote_str = self.format_emote(animated, name, emote_id)[1:-1]
 			await message.add_reaction(emote_str)
 		except:
-			log('React: failed to react with %s' % name)
-			log(traceback.format_exc())
+			logger.error('React: failed to react with %s' % name)
+			logger.error(traceback.format_exc())
 			return await context.mock('Failed to react with %s!' % name)
 
 		def check(emote, message_id, channel_id, user_id):
@@ -88,7 +106,7 @@ class Emotes:
 		try:
 			await self.bot.wait_for('raw_reaction_add', timeout=30, check=check)
 		except asyncio.TimeoutError:
-			log("react: user didn't react in time")
+			logger.info("react: user didn't react in time")
 		finally:
 			await asyncio.sleep(0.6)
 			await message.remove_reaction(emote_str, context.guild.me)
@@ -114,23 +132,16 @@ class Emotes:
 			return await context.mock(
 				"You're not the author of %s!" % self.format_emote(animated, name, id))
 
-		log('Trying to delete', name, id)
+		logger.debug('Trying to delete ', name, id)
 
 		await self.bot.db.execute('DELETE FROM connoisseur.emojis WHERE name ILIKE $1', name)
 		emote = self.bot.get_emoji(id)
 		if emote is not None:
-			log(name, 'twas in the cache')
+			logger.debug(name + " 'twas in the cache")
 			await emote.delete()
 			return await context.send(success_message)
-
-		log(name, 'twas not in the cache')
-		try:
-			emote = await self.find_emote_in_guilds(id)
-		except EmoteNotFoundError:
-			return log('Emote %s not found in the guilds, but found in the database!' % name)
 		else:
-			await emote.delete()
-			return await context.send(success_message)
+			logger.error(name + " 'twas not in the cache!")
 
 	@commands.command(aliases=['create'])
 	@typing
@@ -157,8 +168,7 @@ class Emotes:
 				name, id = match.groups()
 				url = self.emote_url(id)
 			else:
-				await context.mock("That's not an emote!")
-				return
+				return await context.mock("That's not an emote!")
 		elif len(args) == 2:
 			# finally, an easy case
 			name = args[0]
@@ -172,6 +182,75 @@ class Emotes:
 			return await context.mock('Your message had no emotes and no name!')
 
 		await self.add_safe(context, name, url)
+
+	@commands.command()
+	@typing
+	async def rename(self, context, name, new_name):
+		"""Rename an emote. You must own it.
+		ec/rename Spicy ainsley
+		"""
+		# TODO figure out how to not duplicate this code from self.delete
+		try:
+			animated, name, id, author = await self.get(name)
+		except EmoteNotFoundError:
+			return await context.mock("%s doesn't exist!" % name)
+		if not (await is_owner(context) or author == context.author.id):
+			return await context.mock(
+				"You're not the author of %s!" % self.format_emote(animated, name, id))
+		try:
+			await self.rename_(id, new_name)
+		except:
+			await context.mock('Renaming the emote failed internally. Please contact @null byte#1337.')
+			logger.error('Renaming ' + name + ' failed!')
+			logger.error(traceback.format_exc())
+		else:
+			await context.send('Emote successfully renamed.')
+
+	async def rename_(self, id, new_name):
+		emote = self.bot.get_emoji(id)
+		await emote.edit(name=new_name)
+		await self.bot.db.execute('UPDATE connoisseur.emojis SET name = $2 WHERE id = $1', id, new_name)
+
+	@commands.command()
+	@checks.is_owner()
+	async def find(self, context, name):
+		try:
+			animated, name, id, author = await self.get(name)
+		except EmoteNotFoundError:
+			return await context.mock("%s doesn't exist!" % name)
+		emote = self.bot.get_emoji(id)
+
+		if emote is None:
+			logger.debug('%s was not in the cache' % name)
+			return await context.send('%s was not in the cache!' % name)
+
+		return await context.send('%s is in %s' % (emote.name, emote.guild.name))
+
+	@commands.command(name='steal-all')
+	@checks.is_owner()
+	@typing
+	async def steal_all(self, context, list_url):
+		async with self.session.get(list_url) as resp:
+			text = await resp.text()
+		emotes = self.parse_list(text)
+		for name, image, author in emotes:
+			try:
+				message = await self.add_(name, image, author)
+			except EmoteExistsError:
+				await context.mock('An emote already exists with that name!')
+			else:
+				await context.send(message)
+
+	def parse_list(self, text):
+		rows = [line.split(' | ') for line in text.split('\n')[2:]]
+		image_column = (row[0] for row in rows)
+		soup = BeautifulSoup(''.join(image_column), 'lxml')
+		images = soup.find_all(attrs={'class': 'emoji'})
+		image_urls = [image.get('src') for image in images]
+		names = [row[1].replace('`', '').replace(':', '') for row in rows if len(row) > 1]
+		authors = [row[2].split()[-1].replace('(', '').replace(')', '') for row in rows if len(row) > 2]
+
+		return zip(names, image_urls, authors)
 
 	async def add_safe(self, context, name, url):
 		try:
@@ -211,10 +290,16 @@ class Emotes:
 			return await resp.read()
 
 	async def current_guild(self, animated=False):
+		free_guilds = []
 		for guild in self.guilds:
 			if sum(1 for emote in guild.emojis if animated == emote.animated) < 50:
-				return guild
-		raise NoMoreSlotsError('This bot too weak! Try adding more guilds.')
+				free_guilds.append(guild)
+
+		if not free_guilds:
+			raise NoMoreSlotsError('This bot too weak! Try adding more guilds.')
+
+		# hopefully this lets us bypass the rate limit more often, since emote rates are per-guild
+		return random.choice(free_guilds)
 
 	async def get(self, name):
 		row = await self.bot.db.fetchrow('''
@@ -229,13 +314,6 @@ class Emotes:
 	async def get_formatted(self, name):
 		return self.format_emote(*(await self.get(name))[:-1])
 
-	async def find_emote_in_guilds(self, id):
-		for guild in self.guilds:
-			emote = discord.utils.get(guild.emojis, id=id)
-			if emote is not None:
-				return emote
-		raise EmoteNotFoundError('An emote with ID %s was not found in any guild.' % id)
-
 	@staticmethod
 	def emote_url(id):
 		return 'https://cdn.discordapp.com/emojis/%s' % id
@@ -245,7 +323,12 @@ class Emotes:
 		return '<%s:%s:%s>' % ('a' if animated else '', name, id)
 
 
-class NoMoreSlotsError(Exception):
+class ConnoisseurError(Exception):
+	"""Generic error with the bot. This can be used to catch all bot errors."""
+	pass
+
+
+class NoMoreSlotsError(ConnoisseurError):
 	"""Raised in the rare case that all slots of a particular type (static/animated) are full
 	if this happens, make a new Emoji Backend account, create 100 more guilds, and add the bot
 	to all these guilds
@@ -253,17 +336,17 @@ class NoMoreSlotsError(Exception):
 	pass
 
 
-class EmoteExistsError(Exception):
+class EmoteExistsError(ConnoisseurError):
 	"""An emote with that name already exists"""
 	pass
 
 
-class EmoteNotFoundError(Exception):
+class EmoteNotFoundError(ConnoisseurError):
 	"""An emote with that name was not found"""
 	pass
 
 
-class InvalidImageError(Exception):
+class InvalidImageError(ConnoisseurError):
 	"""The image is not a GIF, PNG, or JPG"""
 	pass
 

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # encoding: utf-8
 
+import logging
 import traceback
 
 import discord
@@ -8,6 +9,10 @@ from discord.ext import commands
 
 from utils import log, MockContext
 import db
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger('bot')
+logger.setLevel(logging.DEBUG)
 
 
 class EmojiConnoisseur(commands.Bot):
@@ -25,7 +30,8 @@ class EmojiConnoisseur(commands.Bot):
 			'Logged in as: %s' % self.user,
 			'ID: %s' % self.user.id)
 		separator *= len(max(messages, key=len))
-		log(separator, *messages, separator, sep='\n')
+		print('ready')
+		logger.info(separator + '\n'.join(messages) + separator)
 
 	async def on_message(self, message):
 		# inject the mock function
@@ -40,17 +46,17 @@ class EmojiConnoisseur(commands.Bot):
 		elif isinstance(error, commands.UserInputError):
 			await context.send(error)
 		elif isinstance(error, commands.CommandInvokeError):
-			log('In %s:' % context.command.qualified_name)
-			traceback.print_tb(error.original.__traceback__)
-			log('{0.__class__.__name__}: {0}'.format(error.original))
+			logger.error('In %s:' % context.command.qualified_name)
+			logger.error(''.join(traceback.format_tb(error.original.__traceback__)))
+			logger.error('{0.__class__.__name__}: {0}'.format(error.original))
 
 	def run(self, *args, **kwargs):
 		for extension in ('emoji', 'meta', 'admin', 'external.stats', 'external.misc'):
 			try:
 				self.load_extension(self.cogs_path+'.'+extension)
 			except Exception as e:
-				log('Failed to load', extension)
-				log(traceback.format_exc())
+				logger.error('Failed to load ' + extension)
+				logger.error(traceback.format_exc())
 		super().run(self.config['tokens']['discord'], *args, **kwargs)
 
 
