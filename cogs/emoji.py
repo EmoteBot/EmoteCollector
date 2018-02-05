@@ -81,7 +81,7 @@ class Emotes:
 		try:
 			animated, name, emote_id, _ = await self.get(name)
 		except EmoteNotFoundError:
-			return await context.mock("%s doesn't exist!" % name)
+			return await context.send("%s doesn't exist!" % name)
 
 		if channel is None:
 			channel = context.channel
@@ -95,7 +95,7 @@ class Emotes:
 		except:
 			logger.error('React: failed to react with %s' % name)
 			logger.error(traceback.format_exc())
-			return await context.mock('Failed to react with %s!' % name)
+			return await context.send('Failed to react with %s!' % name)
 
 		def check(emote, message_id, channel_id, user_id):
 			return (
@@ -125,11 +125,11 @@ class Emotes:
 		try:
 			animated, name, id, author = await self.get(name)
 		except EmoteNotFoundError:
-			return await context.mock("%s doesn't exist!" % name)
+			return await context.send("%s doesn't exist!" % name)
 		# By De Morgan's laws, this is equivalent to (not is_owner and not emote_author)
 		# but I think this is clearer :P
 		if not (await is_owner(context) or author == context.author.id):
-			return await context.mock(
+			return await context.send(
 				"You're not the author of %s!" % self.format_emote(animated, name, id))
 
 		logger.debug('Trying to delete ', name, id)
@@ -168,7 +168,7 @@ class Emotes:
 				name, id = match.groups()
 				url = self.emote_url(id)
 			else:
-				return await context.mock("That's not an emote!")
+				return await context.send("That's not an emote!")
 		elif len(args) == 2:
 			# finally, an easy case
 			name = args[0]
@@ -179,7 +179,7 @@ class Emotes:
 				url = self.emote_url(match.group(2))
 
 		else:
-			return await context.mock('Your message had no emotes and no name!')
+			return await context.send('Your message had no emotes and no name!')
 
 		await self.add_safe(context, name, url)
 
@@ -193,14 +193,14 @@ class Emotes:
 		try:
 			animated, name, id, author = await self.get(name)
 		except EmoteNotFoundError:
-			return await context.mock("%s doesn't exist!" % name)
+			return await context.send("%s doesn't exist!" % name)
 		if not (await is_owner(context) or author == context.author.id):
-			return await context.mock(
+			return await context.send(
 				"You're not the author of %s!" % self.format_emote(animated, name, id))
 		try:
 			await self.rename_(id, new_name)
 		except:
-			await context.mock('Renaming the emote failed internally. Please contact @null byte#1337.')
+			await context.send('Renaming the emote failed internally. Please contact @null byte#1337.')
 			logger.error('Renaming ' + name + ' failed!')
 			logger.error(traceback.format_exc())
 		else:
@@ -220,7 +220,7 @@ class Emotes:
 		try:
 			animated, name, id, author = await self.get(name)
 		except EmoteNotFoundError:
-			return await context.mock("%s doesn't exist!" % name)
+			return await context.send("%s doesn't exist!" % name)
 		emote = self.bot.get_emoji(id)
 
 		if emote is None:
@@ -239,7 +239,7 @@ class Emotes:
 			try:
 				message = await self.add_(name, image, author)
 			except EmoteExistsError:
-				await context.mock('An emote already exists with that name!')
+				await context.send('An emote already exists with that name!')
 			else:
 				await context.send(message)
 
@@ -258,7 +258,7 @@ class Emotes:
 		try:
 			message = await self.add_(name, url, context.message.author.id)
 		except EmoteExistsError:
-			await context.mock('An emote already exists with that name!')
+			await context.send('An emote already exists with that name!')
 		else:
 			await context.send(message)
 

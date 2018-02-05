@@ -7,7 +7,6 @@ import traceback
 import discord
 from discord.ext import commands
 
-from utils import log, MockContext
 import db
 
 logging.basicConfig(level=logging.INFO)
@@ -32,10 +31,6 @@ class EmojiConnoisseur(commands.Bot):
 		separator *= len(max(messages, key=len))
 		print('ready')
 		logger.info(separator + '\n'.join(messages) + separator)
-
-	async def on_message(self, message):
-		# inject the mock function
-		await self.invoke(await self.get_context(message, cls=MockContext))
 
 	# https://github.com/Rapptz/RoboDanny/blob/ca75fae7de132e55270e53d89bc19dd2958c2ae0/bot.py#L77-L85
 	async def on_command_error(self, context, error):

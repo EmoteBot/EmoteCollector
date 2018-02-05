@@ -17,13 +17,6 @@ async def is_owner(context):
 	return user.id in EXTRA_OWNERS or await context.bot.is_owner(user)
 
 
-class MockContext(_Context):
-	async def mock(self, content, **kwargs):
-		def mock(char):
-			return _random.choice((str.upper, str.lower))(char)
-		return await self.send(''.join(map(mock, content)) + ' <:SpongeMock:407348053129822208>', **kwargs)
-
-
 def typing(func):
 	@_wraps(func)
 	async def wrapped(self, context, *args, **kwargs):
