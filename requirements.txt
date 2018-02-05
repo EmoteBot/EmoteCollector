@@ -1,0 +1,6 @@
+asyncpg
+git+https://github.com/Rapptz/discord.py@rewrite#egg=discord.py
+
+# for the backend creator only!
+pgi
+selenium
