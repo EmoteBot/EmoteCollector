@@ -231,7 +231,6 @@ class Emotes:
 
 	@commands.command(name='steal-all')
 	@checks.is_owner()
-	@typing
 	async def steal_all(self, context, list_url):
 		async with self.session.get(list_url) as resp:
 			text = await resp.text()
