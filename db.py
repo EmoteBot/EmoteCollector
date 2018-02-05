@@ -15,11 +15,7 @@ def _get_config():
 
 
 async def _get_db():
-	credentials = {
-		'user': 'connoisseur',
-		'password': CONFIG['database']['password'],
-		'database': 'connoisseur',
-		'host': '127.0.0.1'}
+	credentials = CONFIG['database']
 	db = await asyncpg.create_pool(**credentials)
 	await db.execute('CREATE SCHEMA IF NOT EXISTS connoisseur')
 	await db.execute(
