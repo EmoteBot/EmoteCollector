@@ -90,7 +90,7 @@ class Emotes:
 		except asyncio.TimeoutError:
 			log("react: user didn't react in time")
 		finally:
-			await asyncio.sleep(0.5)
+			await asyncio.sleep(0.6)
 			await message.remove_reaction(emote_str, context.guild.me)
 			try:
 				await context.message.delete()
