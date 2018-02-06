@@ -45,7 +45,6 @@ class Emotes:
 		for guild in self.bot.guilds:
 			if await self.bot.is_owner(guild.owner):
 				self.guilds.append(guild)
-		self.guilds.sort(key=lambda guild: guild.name)
 		logger.info('In ' + str(len(self.guilds)) + ' backend guilds.')
 
 	async def on_message(self, message):
@@ -304,7 +303,7 @@ class Emotes:
 			else:
 				raise InvalidImageError
 
-			guild = await self.current_guild(animated)
+			guild = self.free_guild(animated)
 			emote = await guild.create_custom_emoji(name=name, image=image_data)
 			await self.bot.db.execute(
 				'INSERT INTO connoisseur.emojis(name, id, author, animated) VALUES($1, $2, $3, $4)',
@@ -320,7 +319,12 @@ class Emotes:
 		async with self.session.get(url) as resp:
 			return await resp.read()
 
-	async def current_guild(self, animated=False):
+	def free_guild(self, animated=False):
+		"""Find a guild in the backend guilds suitable for storing an emote.
+
+		As the number of emotes stored by the bot increases, the probability of finding a rate-limited
+		guild approaches 1, but until then, this should work pretty well.
+		"""
 		free_guilds = []
 		for guild in self.guilds:
 			if sum(1 for emote in guild.emojis if animated == emote.animated) < 50:
