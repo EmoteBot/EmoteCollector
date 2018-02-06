@@ -255,7 +255,7 @@ class Emotes:
 		return ('<img src="%s" height=32px width=32px> | `%s` | %s' %
 			(self.emote_url(id), name, author))
 
-	@commands.command(name='steal-all')
+	@commands.command(name='steal-all', hidden=True)
 	@checks.is_owner()
 	async def steal_all(self, context, list_url):
 		"""Steal all emotes listed on a markdown file given by list_url.
