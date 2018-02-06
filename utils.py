@@ -2,15 +2,17 @@
 # encoding: utf-8
 
 from functools import wraps as _wraps
+import json as _json
 import random as _random
 import sys as _sys
 
+from aiohttp import ClientSession as _ClientSession
 from discord.ext.commands import Context as _Context
 
 
 """More owners, other than Emoji Backend 0. If more backend accounts are needed, add them here."""
 EXTRA_OWNERS = (140516693242937345,)
-
+session = _ClientSession()
 
 async def is_owner(context):
 	user = context.author
@@ -23,6 +25,19 @@ def typing(func):
 		async with context.typing():
 			await func(self, context, *args, **kwargs)
 	return wrapped
+
+
+async def create_gist(filename, contents: str):
+	"""Upload a single file to Github Gist. Multiple files Never™"""
+	async with session.post(
+		'https://api.github.com/gists',
+		data=_json.dumps({
+			'public': True,
+			'files': {
+				filename: {
+					'content': contents}}})) as resp:
+		if resp.status == 201:
+			return _json.loads(await resp.text())['html_url']
 
 
 def log(*args, **kwargs):
