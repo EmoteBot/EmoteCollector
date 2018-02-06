@@ -186,9 +186,7 @@ class Emotes:
 	@commands.command()
 	@typing
 	async def rename(self, context, name, new_name):
-		"""Rename an emote. You must own it.
-		ec/rename Spicy ainsley
-		"""
+		"""Renames an emote. You must own it."""
 		# TODO figure out how to not duplicate this code from self.delete
 		try:
 			animated, name, id, author = await self.get(name)
@@ -216,7 +214,6 @@ class Emotes:
 		"""Internal command to find out which backend server a given emote is in.
 		This is useful because emotes are added to random guilds to avoid rate limits.
 		"""
-
 		try:
 			animated, name, id, author = await self.get(name)
 		except EmoteNotFoundError:
