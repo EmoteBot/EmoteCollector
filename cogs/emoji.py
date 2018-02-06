@@ -3,6 +3,7 @@
 
 import asyncio
 import imghdr
+from io import StringIO
 import functools
 import logging
 import random
@@ -15,7 +16,7 @@ import discord
 from discord.ext import commands
 
 from cogs.utils import checks
-from utils import log, is_owner, typing
+from utils import create_gist, is_owner, typing
 
 
 logger = logging.getLogger('cogs.emoji')
@@ -224,7 +225,37 @@ class Emotes:
 			logger.debug('%s was not in the cache' % name)
 			return await context.send('%s was not in the cache!' % name)
 
-		return await context.send('%s is in %s' % (emote.name, emote.guild.name))
+		return await context.send('%s is in %s.' % (emote.name, emote.guild.name))
+
+	@commands.command()
+	@typing
+	async def list(self, context, user: discord.User = None):
+		table = StringIO()
+		table.write('Emoji | Name | Author\n')
+		table.write('----- | ---- | ------\n')
+
+		query = 'SELECT * FROM connoisseur.emojis'
+		args = []
+		if user is not None:
+			query += ' WHERE author = $1'
+			args.append(user.id)
+
+		async with self.bot.db.acquire() as connection:
+			async with connection.transaction():
+				async for row in connection.cursor(query, *args):
+					table.write(self.format_row(row) + '\n')
+
+		await context.send(await create_gist('list.md', table.getvalue()))
+
+	def format_row(self, record):
+		name, id, author, _ = record
+		user = self.bot.get_user(author)
+		if user is None:
+			author = 'Unknown user with ID %s' % author
+		else:
+			author = '%s (%s)' % (user, user.id)
+		return ('<img src="%s" height=32px width=32px> | `%s` | %s' %
+			(self.emote_url(id), name, author))
 
 	@commands.command(name='steal-all')
 	@checks.is_owner()
