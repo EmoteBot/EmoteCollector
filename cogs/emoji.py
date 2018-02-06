@@ -162,11 +162,12 @@ class Emotes:
 
 		elif len(args) == 1:
 			match = self.EMOTE_REGEX.match(args[0])
-			if match is not None:
+			if match is None:
+				return await context.send("That's not an emote!")
+			else:
 				name, id = match.groups()
 				url = self.emote_url(id)
-			else:
-				return await context.send("That's not an emote!")
+
 		elif len(args) == 2:
 			# finally, an easy case
 			name = args[0]
