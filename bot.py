@@ -24,13 +24,11 @@ class EmojiConnoisseur(commands.Bot):
 
 	async def on_ready(self):
 		self.client_id = (await self.application_info()).id
-		separator = '━'
-		messages = (
-			'Logged in as: %s' % self.user,
-			'ID: %s' % self.user.id)
-		separator *= len(max(messages, key=len))
-		print('ready')
-		logger.info(separator + '\n'.join(messages) + separator)
+		separator = '━' * 36
+		logger.info(separator)
+		logger.info('Logged in as: %s' % self.user)
+		logger.info('ID: %s' % self.user.id)
+		logger.info(separator)
 
 	# https://github.com/Rapptz/RoboDanny/blob/ca75fae7de132e55270e53d89bc19dd2958c2ae0/bot.py#L77-L85
 	async def on_command_error(self, context, error):
