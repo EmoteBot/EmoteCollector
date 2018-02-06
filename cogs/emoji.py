@@ -114,10 +114,10 @@ class Emotes:
 				pass
 
 
-	@commands.command(aliases=['remove'])
+	@commands.command(aliases=['delete', 'delet'])
 	@typing
-	async def delete(self, context, name):
-		"""Deletes an emote from the bot. You must own it."""
+	async def remove(self, context, name):
+		"""Removes an emote from the bot. You must own it."""
 		success_message = '%s successfully deleted.' % name
 
 		try:
