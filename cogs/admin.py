@@ -15,7 +15,7 @@ class Admin:
             '\N{white heavy check mark}',
         )
 
-    @commands.command()
+    @commands.command(hidden=True)
     @is_owner()
     async def reload(self, context, *, cog: str):
         """Reload a cog.
