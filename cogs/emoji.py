@@ -69,6 +69,96 @@ class Emotes:
 				return
 			await message.channel.send(''.join(emotes))
 
+	@commands.command(aliases=['create'])
+	@typing
+	async def add(self, context, *args):
+		"""Add a new emote to the bot. You can use it like this:
+		`ec/add :thonkang:` (if you already have that emote)
+		`ec/add rollsafe https://image.noelshack.com/fichiers/2017/06/1486495269-rollsafe.png`
+		`ec/add speedtest <https://cdn.discordapp.com/emojis/379127000398430219.png>`
+
+		With a file attachment:
+		`ec/add name` will upload a new emote using the first attachment as the image and call it `name`
+		`ec/add` will upload a new emote using the first attachment as the image,
+		and its filename as the name
+		"""
+		if context.message.attachments:
+			attachment = context.message.attachments[0]
+			# as far as i can tell, this is how discord replaces filenames
+			name = args[0] if args else attachment.filename.split('.')[0].replace(' ', '')
+			url = attachment.url
+
+		elif len(args) == 1:
+			match = self.EMOTE_REGEX.match(args[0])
+			if match is None:
+				return await context.send("That's not an emote!")
+			else:
+				name, id = match.groups()
+				url = self.emote_url(id)
+
+		elif len(args) == 2:
+			# finally, an easy case
+			name = args[0]
+			match = self.EMOTE_REGEX.match(args[1])
+			if match is None:
+				url = args[1]
+			else:
+				url = self.emote_url(match.group(2))
+
+		else:
+			return await context.send('Your message had no emotes and no name!')
+
+		await self.add_safe(context, name, url)
+
+
+	@commands.command(aliases=['delete', 'delet'])
+	@typing
+	async def remove(self, context, name):
+		"""Removes an emote from the bot. You must own it."""
+		success_message = '%s successfully deleted.' % name
+
+		try:
+			animated, name, id, author = await self.get(name)
+		except EmoteNotFoundError:
+			return await context.send("%s doesn't exist!" % name)
+		# By De Morgan's laws, this is equivalent to (not is_owner and not emote_author)
+		# but I think this is clearer :P
+		if not (await is_owner(context) or author == context.author.id):
+			return await context.send(
+				"You're not the author of %s!" % self.format_emote(animated, name, id))
+
+		logger.debug('Trying to delete ', name, id)
+
+		await self.bot.db.execute('DELETE FROM connoisseur.emojis WHERE name ILIKE $1', name)
+		emote = self.bot.get_emoji(id)
+		if emote is not None:
+			logger.debug(name + " 'twas in the cache")
+			await emote.delete()
+			return await context.send(success_message)
+		else:
+			logger.error(name + " 'twas not in the cache!")
+
+	@commands.command()
+	@typing
+	async def rename(self, context, old_name, new_name):
+		"""Renames an emote. You must own it."""
+		# TODO figure out how to not duplicate this code from self.delete
+		try:
+			animated, old_name, id, author = await self.get(old_name)
+		except EmoteNotFoundError:
+			return await context.send("%s doesn't exist!" % old_name)
+		if not (await is_owner(context) or author == context.author.id):
+			return await context.send(
+				"You're not the author of %s!" % self.format_emote(animated, old_name, id))
+		try:
+			await self.rename_(id, new_name)
+		except:
+			await context.send('Renaming the emote failed internally. Please contact @null byte#1337.')
+			logger.error('Renaming ' + old_name + ' failed!')
+			logger.error(traceback.format_exc())
+		else:
+			await context.send('Emote successfully renamed.')
+
 	@commands.command()
 	async def react(self, context, name, message, channel: int = None):
 		"""Add a reaction to a message. Sad reacts only please.
@@ -113,118 +203,6 @@ class Emotes:
 			except discord.errors.Forbidden:
 				pass
 
-
-	@commands.command(aliases=['delete', 'delet'])
-	@typing
-	async def remove(self, context, name):
-		"""Removes an emote from the bot. You must own it."""
-		success_message = '%s successfully deleted.' % name
-
-		try:
-			animated, name, id, author = await self.get(name)
-		except EmoteNotFoundError:
-			return await context.send("%s doesn't exist!" % name)
-		# By De Morgan's laws, this is equivalent to (not is_owner and not emote_author)
-		# but I think this is clearer :P
-		if not (await is_owner(context) or author == context.author.id):
-			return await context.send(
-				"You're not the author of %s!" % self.format_emote(animated, name, id))
-
-		logger.debug('Trying to delete ', name, id)
-
-		await self.bot.db.execute('DELETE FROM connoisseur.emojis WHERE name ILIKE $1', name)
-		emote = self.bot.get_emoji(id)
-		if emote is not None:
-			logger.debug(name + " 'twas in the cache")
-			await emote.delete()
-			return await context.send(success_message)
-		else:
-			logger.error(name + " 'twas not in the cache!")
-
-	@commands.command(aliases=['create'])
-	@typing
-	async def add(self, context, *args):
-		"""Add a new emote to the bot. You can use it like this:
-		`ec/add :thonkang:` (if you already have that emote)
-		`ec/add rollsafe https://image.noelshack.com/fichiers/2017/06/1486495269-rollsafe.png`
-		`ec/add speedtest <https://cdn.discordapp.com/emojis/379127000398430219.png>`
-
-		With a file attachment:
-		`ec/add name` will upload a new emote using the first attachment as the image and call it `name`
-		`ec/add` will upload a new emote using the first attachment as the image,
-		and its filename as the name
-		"""
-		if context.message.attachments:
-			attachment = context.message.attachments[0]
-			# as far as i can tell, this is how discord replaces filenames
-			name = args[0] if args else attachment.filename.split('.')[0].replace(' ', '')
-			url = attachment.url
-
-		elif len(args) == 1:
-			match = self.EMOTE_REGEX.match(args[0])
-			if match is None:
-				return await context.send("That's not an emote!")
-			else:
-				name, id = match.groups()
-				url = self.emote_url(id)
-
-		elif len(args) == 2:
-			# finally, an easy case
-			name = args[0]
-			match = self.EMOTE_REGEX.match(args[1])
-			if match is None:
-				url = args[1]
-			else:
-				url = self.emote_url(match.group(2))
-
-		else:
-			return await context.send('Your message had no emotes and no name!')
-
-		await self.add_safe(context, name, url)
-
-	@commands.command()
-	@typing
-	async def rename(self, context, name, new_name):
-		"""Renames an emote. You must own it."""
-		# TODO figure out how to not duplicate this code from self.delete
-		try:
-			animated, name, id, author = await self.get(name)
-		except EmoteNotFoundError:
-			return await context.send("%s doesn't exist!" % name)
-		if not (await is_owner(context) or author == context.author.id):
-			return await context.send(
-				"You're not the author of %s!" % self.format_emote(animated, name, id))
-		try:
-			await self.rename_(id, new_name)
-		except:
-			await context.send('Renaming the emote failed internally. Please contact @null byte#1337.')
-			logger.error('Renaming ' + name + ' failed!')
-			logger.error(traceback.format_exc())
-		else:
-			await context.send('Emote successfully renamed.')
-
-	async def rename_(self, id, new_name):
-		emote = self.bot.get_emoji(id)
-		await emote.edit(name=new_name)
-		await self.bot.db.execute('UPDATE connoisseur.emojis SET name = $2 WHERE id = $1', id, new_name)
-
-	@commands.command()
-	async def find(self, context, name):
-		"""Internal command to find out which backend server a given emote is in.
-		This is useful because emotes are added to random guilds to avoid rate limits.
-		"""
-		try:
-			animated, name, id, author = await self.get(name)
-		except EmoteNotFoundError:
-			return await context.send("%s doesn't exist!" % name)
-		emote = self.bot.get_emoji(id)
-
-		if emote is None:
-			logger.debug('%s was not in the cache' % name)
-			return await context.send('%s was not in the cache!' % name)
-
-		return await context.send('%s is in %s.' % (emote.name, emote.guild.name))
-
 	@commands.command()
 	@typing
 	async def list(self, context, user: discord.User = None):
@@ -245,15 +223,22 @@ class Emotes:
 
 		await context.send(await create_gist('list.md', table.getvalue()))
 
-	def format_row(self, record):
-		name, id, author, _ = record
-		user = self.bot.get_user(author)
-		if user is None:
-			author = 'Unknown user with ID %s' % author
-		else:
-			author = '%s (%s)' % (user, user.id)
-		return ('<img src="%s" height=32px width=32px> | `%s` | %s' %
-			(self.emote_url(id), name, author))
+	@commands.command()
+	async def find(self, context, name):
+		"""Internal command to find out which backend server a given emote is in.
+		This is useful because emotes are added to random guilds to avoid rate limits.
+		"""
+		try:
+			animated, name, id, author = await self.get(name)
+		except EmoteNotFoundError:
+			return await context.send("%s doesn't exist!" % name)
+		emote = self.bot.get_emoji(id)
+
+		if emote is None:
+			logger.debug('%s was not in the cache' % name)
+			return await context.send('%s was not in the cache!' % name)
+
+		return await context.send('%s is in %s.' % (emote.name, emote.guild.name))
 
 	@commands.command(name='steal-all', hidden=True)
 	@checks.is_owner()
@@ -272,16 +257,22 @@ class Emotes:
 			else:
 				await context.send(message)
 
-	def parse_list(self, text):
-		rows = [line.split(' | ') for line in text.split('\n')[2:]]
-		image_column = (row[0] for row in rows)
-		soup = BeautifulSoup(''.join(image_column), 'lxml')
-		images = soup.find_all(attrs={'class': 'emoji'})
-		image_urls = [image.get('src') for image in images]
-		names = [row[1].replace('`', '').replace(':', '') for row in rows if len(row) > 1]
-		authors = [row[2].split()[-1].replace('(', '').replace(')', '') for row in rows if len(row) > 2]
+	async def get(self, name):
+		row = await self.bot.db.fetchrow('''
+			SELECT *
+			FROM connoisseur.emojis
+			WHERE name ILIKE $1''',
+			name)
+		if row is None:
+			raise EmoteNotFoundError('Emote %s not found in the database!' % name)
+		return row['animated'], row['name'], row['id'], row['author']
 
-		return zip(names, image_urls, authors)
+	async def get_formatted(self, name):
+		return self.format_emote(*(await self.get(name))[:-1])
+
+	@staticmethod
+	def format_emote(animated, name, id):
+		return '<%s:%s:%s>' % ('a' if animated else '', name, id)
 
 	async def add_safe(self, context, name, url):
 		try:
@@ -320,6 +311,10 @@ class Emotes:
 		async with self.session.get(url) as resp:
 			return await resp.read()
 
+	@staticmethod
+	def emote_url(id):
+		return 'https://cdn.discordapp.com/emojis/%s' % id
+
 	def free_guild(self, animated=False):
 		"""Find a guild in the backend guilds suitable for storing an emote.
 
@@ -337,26 +332,31 @@ class Emotes:
 		# hopefully this lets us bypass the rate limit more often, since emote rates are per-guild
 		return random.choice(free_guilds)
 
-	async def get(self, name):
-		row = await self.bot.db.fetchrow('''
-			SELECT *
-			FROM connoisseur.emojis
-			WHERE name ILIKE $1''',
-			name)
-		if row is None:
-			raise EmoteNotFoundError('Emote %s not found in the database!' % name)
-		return row['animated'], row['name'], row['id'], row['author']
+	async def rename_(self, id, new_name):
+		emote = self.bot.get_emoji(id)
+		await emote.edit(name=new_name)
+		await self.bot.db.execute('UPDATE connoisseur.emojis SET name = $2 WHERE id = $1', id, new_name)
 
-	async def get_formatted(self, name):
-		return self.format_emote(*(await self.get(name))[:-1])
+	def parse_list(self, text):
+		rows = [line.split(' | ') for line in text.split('\n')[2:]]
+		image_column = (row[0] for row in rows)
+		soup = BeautifulSoup(''.join(image_column), 'lxml')
+		images = soup.find_all(attrs={'class': 'emoji'})
+		image_urls = [image.get('src') for image in images]
+		names = [row[1].replace('`', '').replace(':', '') for row in rows if len(row) > 1]
+		authors = [row[2].split()[-1].replace('(', '').replace(')', '') for row in rows if len(row) > 2]
 
-	@staticmethod
-	def emote_url(id):
-		return 'https://cdn.discordapp.com/emojis/%s' % id
+		return zip(names, image_urls, authors)
 
-	@staticmethod
-	def format_emote(animated, name, id):
-		return '<%s:%s:%s>' % ('a' if animated else '', name, id)
+	def format_row(self, record):
+		name, id, author, _ = record
+		user = self.bot.get_user(author)
+		if user is None:
+			author = 'Unknown user with ID %s' % author
+		else:
+			author = '%s (%s)' % (user, user.id)
+		return ('<img src="%s" height=32px width=32px> | `%s` | %s' %
+			(self.emote_url(id), name, author))
 
 
 class ConnoisseurError(Exception):
