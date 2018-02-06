@@ -28,23 +28,21 @@ class Emotes:
 
 	def __init__(self, bot):
 		self.bot = bot
+		self.bot.loop.create_task(self.find_backend_guilds())
 		self.session = aiohttp.ClientSession()
 
 	def __unload(self):
 		self.session.close()
 
-	async def on_ready(self):
+	async def find_backend_guilds(self):
 		if hasattr(self, 'guilds') and self.guilds:
 			return
 
-		while not hasattr(self.bot, 'guilds'):
-			# bot isn't really ready yet
+		while not self.bot.is_ready():
 			await asyncio.sleep(0.1)
 
 		self.guilds = []
 		for guild in self.bot.guilds:
-			# FIXME find a way to do this without hardcoding every backend account ID
-			# If more backend accounts are needed, add them here.
 			if await self.bot.is_owner(guild.owner):
 				self.guilds.append(guild)
 		self.guilds.sort(key=lambda guild: guild.name)
