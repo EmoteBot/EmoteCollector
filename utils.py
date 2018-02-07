@@ -14,6 +14,7 @@ from discord.ext.commands import Context as _Context
 EXTRA_OWNERS = (140516693242937345,)
 session = _ClientSession()
 
+
 async def is_owner(context):
 	user = context.author
 	return user.id in EXTRA_OWNERS or await context.bot.is_owner(user)
@@ -32,7 +33,7 @@ async def create_gist(filename, contents: str):
 	async with session.post(
 		'https://api.github.com/gists',
 		data=_json.dumps({
-			'public': True,
+			'public': False,
 			'files': {
 				filename: {
 					'content': contents}}})) as resp:
