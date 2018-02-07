@@ -391,7 +391,8 @@ class Emotes:
 			author = 'Unknown user with ID %s' % author
 		else:
 			author = '%s (%s)' % (user, user.id)
-		return ('<img src="%s" height=32px width=32px> | `%s` | %s' %
+		# only set the width in order to preserve the aspect ratio of the emote
+		return ('<img src="%s" width=32px> | `%s` | %s' %
 			(self.emote_url(id), name, author))
 
 
