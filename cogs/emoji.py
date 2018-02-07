@@ -242,10 +242,14 @@ class Emotes:
 		table.write('Emoji | Name | Author\n')
 		table.write('----- | ---- | ------\n')
 
-		query = 'SELECT * FROM connoisseur.emojis'
+		query = """
+			SELECT *
+			FROM connoisseur.emojis
+			ORDER BY lower(NAME)
+		"""
 		args = []
 		if user is not None:
-			query += ' WHERE author = $1'
+			query += 'WHERE author = $1'
 			args.append(user.id)
 
 		async with self.bot.db.acquire() as connection:
@@ -290,10 +294,10 @@ class Emotes:
 				await context.send(message)
 
 	async def get(self, name):
-		row = await self.bot.db.fetchrow('''
+		row = await self.bot.db.fetchrow("""
 			SELECT *
 			FROM connoisseur.emojis
-			WHERE name ILIKE $1''',
+			WHERE name ILIKE $1""",
 			name)
 		if row is None:
 			raise EmoteNotFoundError('Emote %s not found in the database!' % name)
