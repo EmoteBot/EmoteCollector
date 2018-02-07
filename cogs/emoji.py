@@ -161,7 +161,7 @@ class Emotes:
 
 		logger.debug('Trying to delete ', name, id)
 
-		await self.bot.db.execute('DELETE FROM connoisseur.emojis WHERE name ILIKE $1', name)
+		await self.bot.db.execute('DELETE FROM emojis WHERE name ILIKE $1', name)
 		emote = self.bot.get_emoji(id)
 		if emote is not None:
 			logger.debug(name + " 'twas in the cache")
@@ -242,7 +242,7 @@ class Emotes:
 		table.write('Emoji | Name | Author\n')
 		table.write('----- | ---- | ------\n')
 
-		query = 'SELECT * FROM connoisseur.emojis '
+		query = 'SELECT * FROM emojis '
 		args = []
 		if user is not None:
 			query += 'WHERE author = $1 '
@@ -293,7 +293,7 @@ class Emotes:
 	async def get(self, name):
 		row = await self.bot.db.fetchrow("""
 			SELECT *
-			FROM connoisseur.emojis
+			FROM emojis
 			WHERE name ILIKE $1""",
 			name)
 		if row is None:
@@ -331,7 +331,7 @@ class Emotes:
 			guild = self.free_guild(animated)
 			emote = await guild.create_custom_emoji(name=name, image=image_data)
 			await self.bot.db.execute(
-				'INSERT INTO connoisseur.emojis(name, id, author, animated) VALUES($1, $2, $3, $4)',
+				'INSERT INTO emojis(name, id, author, animated) VALUES($1, $2, $3, $4)',
 				name,
 				emote.id,
 				author_id,
@@ -368,7 +368,7 @@ class Emotes:
 	async def rename_(self, id, new_name):
 		emote = self.bot.get_emoji(id)
 		await emote.edit(name=new_name)
-		await self.bot.db.execute('UPDATE connoisseur.emojis SET name = $2 WHERE id = $1', id, new_name)
+		await self.bot.db.execute('UPDATE emojis SET name = $2 WHERE id = $1', id, new_name)
 
 	def parse_list(self, text):
 		rows = [line.split(' | ') for line in text.split('\n')[2:]]
