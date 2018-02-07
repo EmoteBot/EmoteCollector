@@ -242,15 +242,12 @@ class Emotes:
 		table.write('Emoji | Name | Author\n')
 		table.write('----- | ---- | ------\n')
 
-		query = """
-			SELECT *
-			FROM connoisseur.emojis
-			ORDER BY lower(NAME)
-		"""
+		query = 'SELECT * FROM connoisseur.emojis '
 		args = []
 		if user is not None:
-			query += 'WHERE author = $1'
+			query += 'WHERE author = $1 '
 			args.append(user.id)
+		query += 'ORDER BY LOWER(name)'
 
 		async with self.bot.db.acquire() as connection:
 			async with connection.transaction():
