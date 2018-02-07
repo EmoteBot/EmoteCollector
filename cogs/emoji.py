@@ -31,6 +31,10 @@ class Emotes:
 		self.bot.loop.create_task(self.find_backend_guilds())
 		self.session = aiohttp.ClientSession()
 
+		# Keep track of replies so that if the user edits/deletes a message,
+		# we delete/edit the corresponding reply.
+		self.replies = {}
+
 	def __unload(self):
 		self.session.close()
 
@@ -51,23 +55,51 @@ class Emotes:
 		if message.author.bot:
 			return
 
+		emotes = await self.extract_emotes(message.content)
+		if emotes:
+			self.replies[message.id] = await message.channel.send(emotes)
+
+	async def on_raw_message_edit(self, message_id, data):
+		if message_id not in self.replies or 'content' not in data:
+			return
+
+		await self.replies[message_id].edit(content=await self.extract_emotes(data['content']))
+
+	async def on_raw_message_delete(self, message_id, channel_id):
+		try:
+			await self.replies[message_id].delete()
+		except KeyError:
+			pass
+
+	async def on_raw_bulk_message_delete(self, message_ids, channel_id):
+		messages = (self.replies[id] for id in message_ids if id in self.replies)
+		try:  # this will only work if we have manage_messages in that channel
+			await self.bot.delete_messages(messages)
+		except discord.Forbidden:
+			for message in messages:  # should always work, since these are our messages
+				await message.delete()
+
+	async def extract_emotes(self, message: str):
 		names = []
-		match = self.EMOTE_IN_TEXT_REGEX.search(message.content)
-		for i, match in enumerate(self.EMOTE_IN_TEXT_REGEX.finditer(message.content)):
+		for match in self.EMOTE_IN_TEXT_REGEX.finditer(message):
 			try:
 				names.append(match.group(2))
 			except IndexError:
 				pass
-		if names:
-			emotes = []
-			for name in names:
-				try:
-					emotes.append(await self.get_formatted(name))
-				except:
-					pass
-			if not emotes:
-				return
-			await message.channel.send(''.join(emotes))
+
+		if not names:
+			return
+
+		emotes = []
+		for name in names:
+			try:
+				emotes.append(await self.get_formatted(name))
+			except:
+				pass
+		if not emotes:
+			return
+
+		return ''.join(emotes)
 
 	@commands.command(aliases=['create'])
 	@typing
