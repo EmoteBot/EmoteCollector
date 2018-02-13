@@ -83,6 +83,12 @@ async def clear_guilds():
 			await channel.delete()
 
 
+@print_status('Renaming guilds')
+async def rename_guilds():
+	for guild in bot.guilds:
+		await guild.edit(name=guild.name.replace('Emoji Backend', 'EmojiBackend'))  # example
+
+
 def wait_for_element(driver, css_selector, delay=0.25):
 	while True:
 		try:
