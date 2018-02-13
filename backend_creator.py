@@ -64,9 +64,12 @@ async def wipe_guilds():
 async def create_guilds(prefix, start=0, limit=100):
 	"""create at most `limit` guilds named with numbers starting at `start`"""
 
+	pad_length = len(str(limit)) - 1
+
 	for i in range(start, limit):
 		# space out the number so that the icon for each guild in the sidebar shows the full number
-		await bot.create_guild(prefix + ' '.join(str(i)))
+		# e.g. 3 -> '0 3' if the limit is 100
+		await bot.create_guild(prefix + ' '.join(str(i).zfill(pad_length)))
 
 
 @print_status('Clearing default channels')
