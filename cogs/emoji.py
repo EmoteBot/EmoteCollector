@@ -155,7 +155,7 @@ class Emotes:
 		"""Removes an emote from the bot. You must own it."""
 		await context.fail_on_bad_emote(name)
 		animated, name, id, author = await self.get(name)
-		success_message = '%s successfully deleted.' % name
+		success_message = '`:%s:` successfully deleted.' % name
 
 		logger.debug('Trying to delete ', name, id)
 
@@ -231,7 +231,7 @@ class Emotes:
 		try:
 			await message.add_reaction(emote_str)
 		except discord.HTTPException as ex:
-			error_message = 'Failed to react with %s\n%s' % (name, self.format_http_exception(ex))
+			error_message = 'Failed to react with `:%s:`\n%s' % (name, self.format_http_exception(ex))
 			logger.error('react: ' + error_message)
 			logger.error(traceback.format_exc())
 			return await context.send(error_message)
@@ -290,11 +290,11 @@ class Emotes:
 		emote = self.bot.get_emoji(id)
 
 		if emote is None:
-			error_message = '%s was not in the cache!' % name
+			error_message = '`:%s:` was not in the cache!' % name
 			logger.error('find: ' + error_message)
 			return await context.send(error_message)
 
-		return await context.send('%s is in %s.' % (emote.name, emote.guild.name))
+		return await context.send('`:%s:` is in %s.' % (emote.name, emote.guild.name))
 
 	@commands.command(name='steal-all', hidden=True)
 	@checks.is_owner()
@@ -364,7 +364,7 @@ class Emotes:
 				emote.id,
 				author_id,
 				animated)
-			return 'Emote %s successfully created.' % emote
+			return 'Emote `:%s:` successfully created.' % emote
 		else:
 			raise EmoteExistsError
 
@@ -427,15 +427,12 @@ class Emotes:
 
 
 class EmoteContext(commands.Context):
-	def __init__(self, **kwargs):
-		super().__init__(**kwargs)
-
 	async def fail_if_not_exists(self, name):
 		try:
 			animated, name, id, author = await self.cog.get(name)
-		except EmoteNotFoundError:
-			await self.send(name + ' is not a valid emote')
-			logger.error(traceback.format_exc())
+		except EmoteNotFoundError as exception:
+			await self.send('`:%s:` is not a valid emote.' % name)
+			# logger.error('%s: %s' % (type(exception).__name__, exception))
 
 	async def fail_if_not_owner(self, name):
 		# assume that it exists, because it has to exist for anyone to be its owner
@@ -446,7 +443,7 @@ class EmoteContext(commands.Context):
 		# but I think this is clearer :P
 		if not (await is_owner(self) or author == self.author.id):
 			await self.send(
-				"You're not the author of %s!" % self.cog.format_emote(animated, name, id))
+				"You're not the author of `:%s:`!" % self.cog.format_emote(animated, name, id))
 			raise PermissionDeniedError
 
 	async def fail_on_bad_emote(self, name):
