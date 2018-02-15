@@ -25,7 +25,7 @@ class EmojiConnoisseur(commands.Bot):
 
 	async def on_ready(self):
 		self.client_id = (await self.application_info()).id
-		separator = '━' * 36
+		separator = '━' * 44
 		logger.info(separator)
 		logger.info('Logged in as: %s' % self.user)
 		logger.info('ID: %s' % self.user.id)
