@@ -260,7 +260,7 @@ class Emotes:
 
 	@commands.command()
 	@typing
-	async def list(self, context, user: discord.User = None):
+	async def list(self, context, *, user: discord.User = None):
 		table = StringIO()
 		table.write('Emoji | Name | Author\n')
 		table.write('----- | ---- | ------\n')
