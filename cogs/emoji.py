@@ -59,20 +59,29 @@ class Emotes:
 		if emotes:
 			self.replies[message.id] = await message.channel.send(emotes)
 
+
 	async def on_raw_message_edit(self, message_id, data):
 		if message_id not in self.replies or 'content' not in data:
 			return
 
-		await self.replies[message_id].edit(content=await self.extract_emotes(data['content']))
+		emotes = await self.extract_emotes(data['content'])
+		reply = self.replies[message.id]
+		if not emotes:
+			return await reply.delete()
+		elif emotes == relpy.content:
+			# don't edit a message if we don't need to
+			return
+
+		await reply.edit(content=emotes)
 
 	async def on_raw_message_delete(self, message_id, channel_id):
 		try:
-			await self.replies[message_id].delete()
+			await self.replies.pop(message_id).delete()
 		except KeyError:
 			pass
 
 	async def on_raw_bulk_message_delete(self, message_ids, channel_id):
-		messages = (self.replies[id] for id in message_ids if id in self.replies)
+		messages = (self.replies.pop(id) for id in message_ids if id in self.replies)
 		try:  # this will only work if we have manage_messages in that channel
 			await self.bot.delete_messages(messages)
 		except discord.Forbidden:
@@ -239,6 +248,7 @@ class Emotes:
 			args.append(user.id)
 		query += 'ORDER BY LOWER(name)'
 
+		# gee whiz, look at all these indents!
 		async with self.bot.db.acquire() as connection:
 			async with connection.transaction():
 				async for row in connection.cursor(query, *args):
