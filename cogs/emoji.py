@@ -384,7 +384,7 @@ class Emotes:
 		"""
 		free_guilds = []
 		for guild in self.guilds:
-			if sum(1 for emote in guild.emojis if animated == emote.animated) < 50:
+			if sum(animated == emote.animated for emote in guild.emojis) < 50:
 				free_guilds.append(guild)
 
 		if not free_guilds:
