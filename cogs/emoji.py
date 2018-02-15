@@ -147,17 +147,9 @@ class Emotes:
 	@typing
 	async def remove(self, context, name):
 		"""Removes an emote from the bot. You must own it."""
+		await context.fail_on_bad_emote(name)
+		animated, name, id, author = await self.get(name)
 		success_message = '%s successfully deleted.' % name
-
-		try:
-			animated, name, id, author = await self.get(name)
-		except EmoteNotFoundError:
-			return await context.send("%s doesn't exist!" % name)
-		# By De Morgan's laws, this is equivalent to (not is_owner and not emote_author)
-		# but I think this is clearer :P
-		if not (await is_owner(context) or author == context.author.id):
-			return await context.send(
-				"You're not the author of %s!" % self.format_emote(animated, name, id))
 
 		logger.debug('Trying to delete ', name, id)
 
@@ -198,10 +190,8 @@ class Emotes:
 		You can get the message ID by enabling developer mode (in Settings→Appearance),
 		then right clicking on the message you want and clicking "Copy ID". Same for channel IDs.
 		"""
-		try:
-			animated, name, emote_id, _ = await self.get(name)
-		except EmoteNotFoundError:
-			return await context.send("%s doesn't exist!" % name)
+		await context.fail_if_not_exists(name)
+		animated, name, emote_id, _ = await self.get(name)
 
 		if channel is None:
 			channel = context.channel
@@ -393,16 +383,38 @@ class Emotes:
 			(self.emote_url(id), name, author))
 
 
+class EmoteContext(commands.Context):
+	def __init__(self, **kwargs):
+		super().__init__(**kwargs)
+
+	async def fail_if_not_exists(self, name):
+		try:
+			animated, name, id, author = await self.cog.get(name)
+		except EmoteNotFoundError:
+			await self.send("%s doesn't exist!" % name)
+			raise
+
+	async def fail_if_not_owner(self, name):
+		# assume that it exists, because it has to exist for anyone to be its owner
+		# also, fail_if_not_exists should do this anyway
+		animated, name, id, author = await self.cog.get(name)
+
+		# By De Morgan's laws, this is equivalent to (not is_owner and not emote_author)
+		# but I think this is clearer :P
+		if not (await is_owner(self) or author == self.author.id):
+			await self.send(
+				"You're not the author of %s!" % self.cog.format_emote(animated, name, id))
+			raise PermissionDeniedError
+
+	async def fail_on_bad_emote(self, name):
+		# It may seem bad to do two identical database queries like this,
+		# but I'm pretty sure asyncpg caches queries.
+		await self.fail_if_not_exists(name)
+		await self.fail_if_not_owner(name)
+
+
 class ConnoisseurError(Exception):
 	"""Generic error with the bot. This can be used to catch all bot errors."""
-	pass
-
-
-class NoMoreSlotsError(ConnoisseurError):
-	"""Raised in the rare case that all slots of a particular type (static/animated) are full
-	if this happens, make a new Emoji Backend account, create 100 more guilds, and add the bot
-	to all these guilds
-	"""
 	pass
 
 
@@ -418,6 +430,19 @@ class EmoteNotFoundError(ConnoisseurError):
 
 class InvalidImageError(ConnoisseurError):
 	"""The image is not a GIF, PNG, or JPG"""
+	pass
+
+
+class NoMoreSlotsError(ConnoisseurError):
+	"""Raised in the rare case that all slots of a particular type (static/animated) are full
+	if this happens, make a new Emoji Backend account, create 100 more guilds, and add the bot
+	to all of these guilds.
+	"""
+	pass
+
+
+class PermissionDeniedError(ConnoisseurError):
+	"""Raised when a user tries to modify an emote they don't own"""
 	pass
 
 

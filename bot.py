@@ -7,6 +7,7 @@ import traceback
 import discord
 from discord.ext import commands
 
+from cogs.emoji import EmoteContext
 import db
 
 logging.basicConfig(level=logging.INFO)
@@ -29,6 +30,10 @@ class EmojiConnoisseur(commands.Bot):
 		logger.info('Logged in as: %s' % self.user)
 		logger.info('ID: %s' % self.user.id)
 		logger.info(separator)
+
+	async def on_message(self, message):
+		# inject the permissions checks
+		await self.invoke(await self.get_context(message, cls=EmoteContext))
 
 	# https://github.com/Rapptz/RoboDanny/blob/ca75fae7de132e55270e53d89bc19dd2958c2ae0/bot.py#L77-L85
 	async def on_command_error(self, context, error):
