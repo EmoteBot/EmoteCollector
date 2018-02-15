@@ -65,10 +65,10 @@ class Emotes:
 			return
 
 		emotes = await self.extract_emotes(data['content'])
-		reply = self.replies[message.id]
+		reply = self.replies[message_id]
 		if not emotes:
 			return await reply.delete()
-		elif emotes == relpy.content:
+		elif emotes == reply.content:
 			# don't edit a message if we don't need to
 			return
 
