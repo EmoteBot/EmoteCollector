@@ -306,6 +306,11 @@ class Emotes:
 			message = await self.add_(name, url, context.message.author.id)
 		except EmoteExistsError:
 			await context.send('An emote already exists with that name!')
+		except discord.HTTPException as ex:
+			error_message = 'An error occurred while creating the emote:\n{} (status code: {}):\n{}'.format(
+				ex.response.reason, ex.response.status, ex.text)
+			await context.send(error_message)
+			logger.error(traceback.format_exc())
 		else:
 			await context.send(message)
 
