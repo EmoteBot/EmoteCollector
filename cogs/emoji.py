@@ -191,9 +191,10 @@ class Emotes:
 			await context.send('Emote successfully renamed.')
 
 	@commands.command()
-	async def react(self, context, name, message, channel: int = None):
+	async def react(self, context, name, message: int = None, channel: int = None):
 		"""Add a reaction to a message. Sad reacts only please.
-		`ec/add <name> <message ID> [channel ID]`
+		`ec/add <name> [message ID] [channel ID]`
+		If no message ID and no channel ID is provided, it'll react to the last sent message.
 		You can get the message ID by enabling developer mode (in Settings→Appearance),
 		then right clicking on the message you want and clicking "Copy ID". Same for channel IDs.
 		"""
@@ -205,17 +206,24 @@ class Emotes:
 		else:
 			channel = context.guild.get_channel(channel)
 
-		try:
-			message = await channel.get_message(message)
-		except discord.NotFound:
-			return await context.send(
-				'Message not found! Make sure your message and channel IDs are correct.')
-		except discord.Forbidden:
-			return await context.send(
-				'Permission denied! Make sure the bot has permission to read that message.')
+		if message is None:
+			# get the second to last message (ie ignore the invoking message)
+			message = await channel.history(limit=2, reverse=True).next()
+		else:
+			try:
+				message = await channel.get_message(message)
+			except discord.NotFound:
+				return await context.send(
+					'Message not found! Make sure your message and channel IDs are correct.')
+			except discord.Forbidden:
+				return await context.send(
+					'Permission denied! Make sure the bot has permission to read that message.')
 
 		# there's no need to react to a message if that reaction already exists
-		if discord.utils.find(lambda reaction: reaction.emoji.id == emote_id, message.reactions):
+		def same_emote(reaction):
+			return getattr(reaction.emoji, 'id', None) == emote_id
+
+		if discord.utils.find(same_emote, message.reactions):
 			return await context.send('You can already react to that message, silly!', delete_after=5)
 
 		emote_str = self.format_emote(animated, name, emote_id)[1:-1]  # skip the <>
