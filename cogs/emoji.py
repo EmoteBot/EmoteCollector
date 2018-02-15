@@ -204,12 +204,30 @@ class Emotes:
 
 		try:
 			message = await channel.get_message(message)
-			emote_str = self.format_emote(animated, name, emote_id)[1:-1]
+		except discord.NotFound:
+			return await context.send(
+				'Message not found! Make sure your message and channel IDs are correct.')
+		except discord.Forbidden:
+			return await context.send(
+				'Permission denied! Make sure the bot has permission to read that message.')
+
+		# there's no need to react to a message if that reaction already exists
+		if discord.utils.find(lambda reaction: reaction.emoji.id == emote_id, message.reactions):
+			return await context.send('You can already react to that message, silly!', delete_after=5)
+
+		emote_str = self.format_emote(animated, name, emote_id)[1:-1]  # skip the <>
+
+		try:
 			await message.add_reaction(emote_str)
-		except:
-			logger.error('React: failed to react with %s' % name)
+		except discord.HTTPException as ex:
+			error_message = 'Failed to react with %s\n%s' % (name, self.format_http_exception(ex))
+			logger.error('react: ' + error_message)
 			logger.error(traceback.format_exc())
-			return await context.send('Failed to react with %s!' % name)
+			return await context.send(error_message)
+		except discord.Forbidden:
+			# these errors are not severe enough to log
+			return await context.send(
+				'Permission denied! Make sure the bot has permission to react to that message.')
 
 		def check(emote, message_id, channel_id, user_id):
 			return (
@@ -291,7 +309,7 @@ class Emotes:
 			WHERE name ILIKE $1""",
 			name)
 		if row is None:
-			raise EmoteNotFoundError('Emote %s not found in the database!' % name)
+			raise EmoteNotFoundError(name)
 		return row['animated'], row['name'], row['id'], row['author']
 
 	async def get_formatted(self, name):
@@ -307,8 +325,9 @@ class Emotes:
 		except EmoteExistsError:
 			await context.send('An emote already exists with that name!')
 		except discord.HTTPException as ex:
-			error_message = 'An error occurred while creating the emote:\n{} (status code: {}):\n{}'.format(
-				ex.response.reason, ex.response.status, ex.text)
+			error_message = (
+				'An error occurred while creating the emote:\n'
+				+ self.format_http_exception(ex))
 			await context.send(error_message)
 			logger.error(traceback.format_exc())
 		else:
@@ -391,6 +410,12 @@ class Emotes:
 		return ('<img src="%s" width=32px> | `%s` | %s' %
 			(self.emote_url(id), name, author))
 
+	@staticmethod
+	def format_http_exception(exception):
+		return '{} (status code: {}):\n{}'.format(
+			exception.response.reason, exception.response.status, exception.text)
+
+
 
 class EmoteContext(commands.Context):
 	def __init__(self, **kwargs):
@@ -400,8 +425,8 @@ class EmoteContext(commands.Context):
 		try:
 			animated, name, id, author = await self.cog.get(name)
 		except EmoteNotFoundError:
-			await self.send("%s doesn't exist!" % name)
-			raise
+			await self.send(name + ' is not a valid emote')
+			logger.error(traceback.format_exc())
 
 	async def fail_if_not_owner(self, name):
 		# assume that it exists, because it has to exist for anyone to be its owner
