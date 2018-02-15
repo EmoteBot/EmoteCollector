@@ -3,8 +3,8 @@
 
 from discord.ext import commands
 
-from utils import EXTRA_OWNERS, is_owner as is_owner_predicate
+import utils
 
 
 def is_owner():
-	return commands.check(is_owner_predicate)
+	return commands.check(utils.is_owner)

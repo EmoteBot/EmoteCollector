@@ -5,6 +5,7 @@ from discord.ext import commands
 
 from cogs.utils.checks import is_owner
 
+
 class Admin:
 	"""Commands for admins only!"""
 

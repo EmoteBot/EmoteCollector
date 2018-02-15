@@ -4,7 +4,6 @@
 import asyncio
 import imghdr
 from io import StringIO
-import functools
 import logging
 import random
 import re
@@ -59,7 +58,6 @@ class Emotes:
 		if emotes:
 			self.replies[message.id] = await message.channel.send(emotes)
 
-
 	async def on_raw_message_edit(self, message_id, data):
 		if message_id not in self.replies or 'content' not in data:
 			return
@@ -103,7 +101,7 @@ class Emotes:
 		for name in names:
 			try:
 				emotes.append(await self.get_formatted(name))
-			except:
+			except EmoteNotFoundError:
 				pass
 		if not emotes:
 			return
@@ -151,7 +149,6 @@ class Emotes:
 
 		await self.add_safe(context, name, url)
 
-
 	@commands.command(aliases=['delete', 'delet'])
 	@typing
 	async def remove(self, context, name):
@@ -180,9 +177,15 @@ class Emotes:
 
 		try:
 			await self.rename_(id, new_name)
-		except:
-			await context.send('Renaming the emote failed internally. Please contact @null byte#1337.')
-			logger.error('Renaming ' + old_name + ' failed!')
+		except discord.Forbidden:
+			await context.send(
+				'Unable to rename the emote because of missing permissions. This should not happen.\n'
+				'Please contact @null byte#1337.')
+			logger.error('Missing permissions to rename ' + old_name)
+			logger.error(traceback.format_exc())
+		except discord.HTTPException as exception:
+			await context.send(self.format_http_exception(exception))
+			logger.error('Rename:')
 			logger.error(traceback.format_exc())
 		else:
 			await context.send('Emote successfully renamed.')
@@ -338,7 +341,6 @@ class Emotes:
 			await self.get(name)
 		except EmoteNotFoundError:
 			image_data = await self.fetch(url)
-			image_type = imghdr.what(None, image_data)
 			if imghdr.test_gif(image_data, None) == 'gif':
 				animated = True
 			elif imghdr.test_png(image_data, None) == 'png' or imghdr.test_jpeg(image_data, None) == 'jpeg':
@@ -414,7 +416,6 @@ class Emotes:
 	def format_http_exception(exception):
 		return '{} (status code: {}):\n{}'.format(
 			exception.response.reason, exception.response.status, exception.text)
-
 
 
 class EmoteContext(commands.Context):

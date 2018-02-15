@@ -45,10 +45,10 @@ def print_status(status_message, synchronous=False):
 @bot.event
 async def on_ready():
 	print('Ready.')
-	#await wipe_guilds()
-	#await create_guilds(prefix='EmojiBackend ', limit=100)
-	#await clear_guilds()
-	#await rename_guilds()
+	# await wipe_guilds()
+	# await create_guilds(prefix='EmojiBackend ', limit=100)
+	# await clear_guilds()
+	# await rename_guilds()
 	add_bot_to_guilds()
 	await bot.logout()
 	return
@@ -97,6 +97,7 @@ def wait_for_element(driver, css_selector, delay=0.25):
 			time.sleep(delay)
 			continue
 
+
 def wait_for_url(driver, url, delay=0.25):
 	while driver.current_url != url:
 		time.sleep(delay)
@@ -118,16 +119,16 @@ def add_bot_to_guilds():
 	driver.get(oauth_url)
 
 	notify('Waiting for you to log in')
-	wait_for_url(driver, oauth_url) # oauth URL redirects to login page if logged out
+	wait_for_url(driver, oauth_url)  # oauth URL redirects to login page if logged out
 
 	for i, guild in enumerate(pending_guilds, 1):
 		driver.get(oauth_url)
 
 		wait_for_element(driver, 'select > option[value="{}"]'.format(guild.id)).click()
 		wait_for_element(driver, 'button.primary').click()
-		driver.switch_to.frame(wait_for_element(driver, 'iframe')) # switch to the reCAPTCHA iframe
+		driver.switch_to.frame(wait_for_element(driver, 'iframe'))  # switch to the reCAPTCHA iframe
 		wait_for_element(driver, '.recaptcha-checkbox-checkmark').click()
-		driver.switch_to.default_content() # switch back out
+		driver.switch_to.default_content()  # switch back out
 		wait_for_url(driver, 'https://discordapp.com/oauth2/authorized')
 		notify('{} guild{} down, {} to go!'.format(i, 's' if i > 1 else '', len(pending_guilds) - i))
 

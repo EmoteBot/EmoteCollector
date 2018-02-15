@@ -9,7 +9,6 @@ class Meta:
 	def __init__(self, bot):
 		self.bot = bot
 
-
 	@commands.command()
 	async def invite(self, context):
 		# these are the same as the attributes of discord.Permissions

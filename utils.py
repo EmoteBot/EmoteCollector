@@ -3,11 +3,9 @@
 
 from functools import wraps as _wraps
 import json as _json
-import random as _random
 import sys as _sys
 
 from aiohttp import ClientSession as _ClientSession
-from discord.ext.commands import Context as _Context
 
 
 """More owners, other than Emoji Backend 0. If more backend accounts are needed, add them here."""

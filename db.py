@@ -9,7 +9,7 @@ import asyncpg
 
 
 def _get_config():
-	with open(str(DATA_DIR/'config.json')) as config_file:
+	with open(str(DATA_DIR / 'config.json')) as config_file:
 		config = json.load(config_file)
 	return config
 

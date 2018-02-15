@@ -4,7 +4,6 @@
 import logging
 import traceback
 
-import discord
 from discord.ext import commands
 
 from cogs.emoji import EmoteContext
@@ -51,7 +50,7 @@ class EmojiConnoisseur(commands.Bot):
 	def run(self, *args, **kwargs):
 		for extension in ('emoji', 'meta', 'admin', 'external.stats', 'external.misc'):
 			try:
-				self.load_extension(self.cogs_path+'.'+extension)
+				self.load_extension(self.cogs_path + '.' + extension)
 			except Exception as e:
 				logger.error('Failed to load ' + extension)
 				logger.error(traceback.format_exc())
