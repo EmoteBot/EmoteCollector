@@ -364,7 +364,7 @@ class Emotes:
 				emote.id,
 				author_id,
 				animated)
-			return 'Emote `:%s:` successfully created.' % emote
+			return 'Emote %s successfully created.' % emote
 		else:
 			raise EmoteExistsError
 
