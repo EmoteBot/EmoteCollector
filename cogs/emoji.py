@@ -175,14 +175,9 @@ class Emotes:
 	@typing
 	async def rename(self, context, old_name, new_name):
 		"""Renames an emote. You must own it."""
-		# TODO figure out how to not duplicate this code from self.delete
-		try:
-			animated, old_name, id, author = await self.get(old_name)
-		except EmoteNotFoundError:
-			return await context.send("%s doesn't exist!" % old_name)
-		if not (await is_owner(context) or author == context.author.id):
-			return await context.send(
-				"You're not the author of %s!" % self.format_emote(animated, old_name, id))
+		await context.fail_on_bad_emote(old_name)
+		animated, old_name, id, author = await self.get(old_name)
+
 		try:
 			await self.rename_(id, new_name)
 		except:
@@ -261,15 +256,14 @@ class Emotes:
 		"""Internal command to find out which backend server a given emote is in.
 		This is useful because emotes are added to random guilds to avoid rate limits.
 		"""
-		try:
-			animated, name, id, author = await self.get(name)
-		except EmoteNotFoundError:
-			return await context.send("%s doesn't exist!" % name)
+		await context.fail_if_not_exists(name)
+		animated, name, id, author = await self.get(name)
 		emote = self.bot.get_emoji(id)
 
 		if emote is None:
-			logger.debug('%s was not in the cache' % name)
-			return await context.send('%s was not in the cache!' % name)
+			error_message = '%s was not in the cache!' % name
+			logger.error('find: ' + error_message)
+			return await context.send(error_message)
 
 		return await context.send('%s is in %s.' % (emote.name, emote.guild.name))
 
