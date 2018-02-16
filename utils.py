@@ -8,14 +8,7 @@ import sys as _sys
 from aiohttp import ClientSession as _ClientSession
 
 
-"""More owners, other than Emoji Backend 0. If more backend accounts are needed, add them here."""
-EXTRA_OWNERS = (140516693242937345,)
 session = _ClientSession()
-
-
-async def is_owner(context):
-	user = context.author
-	return user.id in EXTRA_OWNERS or await context.bot.is_owner(user)
 
 
 def typing(func):
