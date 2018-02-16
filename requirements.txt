@@ -1,5 +1,6 @@
 asyncpg
 git+https://github.com/Rapptz/discord.py@rewrite#egg=discord.py
+jishaku
 
 # for the backend creator only!
 pgi

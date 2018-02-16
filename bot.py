@@ -23,6 +23,8 @@ class EmojiConnoisseur(commands.Bot):
 		super().__init__(command_prefix=commands.when_mentioned_or('ec/'), *args, **kwargs)
 
 	async def on_ready(self):
+		# idk why but loading this cog before ready doesn't work
+		self.load_extension('jishaku')
 		separator = '━' * 44
 		logger.info(separator)
 		logger.info('Logged in as: %s' % self.user)
@@ -37,7 +39,8 @@ class EmojiConnoisseur(commands.Bot):
 		if self.owner_id is None:
 			app = await self.application_info()
 			self.owner_id = app.owner.id
-		return user.id == self.owner_id or user.id in self.config['extra_owners']
+
+		return user.id == self.owner_id or str(user.id) in self.config['extra_owners']
 
 	# https://github.com/Rapptz/RoboDanny/blob/ca75fae7de132e55270e53d89bc19dd2958c2ae0/bot.py#L77-L85
 	async def on_command_error(self, context, error):
@@ -53,12 +56,15 @@ class EmojiConnoisseur(commands.Bot):
 			logger.error('{0.__class__.__name__}: {0}'.format(error.original))
 
 	def run(self, *args, **kwargs):
-		for extension in ('emoji', 'meta', 'external.admin', 'external.stats', 'external.misc'):
+		for extension in ('emoji', 'meta', 'external.stats', 'external.misc'):
 			try:
 				self.load_extension(self.cogs_path + '.' + extension)
-			except Exception as e:
+			except:
 				logger.error('Failed to load ' + extension)
 				logger.error(traceback.format_exc())
+			else:
+				logger.info('Successfully loaded ' + extension)
+
 		super().run(self.config['tokens']['discord'], *args, **kwargs)
 
 
