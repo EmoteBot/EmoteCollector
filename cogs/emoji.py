@@ -47,7 +47,7 @@ class Emotes:
 			if await self.bot.is_owner(guild.owner) and guild.name.startswith('EmojiBackend'):
 				guilds.append(guild)
 		self.guilds = guilds
-		logger.error('In ' + str(len(guilds)) + ' backend guilds.')
+		logger.info('In ' + str(len(guilds)) + ' backend guilds.')
 
 	async def on_message(self, message):
 		if message.author.bot:
