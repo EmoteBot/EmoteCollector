@@ -48,6 +48,8 @@ class EmojiConnoisseur(commands.Bot):
 			await context.author.send('Sorry. This command is disabled and cannot be used.')
 		elif isinstance(error, commands.UserInputError):
 			await context.send(error)
+		elif isinstance(error, commands.NotOwner):
+			logger.error('%s tried to run %s but is not the owner' % (context.author, context.command.name))
 		elif isinstance(error, commands.CommandInvokeError):
 			logger.error('In %s:' % context.command.qualified_name)
 			logger.error(''.join(traceback.format_tb(error.original.__traceback__)))
