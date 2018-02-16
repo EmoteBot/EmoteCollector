@@ -56,14 +56,9 @@ class EmojiConnoisseur(commands.Bot):
 			logger.error('{0.__class__.__name__}: {0}'.format(error.original))
 
 	def run(self, *args, **kwargs):
-		for extension in (
-				'cogs.emoji',
-				'cogs.meta',
-				'jishaku',
-				'cogs.external.stats',
-				'cogs.external.misc'):
+		for extension in ('emoji', 'meta', 'external.admin', 'external.stats', 'external.misc'):
 			try:
-				self.load_extension(extension)
+				self.load_extension(self.cogs_path + '.' + extension)
 			except:
 				logger.error('Failed to load ' + extension)
 				logger.error(traceback.format_exc())
