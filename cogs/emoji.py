@@ -248,7 +248,7 @@ class Emotes:
 		try:
 			await self.bot.wait_for('raw_reaction_add', timeout=30, check=check)
 		except asyncio.TimeoutError:
-			logger.info("react: user didn't react in time")
+			logger.warn("react: user didn't react in time")
 		finally:
 			await asyncio.sleep(0.6)
 			await message.remove_reaction(emote_str, context.guild.me)
