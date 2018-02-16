@@ -1,6 +1,6 @@
 {
 	"description": "Curates emojis from any server and lets you use them without Nitro.",
-	"client_id": 1234,
+	"client_id": "1234",
 
 	"extra_owners": [
 	],
