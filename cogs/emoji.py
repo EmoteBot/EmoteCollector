@@ -433,13 +433,13 @@ class EmoteContext(commands.Context):
 	async def fail_if_not_owner(self, name):
 		# assume that it exists, because it has to exist for anyone to be its owner
 		# also, fail_if_not_exists should do this anyway
-		animated, name, id, author = await self.cog.get(name)
+		animated, name, id, emote_author = await self.cog.get(name)
 
 		# By De Morgan's laws, this is equivalent to (not is_owner and not emote_author)
 		# but I think this is clearer :P
-		if not (await is_owner(self) or author == self.author.id):
+		if not (await self.bot.is_owner(self.author) or emote_author == self.author.id):
 			await self.send(
-				"You're not the author of `:%s:`!" % self.cog.format_emote(animated, name, id))
+				"You're not the author of %s!" % self.cog.format_emote(animated, name, id))
 			raise PermissionDeniedError
 
 	async def fail_on_bad_emote(self, name):
