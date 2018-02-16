@@ -305,12 +305,7 @@ class Emotes:
 			text = await resp.text()
 		emotes = self.parse_list(text)
 		for name, image, author in emotes:
-			try:
-				message = await self.add_(name, image, author)
-			except EmoteExistsError:
-				await context.send('An emote already exists with that name!')
-			else:
-				await context.send(message)
+			await self.add_safe(context, name, image, author)
 
 	async def get(self, name):
 		row = await self.bot.db.fetchrow("""
@@ -329,9 +324,9 @@ class Emotes:
 	def format_emote(animated, name, id):
 		return '<%s:%s:%s>' % ('a' if animated else '', name, id)
 
-	async def add_safe(self, context, name, url):
+	async def add_safe(self, context, name, url, author=None):
 		try:
-			message = await self.add_(name, url, context.message.author.id)
+			message = await self.add_(name, url, context.message.author.id if author is None else author)
 		except EmoteExistsError:
 			await context.send('An emote already exists with that name!')
 		except discord.HTTPException as ex:
@@ -404,7 +399,9 @@ class Emotes:
 		images = soup.find_all(attrs={'class': 'emoji'})
 		image_urls = [image.get('src') for image in images]
 		names = [row[1].replace('`', '').replace(':', '') for row in rows if len(row) > 1]
-		authors = [row[2].split()[-1].replace('(', '').replace(')', '') for row in rows if len(row) > 2]
+		# example: @null byte#1337 (140516693242937345)
+		# this gets the ID
+		authors = [int(row[2].split()[-1].replace('(', '').replace(')', '')) for row in rows if len(row) > 2]
 
 		return zip(names, image_urls, authors)
 
