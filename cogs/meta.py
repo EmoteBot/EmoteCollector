@@ -22,7 +22,7 @@ class Meta:
 			'embed_links')
 		permissions = discord.Permissions()
 		permissions.update(**dict.fromkeys(permission_names, True))
-		await context.send('<%s>' % discord.utils.oauth_url(self.bot.client_id, permissions))
+		await context.send('<%s>' % discord.utils.oauth_url(self.bot.config['client_id'], permissions))
 
 
 def setup(bot):
