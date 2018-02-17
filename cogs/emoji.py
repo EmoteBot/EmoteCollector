@@ -14,6 +14,7 @@ import asyncpg  # used only for asyncpg.Record currently
 from bs4 import BeautifulSoup
 import discord
 from discord.ext import commands
+from lru import LRU as LRUDict
 
 from utils import create_gist, typing
 
@@ -32,7 +33,7 @@ class Emotes:
 
 		# Keep track of replies so that if the user edits/deletes a message,
 		# we delete/edit the corresponding reply.
-		self.replies = {}
+		self.replies = LRUDict(1000)
 
 	def __unload(self):
 		self.session.close()
