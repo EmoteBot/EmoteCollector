@@ -10,6 +10,7 @@ import re
 import traceback
 
 import aiohttp
+import asyncpg  # used only for asyncpg.Record currently
 from bs4 import BeautifulSoup
 import discord
 from discord.ext import commands
@@ -159,10 +160,11 @@ class Emotes:
 
 		await self.add_safe(context, name, url)
 
-	@commands.command(aliases=['delete', 'delet'])
-	@typing
+	@commands.command(aliases=['delete', 'delet', 'rm'])
 	async def remove(self, context, name):
 		"""Removes an emote from the bot. You must own it."""
+		await context.trigger_typing()
+
 		await context.fail_on_bad_emote(name)
 		animated, name, id, author = await self.get(name)
 		success_message = '`:%s:` successfully deleted.' % name
@@ -178,10 +180,12 @@ class Emotes:
 		else:
 			logger.error(name + " 'twas not in the cache!")
 
-	@commands.command()
-	@typing
+	@commands.command(aliases=['mv'])
 	async def rename(self, context, old_name, new_name):
 		"""Renames an emote. You must own it."""
+
+		await context.trigger_typing()
+
 		await context.fail_on_bad_emote(old_name)
 		animated, old_name, id, author = await self.get(old_name)
 
@@ -269,7 +273,6 @@ class Emotes:
 				pass
 
 	@commands.command()
-	@typing
 	async def list(self, context, *, user: discord.User = None):
 		"""List all emotes the bot knows about.
 		If a user is provided, the list will only contain emotes created by that user.
@@ -426,7 +429,7 @@ class Emotes:
 		image_urls = [image.get('src') for image in images]
 		names = [row[1].replace('`', '').replace(':', '') for row in rows if len(row) > 1]
 		# example: @null byte#1337 (140516693242937345)
-		# this gets the ID
+		# this gets just the ID
 		authors = [int(row[2].split()[-1].replace('(', '').replace(')', '')) for row in rows if len(row) > 2]
 
 		return zip(names, image_urls, authors)
