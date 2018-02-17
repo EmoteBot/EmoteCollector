@@ -37,6 +37,8 @@ class Emotes:
 		self.session.close()
 
 	async def find_backend_guilds(self):
+		"""Find all the guilds used to store emotes"""
+
 		if hasattr(self, 'guilds') and self.guilds:
 			return
 
@@ -50,6 +52,9 @@ class Emotes:
 		logger.info('In ' + str(len(guilds)) + ' backend guilds.')
 
 	async def on_message(self, message):
+		"""Reply to messages containing :name: or ;name; with the corresponding emotes.
+		This is like half the functionality of the bot"""
+
 		if message.author.bot:
 			return
 
@@ -58,6 +63,8 @@ class Emotes:
 			self.replies[message.id] = await message.channel.send(emotes)
 
 	async def on_raw_message_edit(self, message_id, data):
+		"""Ensure that when a message containing emotes is edited, the corresponding emote reply is, too."""
+
 		if message_id not in self.replies or 'content' not in data:
 			return
 
@@ -72,6 +79,8 @@ class Emotes:
 		await reply.edit(content=emotes)
 
 	async def on_raw_message_delete(self, message_id, channel_id):
+		"""Ensure that when a message containing emotes is deleted, the emote reply is, too."""
+
 		try:
 			await self.replies.pop(message_id).delete()
 		except KeyError:
@@ -86,6 +95,8 @@ class Emotes:
 				await message.delete()
 
 	async def extract_emotes(self, message: str):
+		"""Parse all emotes (:name: or ;name;) from a message"""
+
 		names = []
 		for match in self.EMOTE_IN_TEXT_REGEX.finditer(message):
 			try:
@@ -260,6 +271,10 @@ class Emotes:
 	@commands.command()
 	@typing
 	async def list(self, context, *, user: discord.User = None):
+		"""List all emotes the bot knows about.
+		If a user is provided, the list will only contain emotes created by that user.
+		"""
+
 		table = StringIO()
 		table.write('Emoji | Name | Author\n')
 		table.write('----- | ---- | ------\n')
@@ -308,6 +323,8 @@ class Emotes:
 			await self.add_safe(context, name, image, author)
 
 	async def get(self, name):
+		"""Retrieve an emote from the database by name."""
+
 		row = await self.bot.db.fetchrow("""
 			SELECT *
 			FROM emojis
@@ -318,13 +335,17 @@ class Emotes:
 		return row['animated'], row['name'], row['id'], row['author']
 
 	async def get_formatted(self, name):
+		"""Retrieve an emote from the database by name, and format it for use in messages."""
 		return self.format_emote(*(await self.get(name))[:-1])
 
 	@staticmethod
 	def format_emote(animated, name, id):
+		"""Format an emote for use in messages."""
 		return '<%s:%s:%s>' % ('a' if animated else '', name, id)
 
 	async def add_safe(self, context, name, url, author=None):
+		"""Add an emote, sending error messages to `context` on failure."""
+
 		try:
 			message = await self.add_(name, url, context.message.author.id if author is None else author)
 		except EmoteExistsError:
@@ -339,6 +360,7 @@ class Emotes:
 			await context.send(message)
 
 	async def add_(self, name, url, author_id):
+		"""Actually add an emote to the database."""
 		try:
 			await self.get(name)
 		except EmoteNotFoundError:
@@ -363,11 +385,13 @@ class Emotes:
 			raise EmoteExistsError
 
 	async def fetch(self, url):
+		"""Return the result of GETting the URL."""
 		async with self.session.get(url) as resp:
 			return await resp.read()
 
 	@staticmethod
 	def emote_url(id):
+		"""Convert an emote ID to the image URL for that emote."""
 		return 'https://cdn.discordapp.com/emojis/%s' % id
 
 	def free_guild(self, animated=False):
@@ -393,6 +417,8 @@ class Emotes:
 		await self.bot.db.execute('UPDATE emojis SET name = $2 WHERE id = $1', id, new_name)
 
 	def parse_list(self, text):
+		"""Parse an emote list retrieved from Element Zero."""
+
 		rows = [line.split(' | ') for line in text.split('\n')[2:]]
 		image_column = (row[0] for row in rows)
 		soup = BeautifulSoup(''.join(image_column), 'lxml')
@@ -405,7 +431,8 @@ class Emotes:
 
 		return zip(names, image_urls, authors)
 
-	def format_row(self, record):
+	def format_row(self, record: asyncpg.Record):
+		"""Format a database record as "markdown" for the ec/list command."""
 		name, id, author, _ = record
 		user = self.bot.get_user(author)
 		if user is None:
@@ -417,7 +444,13 @@ class Emotes:
 			(self.emote_url(id), name, author))
 
 	@staticmethod
-	def format_http_exception(exception):
+	def format_http_exception(exception: discord.HTTPException):
+		"""Formats a discord.HTTPException for relaying to the user.
+		Sample return value:
+		BAD REQUEST (status code: 400):
+		Invalid Form Body
+		In image: File cannot be larger than 256 kb.
+		"""
 		return '{} (status code: {}):\n{}'.format(
 			exception.response.reason, exception.response.status, exception.text)
 
