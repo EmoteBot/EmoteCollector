@@ -201,7 +201,7 @@ class Emotes:
 		except discord.Forbidden:
 			await context.send(
 				'Unable to rename the emote because of missing permissions. This should not happen.\n'
-				'Please contact @null byte#1337.')
+				'Please contact @null byte#8191.')
 			logger.error('Missing permissions to rename ' + old_name)
 			logger.error(traceback.format_exc())
 		except discord.HTTPException as exception:
