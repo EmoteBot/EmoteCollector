@@ -90,9 +90,14 @@ class Emotes:
 			pass
 
 	async def on_raw_bulk_message_delete(self, message_ids, channel_id):
+		channel = self.bot.get_channel(channel_id)
+		if channel is None:
+			return
+
 		messages = (self.replies.pop(id) for id in message_ids if id in self.replies)
+
 		try:  # this will only work if we have manage_messages in that channel
-			await self.bot.delete_messages(messages)
+			await channel.delete_messages(messages)
 		except discord.Forbidden:
 			for message in messages:  # should always work, since these are our messages
 				await message.delete()
