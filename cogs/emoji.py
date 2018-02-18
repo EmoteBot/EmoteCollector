@@ -368,6 +368,8 @@ class Emotes:
 				+ self.format_http_exception(ex))
 			await context.send(error_message)
 			logger.error(traceback.format_exc())
+		except InvalidImageError:
+			await context.send('URL specified is not a PNG, JPG, or GIF.')
 		else:
 			await context.send(message)
 
