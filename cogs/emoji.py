@@ -54,6 +54,8 @@ class Emotes:
 		self.guilds = guilds
 		logger.info('In ' + str(len(guilds)) + ' backend guilds.')
 
+	## EVENTS
+
 	async def on_message(self, message):
 		"""Reply to messages containing :name: or ;name; with the corresponding emotes.
 		This is like half the functionality of the bot"""
@@ -126,6 +128,8 @@ class Emotes:
 
 		return ''.join(emotes)
 
+	## COMMANDS
+
 	@commands.command(aliases=['create'])
 	@typing
 	async def add(self, context, *args):
@@ -167,14 +171,12 @@ class Emotes:
 
 		await self.add_safe(context, name, url)
 
-	@commands.command(aliases=['delete', 'delet', 'rm'])
+	@commands.command(aliases=['delete', 'delet', 'del', 'rm'])
+	@typing
 	async def remove(self, context, name):
 		"""Removes an emote from the bot. You must own it."""
-		await context.trigger_typing()
-
 		await context.fail_on_bad_emote(name)
 		animated, name, id, author = await self.get(name)
-		success_message = '`:%s:` successfully deleted.' % name
 
 		logger.debug('Trying to delete ', name, id)
 
@@ -183,16 +185,14 @@ class Emotes:
 		if emote is not None:
 			logger.debug(name + " 'twas in the cache")
 			await emote.delete()
-			return await context.send(success_message)
+			return await context.send('`:%s:` was successfully deleted.' % name)
 		else:
 			logger.error(name + " 'twas not in the cache!")
 
 	@commands.command(aliases=['mv'])
+	@typing
 	async def rename(self, context, old_name, new_name):
 		"""Renames an emote. You must own it."""
-
-		await context.trigger_typing()
-
 		await context.fail_on_bad_emote(old_name)
 		animated, old_name, id, author = await self.get(old_name)
 
@@ -280,6 +280,7 @@ class Emotes:
 				pass
 
 	@commands.command()
+	@typing
 	async def list(self, context, *, user: discord.User = None):
 		"""List all emotes the bot knows about.
 		If a user is provided, the list will only contain emotes created by that user.
@@ -331,6 +332,8 @@ class Emotes:
 		emotes = self.parse_list(text)
 		for name, image, author in emotes:
 			await self.add_safe(context, name, image, author)
+
+	## HELPER FUNCTIONS
 
 	async def get(self, name):
 		"""Retrieve an emote from the database by name."""
@@ -468,7 +471,7 @@ class Emotes:
 		images = soup.find_all(attrs={'class': 'emoji'})
 		image_urls = [image.get('src') for image in images]
 		names = [row[1].replace('`', '').replace(':', '') for row in rows if len(row) > 1]
-		# example: @null byte#1337 (140516693242937345)
+		# example: @null byte#8191 (140516693242937345)
 		# this gets just the ID
 		authors = [int(row[2].split()[-1].replace('(', '').replace(')', '')) for row in rows if len(row) > 2]
 

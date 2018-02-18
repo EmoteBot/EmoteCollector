@@ -12,6 +12,10 @@ session = _ClientSession()
 
 
 def typing(func):
+	"""Makes a command function run with the context.typing() decorator.
+	This will make the bot appear to be typing for until the command returns.
+	The function must be in a class, as self is assumed to be the first parameter, and context
+	is assumed to be the second."""
 	@_wraps(func)
 	async def wrapped(self, context, *args, **kwargs):
 		async with context.typing():
@@ -30,8 +34,3 @@ async def create_gist(filename, contents: str):
 					'content': contents}}})) as resp:
 		if resp.status == 201:
 			return _json.loads(await resp.text())['html_url']
-
-
-def log(*args, **kwargs):
-	kwargs['file'] = _sys.stderr
-	print(*args, **kwargs)
