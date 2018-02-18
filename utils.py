@@ -6,7 +6,7 @@ import json as _json
 import sys as _sys
 
 from aiohttp import ClientSession as _ClientSession
-
+from discord.ext import commands
 
 session = _ClientSession()
 
@@ -17,9 +17,11 @@ def typing(func):
 	The function must be in a class, as self is assumed to be the first parameter, and context
 	is assumed to be the second."""
 	@_wraps(func)
-	async def wrapped(self, context, *args, **kwargs):
+	async def wrapped(*args, **kwargs):
+		# if func is a method, args[0] will be self, otherwise it'll be a context
+		context = args[0] if isinstance(args[0], commands.Context) else args[1]
 		async with context.typing():
-			await func(self, context, *args, **kwargs)
+			await func(*args, **kwargs)
 	return wrapped
 
 
