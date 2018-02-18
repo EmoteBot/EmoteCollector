@@ -3,7 +3,7 @@
 
 import asyncio
 import imghdr
-from io import StringIO
+from io import BytesIO, StringIO
 import logging
 import random
 import re
@@ -15,6 +15,7 @@ from bs4 import BeautifulSoup
 import discord
 from discord.ext import commands
 from lru import LRU as LRUDict
+from PIL import Image
 
 from utils import create_gist, typing
 
@@ -349,7 +350,6 @@ class Emotes:
 
 	async def add_safe(self, context, name, url, author=None):
 		"""Add an emote, sending error messages to `context` on failure."""
-
 		try:
 			message = await self.add_(name, url, context.message.author.id if author is None else author)
 		except EmoteExistsError:
@@ -364,39 +364,73 @@ class Emotes:
 			await context.send(message)
 
 	async def add_(self, name, url, author_id):
-		"""Actually add an emote to the database."""
+		"""Actually add an emote to the database.
+		Returns the message that should be sent to the user as a result of running the add command."""
 		try:
 			await self.get(name)
 		except EmoteNotFoundError:
-			image_data = await self.fetch(url)
-			if imghdr.test_gif(image_data, None) == 'gif':
-				animated = True
-			elif imghdr.test_png(image_data, None) == 'png' or imghdr.test_jpeg(image_data, None) == 'jpeg':
-				animated = False
-			else:
-				raise InvalidImageError
-
-			guild = self.free_guild(animated)
-			emote = await guild.create_custom_emoji(name=name, image=image_data)
-			await self.bot.db.execute(
-				'INSERT INTO emojis(name, id, author, animated) VALUES($1, $2, $3, $4)',
-				name,
-				emote.id,
-				author_id,
-				animated)
-			return 'Emote %s successfully created.' % emote
+			pass
 		else:
 			raise EmoteExistsError
+		# after reaching this point, the emote doesn't exist already
 
-	async def fetch(self, url):
-		"""Return the result of GETting the URL."""
-		async with self.session.get(url) as resp:
-			return await resp.read()
+		url_error_message = 'URL error: Server returned error code %s.'
+
+		# credits to @Liara#0001 (ID 136900814408122368) for most of this part
+		# https://gitlab.com/Pandentia/element-zero/blob/47bc8eeeecc7d353ec66e1ef5235adab98ca9635/element_zero/cogs/emoji.py#L217-228
+		async with self.session.head(url) as response:
+			if response.reason != 'OK':
+				return url_error_message % response.status
+			if response.headers.get('Content-Type') not in ('image/png', 'image/jpeg', 'image/gif'):
+				raise InvalidImageError
+
+		async with self.session.get(url) as response:
+			if response.reason != 'OK':
+				return url_error_message % response.status
+
+			image_data = BytesIO(await response.read())
+
+		animated = self.is_animated(image_data.getvalue())
+
+		if not animated:
+			image_data = self.resize_image(image_data)
+
+		guild = self.free_guild(animated)
+		emote = await guild.create_custom_emoji(name=name, image=image_data.read())
+		await self.bot.db.execute(
+			'INSERT INTO emojis(name, id, author, animated) VALUES($1, $2, $3, $4)',
+			name,
+			emote.id,
+			author_id,
+			animated)
+		return 'Emote %s successfully created.' % emote
+
+	@staticmethod
+	def is_animated(image_data: bytes):
+		"""Return if the image data is animated, or raise InvalidImageError if it's not an image."""
+		if imghdr.test_gif(image_data, None) == 'gif':
+			return True
+		elif imghdr.test_png(image_data, None) == 'png' or imghdr.test_jpeg(image_data, None) == 'jpeg':
+			return False
+		else:
+			raise InvalidImageError
 
 	@staticmethod
 	def emote_url(id):
 		"""Convert an emote ID to the image URL for that emote."""
 		return 'https://cdn.discordapp.com/emojis/%s' % id
+
+	@staticmethod
+	def resize_image(image_data: BytesIO):
+		"""resize an image to 128*128 pixels."""
+		# Credit to @Liara#0001 (ID 136900814408122368)
+		# https://gitlab.com/Pandentia/element-zero/blob/47bc8eeeecc7d353ec66e1ef5235adab98ca9635/element_zero/cogs/emoji.py#L243-247
+		out = BytesIO()
+		image = Image.open(image_data)
+		image.thumbnail((128, 128))
+		image.save(out, 'png')
+		out.seek(0)
+		return out
 
 	def free_guild(self, animated=False):
 		"""Find a guild in the backend guilds suitable for storing an emote.
@@ -451,6 +485,7 @@ class Emotes:
 	def format_http_exception(exception: discord.HTTPException):
 		"""Formats a discord.HTTPException for relaying to the user.
 		Sample return value:
+
 		BAD REQUEST (status code: 400):
 		Invalid Form Body
 		In image: File cannot be larger than 256 kb.
