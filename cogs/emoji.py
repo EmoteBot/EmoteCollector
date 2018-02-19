@@ -56,77 +56,26 @@ class Emotes:
 		self.guilds = guilds
 		logger.info('In ' + str(len(guilds)) + ' backend guilds.')
 
-	## EVENTS
-
-	async def on_message(self, message):
-		"""Reply to messages containing :name: or ;name; with the corresponding emotes.
-		This is like half the functionality of the bot"""
-		if message.author.bot or not message.content:
-			return
-
-		emotes = await self.extract_emotes(message.content)
-		if emotes:
-			self.replies[message.id] = await message.channel.send(emotes)
-
-	async def on_raw_message_edit(self, message_id, data):
-		"""Ensure that when a message containing emotes is edited, the corresponding emote reply is, too."""
-
-		if message_id not in self.replies or 'content' not in data:
-			return
-
-		emotes = await self.extract_emotes(data['content'])
-		reply = self.replies[message_id]
-		if not emotes:
-			del self.replies[message_id]
-			return await reply.delete()
-		elif emotes == reply.content:
-			# don't edit a message if we don't need to
-			return
-
-		await reply.edit(content=emotes)
-
-	async def on_raw_message_delete(self, message_id, channel_id):
-		"""Ensure that when a message containing emotes is deleted, the emote reply is, too."""
-		try:
-			await pop(self.replies, message_id).delete()
-		except KeyError:
-			pass
-
-	async def on_raw_bulk_message_delete(self, message_ids, channel_id):
-		channel = self.bot.get_channel(channel_id)
-		if channel is None:
-			return
-
-		messages = (pop(self.replies, id) for id in message_ids if id in self.replies)
-
-		try:  # this will only work if we have manage_messages in that channel
-			await channel.delete_messages(messages)
-		except discord.Forbidden:
-			for message in messages:  # should always work, since these are our messages
-				await message.delete()
-
-	async def extract_emotes(self, message: str):
-		"""Parse all emotes (:name: or ;name;) from a message"""
-
-		message = self.RE_CODE.sub('', message)
-		message = self.RE_CUSTOM_EMOTE.sub('', message)
-
-		names = self.RE_EMOTE.findall(message) + self.RE_ALT_EMOTE.findall(message)
-		if not names:
-			return
-
-		emotes = []
-		for name in names:
-			try:
-				emotes.append(await self.get_formatted(name))
-			except EmoteNotFoundError:
-				pass
-		if not emotes:
-			return
-
-		return ''.join(emotes)
-
 	## COMMANDS
+
+	@commands.command()
+	async def info(self, context, name):
+		"""Gives info on an emote.
+
+		- name: the name of the emote to get info on
+		"""
+		try:
+			animated, name, id, owner = await self.get(name)
+		except EmoteNotFoundError:
+			return await context.send('Emote not found.')
+		owner = self.format_user(owner, mention=True)
+		emote = self.format_emote(animated, name, id)
+
+		embed = discord.Embed(title='Emote info')
+		embed.add_field(name='Emote', value=emote)
+		embed.add_field(name='Owner', value=owner)
+
+		await context.send(embed=embed)
 
 	@commands.command(aliases=['create'])
 	@typing
@@ -172,6 +121,103 @@ class Emotes:
 		else:
 			await context.send(message)
 
+	async def add_safe(self, name, url, author):
+		"""Try to add an emote. On failure, return a string that should be sent to the user."""
+		try:
+			await self.add_backend(name, url, author)
+		except EmoteExistsError:
+			return 'An emote already exists with that name!'
+		except discord.HTTPException as ex:
+			logger.error(traceback.format_exc())
+			return (
+				'An error occurred while creating the emote:\n'
+				+ self.format_http_exception(ex))
+		except HTTPException as ex:
+			return 'URL error: server returned error code %s.' % ex
+		except asyncio.TimeoutError:
+			return 'Error: retrieving the image took too long.'
+		except InvalidImageError:
+			return 'URL specified is not a PNG, JPG, or GIF.'
+		else:
+			return 'Emote %s successfully created.' % await self.get_formatted(name)
+
+	async def add_backend(self, name, url, author_id):
+		"""Actually add an emote to the database."""
+		try:
+			await self.get(name)
+		except EmoteNotFoundError:
+			pass  # to avoid indendting all of the code below lol
+		else:
+			raise EmoteExistsError
+
+		# after reaching this point, the emote doesn't exist already
+
+		# credits to @Liara#0001 (ID 136900814408122368) for most of this part
+		# https://gitlab.com/Pandentia/element-zero/blob/47bc8eeeecc7d353ec66e1ef5235adab98ca9635/element_zero/cogs/emoji.py#L217-228
+		async with self.session.head(url, timeout=5) as response:
+			if response.reason != 'OK':
+				raise HTTPException(response.status)
+			if response.headers.get('Content-Type') not in ('image/png', 'image/jpeg', 'image/gif'):
+				raise InvalidImageError
+
+		async with self.session.get(url) as response:
+			if response.reason != 'OK':
+				raise HTTPException(response.status)
+			image_data = BytesIO(await response.read())
+
+		animated = self.is_animated(image_data.getvalue())
+
+		if not animated:
+			image_data = self.resize_image(image_data)
+
+		guild = self.free_guild(animated)
+		emote = await guild.create_custom_emoji(name=name, image=image_data.read())
+		await self.bot.db.execute(
+			'INSERT INTO emojis(name, id, author, animated) VALUES($1, $2, $3, $4)',
+			name,
+			emote.id,
+			author_id,
+			animated)
+
+	@staticmethod
+	def is_animated(image_data: bytes):
+		"""Return if the image data is animated, or raise InvalidImageError if it's not an image."""
+		if imghdr.test_gif(image_data, None) == 'gif':
+			return True
+		elif imghdr.test_png(image_data, None) == 'png' or imghdr.test_jpeg(image_data, None) == 'jpeg':
+			return False
+		else:
+			raise InvalidImageError
+
+	@staticmethod
+	def resize_image(image_data: BytesIO):
+		"""resize an image to 128*128 pixels."""
+		# Credit to @Liara#0001 (ID 136900814408122368)
+		# https://gitlab.com/Pandentia/element-zero/blob/47bc8eeeecc7d353ec66e1ef5235adab98ca9635/element_zero/cogs/emoji.py#L243-247
+		out = BytesIO()
+		image = Image.open(image_data)
+		image.thumbnail((128, 128))
+		image.save(out, 'png')
+		out.seek(0)
+		return out
+
+	def free_guild(self, animated=False):
+		"""Find a guild in the backend guilds suitable for storing an emote.
+
+		As the number of emotes stored by the bot increases, the probability of finding a rate-limited
+		guild approaches 1, but until then, this should work pretty well.
+		"""
+		free_guilds = []
+		for guild in self.guilds:
+			if sum(animated == emote.animated for emote in guild.emojis) < 50:
+				free_guilds.append(guild)
+
+		if not free_guilds:
+			raise NoMoreSlotsError('This bot too weak! Try adding more guilds.')
+
+		# hopefully this lets us bypass the rate limit more often, since emote rates are per-guild
+		return random.choice(free_guilds)
+
 	@commands.command(aliases=['delete', 'delet', 'del', 'rm'])
 	@typing
 	async def remove(self, context, name):
@@ -198,7 +244,7 @@ class Emotes:
 		animated, old_name, id, author = await self.get(old_name)
 
 		try:
-			await self.rename_(id, new_name)
+			await self.rename_backend(id, new_name)
 		except discord.Forbidden:
 			await context.send(
 				'Unable to rename the emote because of missing permissions. This should not happen.\n'
@@ -211,6 +257,22 @@ class Emotes:
 			logger.error(traceback.format_exc())
 		else:
 			await context.send('Emote successfully renamed.')
+
+	async def rename_backend(self, id, new_name):
+		emote = self.bot.get_emoji(id)
+		await emote.edit(name=new_name)
+		await self.bot.db.execute('UPDATE emojis SET name = $2 WHERE id = $1', id, new_name)
+
+	@staticmethod
+	def format_http_exception(exception: discord.HTTPException):
+		"""Formats a discord.HTTPException for relaying to the user.
+		Sample return value:
+
+		BAD REQUEST (status code: 400):
+		Invalid Form Body
+		In image: File cannot be larger than 256 kb.
+		"""
+		return f'{exception.response.reason} (status code: {exception.response.status}):\n{exception.text}'
 
 	@commands.command()
 	async def react(self, context, name, message: int = None, channel: int = None):
@@ -306,6 +368,14 @@ class Emotes:
 
 		await context.send(await create_gist('list.md', table.getvalue()))
 
+	def format_row(self, record: asyncpg.Record):
+		"""Format a database record as "markdown" for the ec/list command."""
+		name, id, author, _ = record
+		author = self.format_user(author)
+		# only set the width in order to preserve the aspect ratio of the emote
+		return ('<img src="%s" width=32px> | `%s` | %s' %
+			(self.emote_url(id), name, author))
+
 	@commands.command()
 	async def find(self, context, name):
 		"""Internal command to find out which backend server a given emote is in.
@@ -341,6 +411,87 @@ class Emotes:
 			else:
 				await context.send(message)
 
+	def parse_list(self, text):
+		"""Parse an emote list retrieved from Element Zero."""
+
+		rows = [line.split(' | ') for line in text.split('\n')[2:]]
+		image_column = (row[0] for row in rows)
+		soup = BeautifulSoup(''.join(image_column), 'lxml')
+		images = soup.find_all(attrs={'class': 'emoji'})
+		image_urls = [image.get('src') for image in images]
+		names = [row[1].replace('`', '').replace(':', '') for row in rows if len(row) > 1]
+		# example: @null byte#8191 (140516693242937345)
+		# this gets just the ID
+		authors = [int(row[2].split()[-1].replace('(', '').replace(')', '')) for row in rows if len(row) > 2]
+
+		return zip(names, image_urls, authors)
+
+	## EVENTS
+
+	async def on_message(self, message):
+		"""Reply to messages containing :name: or ;name; with the corresponding emotes.
+		This is like half the functionality of the bot"""
+		if message.author.bot or not message.content:
+			return
+
+		emotes = await self.extract_emotes(message.content)
+		if emotes:
+			self.replies[message.id] = await message.channel.send(emotes)
+
+	async def on_raw_message_edit(self, message_id, data):
+		"""Ensure that when a message containing emotes is edited, the corresponding emote reply is, too."""
+
+		if message_id not in self.replies or 'content' not in data:
+			return
+
+		emotes = await self.extract_emotes(data['content'])
+		reply = self.replies[message_id]
+		if not emotes:
+			del self.replies[message_id]
+			return await reply.delete()
+		elif emotes == reply.content:
+			# don't edit a message if we don't need to
+			return
+
+		await reply.edit(content=emotes)
+
+	async def extract_emotes(self, message: str):
+		"""Parse all emotes (:name: or ;name;) from a message"""
+
+		message = self.RE_CODE.sub('', message)
+		message = self.RE_CUSTOM_EMOTE.sub('', message)
+
+		names = self.RE_EMOTE.findall(message) + self.RE_ALT_EMOTE.findall(message)
+		if not names:
+			return
+
+		emotes = []
+		for name in names:
+			try:
+				emotes.append(await self.get_formatted(name))
+			except EmoteNotFoundError:
+				pass
+		if not emotes:
+			return
+
+		return ''.join(emotes)
+
+	async def on_raw_message_delete(self, message_id, _):
+		"""Ensure that when a message containing emotes is deleted, the emote reply is, too."""
+		try:
+			message = pop(self.replies, message_id)
+		except KeyError:
+			return
+
+		try:
+			await message.delete()
+		except discord.HTTPException:
+			pass
+
+	async def on_raw_bulk_message_delete(self, message_ids, _):
+		for message_id in message_ids:
+			await self.on_raw_message_delete(message_id)
+
 	## HELPER FUNCTIONS
 
 	async def get(self, name):
@@ -364,151 +515,19 @@ class Emotes:
 		"""Format an emote for use in messages."""
 		return '<%s:%s:%s>' % ('a' if animated else '', name, id)
 
-	async def add_safe(self, name, url, author):
-		"""Try to add an emote. On failure, return a string that should be sent to the user."""
-		try:
-			await self.add_backend(name, url, author)
-		except EmoteExistsError:
-			return 'An emote already exists with that name!'
-		except discord.HTTPException as ex:
-			logger.error(traceback.format_exc())
-			return (
-				'An error occurred while creating the emote:\n'
-				+ self.format_http_exception(ex))
-		except HTTPException as ex:
-			return 'URL error: server returned error code %s.' % ex
-		except asyncio.TimeoutError:
-			return 'Error: retrieving the image took too long.'
-		except InvalidImageError:
-			return 'URL specified is not a PNG, JPG, or GIF.'
-		else:
-			return 'Emote %s successfully created.' % await self.get_formatted(name)
-
-	async def add_backend(self, name, url, author_id):
-		"""Actually add an emote to the database."""
-		try:
-			await self.get(name)
-		except EmoteNotFoundError:
-			pass  # to avoid indendting all of the code below lol
-		else:
-			raise EmoteExistsError
-
-		# after reaching this point, the emote doesn't exist already
-
-		# credits to @Liara#0001 (ID 136900814408122368) for most of this part
-		# https://gitlab.com/Pandentia/element-zero/blob/47bc8eeeecc7d353ec66e1ef5235adab98ca9635/element_zero/cogs/emoji.py#L217-228
-		async with self.session.head(url, timeout=5) as response:
-			if response.reason != 'OK':
-				raise HTTPException(response.status)
-			if response.headers.get('Content-Type') not in ('image/png', 'image/jpeg', 'image/gif'):
-				raise InvalidImageError
-
-		async with self.session.get(url) as response:
-			if response.reason != 'OK':
-				raise HTTPException(response.status)
-			image_data = BytesIO(await response.read())
-
-		animated = self.is_animated(image_data.getvalue())
-
-		if not animated:
-			image_data = self.resize_image(image_data)
-
-		guild = self.free_guild(animated)
-		emote = await guild.create_custom_emoji(name=name, image=image_data.read())
-		await self.bot.db.execute(
-			'INSERT INTO emojis(name, id, author, animated) VALUES($1, $2, $3, $4)',
-			name,
-			emote.id,
-			author_id,
-			animated)
-
-	@staticmethod
-	def is_animated(image_data: bytes):
-		"""Return if the image data is animated, or raise InvalidImageError if it's not an image."""
-		if imghdr.test_gif(image_data, None) == 'gif':
-			return True
-		elif imghdr.test_png(image_data, None) == 'png' or imghdr.test_jpeg(image_data, None) == 'jpeg':
-			return False
-		else:
-			raise InvalidImageError
-
 	@staticmethod
 	def emote_url(id):
 		"""Convert an emote ID to the image URL for that emote."""
 		return 'https://cdn.discordapp.com/emojis/%s' % id
 
-	@staticmethod
-	def resize_image(image_data: BytesIO):
-		"""resize an image to 128*128 pixels."""
-		# Credit to @Liara#0001 (ID 136900814408122368)
-		# https://gitlab.com/Pandentia/element-zero/blob/47bc8eeeecc7d353ec66e1ef5235adab98ca9635/element_zero/cogs/emoji.py#L243-247
-		out = BytesIO()
-		image = Image.open(image_data)
-		image.thumbnail((128, 128))
-		image.save(out, 'png')
-		out.seek(0)
-		return out
-
-	def free_guild(self, animated=False):
-		"""Find a guild in the backend guilds suitable for storing an emote.
-
-		As the number of emotes stored by the bot increases, the probability of finding a rate-limited
-		guild approaches 1, but until then, this should work pretty well.
-		"""
-		free_guilds = []
-		for guild in self.guilds:
-			if sum(animated == emote.animated for emote in guild.emojis) < 50:
-				free_guilds.append(guild)
-
-		if not free_guilds:
-			raise NoMoreSlotsError('This bot too weak! Try adding more guilds.')
-
-		# hopefully this lets us bypass the rate limit more often, since emote rates are per-guild
-		return random.choice(free_guilds)
-
-	async def rename_(self, id, new_name):
-		emote = self.bot.get_emoji(id)
-		await emote.edit(name=new_name)
-		await self.bot.db.execute('UPDATE emojis SET name = $2 WHERE id = $1', id, new_name)
-
-	def parse_list(self, text):
-		"""Parse an emote list retrieved from Element Zero."""
-
-		rows = [line.split(' | ') for line in text.split('\n')[2:]]
-		image_column = (row[0] for row in rows)
-		soup = BeautifulSoup(''.join(image_column), 'lxml')
-		images = soup.find_all(attrs={'class': 'emoji'})
-		image_urls = [image.get('src') for image in images]
-		names = [row[1].replace('`', '').replace(':', '') for row in rows if len(row) > 1]
-		# example: @null byte#8191 (140516693242937345)
-		# this gets just the ID
-		authors = [int(row[2].split()[-1].replace('(', '').replace(')', '')) for row in rows if len(row) > 2]
-
-		return zip(names, image_urls, authors)
-
-	def format_row(self, record: asyncpg.Record):
-		"""Format a database record as "markdown" for the ec/list command."""
-		name, id, author, _ = record
-		user = self.bot.get_user(author)
+	def format_user(self, id, *, mention=False):
+		"""Format a user ID for human readable display."""
+		user = self.bot.get_user(id)
 		if user is None:
-			author = 'Unknown user with ID %s' % author
+			formatted = f'Unknown user with ID {id}'
 		else:
-			author = '%s (%s)' % (user, user.id)
-		# only set the width in order to preserve the aspect ratio of the emote
-		return ('<img src="%s" width=32px> | `%s` | %s' %
-			(self.emote_url(id), name, author))
-
-	@staticmethod
-	def format_http_exception(exception: discord.HTTPException):
-		"""Formats a discord.HTTPException for relaying to the user.
-		Sample return value:
-
-		BAD REQUEST (status code: 400):
-		Invalid Form Body
-		In image: File cannot be larger than 256 kb.
-		"""
-		return '{} (status code: {}):\n{}'.format(
-			exception.response.reason, exception.response.status, exception.text)
+			formatted = f'{user.mention if mention else user} ({user.id})'
+		return formatted
 
 
 class EmoteContext(commands.Context):
