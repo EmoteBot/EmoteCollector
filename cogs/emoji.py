@@ -17,7 +17,7 @@ from discord.ext import commands
 from lru import LRU as LRUDict
 from PIL import Image
 
-from utils import create_gist, typing
+from utils import create_gist, pop, typing
 
 
 logger = logging.getLogger('cogs.emoji')
@@ -76,6 +76,7 @@ class Emotes:
 		emotes = await self.extract_emotes(data['content'])
 		reply = self.replies[message_id]
 		if not emotes:
+			del self.replies[message_id]
 			return await reply.delete()
 		elif emotes == reply.content:
 			# don't edit a message if we don't need to
@@ -85,9 +86,8 @@ class Emotes:
 
 	async def on_raw_message_delete(self, message_id, channel_id):
 		"""Ensure that when a message containing emotes is deleted, the emote reply is, too."""
-
 		try:
-			await self.replies.pop(message_id).delete()
+			await pop(self.replies, message_id).delete()
 		except KeyError:
 			pass
 
@@ -96,7 +96,7 @@ class Emotes:
 		if channel is None:
 			return
 
-		messages = (self.replies.pop(id) for id in message_ids if id in self.replies)
+		messages = (pop(self.replies, id) for id in message_ids if id in self.replies)
 
 		try:  # this will only work if we have manage_messages in that channel
 			await channel.delete_messages(messages)

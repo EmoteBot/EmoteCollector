@@ -8,7 +8,17 @@ import sys as _sys
 from aiohttp import ClientSession as _ClientSession
 from discord.ext import commands
 
+
 session = _ClientSession()
+
+
+def pop(d, key, default=None):
+	"""Needed for LRUDicts, which cannot be extended because lru-dict is written in C."""
+	if default is None and key not in d:
+		raise KeyError(key)
+	result = d[key]
+	del d[key]
+	return result
 
 
 def typing(func):
