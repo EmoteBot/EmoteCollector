@@ -169,7 +169,11 @@ class Emotes:
 		else:
 			return await context.send('Your message had no emotes and no name!')
 
-		await self.add_safe(context, name, url)
+		message = await self.add_safe(name, url, context.message.author.id)
+		if message is None:
+			logger.warn('add_safe returned None')
+		else:
+			await context.send(message)
 
 	@commands.command(aliases=['delete', 'delet', 'del', 'rm'])
 	@typing
@@ -331,7 +335,11 @@ class Emotes:
 			text = await resp.text()
 		emotes = self.parse_list(text)
 		for name, image, author in emotes:
-			await self.add_safe(context, name, image, author)
+			message = await self.add_safe(name, image, author)
+			if message is None:
+				logger.warn('add_safe returned None')
+			else:
+				await context.send(message)
 
 	## HELPER FUNCTIONS
 
@@ -356,47 +364,46 @@ class Emotes:
 		"""Format an emote for use in messages."""
 		return '<%s:%s:%s>' % ('a' if animated else '', name, id)
 
-	async def add_safe(self, context, name, url, author=None):
-		"""Add an emote, sending error messages to `context` on failure."""
+	async def add_safe(self, name, url, author):
+		"""Try to add an emote. On failure, return a string that should be sent to the user."""
 		try:
-			message = await self.add_(name, url, context.message.author.id if author is None else author)
+			await self.add_backend(name, url, author)
 		except EmoteExistsError:
-			await context.send('An emote already exists with that name!')
+			return 'An emote already exists with that name!'
 		except discord.HTTPException as ex:
-			error_message = (
+			logger.error(traceback.format_exc())
+			return (
 				'An error occurred while creating the emote:\n'
 				+ self.format_http_exception(ex))
-			await context.send(error_message)
-			logger.error(traceback.format_exc())
+		except HTTPException as ex:
+			return 'URL error: server returned error code %s.' % ex
 		except InvalidImageError:
-			await context.send('URL specified is not a PNG, JPG, or GIF.')
+			return 'URL specified is not a PNG, JPG, or GIF.'
 		else:
-			await context.send(message)
+			return 'Emote %s successfully created.' % await self.get_formatted(name)
 
-	async def add_(self, name, url, author_id):
-		"""Actually add an emote to the database.
-		Returns the message that should be sent to the user as a result of running the add command."""
+	async def add_backend(self, name, url, author_id):
+		"""Actually add an emote to the database."""
 		try:
 			await self.get(name)
 		except EmoteNotFoundError:
-			pass
+			pass  # to avoid indendting all of the code below lol
 		else:
 			raise EmoteExistsError
-		# after reaching this point, the emote doesn't exist already
 
-		url_error_message = 'URL error: Server returned error code %s.'
+		# after reaching this point, the emote doesn't exist already
 
 		# credits to @Liara#0001 (ID 136900814408122368) for most of this part
 		# https://gitlab.com/Pandentia/element-zero/blob/47bc8eeeecc7d353ec66e1ef5235adab98ca9635/element_zero/cogs/emoji.py#L217-228
 		async with self.session.head(url) as response:
 			if response.reason != 'OK':
-				return url_error_message % response.status
+				raise HTTPException(response.status)
 			if response.headers.get('Content-Type') not in ('image/png', 'image/jpeg', 'image/gif'):
 				raise InvalidImageError
 
 		async with self.session.get(url) as response:
 			if response.reason != 'OK':
-				return url_error_message % response.status
+				raise HTTPException(response.status)
 
 			image_data = BytesIO(await response.read())
 
@@ -413,7 +420,6 @@ class Emotes:
 			emote.id,
 			author_id,
 			animated)
-		return 'Emote %s successfully created.' % emote
 
 	@staticmethod
 	def is_animated(image_data: bytes):
@@ -535,6 +541,10 @@ class ConnoisseurError(Exception):
 	"""Generic error with the bot. This can be used to catch all bot errors."""
 	pass
 
+
+class HTTPException(ConnoisseurError):
+	"""The server did not respond with an OK status code."""
+	pass
 
 class EmoteExistsError(ConnoisseurError):
 	"""An emote with that name already exists"""
