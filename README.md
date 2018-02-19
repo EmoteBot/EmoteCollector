@@ -10,8 +10,8 @@ It will be detected and sent by the bot. Using semicolons (;thonkang;) is also s
 Note that this bot is still in <em>beta</em> status, and is subject to change at any time until it becomes stable.
 
 - To add the bot to your server, visit https://discordapp.com/oauth2/authorize?client_id=405953712113057794&scope=bot&permissions=355392.
-- To run your own instance of the bot, read [the installation guide][INSTALLATION.md].
-- If you'd like to help out with the code, read [CONTRIBUTING.md](/CONTRIBUTING.md).
+- To run your own instance of the bot, read [the installation guide](INSTALLATION.md).
+- If you'd like to help out with the code, read [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ### Commands
 
