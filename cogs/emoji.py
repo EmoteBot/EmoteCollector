@@ -141,13 +141,13 @@ class Emotes:
 				'An error occurred while creating the emote:\n'
 				+ self.format_http_exception(ex))
 		except HTTPException as ex:
-			return 'URL error: server returned error code %s.' % ex
+			return f'URL error: server returned error code {ex}.'
 		except asyncio.TimeoutError:
 			return 'Error: retrieving the image took too long.'
 		except InvalidImageError:
 			return 'URL specified is not a PNG, JPG, or GIF.'
 		else:
-			return 'Emote %s successfully created.' % await self.get_formatted(name)
+			return f'Emote {await self.get_formatted(name) successfully created.'
 
 	async def add_backend(self, name, url, author_id):
 		"""Actually add an emote to the database."""
@@ -240,7 +240,7 @@ class Emotes:
 		if emote is not None:
 			logger.debug(name + " 'twas in the cache")
 			await emote.delete()
-			return await context.send('`:%s:` was successfully deleted.' % name)
+			return await context.send(f'`:{name}:` was successfully deleted.'
 		else:
 			logger.error(name + " 'twas not in the cache!")
 
@@ -323,7 +323,7 @@ class Emotes:
 		try:
 			await message.add_reaction(emote_str)
 		except discord.HTTPException as ex:
-			error_message = 'Failed to react with `:%s:`\n%s' % (name, self.format_http_exception(ex))
+			error_message = f'Failed to react with `:{name}:`\n{self.format_http_exception(ex)}'
 			logger.error('react: ' + error_message)
 			logger.error(traceback.format_exc())
 			return await context.send(error_message)
@@ -381,8 +381,7 @@ class Emotes:
 		name, id, author, _ = record
 		author = self.format_user(author)
 		# only set the width in order to preserve the aspect ratio of the emote
-		return ('<img src="%s" width=32px> | `%s` | %s' %
-			(self.emote_url(id), name, author))
+		return f'<img src="{self.emote_url(id)" width=32px> | `:{name}:` | {author}'
 
 	@commands.command()
 	async def find(self, context, name):
@@ -394,11 +393,11 @@ class Emotes:
 		emote = self.bot.get_emoji(id)
 
 		if emote is None:
-			error_message = '`:%s:` was not in the cache!' % name
+			error_message = '`:{name}:` was not in the cache!'
 			logger.error('find: ' + error_message)
 			return await context.send(error_message)
 
-		return await context.send('`:%s:` is in %s.' % (emote.name, emote.guild.name))
+		return await context.send(f'`:{emote.name}:` is in {emote.guild.name}.'
 
 	@commands.command(name='steal-all', hidden=True)
 	@commands.is_owner()
@@ -521,21 +520,19 @@ class Emotes:
 	@staticmethod
 	def format_emote(animated, name, id):
 		"""Format an emote for use in messages."""
-		return '<%s:%s:%s>' % ('a' if animated else '', name, id)
+		return f'<{"a" if animated else ""}:{name}:{id}>'
 
 	@staticmethod
 	def emote_url(id):
 		"""Convert an emote ID to the image URL for that emote."""
-		return 'https://cdn.discordapp.com/emojis/%s' % id
+		return f'https://cdn.discordapp.com/emojis/{id}'
 
 	def format_user(self, id, *, mention=False):
 		"""Format a user ID for human readable display."""
 		user = self.bot.get_user(id)
 		if user is None:
-			formatted = f'Unknown user with ID {id}'
-		else:
-			formatted = f'{user.mention if mention else user} ({user.id})'
-		return formatted
+			return f'Unknown user with ID {id}'
+		return f'{user.mention if mention else user} ({user.id})'
 
 
 class EmoteContext(commands.Context):
@@ -543,19 +540,16 @@ class EmoteContext(commands.Context):
 		try:
 			animated, name, id, author = await self.cog.get(name)
 		except EmoteNotFoundError as exception:
-			await self.send('`:%s:` is not a valid emote.' % name)
-			# logger.error('%s: %s' % (type(exception).__name__, exception))
+			await self.send(f'`:{name}:` is not a valid emote.')
 
 	async def fail_if_not_owner(self, name):
 		# assume that it exists, because it has to exist for anyone to be its owner
 		# also, fail_if_not_exists should do this anyway
 		animated, name, id, emote_author = await self.cog.get(name)
 
-		# By De Morgan's laws, this is equivalent to (not is_owner and not emote_author)
-		# but I think this is clearer :P
-		if not (await self.bot.is_owner(self.author) or emote_author == self.author.id):
-			await self.send(
-				"You're not the author of %s!" % self.cog.format_emote(animated, name, id))
+		# By De Morgan's laws, this is equivalent to not (bot_owner or emote_author)
+		if not await self.bot.is_owner(self.author) and emote_author != self.author.id:
+			await self.send(f"You're not the author of {self.cog.format_emote(animated, name, id)}!")
 			raise PermissionDeniedError
 
 	async def fail_on_bad_emote(self, name):
