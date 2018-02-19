@@ -65,11 +65,11 @@ class Emotes:
 		- name: the name of the emote to get info on
 		"""
 		try:
-			animated, name, id, owner = await self.get(name)
+			emote = await self.get(name)
 		except EmoteNotFoundError:
 			return await context.send('Emote not found.')
-		owner = self.format_user(owner, mention=True)
-		emote = self.format_emote(animated, name, id)
+		owner = self.format_user(emote['author'], mention=True)
+		emote = self.format_emote(emote)
 
 		embed = discord.Embed(title='Emote info')
 		embed.add_field(name='Emote', value=emote)
@@ -147,7 +147,7 @@ class Emotes:
 		except InvalidImageError:
 			return 'URL specified is not a PNG, JPG, or GIF.'
 		else:
-			return f'Emote {await self.get_formatted(name) successfully created.'
+			return 'Emote %s successfully created.' % await self.get_formatted(name)
 
 	async def add_backend(self, name, url, author_id):
 		"""Actually add an emote to the database."""
@@ -231,28 +231,26 @@ class Emotes:
 	async def remove(self, context, name):
 		"""Removes an emote from the bot. You must own it."""
 		await context.fail_on_bad_emote(name)
-		animated, name, id, author = await self.get(name)
+		db_emote = await self.get(name)
+		logger.debug('Trying to delete ', db_emote['name'], db_emote['id'])
 
-		logger.debug('Trying to delete ', name, id)
+		emote = self.bot.get_emoji(db_emote['id'])
+		if emote is None:
+			return await context.send('Discord seems to be having issues right now, try again later.')
 
 		await self.bot.db.execute('DELETE FROM emojis WHERE name ILIKE $1', name)
-		emote = self.bot.get_emoji(id)
-		if emote is not None:
-			logger.debug(name + " 'twas in the cache")
-			await emote.delete()
-			return await context.send(f'`:{name}:` was successfully deleted.'
-		else:
-			logger.error(name + " 'twas not in the cache!")
+		await emote.delete()
+		await context.send(f'`:{db_emote["name"]}:` was successfully deleted.')
 
 	@commands.command(aliases=['mv'])
 	@typing
 	async def rename(self, context, old_name, new_name):
 		"""Renames an emote. You must own it."""
 		await context.fail_on_bad_emote(old_name)
-		animated, old_name, id, author = await self.get(old_name)
+		emote = await self.get(old_name)
 
 		try:
-			await self.rename_backend(id, new_name)
+			await self.rename_backend(emote['id'], new_name)
 		except discord.Forbidden:
 			await context.send(
 				'Unable to rename the emote because of missing permissions. This should not happen.\n'
@@ -291,7 +289,7 @@ class Emotes:
 		then right clicking on the message you want and clicking "Copy ID". Same for channel IDs.
 		"""
 		await context.fail_if_not_exists(name)
-		animated, name, emote_id, _ = await self.get(name)
+		db_emote = await self.get(name)
 
 		if channel is None:
 			channel = context.channel
@@ -313,12 +311,12 @@ class Emotes:
 
 		# there's no need to react to a message if that reaction already exists
 		def same_emote(reaction):
-			return getattr(reaction.emoji, 'id', None) == emote_id
+			return getattr(reaction.emoji, 'id', None) == db_emote['id']
 
 		if discord.utils.find(same_emote, message.reactions):
 			return await context.send('You can already react to that message, silly!', delete_after=5)
 
-		emote_str = self.format_emote(animated, name, emote_id)[1:-1]  # skip the <>
+		emote_str = self.format_emote(db_emote)[1:-1]  # skip the <>
 
 		try:
 			await message.add_reaction(emote_str)
@@ -336,7 +334,7 @@ class Emotes:
 			return (
 				message_id == message.id
 				and user_id == context.message.author.id
-				and emote_id == getattr(emote, 'id', None))  # unicode emoji have no id
+				and db_emote['id'] == getattr(emote, 'id', None))  # unicode emoji have no id
 
 		try:
 			await self.bot.wait_for('raw_reaction_add', timeout=30, check=check)
@@ -381,7 +379,7 @@ class Emotes:
 		name, id, author, _ = record
 		author = self.format_user(author)
 		# only set the width in order to preserve the aspect ratio of the emote
-		return f'<img src="{self.emote_url(id)" width=32px> | `:{name}:` | {author}'
+		return f'<img src="{self.emote_url(id)}" width=32px> | `:{name}:` | {author}'
 
 	@commands.command()
 	async def find(self, context, name):
@@ -389,15 +387,15 @@ class Emotes:
 		This is useful because emotes are added to random guilds to avoid rate limits.
 		"""
 		await context.fail_if_not_exists(name)
-		animated, name, id, author = await self.get(name)
-		emote = self.bot.get_emoji(id)
+		emote = await self.get(name)
+		emote = self.bot.get_emoji(emote['id'])
 
 		if emote is None:
 			error_message = '`:{name}:` was not in the cache!'
 			logger.error('find: ' + error_message)
 			return await context.send(error_message)
 
-		return await context.send(f'`:{emote.name}:` is in {emote.guild.name}.'
+		return await context.send(f'`:{emote.name}:` is in {emote.guild.name}.')
 
 	@commands.command(name='steal-all', hidden=True)
 	@commands.is_owner()
@@ -505,22 +503,22 @@ class Emotes:
 		"""Retrieve an emote from the database by name."""
 
 		row = await self.bot.db.fetchrow("""
-			SELECT *
+			SELECT animated, name, id, author
 			FROM emojis
 			WHERE name ILIKE $1""",
 			name)
 		if row is None:
 			raise EmoteNotFoundError(name)
-		return row['animated'], row['name'], row['id'], row['author']
+		return row
 
 	async def get_formatted(self, name):
 		"""Retrieve an emote from the database by name, and format it for use in messages."""
-		return self.format_emote(*(await self.get(name))[:-1])
+		return self.format_emote(await self.get(name))
 
 	@staticmethod
-	def format_emote(animated, name, id):
+	def format_emote(emote):
 		"""Format an emote for use in messages."""
-		return f'<{"a" if animated else ""}:{name}:{id}>'
+		return f"<{'a' if emote['animated'] else ''}:{emote['name']}:{emote['id']}>"
 
 	@staticmethod
 	def emote_url(id):
@@ -538,17 +536,17 @@ class Emotes:
 class EmoteContext(commands.Context):
 	async def fail_if_not_exists(self, name):
 		try:
-			animated, name, id, author = await self.cog.get(name)
+			await self.cog.get(name)
 		except EmoteNotFoundError as exception:
 			await self.send(f'`:{name}:` is not a valid emote.')
 
 	async def fail_if_not_owner(self, name):
 		# assume that it exists, because it has to exist for anyone to be its owner
 		# also, fail_if_not_exists should do this anyway
-		animated, name, id, emote_author = await self.cog.get(name)
+		emote = await self.cog.get(name)
 
 		# By De Morgan's laws, this is equivalent to not (bot_owner or emote_author)
-		if not await self.bot.is_owner(self.author) and emote_author != self.author.id:
+		if not await self.bot.is_owner(self.author) and emote['author'] != self.author.id:
 			await self.send(f"You're not the author of {self.cog.format_emote(animated, name, id)}!")
 			raise PermissionDeniedError
 
