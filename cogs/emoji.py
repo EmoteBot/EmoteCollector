@@ -24,8 +24,10 @@ logger = logging.getLogger('cogs.emoji')
 
 
 class Emotes:
-	EMOTE_REGEX = re.compile(r'<a?:([\w_]{2,32}):(\d{15,21})>', re.ASCII)
-	EMOTE_IN_TEXT_REGEX = re.compile(r'(?!<:)<?(;|:)([\w_]{2,32})(?!:\d+>)\1(?:\d+>)?', re.ASCII)
+	RE_EMOTE = re.compile(r':([\w_]{2,32}):', re.ASCII)
+	RE_ALT_EMOTE = re.compile(r';([\w_]{2,32});', re.ASCII)
+	RE_CUSTOM_EMOTE = re.compile(r'<a?:([\w_]{2,32}):(\d{15,21})>', re.ASCII)
+	RE_CODE = re.compile(r'`{1,3}.+?`{1,3}', re.DOTALL)
 
 	def __init__(self, bot):
 		self.bot = bot
@@ -59,8 +61,7 @@ class Emotes:
 	async def on_message(self, message):
 		"""Reply to messages containing :name: or ;name; with the corresponding emotes.
 		This is like half the functionality of the bot"""
-
-		if message.author.bot:
+		if message.author.bot or not message.content:
 			return
 
 		emotes = await self.extract_emotes(message.content)
@@ -107,13 +108,10 @@ class Emotes:
 	async def extract_emotes(self, message: str):
 		"""Parse all emotes (:name: or ;name;) from a message"""
 
-		names = []
-		for match in self.EMOTE_IN_TEXT_REGEX.finditer(message):
-			try:
-				names.append(match.group(2))
-			except IndexError:
-				pass
+		message = self.RE_CODE.sub('', message)
+		message = self.RE_CUSTOM_EMOTE.sub('', message)
 
+		names = self.RE_EMOTE.findall(message) + self.RE_ALT_EMOTE.findall(message)
 		if not names:
 			return
 
@@ -150,7 +148,7 @@ class Emotes:
 			url = attachment.url
 
 		elif len(args) == 1:
-			match = self.EMOTE_REGEX.match(args[0])
+			match = self.RE_CUSTOM_EMOTE.match(args[0])
 			if match is None:
 				return await context.send("That's not an emote!")
 			else:
@@ -158,9 +156,8 @@ class Emotes:
 				url = self.emote_url(id)
 
 		elif len(args) == 2:
-			# finally, an easy case
 			name = args[0]
-			match = self.EMOTE_REGEX.match(args[1])
+			match = self.RE_CUSTOM_EMOTE.match(args[1])
 			if match is None:
 				url = args[1]
 			else:
@@ -549,6 +546,7 @@ class ConnoisseurError(Exception):
 class HTTPException(ConnoisseurError):
 	"""The server did not respond with an OK status code."""
 	pass
+
 
 class EmoteExistsError(ConnoisseurError):
 	"""An emote with that name already exists"""
