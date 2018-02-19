@@ -108,7 +108,7 @@ class Emotes:
 			name = args[0]
 			match = self.RE_CUSTOM_EMOTE.match(args[1])
 			if match is None:
-				url = args[1]
+				url = self.strip_noembed_url(args[1])
 			else:
 				url = self.emote_url(match.group(2))
 
@@ -120,6 +120,14 @@ class Emotes:
 			logger.warn('add_safe returned None')
 		else:
 			await context.send(message)
+
+	@staticmethod
+	def strip_noembed_url(url):
+		"""Strips leading < and trailing > from a URL."""
+		if url.startswith('<') and url.endswith('>'):
+			return re.sub('^<|>$', '', url)
+		else:
+			return url
 
 	async def add_safe(self, name, url, author):
 		"""Try to add an emote. On failure, return a string that should be sent to the user."""
