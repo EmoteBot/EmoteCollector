@@ -1,11 +1,17 @@
 # Emoji Connoisseur
 
+[![Discord Bots](https://discordbots.org/api/widget/status/405953712113057794.svg)](https://discordbots.org/bot/405953712113057794)
+
 Emoji Connoisseur lets you use emotes you don't have, even without Nitro.
 
 Once you've found an emoji you'd like to use, just send it as if you were sending a regular Discord emoji (e.g. :speedtest:).
 It will be detected and sent by the bot. Using semicolons (;thonkang;) is also supported.
 
 Note that this bot is still in <em>beta</em> status, and is subject to change at any time until it becomes stable.
+
+- To add the bot to your server, visit https://discordapp.com/oauth2/authorize?client_id=405953712113057794&scope=bot&permissions=355392.
+- To run your own instance of the bot, read [the installation guide][INSTALLATION.md].
+- If you'd like to help out with the code, read [CONTRIBUTING.md](/CONTRIBUTING.md).
 
 ### Commands
 
