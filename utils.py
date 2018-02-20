@@ -3,7 +3,6 @@
 
 from functools import wraps as _wraps
 import json as _json
-import sys as _sys
 
 from aiohttp import ClientSession as _ClientSession
 from discord.ext import commands
