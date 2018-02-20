@@ -1,7 +1,7 @@
 {
 	"description": "Curates emojis from any server and lets you use them without Nitro.",
 	"client_id": "1234",
-
+	"copyright_license_file": "data/short-license.txt",
 	"support_server_invite_code": "Zujf4K",
 
 	"extra_owners": [

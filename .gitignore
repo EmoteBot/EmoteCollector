@@ -5,5 +5,4 @@ __pycache__/
 # selenium
 geckodriver.log
 
-data/*
-!data/config.example.json
+data/config.json
