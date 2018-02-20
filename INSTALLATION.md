@@ -22,7 +22,7 @@ and edit `client_id`, `tokens.discord`, and the database section.
 4) Create a brand new Discord user account. This is to hold the guilds that will store the emotes.
 Sign in to this account, and get the token for it.
 Unfortunately, every time I make a new alt, discord requires me to verify it by phone.
-If this happens to you, you must use an actual physical phone number, rather than a VOiP number,
+If this happens to you, you must use an actual physical phone number, rather than a VoIP number,
 and make sure it hasn't been used to verify any other Discord account.
 5) Run `./backend_creator.py $token`.
 It'll create the guilds, and once it's finished, open a Firefox window.
