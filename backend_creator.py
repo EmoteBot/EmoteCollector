@@ -45,10 +45,10 @@ def print_status(status_message, synchronous=False):
 @bot.event
 async def on_ready():
 	print('Ready.')
-	# await wipe_guilds()
-	# await create_guilds(prefix='EmojiBackend ', limit=100)
-	# await clear_guilds()
-	# await rename_guilds()
+	await wipe_guilds()
+	await create_guilds(prefix='EmojiBackend ', limit=100)
+	await clear_guilds()
+	await rename_guilds()
 	add_bot_to_guilds()
 	await bot.logout()
 	return
