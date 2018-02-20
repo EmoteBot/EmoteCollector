@@ -10,11 +10,11 @@ import re
 import traceback
 
 import aiohttp
+from utils import LRUDict
 import asyncpg  # used only for asyncpg.Record currently
 from bs4 import BeautifulSoup
 import discord
 from discord.ext import commands
-from lru import LRU as LRUDict
 from PIL import Image
 
 from utils import create_gist, pop, typing
@@ -32,11 +32,11 @@ class Emotes:
 	def __init__(self, bot):
 		self.bot = bot
 		self.bot.loop.create_task(self.find_backend_guilds())
-		self.session = aiohttp.ClientSession(read_timeout=30)
+		self.session = aiohttp.ClientSession(loop=self.bot.loop, read_timeout=30)
 
 		# Keep track of replies so that if the user edits/deletes a message,
 		# we delete/edit the corresponding reply.
-		self.replies = LRUDict(1000)
+		self.replies = LRUDict(limit=1000)
 
 	def __unload(self):
 		self.session.close()
@@ -483,7 +483,7 @@ class Emotes:
 	async def on_raw_message_delete(self, message_id, _):
 		"""Ensure that when a message containing emotes is deleted, the emote reply is, too."""
 		try:
-			message = pop(self.replies, message_id)
+			message = self.replies.pop(message_id)
 		except KeyError:
 			return
 
