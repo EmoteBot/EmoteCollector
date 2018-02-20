@@ -17,7 +17,7 @@ import discord
 from discord.ext import commands
 from PIL import Image
 
-from utils import create_gist, pop, typing
+from utils import create_gist, LRUDict, typing
 
 
 logger = logging.getLogger('cogs.emoji')
@@ -63,8 +63,9 @@ class Emotes:
 		"""Directs you the support server."""
 		try:
 			await context.author.send('https://discord.gg/' + self.bot.config['support_server_invite_code'])
-			await context.send('\N{ok hand sign}')
+			await message.add_reaction('\N{ok hand sign}')
 		except discord.HTTPException:
+			await message.add_reaction('\N{cross mark}')
 			await context.send('Unable to send invite in DMs. Please allow DMs from server members.')
 
 	@commands.command()
