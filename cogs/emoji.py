@@ -283,7 +283,6 @@ class Emotes:
 	@commands.command()
 	async def react(self, context, name, message: int = None, channel: int = None):
 		"""Add a reaction to a message. Sad reacts only please.
-		`ec/add <name> [message ID] [channel ID]`
 		If no message ID and no channel ID is provided, it'll react to the last sent message.
 		You can get the message ID by enabling developer mode (in Settings→Appearance),
 		then right clicking on the message you want and clicking "Copy ID". Same for channel IDs.
