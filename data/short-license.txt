@@ -1,3 +1,7 @@
+​
+If you're just after the source code, you can find it at
+https://github.com/bmintz/emoji-connoisseur.
+
 Emoji Connoisseur lets you use emotes from any server without nitro
 Copyright (C) 2018 Benjamin Mintz
 
