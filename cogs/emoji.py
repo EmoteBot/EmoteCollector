@@ -547,7 +547,7 @@ class EmoteContext(commands.Context):
 
 		# By De Morgan's laws, this is equivalent to not (bot_owner or emote_author)
 		if not await self.bot.is_owner(self.author) and emote['author'] != self.author.id:
-			await self.send(f"You're not the author of {self.cog.format_emote(animated, name, id)}!")
+			await self.send(f"You're not the author of {self.cog.format_emote(emote)}!")
 			raise PermissionDeniedError
 
 	async def fail_on_bad_emote(self, name):
