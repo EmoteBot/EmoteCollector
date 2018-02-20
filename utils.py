@@ -4,12 +4,13 @@
 from functools import wraps as _wraps
 import json as _json
 
+import asyncio as _asyncio
 from aiohttp import ClientSession as _ClientSession
-from discord.ext import commands
+from discord.ext import commands as _commands
 from lru import LRU as _LRUDict
 
 
-session = _ClientSession()
+session = _ClientSession(loop=_asyncio.get_event_loop())
 _sentinel = object()
 
 
@@ -24,7 +25,7 @@ def typing(func):
 	async def wrapped(*args, **kwargs):
 		# if func is a method, args starts with self, context, ...
 		# otherwise args starts with context, ...
-		context = args[0] if isinstance(args[0], commands.Context) else args[1]
+		context = args[0] if isinstance(args[0], _commands.Context) else args[1]
 		async with context.typing():
 			await func(*args, **kwargs)
 	return wrapped
