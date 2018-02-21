@@ -50,6 +50,9 @@ class LRUDict:
 	def __init__(self, limit):
 		self._dict = _LRUDict(limit)
 
+	def __delitem__(self, key):
+		del self._dict[key]
+
 	def __getitem__(self, key):
 		return self._dict[key]
 
