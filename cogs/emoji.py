@@ -574,7 +574,7 @@ class Emotes:
 	@staticmethod
 	def emote_url(id):
 		"""Convert an emote ID to the image URL for that emote."""
-		return f'https://cdn.discordapp.com/emojis/{id}'
+		return f'https://cdn.discordapp.com/emojis/{id}?v=1'
 
 	def format_user(self, id, *, mention=False):
 		"""Format a user ID for human readable display."""
