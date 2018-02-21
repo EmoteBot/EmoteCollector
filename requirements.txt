@@ -1,5 +1,6 @@
 aiofiles
 asyncpg
+bs4
 git+https://github.com/Rapptz/discord.py@rewrite#egg=discord.py
 jishaku
 lru-dict
