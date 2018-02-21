@@ -19,6 +19,7 @@ GRANT ALL PRIVILEGES ON DATABASE connoisseur TO connoisseur;
 ```
 3) Copy `data/config.example.json` to `data/config.json`,
 and edit `client_id`, `tokens.discord`, and the database section.
+If you're testing changes to the bot, use `"release": "development"`, otherwise use `"production"`.
 4) Create a brand new Discord user account. This is to hold the guilds that will store the emotes.
 Sign in to this account, and get the token for it.
 Unfortunately, every time I make a new alt, discord requires me to verify it by phone.
