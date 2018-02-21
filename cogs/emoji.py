@@ -204,9 +204,10 @@ class Emotes:
 	@staticmethod
 	def is_animated(image_data: bytes):
 		"""Return if the image data is animated, or raise InvalidImageError if it's not an image."""
-		if imghdr.test_gif(image_data, None) == 'gif':
+		type = imghdr.what(None, image_data)
+		if type == 'gif':
 			return True
-		elif imghdr.test_png(image_data, None) == 'png' or imghdr.test_jpeg(image_data, None) == 'jpeg':
+		elif type in ('png', 'jpeg'):
 			return False
 		else:
 			raise InvalidImageError
@@ -511,7 +512,7 @@ class Emotes:
 
 	async def on_raw_bulk_message_delete(self, message_ids, _):
 		for message_id in message_ids:
-			await self.on_raw_message_delete(message_id)
+			await self.on_raw_message_delete(message_id, _)
 
 	## HELPER FUNCTIONS
 
