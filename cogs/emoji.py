@@ -245,19 +245,23 @@ class Emotes:
 
 	@commands.command(aliases=['delete', 'delet', 'del', 'rm'])
 	@typing
-	async def remove(self, context, name):
-		"""Removes an emote from the bot. You must own it."""
-		await context.fail_on_bad_emote(name)
-		db_emote = await self.get(name)
-		logger.debug('Trying to delete ', db_emote['name'], db_emote['id'])
+	async def remove(self, context, *args):
+		"""Removes one or more emotes from the bot. You must own all of them."""
+		messages = []
+		for name in args:
+			await context.fail_on_bad_emote(name)
+			db_emote = await self.get(name)
+			logger.debug('Trying to delete ', db_emote['name'], db_emote['id'])
 
-		emote = self.bot.get_emoji(db_emote['id'])
-		if emote is None:
-			return await context.send('Discord seems to be having issues right now, try again later.')
+			emote = self.bot.get_emoji(db_emote['id'])
+			if emote is None:
+				return await context.send('Discord seems to be having issues right now, try again later.')
 
-		await self.bot.db.execute('DELETE FROM emojis WHERE name ILIKE $1', name)
-		await emote.delete()
-		await context.send(f'`:{db_emote["name"]}:` was successfully deleted.')
+			await self.bot.db.execute('DELETE FROM emojis WHERE name ILIKE $1', name)
+			await emote.delete()
+			messages.append(f'`:{db_emote["name"]}:` was successfully deleted.')
+
+		await context.send(self.fix_first_line(messages))
 
 	@commands.command(aliases=['mv'])
 	@typing
@@ -468,7 +472,7 @@ class Emotes:
 			image_url = self.emote_url(id)
 			messages.append(await self.add_safe(name, image_url, context.author.id))
 		# XXX this will fail if len > 2000
-		await context.send('\N{zero width space}\n' + '\n'.join(messages))
+		await context.send(self.fix_first_line(messages))
 
 	## EVENTS
 
@@ -502,20 +506,13 @@ class Emotes:
 
 	async def extract_emotes(self, message: str):
 		"""Parse all emotes (:name: or ;name;) from a message"""
-		zwsp = '\N{zero width space}'
 		# don't respond to code blocks or custom emotes, since custom emotes also have :foo: in them
 		message = self.RE_CODE.sub('', message)
 		message = self.RE_CUSTOM_EMOTE.sub('', message)
 		lines = message.splitlines()
-		multiline = len(lines) > 1
+		result = self.fix_first_line([await self.extract_emotes_line(line) for line in lines])
 
-		lines = [await self.extract_emotes_line(line) for line in lines]
-		if multiline:
-			# in compact mode, the first line is misaligned because of the bot's username
-			lines[0] = zwsp + '\n' + lines[0]
-		result = '\n'.join(lines)
-
-		if result.replace(zwsp, '').strip() != '':  # don't send an empty message
+		if result.replace('\N{zero width space}', '').strip() != '':  # don't send an empty message
 			return result
 
 	async def extract_emotes_line(self, line: str) -> str:
@@ -585,6 +582,13 @@ class Emotes:
 		if user is None:
 			return f'Unknown user with ID {id}'
 		return f'{user.mention if mention else user} ({user.id})'
+
+	@staticmethod
+	def fix_first_line(lines: list) -> str:
+		"""In compact mode, prevent the first line from being misaligned because of the bot's username"""
+		if len(lines) > 1:
+			lines[0] = '\N{zero width space}\n' + lines[0]
+		return '\n'.join(lines)
 
 
 class EmoteContext(commands.Context):
