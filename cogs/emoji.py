@@ -27,7 +27,7 @@ class Emotes:
 	"""Commands related to the main functionality of the bot"""
 
 	"""Matches :foo: and ;foo; but not :foo;. Used for emotes in text."""
-	RE_EMOTE = re.compile(r'(:|;)([\w_]{2,32})\1', re.ASCII)
+	RE_EMOTE = re.compile(r'(:|;)(\w{2,32})\1', re.ASCII)
 	"""Matches only custom server emoji."""
 	RE_CUSTOM_EMOTE = re.compile(r'<a?:(\w{2,32}):(\d{15,21})>', re.ASCII)
 	"""Matches code blocks, which should be ignored."""
