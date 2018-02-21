@@ -27,7 +27,7 @@ class Emotes:
 	"""Commands related to the main functionality of the bot"""
 
 	"""Matches :foo: and ;foo; but not :foo;. Used for emotes in text."""
-	RE_EMOTE = re.compile(r'(:|;)(\w{2,32})\1', re.ASCII)
+	RE_EMOTE = re.compile(r'(:|;)(\w{2,32})\1(\n?)', re.ASCII)
 	"""Matches only custom server emoji."""
 	RE_CUSTOM_EMOTE = re.compile(r'<a?:(\w{2,32}):(\d{15,21})>', re.ASCII)
 	"""Matches code blocks, which should be ignored."""
@@ -484,21 +484,27 @@ class Emotes:
 		message = self.RE_CODE.sub('', message)
 		message = self.RE_CUSTOM_EMOTE.sub('', message)
 
-		# RE_EMOTE uses \1 to match the same punctuation mark on both ends, so \2 is the actual name
-		names = [match.group(2) for match in self.RE_EMOTE.finditer(message)]
+		# RE_EMOTE uses the first group to match the same punctuation mark on both ends,
+		# so the second group is the actual name
+		# the third group is a newline if it exists
+		names = [match.groups()[1:] for match in self.RE_EMOTE.finditer(message)]
 		if not names:
 			return
 
 		emotes = []
 		for name in names:
 			try:
-				emotes.append(await self.get_formatted(name))
+				emotes.append(await self.get_formatted(name[0]) + name[1] if len(name) > 1 else '')
 			except EmoteNotFoundError:
 				pass
 		if not emotes:
 			return
 
-		return ''.join(emotes)
+		message = ''.join(emotes)
+		if '\n' in message:
+			# in compact mode, the first line is misaligned because of the bot's username
+			message = '\N{zero width space}\n' + message
+		return message
 
 	async def on_raw_message_delete(self, message_id, _):
 		"""Ensure that when a message containing emotes is deleted, the emote reply is, too."""
