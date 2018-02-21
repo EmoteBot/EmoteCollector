@@ -27,7 +27,7 @@ class Emotes:
 	"""Commands related to the main functionality of the bot"""
 
 	"""Matches :foo: and ;foo; but not :foo;. Used for emotes in text."""
-	RE_EMOTE = re.compile(r'(:|;)(\w{2,32})\1(\n?)', re.ASCII)
+	RE_EMOTE = re.compile(r'(:|;)(\w{2,32})\1', re.ASCII)
 	"""Matches only custom server emoji."""
 	RE_CUSTOM_EMOTE = re.compile(r'<a?:(\w{2,32}):(\d{15,21})>', re.ASCII)
 	"""Matches code blocks, which should be ignored."""
@@ -456,9 +456,9 @@ class Emotes:
 		if self.bot.config['release'] != 'development' and message.author.bot or not message.content:
 			return
 
-		emotes = await self.extract_emotes(message.content)
-		if emotes:
-			self.replies[message.id] = await message.channel.send(emotes)
+		reply = await self.extract_emotes(message.content)
+		if reply is not None:  # don't send empty whitespace
+			self.replies[message.id] = await message.channel.send(reply)
 
 	async def on_raw_message_edit(self, message_id, data):
 		"""Ensure that when a message containing emotes is edited, the corresponding emote reply is, too."""
@@ -468,7 +468,7 @@ class Emotes:
 
 		emotes = await self.extract_emotes(data['content'])
 		reply = self.replies[message_id]
-		if not emotes:
+		if emotes is None:
 			del self.replies[message_id]
 			return await reply.delete()
 		elif emotes == reply.content:
@@ -479,32 +479,38 @@ class Emotes:
 
 	async def extract_emotes(self, message: str):
 		"""Parse all emotes (:name: or ;name;) from a message"""
-
+		zwsp = '\N{zero width space}'
 		# don't respond to code blocks or custom emotes, since custom emotes also have :foo: in them
 		message = self.RE_CODE.sub('', message)
 		message = self.RE_CUSTOM_EMOTE.sub('', message)
+		lines = message.splitlines()
+		multiline = len(lines) > 1
 
+		lines = [await self.extract_emotes_line(line) for line in lines]
+		if multiline:
+			# in compact mode, the first line is misaligned because of the bot's username
+			lines[0] = zwsp + '\n' + lines[0]
+		result = '\n'.join(lines)
+
+		if result.replace(zwsp, '').strip() != '':  # don't send an empty message
+			return result
+
+	async def extract_emotes_line(self, line: str) -> str:
+		"""Extract emotes from a single line."""
 		# RE_EMOTE uses the first group to match the same punctuation mark on both ends,
 		# so the second group is the actual name
-		# the third group is a newline if it exists
-		names = [match.groups()[1:] for match in self.RE_EMOTE.finditer(message)]
+		names = [match.group(2) for match in self.RE_EMOTE.finditer(line)]
 		if not names:
-			return
+			return ''
 
 		emotes = []
 		for name in names:
 			try:
-				emotes.append(await self.get_formatted(name[0]) + name[1] if len(name) > 1 else '')
+				emotes.append(await self.get_formatted(name))
 			except EmoteNotFoundError:
 				pass
-		if not emotes:
-			return
 
-		message = ''.join(emotes)
-		if '\n' in message:
-			# in compact mode, the first line is misaligned because of the bot's username
-			message = '\N{zero width space}\n' + message
-		return message
+		return ''.join(emotes)
 
 	async def on_raw_message_delete(self, message_id, _):
 		"""Ensure that when a message containing emotes is deleted, the emote reply is, too."""
