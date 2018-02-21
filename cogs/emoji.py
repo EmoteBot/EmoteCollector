@@ -24,9 +24,13 @@ logger = logging.getLogger('cogs.emoji')
 
 
 class Emotes:
-	RE_EMOTE = re.compile(r':([\w_]{2,32}):', re.ASCII)
-	RE_ALT_EMOTE = re.compile(r';([\w_]{2,32});', re.ASCII)
-	RE_CUSTOM_EMOTE = re.compile(r'<a?:([\w_]{2,32}):(\d{15,21})>', re.ASCII)
+	"""Commands related to the main functionality of the bot"""
+
+	"""Matches :foo: and ;foo; but not :foo;. Used for emotes in text."""
+	RE_EMOTE = re.compile(r'(:|;)([\w_]{2,32})\1', re.ASCII)
+	"""Matches only custom server emoji."""
+	RE_CUSTOM_EMOTE = re.compile(r'<a?:(\w{2,32}):(\d{15,21})>', re.ASCII)
+	"""Matches code blocks, which should be ignored."""
 	RE_CODE = re.compile(r'`{1,3}.+?`{1,3}', re.DOTALL)
 
 	def __init__(self, bot):
@@ -164,7 +168,7 @@ class Emotes:
 		try:
 			await self.get(name)
 		except EmoteNotFoundError:
-			pass  # to avoid indendting all of the code below lol
+			pass  # to avoid indenting all of the code below lol
 		else:
 			raise EmoteExistsError
 
@@ -473,10 +477,12 @@ class Emotes:
 	async def extract_emotes(self, message: str):
 		"""Parse all emotes (:name: or ;name;) from a message"""
 
+		# don't respond to code blocks or custom emotes, since custom emotes also have :foo: in them
 		message = self.RE_CODE.sub('', message)
 		message = self.RE_CUSTOM_EMOTE.sub('', message)
 
-		names = self.RE_EMOTE.findall(message) + self.RE_ALT_EMOTE.findall(message)
+		# RE_EMOTE uses \1 to match the same punctuation mark on both ends, so \2 is the actual name
+		names = [match.group(2) for match in self.RE_EMOTE.finditer(message)]
 		if not names:
 			return
 
