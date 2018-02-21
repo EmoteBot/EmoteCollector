@@ -159,7 +159,9 @@ class Emotes:
 		except asyncio.TimeoutError:
 			return 'Error: retrieving the image took too long.'
 		except InvalidImageError:
-			return 'URL specified is not a PNG, JPG, or GIF.'
+			return 'Error: URL specified is not a PNG, JPG, or GIF.'
+		except ValueError:
+			return 'Error: Invalid URL.'
 		else:
 			return 'Emote %s successfully created.' % await self.get_formatted(name)
 
