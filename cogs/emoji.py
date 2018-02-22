@@ -464,10 +464,10 @@ class Emotes:
 
 	@commands.command(name='steal-these')
 	@typing
-	async def steal_these(self, context, *args):
+	async def steal_these(self, context, *emotes):
 		"""Steal a bunch of custom emotes."""
 		messages = []
-		for match in self.RE_CUSTOM_EMOTE.finditer(''.join(args)):
+		for match in self.RE_CUSTOM_EMOTE.finditer(''.join(emotes)):
 			name, id = match.groups()
 			image_url = self.emote_url(id)
 			messages.append(await self.add_safe(name, image_url, context.author.id))
