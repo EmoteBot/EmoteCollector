@@ -166,12 +166,8 @@ class Emotes:
 
 	async def add_backend(self, name, url, author_id):
 		"""Actually add an emote to the database."""
-		try:
-			await self.get(name)
-		except EmoteNotFoundError:
-			pass  # to avoid indenting all of the code below lol
-		else:
-			raise EmoteExistsError
+		if await self.exists(name):
+			raise EmoteExistsError(name)
 
 		# after reaching this point, the emote doesn't exist already
 
@@ -561,6 +557,15 @@ class Emotes:
 			raise EmoteNotFoundError(name)
 		return row
 
+	async def exists(self, name) -> bool:
+		"""Return whether an emote with that name exists."""
+		try:
+			await self.get(name)
+		except EmoteNotFoundError:
+			return False
+		else:
+			return True
+
 	async def get_formatted(self, name):
 		"""Retrieve an emote from the database by name, and format it for use in messages."""
 		return self.format_emote(await self.get(name))
@@ -594,10 +599,9 @@ class Emotes:
 
 class EmoteContext(commands.Context):
 	async def fail_if_not_exists(self, name):
-		try:
-			await self.cog.get(name)
-		except EmoteNotFoundError as exception:
+		if not await self.cog.exists(name):
 			await self.send(f'`:{name}:` is not a valid emote.')
+			raise EmoteNotFoundError
 
 	async def fail_if_not_owner(self, name):
 		# assume that it exists, because it has to exist for anyone to be its owner
