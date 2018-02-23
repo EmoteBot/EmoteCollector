@@ -368,9 +368,10 @@ class Emotes:
 				pass
 
 	@commands.command()
-	async def describe(self, context, name, *, description):
+	async def describe(self, context, name, *, description=None):
 		"""Set an emote's description. It will be shown in ec/info.
 
+		If you leave out the description, the bot will remove it.
 		You could use this to:
 		- Detail where you got the image
 		- Credit another author
