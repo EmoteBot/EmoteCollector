@@ -64,7 +64,7 @@ class EmojiConnoisseur(commands.Bot):
 				'cogs.meta',
 				'jishaku',
 				'cogs.external.admin',  # fallback in case jishaku doesn't work
-				'cogs.external.stats',
+				'cogs.stats',
 				'cogs.external.misc'):
 			try:
 				self.load_extension(extension)
