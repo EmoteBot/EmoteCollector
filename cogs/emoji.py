@@ -88,6 +88,10 @@ class Emotes:
 		embed.add_field(name='Emote', value=emote)
 		embed.add_field(name='Owner', value=owner)
 
+		description = await self.bot.db.fetchval('SELECT description FROM emojis WHERE NAME ILIKE $1', name)
+		if description is not None:
+			embed.add_field(name='Description', value=description, inline=False)
+
 		await context.send(embed=embed)
 
 	@commands.command(aliases=['create'])
