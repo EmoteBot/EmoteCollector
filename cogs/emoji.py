@@ -364,6 +364,25 @@ class Emotes:
 				pass
 
 	@commands.command()
+	async def describe(self, context, name, *, description):
+		"""Set an emote's description. It will be shown in ec/info.
+
+		You could use this to:
+		- Detail where you got the image
+		- Credit another author
+		- Write about why you like the emote
+		- Describe how it's used
+
+		There's a 500 character limit.
+		"""
+		await context.fail_on_bad_emote(name)
+		await self.bot.db.execute(
+			'UPDATE emojis SET DESCRIPTION = $2 WHERE NAME ILIKE $1',
+			name,
+			description)
+		await context.try_add_reaction('\N{white heavy check mark}')
+
+	@commands.command()
 	@typing
 	async def list(self, context, *, user: discord.User = None):
 		"""List all emotes the bot knows about.
@@ -618,6 +637,13 @@ class EmoteContext(commands.Context):
 		# but I'm pretty sure asyncpg caches queries.
 		await self.fail_if_not_exists(name)
 		await self.fail_if_not_owner(name)
+
+	async def try_add_reaction(self, emoji):
+		"""Try to add a reaction to the message. If it fails, send a message instead."""
+		try:
+			await self.message.add_reaction(emoji)
+		except discord.Forbidden:
+			await self.send(str(emoji))
 
 
 class ConnoisseurError(Exception):
