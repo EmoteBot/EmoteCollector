@@ -1,8 +1,8 @@
 # encoding: utf-8
 
-from .external.stats import Stats
+import asyncio
 
-import time
+from .external.stats import Stats
 
 
 class EmojiConnoisseurStats(Stats):
