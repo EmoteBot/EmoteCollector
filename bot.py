@@ -20,7 +20,10 @@ class EmojiConnoisseur(commands.Bot):
 	def __init__(self, *args, **kwargs):
 		self.config = db.CONFIG
 		self.db = db.DB
-		super().__init__(command_prefix=commands.when_mentioned_or('ec/'), *args, **kwargs)
+		super().__init__(
+			command_prefix=commands.when_mentioned_or('ec/'),
+			description=self.config['description'],
+			*args, **kwargs)
 
 	async def on_ready(self):
 		separator = '━' * 44
