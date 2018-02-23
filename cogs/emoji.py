@@ -578,7 +578,11 @@ class Emotes:
 		user = self.bot.get_user(id)
 		if user is None:
 			return f'Unknown user with ID {id}'
-		return f'{user.mention if mention else user} ({user.id})'
+		# not mention: @null byte#8191 (140516693242937345)
+		# mention: <@140516693242937345> (null byte#8191)
+		# this allows people to still see the username and discrim
+		# if they don't share a server with that user
+		return f'{user.mention if mention else "@" + str(user)} ({user if mention else user.id})'
 
 	@staticmethod
 	def fix_first_line(lines: list) -> str:
