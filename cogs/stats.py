@@ -7,7 +7,9 @@ class EmojiConnoisseurStats(Stats):
 	@property
 	def guild_count(self):
 		emoji_cog = self.bot.get_cog('Emoji')
-		return super().guild_count - len(emoji_cog.guilds)
+		# if the emoji cog hasn't finished running yet, emoji_cog will be None
+		backend_guild_count = 100 if emoji_cog is None else len(emoji_cog.guilds)
+		return super().guild_count - backend_guild_count
 
 
 def setup(bot):
