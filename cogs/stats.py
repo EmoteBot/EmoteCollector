@@ -2,14 +2,15 @@
 
 from .external.stats import Stats
 
+import time
+
 
 class EmojiConnoisseurStats(Stats):
-	@property
-	def guild_count(self):
+	async def guild_count(self):
 		emoji_cog = self.bot.get_cog('Emoji')
-		# if the emoji cog hasn't finished running yet, emoji_cog will be None
-		backend_guild_count = 100 if emoji_cog is None else len(emoji_cog.guilds)
-		return super().guild_count - backend_guild_count
+		while emoji_cog is None or not hasattr(emoji_cog, 'guilds'):
+			await asyncio.sleep(0.1)
+		return super().guild_count - len(emoji_cog.guilds)
 
 
 def setup(bot):
