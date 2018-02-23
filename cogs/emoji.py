@@ -2,6 +2,7 @@
 # encoding: utf-8
 
 import asyncio
+from datetime import datetime
 import imghdr
 from io import BytesIO, StringIO
 import logging
@@ -81,16 +82,23 @@ class Emotes:
 			emote = await self.get(name)
 		except EmoteNotFoundError:
 			return await context.send('Emote not found.')
-		owner = self.format_user(emote['author'], mention=True)
-		emote = self.format_emote(emote)
 
-		embed = discord.Embed(title='Emote info')
-		embed.add_field(name='Emote', value=emote)
-		embed.add_field(name='Owner', value=owner)
+		embed = discord.Embed(title=self.format_emote(emote))
+		if emote['created'] is not None:
+			embed.timestamp = emote['created']
+			embed.set_footer(text='Created')
 
-		description = await self.bot.db.fetchval('SELECT description FROM emojis WHERE NAME ILIKE $1', name)
-		if description is not None:
-			embed.add_field(name='Description', value=description, inline=False)
+		embed.add_field(
+			name='Owner',
+			# prevent modified and owner from being jammed up against each other
+			# #BlameDiscord™
+			value=self.format_user(emote['author'], mention=True) + '\N{hangul filler}')
+		if emote['modified'] is not None:
+			embed.add_field(
+				name='Modified',
+				value=self.format_time(emote['modified']))
+		if emote['description'] is not None:
+			embed.add_field(name='Description',  value=emote['description'], inline=False)
 
 		await context.send(embed=embed)
 
@@ -267,6 +275,8 @@ class Emotes:
 	async def rename(self, context, old_name, new_name):
 		"""Renames an emote. You must own it."""
 		await context.fail_on_bad_emote(old_name)
+		if await self.exists(new_name):
+			return await context.send(f'{new_name} already exists!')
 		emote = await self.get(old_name)
 
 		try:
@@ -612,6 +622,11 @@ class Emotes:
 		# this allows people to still see the username and discrim
 		# if they don't share a server with that user
 		return f'{user.mention if mention else "@" + str(user)} ({user if mention else user.id})'
+
+	@staticmethod
+	def format_time(date: datetime):
+		"""Format a datetime to look like '2018-02-22 22:38:12 UTC'."""
+		return date.strftime('%Y-%m-%d %H:%m:%S %Z')
 
 	@staticmethod
 	def fix_first_line(lines: list) -> str:

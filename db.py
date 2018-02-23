@@ -2,16 +2,16 @@
 # encoding: utf-8
 
 import asyncio
-from pathlib import Path
 import json
+from pathlib import Path
 
 import asyncpg
 
 
-def _get_config():
-	with open(str(DATA_DIR / 'config.json')) as config_file:
-		config = json.load(config_file)
-	return config
+DATA_DIR = Path('data')
+with open(str(DATA_DIR / 'config.json')) as config_file:
+	CONFIG = json.load(config_file)
+del config_file
 
 
 async def _get_db():
@@ -25,24 +25,23 @@ async def _get_db():
 			author BIGINT NOT NULL,
 			animated BOOLEAN DEFAULT FALSE,
 			description VARCHAR(280),
-			created timestamp without time zone default (now() at time zone 'utc'),
-			modified timestamp without time zone)""")
+			created TIMESTAMP WITH TIME ZONE DEFAULT (now() at time zone 'UTC'),
+			modified TIMESTAMP WITH TIME ZONE)""")
 	await db.execute("""
 		-- https://stackoverflow.com/a/26284695/1378440
 		CREATE OR REPLACE FUNCTION update_modified_column()
 		RETURNS TRIGGER AS $$
 		BEGIN
 			IF row(NEW.*) IS DISTINCT FROM row(OLD.*) THEN
-				NEW.modified = now() at time zone 'utc';
+				NEW.modified = now() at time zone 'UTC';
 				RETURN NEW;
 			ELSE
 				RETURN OLD;
 			END IF;
 		END;
 		$$ language 'plpgsql';""")
+	await db.execute('DROP TRIGGER IF EXISTS update_emoji_modtime ON emojis')
 	await db.execute("""
-		DROP TRIGGER IF EXISTS update_emoji_modtime ON emojis;
-
 		CREATE TRIGGER update_emoji_modtime
 		BEFORE UPDATE ON emojis
 		FOR EACH ROW EXECUTE PROCEDURE update_modified_column();""")
@@ -50,6 +49,4 @@ async def _get_db():
 	return db
 
 
-DATA_DIR = Path('data')
-CONFIG = _get_config()
 DB = asyncio.get_event_loop().run_until_complete(_get_db())
