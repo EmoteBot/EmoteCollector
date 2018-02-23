@@ -10,7 +10,7 @@ class EmojiConnoisseurStats(Stats):
 		emote_cog = self.bot.get_cog('Emotes')
 		while emote_cog is None or not hasattr(emote_cog, 'guilds'):
 			await asyncio.sleep(0.1)
-		return super().guild_count - len(emote_cog.guilds)
+		return await super().guild_count() - len(emote_cog.guilds)
 
 
 def setup(bot):
