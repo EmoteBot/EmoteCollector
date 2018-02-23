@@ -395,7 +395,7 @@ class Emotes:
 
 	def format_row(self, record: asyncpg.Record):
 		"""Format a database record as "markdown" for the ec/list command."""
-		name, id, author, _ = record
+		name, id, author, *_ = record  # discard extra columns
 		author = self.format_user(author)
 		# only set the width in order to preserve the aspect ratio of the emote
 		return f'<img src="{self.emote_url(id)}" width=32px> | `:{name}:` | {author}'
@@ -553,7 +553,7 @@ class Emotes:
 		"""Retrieve an emote from the database by name."""
 
 		row = await self.bot.db.fetchrow("""
-			SELECT animated, name, id, author
+			SELECT *
 			FROM emojis
 			WHERE name ILIKE $1""",
 			name)
