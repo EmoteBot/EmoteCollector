@@ -395,7 +395,7 @@ class Emotes:
 			'UPDATE emojis SET DESCRIPTION = $2 WHERE NAME ILIKE $1',
 			name,
 			description)
-		await context.try_add_reaction('\N{white heavy check mark}')
+		await context.try_add_reaction(':lordheleapproves:416734327674634251')
 
 	@commands.command()
 	@typing
