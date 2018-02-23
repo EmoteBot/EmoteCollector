@@ -63,7 +63,6 @@ class EmojiConnoisseur(commands.Bot):
 				'cogs.emoji',
 				'cogs.meta',
 				'jishaku',
-				'cogs.external.admin',  # fallback in case jishaku doesn't work
 				'cogs.stats',
 				'cogs.external.misc'):
 			try:
