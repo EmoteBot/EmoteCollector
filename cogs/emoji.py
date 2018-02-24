@@ -11,7 +11,7 @@ import re
 import traceback
 
 import aiohttp
-import asyncpg  # used only for asyncpg.Record currently
+import asyncpg
 from bs4 import BeautifulSoup
 import discord
 from discord.ext import commands
@@ -32,6 +32,11 @@ class Emotes:
 	RE_CUSTOM_EMOTE = re.compile(r'<a?:(\w{2,32}):(\d{15,21})>', re.ASCII)
 	"""Matches code blocks, which should be ignored."""
 	RE_CODE = re.compile(r'`{1,3}.+?`{1,3}', re.DOTALL)
+
+	"""Emotes used to indicate success/failure. You can obtain these from the discordbots.org guild,
+	but I uploaded them to my test server
+	so that both the staging and the stable versions of the bot can use them"""
+	SUCCESS_EMOTES = (':tickNo:416845770239508512', ':tickYes:416845760810844160')
 
 	def __init__(self, bot):
 		self.bot = bot
@@ -117,7 +122,7 @@ class Emotes:
 		"""
 		if context.message.attachments:
 			attachment = context.message.attachments[0]
-			# as far as i can tell, this is how discord replaces filenames
+			# as far as i can tell, this is how discord replaces filenames when you upload an emote image
 			name = args[0] if args else attachment.filename.split('.')[0].replace(' ', '')
 			url = attachment.url
 
@@ -391,11 +396,19 @@ class Emotes:
 		There's a 500 character limit.
 		"""
 		await context.fail_on_bad_emote(name)
-		await self.bot.db.execute(
-			'UPDATE emojis SET DESCRIPTION = $2 WHERE NAME ILIKE $1',
-			name,
-			description)
-		await context.try_add_reaction(':lordheleapproves:416734327674634251')
+		error_message = "Error: description too long! It's an emote, not your life story."
+		try:
+			await self.bot.db.execute(
+				'UPDATE emojis SET DESCRIPTION = $2 WHERE NAME ILIKE $1',
+				name,
+				description)
+		except asyncpg.StringDataRightTruncationError:  # wowee that's a verbose exception name
+		                                                # like why not just call it "StringTooLongError"?
+			success = False
+		else:
+			success = True
+
+		await context.try_add_reaction(self.SUCCESS_EMOTES[success], error_message if not success else None)
 
 	@commands.command()
 	@typing
@@ -658,12 +671,12 @@ class EmoteContext(commands.Context):
 		await self.fail_if_not_exists(name)
 		await self.fail_if_not_owner(name)
 
-	async def try_add_reaction(self, emoji):
+	async def try_add_reaction(self, emoji, message=''):
 		"""Try to add a reaction to the message. If it fails, send a message instead."""
 		try:
 			await self.message.add_reaction(emoji)
 		except discord.Forbidden:
-			await self.send(str(emoji))
+			await self.send(f'{emoji} {message}')
 
 
 class ConnoisseurError(Exception):
