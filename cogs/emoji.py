@@ -634,7 +634,7 @@ class Emotes:
 		# mention: <@140516693242937345> (null byte#8191)
 		# this allows people to still see the username and discrim
 		# if they don't share a server with that user
-		return f'{user.mention if mention else "@" + str(user)} ({user if mention else user.id})'
+		return f'{user.mention if mention else user} ({user if mention else user.id})'
 
 	@staticmethod
 	def format_time(date: datetime):
