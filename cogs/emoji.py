@@ -49,7 +49,7 @@ class Emotes:
 	async def find_backend_guilds(self):
 		"""Find all the guilds used to store emotes"""
 
-		if hasattr(self, 'guilds') and self.guilds:
+		if hasattr(self, 'guilds') and self.guilds:  # pylint: disable=access-member-before-definition
 			return
 
 		await self.bot.wait_until_ready()
