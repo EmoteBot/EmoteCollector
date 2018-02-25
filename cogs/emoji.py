@@ -89,6 +89,7 @@ class Emotes:
 
 		embed = discord.Embed(title=self.format_emote(emote))
 		if emote['created'] is not None:
+			logger.debug('setting timestamp to %s', emote['created'])
 			embed.timestamp = emote['created']
 			embed.set_footer(text='Created')
 
