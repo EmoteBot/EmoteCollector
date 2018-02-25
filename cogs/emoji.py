@@ -123,7 +123,7 @@ class Emotes:
 		if context.message.attachments:
 			attachment = context.message.attachments[0]
 			# as far as i can tell, this is how discord replaces filenames when you upload an emote image
-			name = args[0] if args else attachment.filename.split('.')[0].replace(' ', '')
+			name = ''.join(args) if args else attachment.filename.split('.')[0].replace(' ', '')
 			url = attachment.url
 
 		elif len(args) == 1:
