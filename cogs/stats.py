@@ -7,10 +7,8 @@ from .external.stats import Stats
 
 class EmojiConnoisseurStats(Stats):
 	async def guild_count(self):
-		emote_cog = self.bot.get_cog('Emotes')
-		while emote_cog is None or not hasattr(emote_cog, 'guilds'):
-			await asyncio.sleep(0.1)
-		return await super().guild_count() - len(emote_cog.guilds)
+		backend_guilds = await self.bot.wait_for('backend_guild_enumeration')
+		return await super().guild_count() - len(backend_guilds)
 
 
 def setup(bot):

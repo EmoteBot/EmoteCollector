@@ -65,6 +65,9 @@ class Emotes:
 		self.guilds = guilds
 		logger.info('In ' + str(len(guilds)) + ' backend guilds.')
 
+		# allow other cogs that depend on the list of backend guilds to know when they've been found
+		self.bot.dispatch('backend_guild_enumeration', self.guilds)
+
 	## COMMANDS
 
 	@commands.command()
