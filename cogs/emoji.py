@@ -2,7 +2,6 @@
 # encoding: utf-8
 
 import asyncio
-from datetime import datetime
 import imghdr
 from io import BytesIO, StringIO
 import logging
@@ -17,7 +16,7 @@ import discord
 from discord.ext import commands
 from PIL import Image
 
-from utils import create_gist, LRUDict, typing
+import utils
 
 
 logger = logging.getLogger('cogs.emoji')
@@ -28,15 +27,12 @@ class Emotes:
 
 	"""Matches :foo: and ;foo; but not :foo;. Used for emotes in text."""
 	RE_EMOTE = re.compile(r'(:|;)(\w{2,32})\1', re.ASCII)
+
 	"""Matches only custom server emoji."""
 	RE_CUSTOM_EMOTE = re.compile(r'<a?:(\w{2,32}):(\d{15,21})>', re.ASCII)
+
 	"""Matches code blocks, which should be ignored."""
 	RE_CODE = re.compile(r'`{1,3}.+?`{1,3}', re.DOTALL)
-
-	"""Emotes used to indicate success/failure. You can obtain these from the discordbots.org guild,
-	but I uploaded them to my test server
-	so that both the staging and the stable versions of the bot can use them"""
-	SUCCESS_EMOTES = (':tickNo:416845770239508512', ':tickYes:416845760810844160')
 
 	def __init__(self, bot):
 		self.bot = bot
@@ -45,7 +41,7 @@ class Emotes:
 
 		# Keep track of replies so that if the user edits/deletes a message,
 		# we delete/edit the corresponding reply.
-		self.replies = LRUDict(limit=1000)
+		self.replies = utils.LRUDict(limit=1000)
 
 	def __unload(self):
 		self.session.close()
@@ -104,14 +100,14 @@ class Emotes:
 		if emote['modified'] is not None:
 			embed.add_field(
 				name='Modified',
-				value=self.format_time(emote['modified']))
+				value=utils.format_time(emote['modified']))
 		if emote['description'] is not None:
 			embed.add_field(name='Description',  value=emote['description'], inline=False)
 
 		await context.send(embed=embed)
 
 	@commands.command(aliases=['create'])
-	@typing
+	@utils.typing
 	async def add(self, context, *args):
 		"""Add a new emote to the bot. You can use it like this:
 		`ec/add :thonkang:` (if you already have that emote)
@@ -135,15 +131,15 @@ class Emotes:
 				return await context.send("That's not an emote!")
 			else:
 				name, id = match.groups()
-				url = self.emote_url(id)
+				url = utils.emote_url(id)
 
 		elif len(args) == 2:
 			name = args[0]
 			match = self.RE_CUSTOM_EMOTE.match(args[1])
 			if match is None:
-				url = self.strip_noembed_url(args[1])
+				url = utils.strip_angle_brackets(args[1])
 			else:
-				url = self.emote_url(match.group(2))
+				url = utils.emote_url(match.group(2))
 
 		else:
 			return await context.send('Your message had no emotes and no name!')
@@ -153,14 +149,6 @@ class Emotes:
 			logger.warn('add_safe returned None')
 		else:
 			await context.send(message)
-
-	@staticmethod
-	def strip_noembed_url(url):
-		"""Strips leading < and trailing > from a URL."""
-		if url.startswith('<') and url.endswith('>'):
-			return re.sub('^<|>$', '', url)
-		else:
-			return url
 
 	async def add_safe(self, name, url, author):
 		"""Try to add an emote. On failure, return a string that should be sent to the user."""
@@ -259,7 +247,7 @@ class Emotes:
 		return random.choice(free_guilds)
 
 	@commands.command(aliases=['delete', 'delet', 'del', 'rm'])
-	@typing
+	@utils.typing
 	async def remove(self, context, *args):
 		"""Removes one or more emotes from the bot. You must own all of them."""
 		messages = []
@@ -276,7 +264,7 @@ class Emotes:
 			await emote.delete()
 			messages.append(f'`:{db_emote["name"]}:` was successfully deleted.')
 
-		await context.send(self.fix_first_line(messages))
+		await context.send(utils.fix_first_line(messages))
 
 	@commands.command(aliases=['mv'])
 	async def rename(self, context, old_name, new_name):
@@ -398,7 +386,6 @@ class Emotes:
 		There's a 500 character limit.
 		"""
 		await context.fail_on_bad_emote(name)
-		error_message = "Error: description too long! It's an emote, not your life story."
 		try:
 			await self.bot.db.execute(
 				'UPDATE emojis SET DESCRIPTION = $2 WHERE NAME ILIKE $1',
@@ -407,13 +394,15 @@ class Emotes:
 		except asyncpg.StringDataRightTruncationError:  # wowee that's a verbose exception name
 		                                                # like why not just call it "StringTooLongError"?
 			success = False
+			error_message = "Error: description too long! It's an emote, not your life story."
 		else:
 			success = True
+			error_message = ''
 
-		await context.try_add_reaction(self.SUCCESS_EMOTES[success], error_message if not success else None)
+		await context.try_add_reaction(utils.SUCCESS_EMOTES[success], error_message)
 
 	@commands.command()
-	@typing
+	@utils.typing
 	async def list(self, context, *, user: discord.User = None):
 		"""List all emotes the bot knows about.
 		If a user is provided, the list will only contain emotes created by that user.
@@ -436,18 +425,18 @@ class Emotes:
 				async for row in connection.cursor(query, *args):
 					table.write(self.format_row(row) + '\n')
 
-		await context.send(await create_gist('list.md', table.getvalue()))
+		await context.send(await utils.create_gist('list.md', table.getvalue()))
 
 	def format_row(self, record: asyncpg.Record):
 		"""Format a database record as "markdown" for the ec/list command."""
 		name, id, author, *_ = record  # discard extra columns
 		author = self.format_user(author)
 		# only set the width in order to preserve the aspect ratio of the emote
-		return f'<img src="{self.emote_url(id)}" width=32px> | `:{name}:` | {author}'
+		return f'<img src="{utils.emote_url(id)}" width=32px> | `:{name}:` | {author}'
 
 	@commands.command(name='steal-all', hidden=True)
 	@commands.is_owner()
-	@typing
+	@utils.typing
 	async def steal_all(self, context, list_url):
 		"""Steal all emotes listed on a markdown file given by the list_url.
 		This file must have the same format as the one generated by Element Zero's e0list command.
@@ -491,16 +480,16 @@ class Emotes:
 		return zip(names, image_urls, authors)
 
 	@commands.command(name='steal-these')
-	@typing
+	@utils.typing
 	async def steal_these(self, context, *emotes):
 		"""Steal a bunch of custom emotes."""
 		messages = []
 		for match in self.RE_CUSTOM_EMOTE.finditer(''.join(emotes)):
 			name, id = match.groups()
-			image_url = self.emote_url(id)
+			image_url = utils.emote_url(id)
 			messages.append(await self.add_safe(name, image_url, context.author.id))
 		# XXX this will fail if len > 2000
-		await context.send(self.fix_first_line(messages))
+		await context.send(utils.fix_first_line(messages))
 
 	## EVENTS
 
@@ -538,7 +527,7 @@ class Emotes:
 		message = self.RE_CODE.sub('', message)
 		message = self.RE_CUSTOM_EMOTE.sub('', message)
 		lines = message.splitlines()
-		result = self.fix_first_line([await self.extract_emotes_line(line) for line in lines])
+		result = utils.fix_first_line([await self.extract_emotes_line(line) for line in lines])
 
 		if result.replace('\N{zero width space}', '').strip() != '':  # don't send an empty message
 			return result
@@ -608,9 +597,6 @@ class Emotes:
 		"""Format an emote for use in messages."""
 		return f"<{'a' if emote['animated'] else ''}:{emote['name']}:{emote['id']}>"
 
-	"""Convert an emote ID to the image URL for that emote."""
-	emote_url = staticmethod('https://cdn.discordapp.com/emojis/{}?v=1'.format)
-
 	def format_user(self, id, *, mention=False):
 		"""Format a user ID for human readable display."""
 		user = self.bot.get_user(id)
@@ -621,18 +607,6 @@ class Emotes:
 		# this allows people to still see the username and discrim
 		# if they don't share a server with that user
 		return f'{user.mention if mention else user} ({user if mention else user.id})'
-
-	@staticmethod
-	def format_time(date: datetime):
-		"""Format a datetime to look like '2018-02-22 22:38:12 UTC'."""
-		return date.strftime('%Y-%m-%d %H:%m:%S %Z')
-
-	@staticmethod
-	def fix_first_line(lines: list) -> str:
-		"""In compact mode, prevent the first line from being misaligned because of the bot's username"""
-		if len(lines) > 1:
-			lines[0] = '\N{zero width space}\n' + lines[0]
-		return '\n'.join(lines)
 
 
 class BackendContext(utils.CustomContext):
@@ -656,13 +630,6 @@ class BackendContext(utils.CustomContext):
 		# but I'm pretty sure asyncpg caches queries.
 		await self.fail_if_not_exists(name)
 		await self.fail_if_not_owner(name)
-
-	async def try_add_reaction(self, emoji, message=''):
-		"""Try to add a reaction to the message. If it fails, send a message instead."""
-		try:
-			await self.message.add_reaction(emoji)
-		except discord.Forbidden:
-			await self.send(f'{emoji} {message}')
 
 
 class ConnoisseurError(Exception):
