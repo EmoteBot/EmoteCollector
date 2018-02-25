@@ -445,22 +445,6 @@ class Emotes:
 		# only set the width in order to preserve the aspect ratio of the emote
 		return f'<img src="{self.emote_url(id)}" width=32px> | `:{name}:` | {author}'
 
-	@commands.command()
-	async def find(self, context, name):
-		"""Internal command to find out which backend server a given emote is in.
-		This is useful because emotes are added to random guilds to avoid rate limits.
-		"""
-		await context.fail_if_not_exists(name)
-		emote = await self.get(name)
-		emote = self.bot.get_emoji(emote['id'])
-
-		if emote is None:
-			error_message = '`:{name}:` was not in the cache!'
-			logger.error('find: ' + error_message)
-			return await context.send(error_message)
-
-		return await context.send(f'`:{emote.name}:` is in {emote.guild.name}.')
-
 	@commands.command(name='steal-all', hidden=True)
 	@commands.is_owner()
 	@typing
