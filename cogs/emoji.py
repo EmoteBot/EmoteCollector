@@ -507,7 +507,11 @@ class Emotes:
 		"""Reply to messages containing :name: or ;name; with the corresponding emotes.
 		This is like half the functionality of the bot"""
 		# don't reply to bots, unless we're in dev mode
-		if self.bot.config['release'] != 'development' and message.author.bot or not message.content:
+		# never reply to ourself
+		if (
+				message.author == self.bot.user
+				or (message.author.bot and self.bot.config['release'] != 'development')
+				or not message.content):
 			return
 
 		reply = await self.extract_emotes(message.content)
