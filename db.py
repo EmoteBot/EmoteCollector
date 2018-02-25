@@ -16,7 +16,14 @@ del config_file
 
 async def _get_db():
 	credentials = CONFIG['database']
-	db = await asyncpg.create_pool(**credentials)
+
+	try:
+		db = await asyncpg.create_pool(**credentials)
+	except ConnectionRefusedError as exception:
+		logger.error('%s: %s', type(exception).__name__, exception)
+		sys.exit(1)
+
+	await db.execute('SET TIME ZONE UTC')  # make sure timestamps are displayed correctly
 	await db.execute('CREATE SCHEMA IF NOT EXISTS connoisseur')
 	await db.execute("""
 		CREATE TABLE IF NOT EXISTS emojis(

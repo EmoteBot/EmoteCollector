@@ -29,6 +29,8 @@ and make sure it hasn't been used to verify any other Discord account.
 It'll create the guilds, and once it's finished, open a Firefox window.
 If you want it to create less than 100 guilds, edit `on_ready`. I recommend 5 for testing.
 Sign in to your new Discord backend account, and start filling out CAPTCHAs.
+6) Edit your timezone in postgresql.conf to UTC.
+On my system, postgresql.conf is located in `/etc/postgresql/9.6/main`.
 6) Run `./bot.py`.
 
 If you need any help, DM @null byte#8191 or file a GitHub issue.
