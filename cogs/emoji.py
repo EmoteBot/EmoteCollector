@@ -635,7 +635,7 @@ class Emotes:
 		return '\n'.join(lines)
 
 
-class EmoteContext(commands.Context):
+class BackendContext(utils.CustomContext):
 	async def fail_if_not_exists(self, name):
 		if not await self.cog.exists(name):
 			await self.send(f'`:{name}:` is not a valid emote.')

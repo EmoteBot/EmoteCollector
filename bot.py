@@ -6,7 +6,7 @@ import traceback
 
 from discord.ext import commands
 
-from cogs.emoji import EmoteContext
+from cogs.emoji import BackendContext
 import db
 
 logging.basicConfig(level=logging.INFO)
@@ -34,7 +34,7 @@ class EmojiConnoisseur(commands.Bot):
 
 	async def on_message(self, message):
 		# inject the permissions checks
-		await self.invoke(await self.get_context(message, cls=EmoteContext))
+		await self.invoke(await self.get_context(message, cls=BackendContext))
 
 	async def is_owner(self, user):
 		if self.owner_id is None:
@@ -67,7 +67,7 @@ class EmojiConnoisseur(commands.Bot):
 				'cogs.external.misc'):
 			try:
 				self.load_extension(extension)
-			except:
+			except:  # pylint: disable=bare-except
 				logger.error('Failed to load ' + extension)
 				logger.error(traceback.format_exc())
 			else:
