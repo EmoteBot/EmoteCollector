@@ -279,7 +279,6 @@ class Emotes:
 		await context.send(self.fix_first_line(messages))
 
 	@commands.command(aliases=['mv'])
-	@typing
 	async def rename(self, context, old_name, new_name):
 		"""Renames an emote. You must own it."""
 		await context.fail_on_bad_emote(old_name)
