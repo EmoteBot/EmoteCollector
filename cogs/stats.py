@@ -7,9 +7,15 @@ from .external.stats import Stats
 
 
 class EmojiConnoisseurStats(Stats):
+	def __init__(self, bot):
+		self.backend_guilds = []
+		super().__init__(bot)
+
+	async def on_backend_guild_enumeration(self, backend_guilds):
+		self.backend_guilds = backend_guilds
+
 	async def guild_count(self):
-		backend_guilds = await self.bot.wait_for('backend_guild_enumeration')
-		guild_count = await super().guild_count() - len(backend_guilds)
+		guild_count = await super().guild_count() - len(self.backend_guilds)
 
 		if math.log2(guild_count).is_integer():
 			# TODO don't hardcode my user id, make it configurable as config['real_owner'] or simliar
