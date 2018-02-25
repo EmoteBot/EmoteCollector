@@ -5,6 +5,7 @@ import asyncio
 import json
 import logging
 from pathlib import Path
+import sys
 
 import asyncpg
 
@@ -14,7 +15,7 @@ logger.setLevel(logging.WARNING)
 
 
 DATA_DIR = Path('data')
-with open(str(DATA_DIR / 'config.json')) as config_file:
+with open(DATA_DIR / 'config.json') as config_file:
 	CONFIG = json.load(config_file)
 del config_file
 
