@@ -14,7 +14,7 @@ import asyncpg
 from bs4 import BeautifulSoup
 import discord
 from discord.ext import commands
-from PIL import Image
+from wand.image import Image
 
 import utils
 
@@ -192,11 +192,9 @@ class Emotes:
 				raise HTTPException(response.status)
 			image_data = BytesIO(await response.read())
 
+		image_data = self.resize_image(image_data)
+
 		animated = self.is_animated(image_data.getvalue())
-
-		if not animated:
-			image_data = self.resize_image(image_data)
-
 		guild = self.free_guild(animated)
 		emote = await guild.create_custom_emoji(name=name, image=image_data.read())
 		await self.bot.db.execute(
@@ -217,17 +215,29 @@ class Emotes:
 		else:
 			raise InvalidImageError
 
-	@staticmethod
-	def resize_image(image_data: BytesIO):
+	@classmethod
+	def resize_image(cls, image_data: BytesIO):
 		"""resize an image to 128*128 pixels."""
 		# Credit to @Liara#0001 (ID 136900814408122368)
 		# https://gitlab.com/Pandentia/element-zero/blob/47bc8eeeecc7d353ec66e1ef5235adab98ca9635/element_zero/cogs/emoji.py#L243-247
+		image = Image(blob=image_data)
+		image.resize(*cls.scale_resolution((image.width, image.height), (128, 128)))
 		out = BytesIO()
-		image = Image.open(image_data)
-		image.thumbnail((128, 128))
-		image.save(out, 'png')
+		image.save(file=out)
 		out.seek(0)
 		return out
+
+	@staticmethod
+	def scale_resolution(old_res, new_res):
+		# https://stackoverflow.com/a/6565988
+		"""Resize a resolution, preserving aspect ratio. Returned w,h will be <= new_res"""
+		old_width, old_height = old_res
+		new_width, new_height = new_res
+		old_ratio = old_width / old_height
+		new_ratio = new_width / new_height
+		if new_ratio > old_ratio:
+			return (old_width * new_height//old_height, new_height)
+		return new_width, old_height * new_width//old_width
 
 	def free_guild(self, animated=False):
 		"""Find a guild in the backend guilds suitable for storing an emote.
