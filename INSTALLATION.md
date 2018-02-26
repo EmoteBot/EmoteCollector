@@ -7,6 +7,7 @@ I'm more okay with you doing 1) than 2). If you do 2), please rename the bot and
 
 With that out of the way, here's how to install the bot.
 
+-1) `sudo apt install libmagickwand-dev`
 0) `pip3 install -r requirements.txt`
 1) Make a new bot app at https://discordapp.com/developers/applications/me.
 2) Run `echo CREATE DATABASE connoisseur | sudo -u postgres psql`, then run these sql commands in
