@@ -4,8 +4,9 @@ bs4
 git+https://github.com/Rapptz/discord.py@rewrite#egg=discord.py
 jishaku
 lru-dict
-pillow
+lxml
+wand
 
-# for the backend creator only!
+# for the backend creator only
 pgi
 selenium
