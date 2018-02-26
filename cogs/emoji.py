@@ -494,6 +494,9 @@ class Emotes:
 	@utils.typing
 	async def steal_these(self, context, *emotes):
 		"""Steal a bunch of custom emotes."""
+		if not emotes:
+			return await context.send('You need to provide one or more custom emotes.')
+
 		messages = []
 		for match in self.RE_CUSTOM_EMOTE.finditer(''.join(emotes)):
 			name, id = match.groups()
