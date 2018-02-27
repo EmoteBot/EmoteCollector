@@ -193,7 +193,10 @@ class Emotes:
 				raise HTTPException(response.status)
 			image_data = BytesIO(await response.read())
 
-		image_data = self.resize_image(image_data)
+		# resize_image is normally blocking, because wand is.
+		# run_in_executor is magic that makes it non blocking somehow.
+		# also, None as the executor arg means "use the loop's default executor"
+		image_data = await self.bot.loop.run_in_executor(None, self.resize_image, image_data)
 
 		animated = self.is_animated(image_data.getvalue())
 		guild = self.free_guild(animated)
