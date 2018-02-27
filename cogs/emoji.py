@@ -457,7 +457,7 @@ class Emotes:
 		except asyncio.TimeoutError:
 			return await context.send('Error: fetching the URL took too long.')
 		except ValueError as exception:
-			logging.warning('%s %s', type(exception).__name__, exception)
+			logging.warning('steal_all: %s %s', type(exception).__name__, exception)
 			return await context.send('Error: invalid URL.')
 
 		for name, image, author in emotes:
