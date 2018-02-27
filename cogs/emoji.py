@@ -91,11 +91,13 @@ class Emotes:
 		if emote['created'] is not None:
 			logger.debug('setting timestamp to %s', emote['created'])
 			embed.timestamp = emote['created']
-			embed.set_author(text=self.format_user(emote['author'], mention=True))
-			author = self.bot.get_user(emote['author'])
-			if author is not None:
-				embed.set_author(icon_url=author.icon_url)
+			embed.set_footer(text='Created')
 
+		embed.add_field(
+			name='Owner',
+			# prevent modified and owner from being jammed up against each other
+			# #BlameDiscord™
+			value=self.format_user(emote['author'], mention=True) + '\N{hangul filler}')
 		if emote['modified'] is not None:
 			embed.add_field(
 				name='Modified',
