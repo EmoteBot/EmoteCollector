@@ -41,7 +41,9 @@ class Emotes:
 
 		# Keep track of replies so that if the user edits/deletes a message,
 		# we delete/edit the corresponding reply.
-		self.replies = utils.LRUDict(limit=1000)
+		# Don't store too many of these replies.
+		# TODO investigate how much RAM this dict actually uses.
+		self.replies = utils.LRUDict(size=1000)
 
 	def __unload(self):
 		self.session.close()

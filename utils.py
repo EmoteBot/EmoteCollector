@@ -120,7 +120,7 @@ def strip_angle_brackets(string):
 	return string
 
 
-class LRUDict:
+class LRUDict(_ObjectProxy):
 	"""An extension of lru.LRU to add `pop` and fix `update`"""
 
 	_sentinel = object()
