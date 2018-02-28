@@ -11,7 +11,7 @@ SUCCESS_EMOTES -- index it with True or False to get an emote indicating success
 Classes:
 
 EmojiConnoisseurContext: a generic context which extends discord.ext.commands.Context.
-LRUDict: an extension of lru.LRU to add a pop method.
+LRUDict: an extension of lru.LRU to add a pop method, and support kwargs for the update method.
 
 Functions:
 
@@ -36,6 +36,7 @@ from aiohttp import ClientSession as _ClientSession
 import discord as _discord
 from discord.ext import commands as _commands
 from lru import LRU as _LRUDict
+from wrapt import ObjectProxy as _ObjectProxy
 
 
 _logger = _logging.getLogger('utils')  # i really need to start using __all__...
@@ -120,28 +121,17 @@ def strip_angle_brackets(string):
 
 
 class LRUDict:
-	"""An extension of lru.LRU to add `pop`"""
+	"""An extension of lru.LRU to add `pop` and fix `update`"""
 
 	_sentinel = object()
 
-	def __init__(self, limit):
-		self._dict = _LRUDict(limit)
-
-	def __delitem__(self, key):
-		del self._dict[key]
-
-	def __getitem__(self, key):
-		return self._dict[key]
-
-	def __setitem__(self, key, value):
-		self._dict[key] = value
-
-	def get(self, key, default):
-		"""L.get(key, default) -> If L has key return its value, otherwise default"""
-		return self._dict.get(key, default)
+	def __init__(self, size):
+		super().__init__(_LRUDict(size))
 
 	def pop(self, key, default=_sentinel):
-		"""Needed for LRUDicts, which cannot be extended because lru-dict is written in C."""
+		"""L.pop(k[,d]) -> v, remove specified key and return the corresponding value.
+		If key is not found, d is returned if given, otherwise KeyError is raised
+		"""
 		if default is self._sentinel and key not in self:
 			raise KeyError(key)
 		result = self[key]
@@ -156,76 +146,11 @@ class LRUDict:
 		"""
 		if d is not None:
 			if hasattr(d, 'keys'):
-				self._dict.update(d)
+				self.__wrapped__.update(d)
 			else:
 				for k, v in d:
 					# lru.LRU doesn't support this, although dict does
 					self[k] = v
 
-		self._dict.update(kwargs)
-
-	def set_callback(self, callback):
-		"""L.set_callback(callback) -> set a callback to call when an item is evicted.
-		The callback will receive (key, value) as args.
-		"""
-		self._dict.set_callback(callback)
-
-	def set_size(self, size):
-		"""L.set_size(size) -> set the new maximum number of entries for this LRUDict."""
-		self._dict.set_size(size)
-
-	def peek_first_item(self):
-		"""L.peek_first_item() -> returns the MRU item (key,value) without changing key order"""
-		return self._dict.peek_first_item()
-
-	def peek_last_item(self):
-		"""L.peek_first_item() -> returns the LRU item (key,value) without changing key order"""
-		return self._dict.peek_last_item()
-
-	def get_size(self):
-		"""Return the maximum number of entries for this LRUDict."""
-		return self._dict.get_size()
-
-	def get_stats(self):
-		"""L.get_stats() -> returns a tuple with cache hits and misses"""
-		return self._dict.get_stats()
-
-	def clear(self):
-		"""remove all entries"""
-		self._dict.clear()
-
-	def __iter__(self):
-		yield from iter(self._dict)
-
-	def __repr__(self):
-		return f'{self.__class__.__name__}({self.__dict__!r})'
-
-	def __str__(self):
-		return str(self._dict)
-
-	def __sizeof__(self):
-		return self._dict.__sizeof__
-
-	def __len__(self):
-		return len(self._dict)
-
-	def __eq__(self, other):
-		return self._dict == other
-
-	def __ne__(self, other):
-		return self._dict != other
-
-	def keys(self):
-		"""L.keys() -> list of L's keys in descending recently used order"""
-		return self._dict.keys()
-
-	def values(self):
-		"""L.values() -> list of L's values in descending recently used order"""
-		return self._dict.values()
-
-	def items(self):
-		"""L.items() -> list of L's items (key, value) in descending recently used order"""
-		return self._dict.items()
-
-	def __contains__(self, key):
-		return key in self._dict
+		if kwargs:  # prevent infinite recursion
+			self.update(kwargs)

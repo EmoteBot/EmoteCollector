@@ -6,6 +6,7 @@ jishaku
 lru-dict
 lxml
 wand
+wrapt
 
 # for the backend creator only
 pgi
