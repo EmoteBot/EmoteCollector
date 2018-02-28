@@ -195,10 +195,15 @@ class Emotes:
 				raise HTTPException(response.status)
 			image_data = BytesIO(await response.read())
 
-		# resize_image is normally blocking, because wand is.
-		# run_in_executor is magic that makes it non blocking somehow.
-		# also, None as the executor arg means "use the loop's default executor"
-		image_data = await self.bot.loop.run_in_executor(None, self.resize_image, image_data)
+		# It's important that we only attempt to resize the image when we have to,
+		# ie when it exceeds the Discord limit of 256KB.
+		# Apparently some <256KB images become larger when we attempt to resize them,
+		# so resizing sometimes does more harm than good.
+		if self.size(image_data) > 256_000:
+			# resize_image is normally blocking, because wand is.
+			# run_in_executor is magic that makes it non blocking somehow.
+			# also, None as the executor arg means "use the loop's default executor"
+			image_data = await self.bot.loop.run_in_executor(None, self.resize_image, image_data)
 
 		animated = self.is_animated(image_data.getvalue())
 		guild = self.free_guild(animated)
@@ -220,6 +225,15 @@ class Emotes:
 			return False
 		else:
 			raise InvalidImageError
+
+	@staticmethod
+	def size(data: BytesIO):
+		"""return the size, in bytes, of the data a BytesIO object represents"""
+		old_pos = data.tell()
+		data.seek(0, 2)  # seek to the end
+		size = data.tell()
+		data.seek(old_pos)  # put it back the way we found it
+		return size
 
 	@classmethod
 	def resize_image(cls, image_data: BytesIO):
