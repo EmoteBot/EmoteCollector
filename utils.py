@@ -29,6 +29,7 @@ import asyncio as _asyncio
 from datetime import datetime as _datetime
 from functools import wraps as _wraps
 import json as _json
+import logging as _logging
 import re as _re
 
 from aiohttp import ClientSession as _ClientSession
@@ -37,6 +38,7 @@ from discord.ext import commands as _commands
 from lru import LRU as _LRUDict
 
 
+_logger = _logging.getLogger('utils')  # i really need to start using __all__...
 _session = _ClientSession(loop=_asyncio.get_event_loop())
 
 
@@ -81,15 +83,20 @@ def fix_first_line(lines: list) -> str:
 	return '\n'.join(lines)
 
 
-async def create_gist(filename, contents: str):
+async def create_gist(filename, contents: str, *, description=None):
 	"""Upload a single file to Github Gist. Multiple files Never™"""
-	async with _session.post(
-		'https://api.github.com/gists',
-		data=_json.dumps({
-			'public': False,
-			'files': {
-				filename: {
-					'content': contents}}})) as resp:
+	_logger.debug('Attempting to post %s to Gist', filename)
+
+	data = {
+		'public': False,
+		'files': {
+			filename: {
+				'content': contents}}}
+
+	if description is not None:
+		data['description'] = description
+
+	async with _session.post('https://api.github.com/gists', data=_json.dumps(data)) as resp:
 		if resp.status == 201:
 			return _json.loads(await resp.text())['html_url']
 

@@ -439,8 +439,12 @@ class Emotes:
 				async for row in connection.cursor(query, *args):
 					table.write(self.format_row(row) + '\n')
 
-		filename = ('list' if user is None else self.format_user(user.id, mention=False)) + '.md'
-		await context.send('<' + await utils.create_gist('list.md', table.getvalue()) + '>')
+		description = 'list of all emotes'
+		if user is not None:
+			# e.g. 'list of all emotes by null_byte#8191 (140516693242937345)
+			description += ' by ' + self.format_user(user.id, mention=False)
+		gist_url = await utils.create_gist('list.md', table.getvalue(), description=description)
+		await context.send(f'<{gist_url}>')
 
 	def format_row(self, record: asyncpg.Record):
 		"""Format a database record as "markdown" for the ec/list command."""
