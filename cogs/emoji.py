@@ -37,12 +37,13 @@ class Emotes:
 	def __init__(self, bot):
 		self.bot = bot
 		self.bot.loop.create_task(self.find_backend_guilds())
+		self.utils = self.bot.get_cog('Utils')
 		self.session = aiohttp.ClientSession(loop=self.bot.loop, read_timeout=30)
 
 		# Keep track of replies so that if the user edits/deletes a message,
 		# we delete/edit the corresponding reply.
 		# Don't store too many of these replies.
-		# TODO investigate how much RAM this dict actually uses.
+		# TODO investigate how much RAM this dict actually uses. (sys.getsizeof)
 		self.replies = utils.LRUDict(size=1000)
 
 	def __unload(self):
@@ -73,9 +74,9 @@ class Emotes:
 		"""Directs you the support server."""
 		try:
 			await context.author.send('https://discord.gg/' + self.bot.config['support_server_invite_code'])
-			await context.message.add_reaction('\N{ok hand sign}')
+			await context.try_add_reaction('\N{ok hand sign}')
 		except discord.HTTPException:
-			await context.message.add_reaction('\N{cross mark}')
+			await context.try_add_reaction('\N{cross mark}')
 			await context.send('Unable to send invite in DMs. Please allow DMs from server members.')
 
 	@commands.command()
@@ -89,7 +90,7 @@ class Emotes:
 		except EmoteNotFoundError:
 			return await context.send('Emote not found.')
 
-		embed = discord.Embed(title=self.format_emote(emote))
+		embed = discord.Embed(title=self.utils.format_emote(emote))
 		if emote['created'] is not None:
 			logger.debug('setting timestamp to %s', emote['created'])
 			embed.timestamp = emote['created']
@@ -99,11 +100,11 @@ class Emotes:
 			name='Owner',
 			# prevent modified and owner from being jammed up against each other
 			# #BlameDiscord™
-			value=self.format_user(emote['author'], mention=True) + '\N{hangul filler}')
+			value=self.utils.format_user(emote['author'], mention=True) + '\N{hangul filler}')
 		if emote['modified'] is not None:
 			embed.add_field(
 				name='Modified',
-				value=utils.format_time(emote['modified']))
+				value=self.utils.format_time(emote['modified']))
 		if emote['description'] is not None:
 			embed.add_field(name='Description',  value=emote['description'], inline=False)
 
@@ -134,15 +135,15 @@ class Emotes:
 				return await context.send("That's not an emote!")
 			else:
 				name, id = match.groups()
-				url = utils.emote_url(id)
+				url = self.utils.emote_url(id)
 
 		elif len(args) == 2:
 			name = args[0]
 			match = self.RE_CUSTOM_EMOTE.match(args[1])
 			if match is None:
-				url = utils.strip_angle_brackets(args[1])
+				url = self.utils.strip_angle_brackets(args[1])
 			else:
-				url = utils.emote_url(match.group(2))
+				url = self.utils.emote_url(match.group(2))
 
 		else:
 			return await context.send('Your message had no emotes and no name!')
@@ -294,7 +295,7 @@ class Emotes:
 			await emote.delete()
 			messages.append(f'`:{db_emote["name"]}:` was successfully deleted.')
 
-		await context.send(utils.fix_first_line(messages))
+		await context.send(self.utils.fix_first_line(messages))
 
 	@commands.command(aliases=['mv'])
 	async def rename(self, context, old_name, new_name):
@@ -352,7 +353,7 @@ class Emotes:
 
 		if message is None:
 			# get the second to last message (ie ignore the invoking message)
-			message = await channel.history(limit=2, reverse=True).next()
+			message = await self.utils.get_message(context.channel, -2)
 		else:
 			try:
 				message = await channel.get_message(message)
@@ -370,19 +371,12 @@ class Emotes:
 		if discord.utils.find(same_emote, message.reactions):
 			return await context.send('You can already react to that message, silly!', delete_after=5)
 
-		emote_str = self.format_emote(db_emote)[1:-1]  # skip the <>
+		emote_str = self.utils.strip_angle_brackets(self.utils.format_emote(db_emote))
 
-		try:
-			await message.add_reaction(emote_str)
-		except discord.Forbidden:
-			# these errors are not severe enough to log
-			return await context.send(
-				'Permission denied! Make sure the bot has permission to react to that message.')
-		except discord.HTTPException as ex:
-			error_message = f'Failed to react with `:{name}:`\n{self.format_http_exception(ex)}'
-			logger.error('react: ' + error_message)
-			logger.error(traceback.format_exc())
-			return await context.send(error_message)
+		await context.try_add_reaction(
+			emote_str,
+			message,
+			'Permission denied! Make sure the bot has permission to react to that message.')
 
 		def check(emote, message_id, channel_id, user_id):
 			return (
@@ -429,7 +423,7 @@ class Emotes:
 			success = True
 			error_message = ''
 
-		await context.try_add_reaction(utils.SUCCESS_EMOTES[success], error_message)
+		await context.try_add_reaction(self.utils.SUCCESS_EMOTES[success], fallback_message=error_message)
 
 	@commands.command()
 	@utils.typing
@@ -458,16 +452,16 @@ class Emotes:
 		description = 'list of all emotes'
 		if user is not None:
 			# e.g. 'list of all emotes by null_byte#8191 (140516693242937345)
-			description += ' by ' + self.format_user(user.id, mention=False)
-		gist_url = await utils.create_gist('list.md', table.getvalue(), description=description)
+			description += ' by ' + self.utils.format_user(user.id, mention=False)
+		gist_url = await self.utils.create_gist('list.md', table.getvalue(), description=description)
 		await context.send(f'<{gist_url}>')
 
 	def format_row(self, record: asyncpg.Record):
 		"""Format a database record as "markdown" for the ec/list command."""
 		name, id, author, *_ = record  # discard extra columns
-		author = self.format_user(author)
+		author = self.utils.format_user(author)
 		# only set the width in order to preserve the aspect ratio of the emote
-		return f'<img src="{utils.emote_url(id)}" width=32px> | `:{name}:` | {author}'
+		return f'<img src="{self.utils.emote_url(id)}" width=32px> | `:{name}:` | {author}'
 
 	@commands.command(name='steal-all', hidden=True)
 	@commands.is_owner()
@@ -525,10 +519,10 @@ class Emotes:
 		messages = []
 		for match in self.RE_CUSTOM_EMOTE.finditer(''.join(emotes)):
 			name, id = match.groups()
-			image_url = utils.emote_url(id)
+			image_url = self.utils.emote_url(id)
 			messages.append(await self.add_safe(name, image_url, context.author.id))
 		# XXX this will fail if len > 2000
-		await context.send(utils.fix_first_line(messages))
+		await context.send(self.utils.fix_first_line(messages))
 
 	## EVENTS
 
@@ -570,7 +564,7 @@ class Emotes:
 		message = self.RE_CODE.sub('', message)
 		message = self.RE_CUSTOM_EMOTE.sub('', message)
 		lines = message.splitlines()
-		result = utils.fix_first_line([await self.extract_emotes_line(line) for line in lines])
+		result = self.utils.fix_first_line([await self.extract_emotes_line(line) for line in lines])
 
 		if result.replace('\N{zero width space}', '').strip() != '':  # don't send an empty message
 			return result
@@ -633,30 +627,15 @@ class Emotes:
 
 	async def get_formatted(self, name):
 		"""Retrieve an emote from the database by name, and format it for use in messages."""
-		return self.format_emote(await self.get(name))
+		return self.utils.format_emote(await self.get(name))
 
-	@staticmethod
-	def format_emote(emote):
-		"""Format an emote for use in messages."""
-		return f"<{'a' if emote['animated'] else ''}:{emote['name']}:{emote['id']}>"
-
-	def format_user(self, id, *, mention=False):
-		"""Format a user ID for human readable display."""
-		user = self.bot.get_user(id)
-		if user is None:
-			return f'Unknown user with ID {id}'
-		# not mention: @null byte#8191 (140516693242937345)
-		# mention: <@140516693242937345> (null byte#8191)
-		# this allows people to still see the username and discrim
-		# if they don't share a server with that user
-		return f'{user.mention if mention else user} ({user if mention else user.id})'
 
 
 class BackendContext(utils.CustomContext):
 	async def fail_if_not_exists(self, name):
 		if not await self.cog.exists(name):
 			await self.send(f'`:{name}:` is not a valid emote.')
-			raise EmoteNotFoundError
+			# raise EmoteNotFoundError
 
 	async def fail_if_not_owner(self, name):
 		# assume that it exists, because it has to exist for anyone to be its owner
