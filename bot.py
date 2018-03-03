@@ -60,6 +60,7 @@ class EmojiConnoisseur(commands.Bot):
 
 	def run(self, *args, **kwargs):
 		for extension in (
+				'cogs.utils',  # load first, since other cogs depend on it
 				'cogs.emoji',
 				'cogs.meta',
 				'jishaku',
