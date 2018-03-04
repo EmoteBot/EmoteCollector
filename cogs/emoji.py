@@ -237,12 +237,12 @@ class Emotes:
 		return size
 
 	@classmethod
-	def resize_image(cls, image_data: BytesIO):
-		"""resize an image to 128*128 pixels."""
+	def resize_image(cls, image_data: BytesIO, max_size=(128, 128)):
+		"""Resize an image to no more than max_size pixels, preserving aspect ratio."""
 		# Credit to @Liara#0001 (ID 136900814408122368)
 		# https://gitlab.com/Pandentia/element-zero/blob/47bc8eeeecc7d353ec66e1ef5235adab98ca9635/element_zero/cogs/emoji.py#L243-247
 		image = Image(blob=image_data)
-		image.resize(*cls.scale_resolution((image.width, image.height), (128, 128)))
+		image.resize(*cls.scale_resolution((image.width, image.height), max_size))
 		out = BytesIO()
 		image.save(file=out)
 		out.seek(0)
