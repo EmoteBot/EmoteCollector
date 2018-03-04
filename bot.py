@@ -32,7 +32,18 @@ class EmojiConnoisseur(commands.Bot):
 		logger.info('ID: %s' % self.user.id)
 		logger.info(separator)
 
+	def should_reply(self, message):
+		"""return whether the bot should reply to a given message"""
+		# don't reply to bots, unless we're in dev mode
+		# never reply to ourself
+		return not (
+			message.author == self.user
+			or (message.author.bot and self.config['release'] != 'development')
+			or not message.content)
+
 	async def on_message(self, message):
+		if not self.should_reply(message):
+			return
 		# inject the permissions checks
 		await self.invoke(await self.get_context(message, cls=BackendContext))
 

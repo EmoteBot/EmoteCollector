@@ -549,12 +549,7 @@ class Emotes:
 	async def on_message(self, message):
 		"""Reply to messages containing :name: or ;name; with the corresponding emotes.
 		This is like half the functionality of the bot"""
-		# don't reply to bots, unless we're in dev mode
-		# never reply to ourself
-		if (
-				message.author == self.bot.user
-				or (message.author.bot and self.bot.config['release'] != 'development')
-				or not message.content):
+		if not self.bot.should_reply(message):
 			return
 
 		reply = await self.extract_emotes(message.content)
