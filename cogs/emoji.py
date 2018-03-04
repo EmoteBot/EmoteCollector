@@ -85,10 +85,8 @@ class Emotes:
 
 		- name: the name of the emote to get info on
 		"""
-		try:
-			emote = await self.get(name)
-		except EmoteNotFoundError:
-			return await context.send('Emote not found.')
+		await context.fail_if_not_exists(name)
+		emote = await self.get(name)
 
 		embed = discord.Embed(title=self.utils.format_emote(emote))
 		if emote['created'] is not None:
@@ -109,6 +107,16 @@ class Emotes:
 			embed.add_field(name='Description',  value=emote['description'], inline=False)
 
 		await context.send(embed=embed)
+
+	@commands.command()
+	async def big(self, context, name):
+		"""Shows the original image for the given emote"""
+		await context.fail_if_not_exists(name)
+		emote = await self.get(name)
+
+		async with self.session.get(self.utils.emote_url(emote['id'])) as resp:
+			extension = '.gif' if emote['animated'] else '.png'
+			await context.send(file=discord.File(BytesIO(await resp.read()), emote['name'] + extension))
 
 	@commands.command(aliases=['create'])
 	@utils.typing
@@ -196,15 +204,7 @@ class Emotes:
 				raise HTTPException(response.status)
 			image_data = BytesIO(await response.read())
 
-		# It's important that we only attempt to resize the image when we have to,
-		# ie when it exceeds the Discord limit of 256KB.
-		# Apparently some <256KB images become larger when we attempt to resize them,
-		# so resizing sometimes does more harm than good.
-		while self.size(image_data) > 256_000:
-			# resize_image is normally blocking, because wand is.
-			# run_in_executor is magic that makes it non blocking somehow.
-			# also, None as the executor arg means "use the loop's default executor"
-			image_data = await self.bot.loop.run_in_executor(None, self.resize_image, image_data)
+		image_data = await self.bot.loop.run_in_executor(None, self.resize_until_small, image_data)
 
 		animated = self.is_animated(image_data.getvalue())
 		guild = self.free_guild(animated)
@@ -237,7 +237,27 @@ class Emotes:
 		return size
 
 	@classmethod
-	def resize_image(cls, image_data: BytesIO, max_size=(128, 128)):
+	def resize_until_small(cls, image_data: BytesIO):
+		"""If the image_data is bigger than 256KB, resize it until it's not"""
+		# It's important that we only attempt to resize the image when we have to,
+		# ie when it exceeds the Discord limit of 256KB.
+		# Apparently some <256KB images become larger when we attempt to resize them,
+		# so resizing sometimes does more harm than good.
+		max_resolution = 128  # pixels
+		size = cls.size(image_data)
+		while size > 256_000 and max_resolution > 16:  # don't resize past 32x32
+			logger.debug('image size too big (%s bytes)', size)
+			logger.debug('attempting resize to %s*%s pixels', max_resolution, max_resolution)
+			# resize_image is normally blocking, because wand is.
+			# run_in_executor is magic that makes it non blocking somehow.
+			# also, None as the executor arg means "use the loop's default executor"
+			image_data = cls.thumbnail(image_data, (max_resolution, max_resolution))
+			size = cls.size(image_data)
+			max_resolution //= 2
+		return image_data
+
+	@classmethod
+	def thumbnail(cls, image_data: BytesIO, max_size=(128, 128)):
 		"""Resize an image to no more than max_size pixels, preserving aspect ratio."""
 		# Credit to @Liara#0001 (ID 136900814408122368)
 		# https://gitlab.com/Pandentia/element-zero/blob/47bc8eeeecc7d353ec66e1ef5235adab98ca9635/element_zero/cogs/emoji.py#L243-247
