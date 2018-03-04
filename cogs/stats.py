@@ -15,8 +15,7 @@ class EmojiConnoisseurStats(Stats):
 		self.backend_guilds = backend_guilds
 
 	async def guild_count(self):
-		return 512
-		#return await super().guild_count() - len(self.backend_guilds)
+		return await super().guild_count() - len(self.backend_guilds)
 
 
 def setup(bot):

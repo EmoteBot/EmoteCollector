@@ -200,7 +200,7 @@ class Emotes:
 		# ie when it exceeds the Discord limit of 256KB.
 		# Apparently some <256KB images become larger when we attempt to resize them,
 		# so resizing sometimes does more harm than good.
-		if self.size(image_data) > 256_000:
+		while self.size(image_data) > 256_000:
 			# resize_image is normally blocking, because wand is.
 			# run_in_executor is magic that makes it non blocking somehow.
 			# also, None as the executor arg means "use the loop's default executor"
