@@ -82,11 +82,6 @@ class Utils:
 				return _json.loads(await resp.text())['html_url']
 
 	@staticmethod
-	def emote_url(emote_id):
-		"""Convert an emote ID to the image URL for that emote."""
-		return f'https://cdn.discordapp.com/emojis/{emote_id}?v=1'
-
-	@staticmethod
 	def format_emote(emote):
 		"""Format an emote for use in messages."""
 		return f"<{'a' if emote['animated'] else ''}:{emote['name']}:{emote['id']}>"

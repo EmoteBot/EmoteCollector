@@ -49,24 +49,6 @@ class Emotes:
 	def __unload(self):
 		self.session.close()
 
-	async def find_backend_guilds(self):
-		"""Find all the guilds used to store emotes"""
-
-		if hasattr(self, 'guilds') and self.guilds:  # pylint: disable=access-member-before-definition
-			return
-
-		await self.bot.wait_until_ready()
-
-		guilds = []
-		for guild in self.bot.guilds:
-			if await self.bot.is_owner(guild.owner) and guild.name.startswith('EmojiBackend'):
-				guilds.append(guild)
-		self.guilds = guilds
-		logger.info('In ' + str(len(guilds)) + ' backend guilds.')
-
-		# allow other cogs that depend on the list of backend guilds to know when they've been found
-		self.bot.dispatch('backend_guild_enumeration', self.guilds)
-
 	## COMMANDS
 
 	@commands.command()
@@ -280,23 +262,6 @@ class Emotes:
 			return (old_width * new_height//old_height, new_height)
 		return new_width, old_height * new_width//old_width
 
-	def free_guild(self, animated=False):
-		"""Find a guild in the backend guilds suitable for storing an emote.
-
-		As the number of emotes stored by the bot increases, the probability of finding a rate-limited
-		guild approaches 1, but until then, this should work pretty well.
-		"""
-		free_guilds = []
-		for guild in self.guilds:
-			if sum(animated == emote.animated for emote in guild.emojis) < 50:
-				free_guilds.append(guild)
-
-		if not free_guilds:
-			raise NoMoreSlotsError('This bot too weak! Try adding more guilds.')
-
-		# hopefully this lets us bypass the rate limit more often, since emote rates are per-guild
-		return random.choice(free_guilds)
-
 	@commands.command(aliases=['delete', 'delet', 'del', 'rm'])
 	@utils.typing
 	async def remove(self, context, *args):
@@ -416,27 +381,6 @@ class Emotes:
 			except discord.errors.Forbidden:
 				pass
 
-	@commands.command()
-	async def describe(self, context, name, *, description=None):
-		"""Set an emote's description. It will be shown in ec/info.
-
-		If you leave out the description, the bot will remove it.
-		You could use this to:
-		- Detail where you got the image
-		- Credit another author
-		- Write about why you like the emote
-		- Describe how it's used
-
-		There's a 500 character limit.
-		"""
-		await context.fail_on_bad_emote(name)
-		try:
-			await self.bot.db.execute(
-				'UPDATE emojis SET DESCRIPTION = $2 WHERE NAME ILIKE $1',
-				name,
-				description)
-		except asyncpg.StringDataRightTruncationError:  # wowee that's a verbose exception name
-		                                                # like why not just call it "StringTooLongError"?
 			success = False
 			error_message = "Error: description too long! It's an emote, not your life story."
 		else:
@@ -617,50 +561,11 @@ class Emotes:
 		for message_id in message_ids:
 			await self.on_raw_message_delete(message_id, _)
 
-	## HELPER FUNCTIONS
-
-	async def get(self, name):
-		"""Retrieve an emote from the database by name."""
-
-		row = await self.bot.db.fetchrow("""
-			SELECT *
-			FROM emojis
-			WHERE name ILIKE $1""",
-			name)
-		if row is None:
-			raise EmoteNotFoundError(name)
-		return row
-
-	async def exists(self, name) -> bool:
-		"""Return whether an emote with that name exists."""
-		try:
-			await self.get(name)
-		except EmoteNotFoundError:
-			return False
-		else:
-			return True
-
-	async def get_formatted(self, name):
-		"""Retrieve an emote from the database by name, and format it for use in messages."""
-		return self.utils.format_emote(await self.get(name))
-
-
-
 class BackendContext(utils.CustomContext):
 	async def fail_if_not_exists(self, name):
 		if not await self.cog.exists(name):
 			await self.send(f'`:{name}:` is not a valid emote.')
 			# raise EmoteNotFoundError
-
-	async def fail_if_not_owner(self, name):
-		# assume that it exists, because it has to exist for anyone to be its owner
-		# also, fail_if_not_exists should do this anyway
-		emote = await self.cog.get(name)
-
-		# By De Morgan's laws, this is equivalent to not (bot_owner or emote_author)
-		if not await self.bot.is_owner(self.author) and emote['author'] != self.author.id:
-			await self.send(f"You're not the author of {self.cog.format_emote(emote)}!")
-			raise PermissionDeniedError
 
 	async def fail_on_bad_emote(self, name):
 		# It may seem bad to do two identical database queries like this,
