@@ -7,6 +7,7 @@ import random
 import sys
 
 import asyncpg
+import discord
 
 from ..utils import errors
 
@@ -23,6 +24,9 @@ class Database:
 		# however, backend guild enumeration can wait
 		# without it, the bot will report all guilds being full
 		self.bot.loop.create_task(self.find_backend_guilds())
+
+	def __unload(self):
+		self.bot.loop.run_until_complete(self.db.close())
 
 	@staticmethod
 	def format_emote(emote: asyncpg.Record):
@@ -88,6 +92,7 @@ class Database:
 	async def set_user_blacklist(self, user_id, reason=None):
 		"""make user_id blacklisted :c"""
 		# insert regardless of whether it exists
+		# and if it does exist, update
 		return await self.db.execute("""
 			INSERT INTO user_opt (id, blacklist_reason) VALUES ($1, $2)
 			ON_CONFLICT (id) DO UPDATE SET blacklisted = EXCLUDED.blacklisted""", user_id, reason)
@@ -171,7 +176,7 @@ class Database:
 		await self.db.execute('UPDATE emojis SET name = $2 where id = $1', id, new_name)
 
 	async def set_emote_description(self, name, description=None, user_id):
-		"""Set an emote's description. It will be shown in ec/info.
+		"""Set an emote's description.
 
 		If you leave out the description, it will be removed.
 		You could use this to:
@@ -179,8 +184,6 @@ class Database:
 		- Credit another author
 		- Write about why you like the emote
 		- Describe how it's used
-
-		There's a 500 character limit currently.
 		"""
 		await self.is_owner_check(name, user_id)
 		try:
@@ -193,24 +196,50 @@ class Database:
 		except asyncpg.StringDataRightTruncationError as exception:
 			raise errors.EmoteDescriptionTooLong from exception
 
-	async def toggle_user_state(self, user_id):
-		# TODO
-		...
+	async def log_emote_usage(self, emote, guild_id, user_id):
+		await self.db.execute(
+			'INSERT INTO emote_usage_history (emote_id, guild_id, user_id) VALUES ($1, $2, $3)',
+			emote['id'], guild_id, user_id)
+
+	async def _toggle_state(self, table_name, id, default):
+		"""toggle the state for a user or guild. If there's no entry already, new state = default."""
+		await self.db.execute("""
+			INSERT INTO $1 VALUES ($2, $3)
+			ON CONFLICT (id) DO UPDATE SET state = NOT $1.state
+		""", table_name, id, default)
+
+	async def toggle_user_state(self, user_id, guild_id=None) -> bool:
+		"""Toggle whether the user has opted to use the emote auto response.
+		If the user does not have an entry already:
+			If the guild_id is provided and not None, the user's state is set to the opposite of the guilds'
+			Otherwise, the user's state is set to False, since the default state is True.
+		Returns the new state."""
+		default = False
+		if guild_id is not None:
+			guild_state = await self.get_guild_state(guild_id)
+			if guild_state is not None:
+				default = not guild_state
+		await self._toggle_state('user_opt', user_id, default)
+		return await self.get_user_state(user_id)
 
 	async def toggle_guild_state(self, guild_id):
-		# TODO
-		...
+		"""Togle whether this guild is opt in.
+		If this guild is opt in, the emote auto response will be disabled
+		except for users that have opted in to it using `toggle_user_state`.
+		Otherwise, the response will be on for all users except those that have opted out."""
+		await self._toggle_state('guild_opt', guild_id, True)
+		return await self.get_guild_state(guild_id)
+
+	async def _get_state(self, table_name, id):
+		return await self.db.fetchval('SELECT state FROM $1 WHERE id = $2', id)
 
 	async def get_user_state(self, user_id):
-		return await self.db.fetchval(
-			'SELECT COALESCE(state, FALSE) FROM user_opt WHERE id = $1',
-			user_id)
+		"""return this user's global preference for the emoji auto response"""
+		return await self._get_state('user_opt', user_id)
 
 	async def get_guild_state(self, guild_id):
 		"""return whether this guild is opt in"""
-		return await self.db.fetchval(
-			'SELECT COALESCE(state, FALSE) FROM guild_opt WHERE id = $1',
-			guild_id)
+		return await self._get_state('guild_opt', guild_id)
 
 	async def get_state(self, guild_id, user_id):
 		state = True
@@ -263,8 +292,18 @@ class Database:
 			CREATE TRIGGER update_emoji_modtime
 			BEFORE UPDATE ON emojis
 			FOR EACH ROW EXECUTE PROCEDURE update_modified_column();""")
-		await db.execute('CREATE TABLE IF NOT EXISTS connoisseur.blacklists(id bigint NOT NULL UNIQUE)')
+		await db.execute('DROP TABLE IF EXISTS blacklists')
+		await db.execute("""
+			CREATE TABLE IF NOT EXISTS user_opt(
+				id BIGINT NOT NULL UNIQUE,
+				state BOOLEAN NOT NULL,
+				blacklist_reason VARCHAR(500))""")
+		await db.execute("""
+			CREATE TABLE IF NOT EXISTS guild_opt(
+				id BIGINT NOT NULL UNIQUE,
+				state BOOLEAN NOT NULL)""")
 		return db
 
 
-DB = asyncio.get_event_loop().run_until_complete(_get_db())
+def setup(bot):
+	bot.add_cog(Database(bot))
