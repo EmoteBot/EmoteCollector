@@ -2,9 +2,7 @@
 # encoding: utf-8
 
 import asyncio
-import json
 import logging
-from pathlib import Path
 import sys
 
 import asyncpg
@@ -12,12 +10,6 @@ import asyncpg
 
 logger = logging.getLogger('db')
 logger.setLevel(logging.WARNING)
-
-
-DATA_DIR = Path('data')
-with open(DATA_DIR / 'config.json') as config_file:
-	CONFIG = json.load(config_file)
-del config_file
 
 
 async def _get_db():

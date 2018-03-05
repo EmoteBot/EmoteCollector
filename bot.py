@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 # encoding: utf-8
 
+import json
 import logging
 import traceback
 
 from discord.ext import commands
 
 from cogs.emoji import BackendContext
-import db
+
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('bot')
@@ -15,13 +16,12 @@ logger.setLevel(logging.DEBUG)
 
 
 class EmojiConnoisseur(commands.Bot):
-	cogs_path = 'cogs'
-
 	def __init__(self, *args, **kwargs):
-		self.config = db.CONFIG
-		self.db = db.DB
+		with open('data/config.json') as f:
+			self.config = json.load(f)
+
 		super().__init__(
-			command_prefix=commands.when_mentioned_or('ec/'),
+			command_prefix=commands.when_mentioned_or(self.config['prefix']),
 			description=self.config['description'],
 			*args, **kwargs)
 
@@ -32,6 +32,12 @@ class EmojiConnoisseur(commands.Bot):
 		logger.info('ID: %s' % self.user.id)
 		logger.info(separator)
 
+	async def on_message(self, message):
+		if not self.should_reply(message):
+			return
+		# inject the permissions checks
+		await self.invoke(await self.get_context(message, cls=BackendContext))
+
 	def should_reply(self, message):
 		"""return whether the bot should reply to a given message"""
 		# don't reply to bots, unless we're in dev mode
@@ -40,12 +46,6 @@ class EmojiConnoisseur(commands.Bot):
 			message.author == self.user
 			or (message.author.bot and self.config['release'] != 'development')
 			or not message.content)
-
-	async def on_message(self, message):
-		if not self.should_reply(message):
-			return
-		# inject the permissions checks
-		await self.invoke(await self.get_context(message, cls=BackendContext))
 
 	async def is_owner(self, user):
 		if self.owner_id is None:
@@ -72,6 +72,7 @@ class EmojiConnoisseur(commands.Bot):
 	def run(self, *args, **kwargs):
 		for extension in (
 				'cogs.utils',  # load first, since other cogs depend on it
+				'cogs.db',
 				'cogs.emoji',
 				'cogs.meta',
 				'jishaku',
