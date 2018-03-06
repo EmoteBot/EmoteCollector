@@ -477,6 +477,14 @@ class Emotes:
 		if message.guild and not message.guild.me.permissions_in(message.channel).external_emojis:
 			return
 
+		if isinstance(message.channel, discord.DMChannel):
+			guild = None
+		else:
+			guild = message.guild.id
+
+		if not await self.db.get_state(guild, message.author.id):
+			return
+
 		reply = await self.extract_emotes(message.content)
 		if reply is not None:  # don't send empty whitespace
 			self.replies[message.id] = await message.channel.send(reply)
