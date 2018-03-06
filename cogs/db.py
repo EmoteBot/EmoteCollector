@@ -305,7 +305,7 @@ class Database:
 		await db.execute("""
 			CREATE TABLE IF NOT EXISTS user_opt(
 				id BIGINT NOT NULL UNIQUE,
-				state BOOLEAN NOT NULL,
+				state BOOLEAN,
 				blacklist_reason VARCHAR(500))""")
 		await db.execute("""
 			CREATE TABLE IF NOT EXISTS guild_opt(
