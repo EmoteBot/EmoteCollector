@@ -90,9 +90,9 @@ class Database:
 		"""make user_id blacklisted :c"""
 		# insert regardless of whether it exists
 		# and if it does exist, update
-		return await self.db.execute("""
+		await self.db.execute("""
 			INSERT INTO user_opt (id, blacklist_reason) VALUES ($1, $2)
-			ON_CONFLICT (id) DO UPDATE SET blacklisted = EXCLUDED.blacklisted""", user_id, reason)
+			ON CONFLICT (id) DO UPDATE SET blacklist_reason = EXCLUDED.blacklist_reason""", user_id, reason)
 
 	async def get_emote(self, name):
 		return await self.db.fetchrow('SELECT * FROM emojis WHERE name ILIKE $1', name)
@@ -212,10 +212,11 @@ class Database:
 
 	async def _toggle_state(self, table_name, id, default):
 		"""toggle the state for a user or guild. If there's no entry already, new state = default."""
-		await self.db.execute("""
-			INSERT INTO $1 VALUES ($2, $3)
-			ON CONFLICT (id) DO UPDATE SET state = NOT $1.state
-		""", table_name, id, default)
+		# see _get_state for why string formatting is OK here
+		await self.db.execute(f"""
+			INSERT INTO {table_name} (id, state) VALUES ($1, $2)
+			ON CONFLICT (id) DO UPDATE SET state = NOT {table_name}.state
+		""", id, default)
 
 	async def toggle_user_state(self, user_id, guild_id=None) -> bool:
 		"""Toggle whether the user has opted to use the emote auto response.
@@ -240,7 +241,10 @@ class Database:
 		return await self.get_guild_state(guild_id)
 
 	async def _get_state(self, table_name, id):
-		return await self.db.fetchval('SELECT state FROM $1 WHERE id = $2', id)
+		# unfortunately, using $1 for table_name is a syntax error
+		# however, since table name is always hardcoded input from other functions in this module,
+		# it's ok to use string formatting here
+		return await self.db.fetchval(f'SELECT state FROM {table_name} WHERE id = $1', id)
 
 	async def get_user_state(self, user_id):
 		"""return this user's global preference for the emoji auto response"""
@@ -265,12 +269,7 @@ class Database:
 
 	async def _get_db(self):
 		credentials = self.bot.config['database']
-
-		try:
-			db = await asyncpg.create_pool(**credentials)
-		except ConnectionRefusedError as exception:
-			logger.error('%s: %s', type(exception).__name__, exception)
-			sys.exit(1)
+		db = await asyncpg.create_pool(**credentials)
 
 		await db.execute('SET TIME ZONE UTC')  # make sure timestamps are displayed correctly
 		await db.execute('CREATE SCHEMA IF NOT EXISTS connoisseur')
