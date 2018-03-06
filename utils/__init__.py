@@ -10,7 +10,7 @@ Note: try to put stuff in the Utils cog. Any code that goes in here requires a r
 bot in order to update. Any stuff that goes in Utils can be hot reloaded without downtime.
 """
 
-__all__ = ('CustomContext', 'typing', 'LRUDict')
+__all__ = ('CustomContext', 'errors', 'typing', 'LRUDict')
 
 
 from functools import wraps
@@ -22,6 +22,7 @@ from lru import LRU as _LRUDict	 # sunder only because we are defining our own, 
 from wrapt import ObjectProxy as ObjectProxy
 
 from cogs.utils import Utils  # note: we would like access to some functions that *are* hot-reloadable
+from . import errors
 
 
 class CustomContext(commands.Context):
