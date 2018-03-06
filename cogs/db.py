@@ -196,7 +196,7 @@ class Database:
 		"""
 		await self.owner_check(name, user_id)
 		try:
-			await self.bot.db.execute(
+			await self.db.execute(
 				'UPDATE emojis SET DESCRIPTION = $2 WHERE NAME ILIKE $1',
 				name,
 				description)
