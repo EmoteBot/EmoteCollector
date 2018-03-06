@@ -288,6 +288,25 @@ class Emotes:
 		else:
 			await context.send('Emote successfully renamed.')
 
+	@commands.command()
+	async def describe(self, context, name, *, description=None):
+		"""Set an emote's description. It will be displayed in ec/info.
+
+		If you leave out the description, it will be removed.
+		You could use this to:
+		- Detail where you got the image
+		- Credit another author
+		- Write about why you like the emote
+		- Describe how it's used
+		Currently, there's a limit of 500 characters.
+		"""
+		try:
+			await self.db.set_emote_description(name, context.author.id, description)
+		except errors.ConnoisseurError as ex:
+			await context.send(ex)
+
+		await context.try_add_reaction(self.utils.SUCCESS_EMOTES[True])
+
 	@staticmethod
 	def format_http_exception(exception: discord.HTTPException):
 		"""Formats a discord.HTTPException for relaying to the user.
