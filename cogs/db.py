@@ -114,9 +114,11 @@ class Database:
 			args.append(author_id)
 		query += 'ORDER BY LOWER(name)'
 
+		# gee whiz, just look at all these indents!
 		async with self.db.acquire() as connection:
 			async with connection.transaction():
-				return connection.cursor(query, *args)
+				async for row in connection.cursor(query, *args):
+					yield row
 
 	async def ensure_emote_exists(self, name):
 		"""fail with an exception if an emote called `name` does not exist
