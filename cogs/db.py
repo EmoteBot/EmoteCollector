@@ -9,28 +9,25 @@ import sys
 import asyncpg
 import discord
 
-from ..utils import errors
+from utils import errors
 
 
-logger = logging.getLogger('db')
+logger = logging.getLogger('cogs.db')
 
 
 class Database:
 	def __init__(self, bot):
 		self.bot = bot
-		# not using create_task because we want the database to complete loading
-		# only after the db is initialized
-		self.bot.loop.run_until_complete(_get_db())
-		# however, backend guild enumeration can wait
-		# without it, the bot will report all guilds being full
+		self.bot.loop.create_task(self._get_db())
+		# without backend guild enumeration, the bot will report all guilds being full
 		self.bot.loop.create_task(self.find_backend_guilds())
 
 	def __unload(self):
-		self.bot.loop.run_until_complete(self.db.close())
+		self.bot.loop.create_task(self.db.close())
 
 	@staticmethod
 	def format_emote(emote: asyncpg.Record):
-		animted = emote['animated']
+		animated = emote['animated']
 		name = emote['name']
 		id = emote['id']
 		return f"<{'a' if animated else ''}:{name}:{id}>"
@@ -70,7 +67,7 @@ class Database:
 				free_guilds.append(guild)
 
 		if not free_guilds:
-			raise NoMoreSlotsError('This bot too weak! Try adding more guilds.')
+			raise NoMoreSlotsError
 
 		# hopefully this lets us bypass the rate limit more often, since emote rates are per-guild
 		return random.choice(free_guilds)
@@ -101,7 +98,11 @@ class Database:
 		return await self.db.fetchrow('SELECT * FROM emojis WHERE name ILIKE $1', name)
 
 	async def get_formatted_emote(self, name):
-		return self.format_emote(await self.get_emote(name))
+		emote = await self.get_emote(name)
+		if emote is None:
+			raise errors.EmoteNotFoundError(name)
+
+		return self.format_emote(emote)
 
 	async def get_emotes(self, author_id=None):
 		"""return an async iterator that gets emotes from the database.
@@ -117,17 +118,23 @@ class Database:
 			async with connection.transaction():
 				return connection.cursor(query, *args)
 
-	async def exists_check(self, name):
-		"""fail with an exception if an emote called `name` already exists.
+	async def ensure_emote_exists(self, name):
+		"""fail with an exception if an emote called `name` does not exist
 		this is to reduce duplicated exception raising code."""
 		if await self.get_emote(name) is None:
 			raise errors.EmoteNotFoundError(name)
 
+	async def ensure_emote_does_not_exist(self, name):
+		"""fail with an exception if an emote called `name` does not exist
+		this is to reduce duplicated exception raising code."""
+		if await self.get_emote(name) is not None:
+			raise errors.EmoteExistsError(name)
+
 	async def create_emote(self, name, author_id, animated, image_data: bytes):
-		blacklist_reason = self.get_user_blacklist(author_id)
+		blacklist_reason = await self.get_user_blacklist(author_id)
 		if blacklist_reason:
 			raise errors.UserBlacklisted(blacklist_reason)
-		await self.exists_check(name)
+		await self.ensure_emote_does_not_exist(name)
 
 		# checks passed
 		guild = self.free_guild(animated)
@@ -141,14 +148,14 @@ class Database:
 
 	async def is_owner(self, name, user_id):
 		"""return whether the user has permissions to modify this emote"""
-		emote = await self.get(name)
+		await self.ensure_emote_exists(name)
+		emote = await self.get_emote(name)
 		user = discord.Object(user_id)
 		return await self.bot.is_owner(user) or emote['author'] == user.id
 
 	async def owner_check(self, name, user_id):
 		"""like is_owner but fails with an exception if the user is not authorized.
 		this is to reduce duplicated exception raising code."""
-		await self.exists_check(name)
 		if not await self.is_owner(name, user_id):
 			raise errors.PermissionDeniedError(name)
 
@@ -166,16 +173,16 @@ class Database:
 
 	async def rename_emote(self, old_name, new_name, user_id):
 		"""rename an emote from old_name to new_name. user_id must be authorized."""
-		# don't fail if new_name is a different capitalization of old_name
-		if old_name.lower() != new_name.lower():
-			await self.exists_check(new_name)
 		await self.owner_check(old_name, user_id)
+		# don't fail if new_name is a different capitalization of old_name
+		if old_name.lower() != new_name.lower() and await self.get_emote(new_name) is not None:
+			raise errors.EmoteExistsError(new_name)
 		db_emote = await self.get_emote(old_name)
 		emote = self.bot.get_emoji(db_emote['id'])
 		await emote.edit(name=new_name)
-		await self.db.execute('UPDATE emojis SET name = $2 where id = $1', id, new_name)
+		await self.db.execute('UPDATE emojis SET name = $2 where id = $1', emote.id, new_name)
 
-	async def set_emote_description(self, name, description=None, user_id):
+	async def set_emote_description(self, name, user_id, description=None):
 		"""Set an emote's description.
 
 		If you leave out the description, it will be removed.
@@ -185,7 +192,7 @@ class Database:
 		- Write about why you like the emote
 		- Describe how it's used
 		"""
-		await self.is_owner_check(name, user_id)
+		await self.owner_check(name, user_id)
 		try:
 			await self.bot.db.execute(
 				'UPDATE emojis SET DESCRIPTION = $2 WHERE NAME ILIKE $1',
@@ -196,7 +203,7 @@ class Database:
 		except asyncpg.StringDataRightTruncationError as exception:
 			raise errors.EmoteDescriptionTooLong from exception
 
-	async def log_emote_usage(self, emote, guild_id, user_id):
+	async def log_emote_use(self, emote, guild_id, user_id):
 		await self.db.execute(
 			'INSERT INTO emote_usage_history (emote_id, guild_id, user_id) VALUES ($1, $2, $3)',
 			emote['id'], guild_id, user_id)
@@ -302,7 +309,7 @@ class Database:
 			CREATE TABLE IF NOT EXISTS guild_opt(
 				id BIGINT NOT NULL UNIQUE,
 				state BOOLEAN NOT NULL)""")
-		return db
+		self.db = db
 
 
 def setup(bot):

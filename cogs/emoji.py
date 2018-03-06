@@ -17,7 +17,7 @@ from discord.ext import commands
 from wand.image import Image
 
 import utils
-
+from utils import errors
 
 logger = logging.getLogger('cogs.emoji')
 
@@ -36,8 +36,8 @@ class Emotes:
 
 	def __init__(self, bot):
 		self.bot = bot
-		self.bot.loop.create_task(self.find_backend_guilds())
 		self.utils = self.bot.get_cog('Utils')
+		self.db = self.bot.get_cog('Database')
 		self.session = aiohttp.ClientSession(loop=self.bot.loop, read_timeout=30)
 
 		# Keep track of replies so that if the user edits/deletes a message,
@@ -68,9 +68,9 @@ class Emotes:
 		- name: the name of the emote to get info on
 		"""
 		await context.fail_if_not_exists(name)
-		emote = await self.get(name)
+		emote = await self.db.get_emote(name)
 
-		embed = discord.Embed(title=self.utils.format_emote(emote))
+		embed = discord.Embed(title=self.db.format_emote(emote))
 		if emote['created'] is not None:
 			logger.debug('setting timestamp to %s', emote['created'])
 			embed.timestamp = emote['created']
@@ -94,9 +94,9 @@ class Emotes:
 	async def big(self, context, name):
 		"""Shows the original image for the given emote"""
 		await context.fail_if_not_exists(name)
-		emote = await self.get(name)
+		emote = await self.db.get_emote(name)
 
-		async with self.session.get(self.utils.emote_url(emote['id'])) as resp:
+		async with self.session.get(self.db.emote_url(emote['id'])) as resp:
 			extension = '.gif' if emote['animated'] else '.png'
 			await context.send(file=discord.File(BytesIO(await resp.read()), emote['name'] + extension))
 
@@ -125,7 +125,7 @@ class Emotes:
 				return await context.send("That's not an emote!")
 			else:
 				name, id = match.groups()
-				url = self.utils.emote_url(id)
+				url = self.db.emote_url(id)
 
 		elif len(args) == 2:
 			name = args[0]
@@ -133,7 +133,7 @@ class Emotes:
 			if match is None:
 				url = self.utils.strip_angle_brackets(args[1])
 			else:
-				url = self.utils.emote_url(match.group(2))
+				url = self.db.emote_url(match.group(2))
 
 		else:
 			return await context.send('Your message had no emotes and no name!')
@@ -148,30 +148,26 @@ class Emotes:
 		"""Try to add an emote. On failure, return a string that should be sent to the user."""
 		try:
 			await self.add_backend(name, url, author)
-		except EmoteExistsError:
-			return f'An emote called {name} already exists!'
+		except errors.ConnoisseurError as ex:
+			return str(ex)
 		except discord.HTTPException as ex:
 			logger.error(traceback.format_exc())
 			return (
 				'An error occurred while creating the emote:\n'
 				+ self.format_http_exception(ex))
-		except HTTPException as ex:
+		except errors.HTTPException as ex:
 			return f'URL error: server returned error code {ex}.'
 		except asyncio.TimeoutError:
 			return 'Error: retrieving the image took too long.'
-		except InvalidImageError:
-			return 'Error: URL specified is not a PNG, JPG, or GIF.'
 		except ValueError:
 			return 'Error: Invalid URL.'
 		else:
-			return 'Emote %s successfully created.' % await self.get_formatted(name)
+			# f-strings are not async so we use % formatting instead
+			return 'Emote %s successfully created.' % await self.db.get_formatted_emote(name)
 
 	async def add_backend(self, name, url, author_id):
 		"""Actually add an emote to the database."""
-		if await self.exists(name):
-			raise EmoteExistsError(name)
-
-		# after reaching this point, the emote doesn't exist already
+		await self.db.ensure_emote_does_not_exist(name)
 
 		# credits to @Liara#0001 (ID 136900814408122368) for most of this part
 		# https://gitlab.com/Pandentia/element-zero/blob/47bc8eeeecc7d353ec66e1ef5235adab98ca9635/element_zero/cogs/emoji.py#L217-228
@@ -179,7 +175,7 @@ class Emotes:
 			if response.reason != 'OK':
 				raise HTTPException(response.status)
 			if response.headers.get('Content-Type') not in ('image/png', 'image/jpeg', 'image/gif'):
-				raise InvalidImageError
+				raise errors.InvalidImageError
 
 		async with self.session.get(url) as response:
 			if response.reason != 'OK':
@@ -187,16 +183,8 @@ class Emotes:
 			image_data = BytesIO(await response.read())
 
 		image_data = await self.bot.loop.run_in_executor(None, self.resize_until_small, image_data)
-
 		animated = self.is_animated(image_data.getvalue())
-		guild = self.free_guild(animated)
-		emote = await guild.create_custom_emoji(name=name, image=image_data.read())
-		await self.bot.db.execute(
-			'INSERT INTO emojis(name, id, author, animated) VALUES($1, $2, $3, $4)',
-			name,
-			emote.id,
-			author_id,
-			animated)
+		emote = await self.db.create_emote(name, author_id, animated, image_data.read())
 
 	@staticmethod
 	def is_animated(image_data: bytes):
@@ -245,6 +233,7 @@ class Emotes:
 		# https://gitlab.com/Pandentia/element-zero/blob/47bc8eeeecc7d353ec66e1ef5235adab98ca9635/element_zero/cogs/emoji.py#L243-247
 		image = Image(blob=image_data)
 		image.resize(*cls.scale_resolution((image.width, image.height), max_size))
+		# TODO investigate whether we can mutate the original arg or if we have to create a new buffer
 		out = BytesIO()
 		image.save(file=out)
 		out.seek(0)
@@ -268,16 +257,19 @@ class Emotes:
 		"""Removes one or more emotes from the bot. You must own all of them."""
 		messages = []
 		for name in args:
-			await context.fail_on_bad_emote(name)
-			db_emote = await self.get(name)
+			try:
+				await self.db.owner_check(name, context.author.id)
+			except errors.ConnoisseurError as ex:
+				messages.append(str(ex))
+				continue
+			db_emote = await self.db.get_emote(name)
 			logger.debug('Trying to delete %s %s', db_emote['name'], db_emote['id'])
 
-			emote = self.bot.get_emoji(db_emote['id'])
-			if emote is None:
-				return await context.send('Discord seems to be having issues right now, try again later.')
+			try:
+				await self.db.remove_emote(name, context.author.id)
+			except (errors.ConnoisseurError, errors.DiscordError) as ex:
+				messages.append(str(ex))
 
-			await self.bot.db.execute('DELETE FROM emojis WHERE name ILIKE $1', name)
-			await emote.delete()
 			messages.append(f'`:{db_emote["name"]}:` was successfully deleted.')
 
 		await context.send(self.utils.fix_first_line(messages))
@@ -285,30 +277,16 @@ class Emotes:
 	@commands.command(aliases=['mv'])
 	async def rename(self, context, old_name, new_name):
 		"""Renames an emote. You must own it."""
-		await context.fail_on_bad_emote(old_name)
-		if await self.exists(new_name):
-			return await context.send(f'{new_name} already exists!')
-		emote = await self.get(old_name)
-
 		try:
-			await self.rename_backend(emote['id'], new_name)
-		except discord.Forbidden:
-			await context.send(
-				'Unable to rename the emote because of missing permissions. This should not happen.\n'
-				'Please contact @null byte#8191.')
-			logger.error('Missing permissions to rename ' + old_name)
-			logger.error(traceback.format_exc())
-		except discord.HTTPException as exception:
-			await context.send(self.format_http_exception(exception))
+			await self.db.rename_emote(old_name, new_name, context.author.id)
+		except errors.ConnoisseurError as ex:
+			return await context.send(ex)
+		except discord.HTTPException as ex:
+			await context.send(self.format_http_exception(ex))
 			logger.error('Rename:')
 			logger.error(traceback.format_exc())
 		else:
 			await context.send('Emote successfully renamed.')
-
-	async def rename_backend(self, id, new_name):
-		emote = self.bot.get_emoji(id)
-		await emote.edit(name=new_name)
-		await self.bot.db.execute('UPDATE emojis SET name = $2 WHERE id = $1', id, new_name)
 
 	@staticmethod
 	def format_http_exception(exception: discord.HTTPException):
@@ -329,7 +307,7 @@ class Emotes:
 		then right clicking on the message you want and clicking "Copy ID". Same for channel IDs.
 		"""
 		await context.fail_if_not_exists(name)
-		db_emote = await self.get(name)
+		db_emote = await self.db.get_emote(name)
 
 		if channel is None:
 			channel = context.channel
@@ -381,14 +359,6 @@ class Emotes:
 			except discord.errors.Forbidden:
 				pass
 
-			success = False
-			error_message = "Error: description too long! It's an emote, not your life story."
-		else:
-			success = True
-			error_message = ''
-
-		await context.try_add_reaction(self.utils.SUCCESS_EMOTES[success], fallback_message=error_message)
-
 	@commands.command()
 	@utils.typing
 	async def list(self, context, *, user: discord.User = None):
@@ -400,18 +370,8 @@ class Emotes:
 		table.write('Emoji | Name | Author\n')
 		table.write('----- | ---- | ------\n')
 
-		query = 'SELECT * FROM emojis '
-		args = []
-		if user is not None:
-			query += 'WHERE author = $1 '
-			args.append(user.id)
-		query += 'ORDER BY LOWER(name)'
-
-		# gee whiz, look at all these indents!
-		async with self.bot.db.acquire() as connection:
-			async with connection.transaction():
-				async for row in connection.cursor(query, *args):
-					table.write(self.format_row(row) + '\n')
+		async for row in self.db.get_emotes(None if user is None else user.id):
+			table.write(self.format_row(row) + '\n')
 
 		description = 'list of all emotes'
 		if user is not None:
@@ -425,7 +385,7 @@ class Emotes:
 		name, id, author, *_ = record  # discard extra columns
 		author = self.utils.format_user(author)
 		# only set the width in order to preserve the aspect ratio of the emote
-		return f'<img src="{self.utils.emote_url(id)}" width=32px> | `:{name}:` | {author}'
+		return f'<img src="{self.db.emote_url(id)}" width=32px> | `:{name}:` | {author}'
 
 	@commands.command(name='steal-all', hidden=True)
 	@commands.is_owner()
@@ -438,8 +398,8 @@ class Emotes:
 			emotes = await self.scrape_list(list_url)
 		except asyncio.TimeoutError:
 			return await context.send('Error: fetching the URL took too long.')
-		except ValueError as exception:
-			logging.warning('steal_all: %s %s', type(exception).__name__, exception)
+		except ValueError as ex:
+			logging.warning('steal_all: %s %s', type(exception).__name__, ex)
 			return await context.send('Error: invalid URL.')
 
 		for name, image, author in emotes:
@@ -483,7 +443,7 @@ class Emotes:
 		messages = []
 		for match in self.RE_CUSTOM_EMOTE.finditer(''.join(emotes)):
 			name, id = match.groups()
-			image_url = self.utils.emote_url(id)
+			image_url = self.db.emote_url(id)
 			messages.append(await self.add_safe(name, image_url, context.author.id))
 		# XXX this will fail if len > 2000
 		await context.send(self.utils.fix_first_line(messages))
@@ -495,6 +455,8 @@ class Emotes:
 		This is like half the functionality of the bot"""
 		if not self.bot.should_reply(message):
 			return
+		if message.guild and not message.guild.me.permissions_in(message.channel).external_emojis:
+			return
 
 		reply = await self.extract_emotes(message.content)
 		if reply is not None:  # don't send empty whitespace
@@ -502,7 +464,7 @@ class Emotes:
 
 	async def on_raw_message_edit(self, message_id, data):
 		"""Ensure that when a message containing emotes is edited, the corresponding emote reply is, too."""
-
+		# data = https://discordapp.com/developers/docs/resources/channel#message-object
 		if message_id not in self.replies or 'content' not in data:
 			return
 
@@ -523,10 +485,12 @@ class Emotes:
 		message = self.RE_CODE.sub('', message)
 		message = self.RE_CUSTOM_EMOTE.sub('', message)
 		lines = message.splitlines()
-		result = self.utils.fix_first_line([await self.extract_emotes_line(line) for line in lines])
 
-		if result.replace('\N{zero width space}', '').strip() != '':  # don't send an empty message
-			return result
+		result = [await self.extract_emotes_line(line) for line in lines]
+		result_message = self.utils.fix_first_line(result)
+
+		if result_message.replace('\N{zero width space}', '').strip() != '':  # don't send an empty message
+			return result_message
 
 	async def extract_emotes_line(self, line: str) -> str:
 		"""Extract emotes from a single line."""
@@ -536,14 +500,15 @@ class Emotes:
 		if not names:
 			return ''
 
-		emotes = []
+		formatted_emotes = []
 		for name in names:
 			try:
-				emotes.append(await self.get_formatted(name))
+				emote = await self.db.get_emote(name)
 			except EmoteNotFoundError:
-				pass
+				continue
+			formatted_emotes.append(self.db.format_emote(emote))
 
-		return ''.join(emotes)
+		return ''.join(formatted_emotes)
 
 	async def on_raw_message_delete(self, message_id, _):
 		"""Ensure that when a message containing emotes is deleted, the emote reply is, too."""
@@ -561,55 +526,24 @@ class Emotes:
 		for message_id in message_ids:
 			await self.on_raw_message_delete(message_id, _)
 
+
 class BackendContext(utils.CustomContext):
 	async def fail_if_not_exists(self, name):
-		if not await self.cog.exists(name):
-			await self.send(f'`:{name}:` is not a valid emote.')
-			# raise EmoteNotFoundError
+		try:
+			await self.cog.db.ensure_emote_exists(name)
+		except errors.EmoteNotFoundError as ex:
+			await self.send(ex)
+			raise  # halts command execution
 
-	async def fail_on_bad_emote(self, name):
+	async def fail_if_not_owner(self, name):
 		# It may seem bad to do two identical database queries like this,
 		# but I'm pretty sure asyncpg caches queries.
 		await self.fail_if_not_exists(name)
-		await self.fail_if_not_owner(name)
-
-
-class ConnoisseurError(Exception):
-	"""Generic error with the bot. This can be used to catch all bot errors."""
-	pass
-
-
-class HTTPException(ConnoisseurError):
-	"""The server did not respond with an OK status code."""
-	pass
-
-
-class EmoteExistsError(ConnoisseurError):
-	"""An emote with that name already exists"""
-	pass
-
-
-class EmoteNotFoundError(ConnoisseurError):
-	"""An emote with that name was not found"""
-	pass
-
-
-class InvalidImageError(ConnoisseurError):
-	"""The image is not a GIF, PNG, or JPG"""
-	pass
-
-
-class NoMoreSlotsError(ConnoisseurError):
-	"""Raised in the rare case that all slots of a particular type (static/animated) are full
-	if this happens, make a new Emoji Backend account, create 100 more guilds, and add the bot
-	to all of these guilds.
-	"""
-	pass
-
-
-class PermissionDeniedError(ConnoisseurError):
-	"""Raised when a user tries to modify an emote they don't own"""
-	pass
+		try:
+			await self.cog.db.owner_check(name, self.author.id)
+		except errors.PermissionDeniedError as ex:
+			await self.send(ex)
+			raise
 
 
 def setup(bot):
