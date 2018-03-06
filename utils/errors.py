@@ -45,4 +45,3 @@ class DiscordError(Exception):
 	"""Usually raised when the client cache is being baka"""
 	def __init__(self):
 		super().__init__('Discord seems to be having issues right now, please try again later.')
-
