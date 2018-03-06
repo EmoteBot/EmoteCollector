@@ -394,7 +394,7 @@ class Emotes:
 
 		description = 'list of all emotes'
 		if user is not None:
-			# e.g. 'list of all emotes by null_byte#8191 (140516693242937345)
+			# e.g. "list of all emotes by null_byte#8191 (140516693242937345)"
 			description += ' by ' + self.utils.format_user(user.id, mention=False)
 		gist_url = await self.utils.create_gist('list.md', table.getvalue(), description=description)
 		await context.send(f'<{gist_url}>')
@@ -521,9 +521,8 @@ class Emotes:
 
 		formatted_emotes = []
 		for name in names:
-			try:
-				emote = await self.db.get_emote(name)
-			except EmoteNotFoundError:
+			emote = await self.db.get_emote(name)
+			if emote is None:
 				continue
 			formatted_emotes.append(self.db.format_emote(emote))
 
