@@ -259,7 +259,7 @@ class Database:
 
 		guild_state = await self.get_guild_state(guild_id)
 		if guild_state is not None:
-			state = guild_state
+			state = not guild_state  # since True means opt in
 
 		user_state = await self.get_user_state(user_id)
 		if user_state is not None:
