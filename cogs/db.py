@@ -227,11 +227,7 @@ class Database:
 		default = False
 		guild_state = await self.get_guild_state(guild_id)
 		if guild_state is not None:
-			# if the guild is opt in, then guild_state is True
-			# that means the user's current state is False.
-			# So if a server is opt in and the user runs the command for the first time,
-			# this will opt them in.
-			# Maybe it would be easier if guild state represented whether the server is opt_out
+			# if the auto response is enabled for the guild then toggling the user state should opt out
 			default = not guild_state
 		await self._toggle_state('user_opt', user_id, default)
 		return await self.get_user_state(user_id)
