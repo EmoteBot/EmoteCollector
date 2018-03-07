@@ -94,6 +94,17 @@ class Emotes:
 
 	@commands.command()
 	@checks.not_blacklisted()
+	async def count(self, context):
+		"""Tells you how many emotes are in my database."""
+		static, animated, total = await self.db.count()
+		message = [
+			f'Static emotes: {static}',
+			f'Animated emotes: {animated}',
+			f'Total: {total}']
+		await context.send(self.utils.fix_first_line(message))
+
+	@commands.command()
+	@checks.not_blacklisted()
 	async def big(self, context, name):
 		"""Shows the original image for the given emote"""
 		await context.fail_if_not_exists(name)
