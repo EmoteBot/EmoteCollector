@@ -17,6 +17,7 @@ from discord.ext import commands
 from wand.image import Image
 
 import utils
+from utils import checks
 from utils import errors
 
 logger = logging.getLogger('cogs.emoji')
@@ -466,6 +467,52 @@ class Emotes:
 			messages.append(await self.add_safe(name, image_url, context.author.id))
 		# XXX this will fail if len > 2000
 		await context.send(self.utils.fix_first_line(messages))
+
+	@commands.command()
+	async def toggle(self, context):
+		"""Toggles the emote auto response (;name;) for you.
+		This is global, ie it affects all servers you are in.
+
+		If a guild has been set to opt in, you will need to run this command before I can respond to you.
+		"""
+		guild = None
+		if context.guild is not None:
+			guild = context.guild.id
+		if await self.db.toggle_user_state(context.author.id, guild):
+			action = 'in to'
+		else:
+			action = 'out of'
+		await context.send(f'Opted {action} the emote auto response.')
+
+	@commands.command(name='toggleserver')
+	@checks.owner_or_permissions(manage_emojis=True)
+	@commands.guild_only()
+	async def toggle_guild(self, context):
+		"""Toggle the auto response for this server.
+		If you have never run this command before, this server is opt-out: the emote auto response is
+		on for all users, except those who run ec/toggle.
+
+		If this server is opt-out, the emote auto response is off for all users,
+		and they must run ec/toggle before the bot will respond to them.
+
+		Opt out mode is useful for very large servers where the bot's response would be annoying or
+		would conflict with that of other bots.
+		"""
+		if await self.db.toggle_guild_state(context.guild.id):
+			new_state = 'opt-in'
+		else:
+			new_state = 'opt-out'
+		await context.send(f'Emote auto response is now {new_state} for this server.')
+
+	@commands.command()
+	@commands.is_owner()
+	async def blacklist(self, context, user: discord.Member, *, reason=None):
+		"""Prevent a user from using commands. Doesn't do anything just yet."""
+		await self.db.set_user_blacklist(user.id, reason)
+		if reason is None:
+			await context.send('User un-blacklisted.')
+		else:
+			await context.send(f'User blacklisted with reason `{reason}`.')
 
 	## EVENTS
 
