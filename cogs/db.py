@@ -225,19 +225,23 @@ class Database:
 			Otherwise, the user's state is set to False, since the default state is True.
 		Returns the new state."""
 		default = False
-		if guild_id is not None:
-			guild_state = await self.get_guild_state(guild_id)
-			if guild_state is not None:
-				default = not guild_state
+		guild_state = await self.get_guild_state(guild_id)
+		if guild_state is not None:
+			# if the guild is opt in, then guild_state is True
+			# that means the user's current state is False.
+			# So if a server is opt in and the user runs the command for the first time,
+			# this will opt them in.
+			# Maybe it would be easier if guild state represented whether the server is opt_out
+			default = not guild_state
 		await self._toggle_state('user_opt', user_id, default)
 		return await self.get_user_state(user_id)
 
 	async def toggle_guild_state(self, guild_id):
-		"""Togle whether this guild is opt in.
+		"""Togle whether this guild is opt out.
 		If this guild is opt in, the emote auto response will be disabled
 		except for users that have opted in to it using `toggle_user_state`.
 		Otherwise, the response will be on for all users except those that have opted out."""
-		await self._toggle_state('guild_opt', guild_id, True)
+		await self._toggle_state('guild_opt', guild_id, False)
 		return await self.get_guild_state(guild_id)
 
 	async def _get_state(self, table_name, id):
@@ -259,7 +263,7 @@ class Database:
 
 		guild_state = await self.get_guild_state(guild_id)
 		if guild_state is not None:
-			state = not guild_state  # since True means opt in
+			state = guild_state
 
 		user_state = await self.get_user_state(user_id)
 		if user_state is not None:
