@@ -12,14 +12,14 @@ Classes:
 
 EmojiConnoisseurContext: a generic context which extends discord.ext.commands.Context.
 LRUDict: an extension of lru.LRU to add a pop method, and support kwargs for the update method.
+Utils: a cog which wraps up most of the functions listed below
 
 Functions:
 
-typing: a decorator for discord.py commmands that sends a typing indicator to the invoking channel
-until the command returns.
+get_message: gets a message in a channel by negative index, like lists
 fix_first_line: takes in a list of lines and returns a fixed multi line message for compact mode users
 create_gist: uploads text to gist.github.com
-emote_url: given an ID of an emote, get the url which points to that emote's image
+format_user: formats a discord.py User object for human readable display
 format_time: formats a datetime object to look like my preferred format
 strip_angle_brackets: <http://foo.example> -> http://foo.example
 """
@@ -80,11 +80,6 @@ class Utils:
 		async with self.http_session.post('https://api.github.com/gists', data=_json.dumps(data)) as resp:
 			if resp.status == 201:
 				return _json.loads(await resp.text())['html_url']
-
-	@staticmethod
-	def format_emote(emote):
-		"""Format an emote for use in messages."""
-		return f"<{'a' if emote['animated'] else ''}:{emote['name']}:{emote['id']}>"
 
 	def format_user(self, id, *, mention=False):
 		"""Format a user ID for human readable display."""

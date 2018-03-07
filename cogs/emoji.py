@@ -188,13 +188,13 @@ class Emotes:
 		# https://gitlab.com/Pandentia/element-zero/blob/47bc8eeeecc7d353ec66e1ef5235adab98ca9635/element_zero/cogs/emoji.py#L217-228
 		async with self.session.head(url, timeout=5) as response:
 			if response.reason != 'OK':
-				raise HTTPException(response.status)
+				raise errors.HTTPException(response.status)
 			if response.headers.get('Content-Type') not in ('image/png', 'image/jpeg', 'image/gif'):
 				raise errors.InvalidImageError
 
 		async with self.session.get(url) as response:
 			if response.reason != 'OK':
-				raise HTTPException(response.status)
+				raise errors.HTTPException(response.status)
 			image_data = BytesIO(await response.read())
 
 		image_data = await self.bot.loop.run_in_executor(None, self.resize_until_small, image_data)
@@ -210,7 +210,7 @@ class Emotes:
 		elif type in ('png', 'jpeg'):
 			return False
 		else:
-			raise InvalidImageError
+			raise errors.InvalidImageError
 
 	@staticmethod
 	def size(data: BytesIO):
@@ -369,7 +369,7 @@ class Emotes:
 		if discord.utils.find(same_emote, message.reactions):
 			return await context.send('You can already react to that message, silly!', delete_after=5)
 
-		emote_str = self.utils.strip_angle_brackets(self.utils.format_emote(db_emote))
+		emote_str = self.utils.strip_angle_brackets(self.db.format_emote(db_emote))
 
 		await context.try_add_reaction(
 			emote_str,
@@ -435,7 +435,7 @@ class Emotes:
 		except asyncio.TimeoutError:
 			return await context.send('Error: fetching the URL took too long.')
 		except ValueError as ex:
-			logging.warning('steal_all: %s %s', type(exception).__name__, ex)
+			logging.warning('steal_all: %s %s', type(ex).__name__, ex)
 			return await context.send('Error: invalid URL.')
 
 		for name, image, author in emotes:

@@ -1,10 +1,8 @@
 #!/usr/bin/env python3.6
 # encoding: utf-8
 
-import asyncio
 import logging
 import random
-import sys
 
 import asyncpg
 import discord
@@ -50,7 +48,7 @@ class Database:
 			if await self.bot.is_owner(guild.owner) and guild.name.startswith('EmojiBackend'):
 				guilds.append(guild)
 		self.guilds = guilds
-		logger.info('In ' + str(len(guilds)) + ' backend guilds.')
+		logger.info('In %s backend guilds.', len(guilds))
 
 		# allow other cogs that depend on the list of backend guilds to know when they've been found
 		self.bot.dispatch('backend_guild_enumeration', self.guilds)
@@ -67,7 +65,7 @@ class Database:
 				free_guilds.append(guild)
 
 		if not free_guilds:
-			raise NoMoreSlotsError
+			raise errors.NoMoreSlotsError
 
 		# hopefully this lets us bypass the rate limit more often, since emote rates are per-guild
 		return random.choice(free_guilds)
@@ -269,7 +267,7 @@ class Database:
 
 	async def _get_db(self):
 		credentials = self.bot.config['database']
-		db = await asyncpg.create_pool(**credentials)
+		db = await asyncpg.create_pool(**credentials)  # pylint: disable=invalid-name
 
 		await db.execute('SET TIME ZONE UTC')  # make sure timestamps are displayed correctly
 		await db.execute('CREATE SCHEMA IF NOT EXISTS connoisseur')
@@ -310,7 +308,7 @@ class Database:
 			CREATE TABLE IF NOT EXISTS guild_opt(
 				id BIGINT NOT NULL UNIQUE,
 				state BOOLEAN NOT NULL)""")
-		self.db = db
+		self.db = db  # pylint: disable=invalid-name
 
 
 def setup(bot):
