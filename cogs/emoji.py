@@ -63,6 +63,7 @@ class Emotes:
 			await context.send('Unable to send invite in DMs. Please allow DMs from server members.')
 
 	@commands.command()
+	@checks.not_blacklisted()
 	async def info(self, context, name):
 		"""Gives info on an emote.
 
@@ -92,6 +93,7 @@ class Emotes:
 		await context.send(embed=embed)
 
 	@commands.command()
+	@checks.not_blacklisted()
 	async def big(self, context, name):
 		"""Shows the original image for the given emote"""
 		await context.fail_if_not_exists(name)
@@ -102,6 +104,7 @@ class Emotes:
 			await context.send(file=discord.File(BytesIO(await resp.read()), emote['name'] + extension))
 
 	@commands.command(aliases=['create'])
+	@checks.not_blacklisted()
 	@utils.typing
 	async def add(self, context, *args):
 		"""Add a new emote to the bot. You can use it like this:
@@ -320,6 +323,7 @@ class Emotes:
 		return f'{exception.response.reason} (status code: {exception.response.status}):\n{exception.text}'
 
 	@commands.command()
+	@checks.not_blacklisted()
 	async def react(self, context, name, message: int = None, channel: int = None):
 		"""Add a reaction to a message. Sad reacts only please.
 		If no message ID and no channel ID is provided, it'll react to the last sent message.
@@ -380,6 +384,7 @@ class Emotes:
 				pass
 
 	@commands.command()
+	@checks.not_blacklisted()
 	@utils.typing
 	async def list(self, context, *, user: discord.User = None):
 		"""List all emotes the bot knows about.
@@ -454,6 +459,7 @@ class Emotes:
 		return zip(names, image_urls, authors)
 
 	@commands.command(name='steal-these')
+	@checks.not_blacklisted()
 	@utils.typing
 	async def steal_these(self, context, *emotes):
 		"""Steal a bunch of custom emotes."""
@@ -507,7 +513,8 @@ class Emotes:
 	@commands.command()
 	@commands.is_owner()
 	async def blacklist(self, context, user: discord.Member, *, reason=None):
-		"""Prevent a user from using commands. Doesn't do anything just yet."""
+		"""Prevent a user from using commands and the emote auto response.
+		If you don't provide a reason, the user will be un-blacklisted."""
 		await self.db.set_user_blacklist(user.id, reason)
 		if reason is None:
 			await context.send('User un-blacklisted.')
@@ -533,8 +540,20 @@ class Emotes:
 			return
 
 		reply = await self.extract_emotes(message.content)
-		if reply is not None:  # don't send empty whitespace
-			self.replies[message.id] = await message.channel.send(reply)
+		if reply is None:  # don't send empty whitespace
+			return
+
+		blacklist_reason = await self.db.get_user_blacklist(message.author.id)
+		if blacklist_reason is not None:
+			try:
+				await message.author.send(
+					f'You have been blacklisted from using emotes with the reason `{blacklist_reason}`. '
+					'To appeal, please join the support server using the support command.')
+			except (discord.HTTPException, discord.Forbidden):
+				pass
+			return
+
+		self.replies[message.id] = await message.channel.send(reply)
 
 	async def on_raw_message_edit(self, message_id, data):
 		"""Ensure that when a message containing emotes is edited, the corresponding emote reply is, too."""
