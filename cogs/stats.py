@@ -1,12 +1,9 @@
 # encoding: utf-8
 
-import asyncio
-import math
-
 from .external.stats import Stats
 
 
-class EmojiConnoisseurStats(Stats):
+class Stats(Stats):
 	def __init__(self, bot):
 		self.backend_guilds = []
 		super().__init__(bot)
