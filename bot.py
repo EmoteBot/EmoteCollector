@@ -5,6 +5,7 @@ import json
 import logging
 import traceback
 
+import discord
 from discord.ext import commands
 
 from cogs.emoji import BackendContext
@@ -26,6 +27,8 @@ class EmojiConnoisseur(commands.Bot):
 			*args, **kwargs)
 
 	async def on_ready(self):
+		await self.change_presence(activity=discord.Game(name=self.config['prefix'] + 'help'))
+
 		separator = '━' * 44
 		logger.info(separator)
 		logger.info('Logged in as: %s' % self.user)
