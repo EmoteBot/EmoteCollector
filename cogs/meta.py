@@ -10,7 +10,18 @@ class Meta:
 		self.bot = bot
 
 	@commands.command()
+	async def support(self, context):
+		"""Directs you the support server."""
+		try:
+			await context.author.send('https://discord.gg/' + self.bot.config['support_server_invite_code'])
+			await context.try_add_reaction('\N{ok hand sign}')
+		except discord.HTTPException:
+			await context.try_add_reaction('\N{cross mark}')
+			await context.send('Unable to send invite in DMs. Please allow DMs from server members.')
+
+	@commands.command()
 	async def invite(self, context):
+		"""Gives you a link to add me to your server."""
 		# these are the same as the attributes of discord.Permissions
 		permission_names = (
 			'read_messages',

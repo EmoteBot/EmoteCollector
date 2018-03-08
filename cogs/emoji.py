@@ -53,16 +53,6 @@ class Emotes:
 	## COMMANDS
 
 	@commands.command()
-	async def support(self, context):
-		"""Directs you the support server."""
-		try:
-			await context.author.send('https://discord.gg/' + self.bot.config['support_server_invite_code'])
-			await context.try_add_reaction('\N{ok hand sign}')
-		except discord.HTTPException:
-			await context.try_add_reaction('\N{cross mark}')
-			await context.send('Unable to send invite in DMs. Please allow DMs from server members.')
-
-	@commands.command()
 	@checks.not_blacklisted()
 	async def info(self, context, name):
 		"""Gives info on an emote.
