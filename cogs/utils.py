@@ -42,6 +42,7 @@ class Utils:
 	def __init__(self, bot):
 		self.bot = bot
 		self.http_session = _ClientSession(loop=bot.loop)
+		self.converter = _commands.clean_content(use_nicknames=False, escape_markdown=True)
 
 	def __unload(self):
 		self.http_session.close()
@@ -50,6 +51,10 @@ class Utils:
 	but I uploaded them to my test server
 	so that both the staging and the stable versions of the bot can use them"""
 	SUCCESS_EMOTES = ('<:tickNo:416845770239508512>', '<:tickYes:416845760810844160>')
+
+	async def codeblock(self, context, message, *, lang=''):
+		cleaned = await self.converter.convert(context, str(message))
+		return f'```{lang}\n{cleaned}```'
 
 	@staticmethod
 	async def get_message(channel, index: int) -> _discord.Message:
