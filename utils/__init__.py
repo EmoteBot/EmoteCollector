@@ -14,16 +14,40 @@ __all__ = ('CustomContext', 'checks', 'errors', 'typing', 'LRUDict')
 
 
 from functools import wraps
+from typing import Sequence, Union
 
 import asyncio
+from asyncpg import Record
+from collections import OrderedDict
 import discord
 from discord.ext import commands
 from lru import LRU as _LRUDict	 # sunder only because we are defining our own, better LRUDict
+from prettytable import PrettyTable
 from wrapt import ObjectProxy as ObjectProxy
 
 from cogs.utils import Utils  # note: we would like access to some functions that *are* hot-reloadable
 from . import checks
 from . import errors
+
+
+class PrettyTable(PrettyTable):
+	"""an extension of PrettyTable that works with asyncpg's Records and looks better"""
+	def __init__(self, rows: Sequence[Union[Record, OrderedDict]], **options):
+		defaults = dict(
+			# super()'s default is ASCII | - +, which don't join seamlessly and look p bad
+			vertical_char='│',
+			horizontal_char='─',
+			junction_char='┼')
+		for option, default in defaults.items():
+			options.setdefault(option, default)
+
+		super().__init__(rows[0].keys(),
+			**options)
+		# PrettyTable's constructor does not set this property for some reason
+		self.align = options.get('align', 'l')  # left align
+
+		for row in rows:
+			self.add_row(row)
 
 
 class CustomContext(commands.Context):

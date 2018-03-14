@@ -5,6 +5,7 @@ git+https://github.com/Rapptz/discord.py@rewrite#egg=discord.py
 jishaku>0.1.1
 lru-dict
 lxml
+prettytable
 wand
 wrapt
 
