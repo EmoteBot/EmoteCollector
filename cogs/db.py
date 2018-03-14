@@ -3,11 +3,13 @@
 
 import logging
 import random
+import time
 
 import asyncpg
 import discord
+from discord.ext import commands
 
-from utils import errors
+from utils import PrettyTable, errors
 
 
 logger = logging.getLogger('cogs.db')
@@ -19,9 +21,22 @@ class Database:
 		self.bot.loop.create_task(self._get_db())
 		# without backend guild enumeration, the bot will report all guilds being full
 		self.bot.loop.create_task(self.find_backend_guilds())
+		self.utils_cog = self.bot.get_cog('Utils')
 
 	def __unload(self):
 		self.bot.loop.create_task(self.db.close())
+
+	@commands.command(name='sql', hidden=True)
+	@commands.is_owner()
+	async def sql_command(self, context, *, query):
+		"""Gets the rows of a SQL query. Prepared statements are not supported."""
+		start = time.time()
+		# XXX properly strip codeblocks
+		results = await self.db.fetch(query.replace('`', ''))
+		elapsed = time.time() - start
+
+		message = await self.utils_cog.codeblock(context, PrettyTable(results))
+		return await context.send(f'{message}*{len(results)} rows retrieved in {elapsed:.2f} seconds.*')
 
 	@staticmethod
 	def format_emote(emote: asyncpg.Record):
