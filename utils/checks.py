@@ -21,10 +21,10 @@ def not_blacklisted():
 	async def predicate(context):
 		db = context.cog.db
 		blacklist_reason = await db.get_user_blacklist(context.author.id)
-		if blacklist_reason is not None:
-			await context.send(
-				f'Sorry, you have been blacklisted with the reason `{blacklist_reason}`. '
-				f'To appeal, please join the support server with `{context.prefix}support`.')
-			return False
-		return True
+		if blacklist_reason is None:
+			return True
+		await context.send(
+			f'Sorry, you have been blacklisted with the reason `{blacklist_reason}`. '
+			f'To appeal, please join the support server with `{context.prefix}support`.')
+		return False
 	return commands.check(predicate)
