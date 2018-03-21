@@ -9,7 +9,7 @@ import discord
 from discord.ext import commands
 
 from cogs.emoji import BackendContext
-
+from utils import errors
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('bot')
@@ -62,7 +62,11 @@ class EmojiConnoisseur(commands.Bot):
 		if isinstance(error, commands.NoPrivateMessage):
 			await context.author.send('This command cannot be used in private messages.')
 		elif isinstance(error, commands.DisabledCommand):
-			await context.author.send('Sorry. This command is disabled and cannot be used.')
+			message = 'Sorry. This command is disabled and cannot be used.'
+			try:
+				await context.author.send(message)
+			except discord.Forbidden:
+				await context.send(message)
 		elif isinstance(error, commands.UserInputError):
 			await context.send(error)
 		elif isinstance(error, commands.NotOwner):

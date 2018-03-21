@@ -150,9 +150,11 @@ class Emotes:
 			await context.send(message)
 
 	async def add_safe(self, name, url, author):
-		"""Try to add an emote. On failure, return a string that should be sent to the user."""
+		"""Try to add an emote. Returns a string that should be sent to the user."""
 		try:
 			await self.add_backend(name, url, author)
+		except errors.HTTPException as ex:
+			return f'URL error: server returned error code {ex}.'
 		except errors.ConnoisseurError as ex:
 			return str(ex)
 		except discord.HTTPException as ex:
@@ -160,8 +162,6 @@ class Emotes:
 			return (
 				'An error occurred while creating the emote:\n'
 				+ self.format_http_exception(ex))
-		except errors.HTTPException as ex:
-			return f'URL error: server returned error code {ex}.'
 		except asyncio.TimeoutError:
 			return 'Error: retrieving the image took too long.'
 		except ValueError:
@@ -384,7 +384,7 @@ class Emotes:
 			except discord.errors.Forbidden:
 				pass
 
-	@commands.command()
+	@commands.command(enabled=False)
 	@checks.not_blacklisted()
 	@utils.typing
 	async def list(self, context, *, user: discord.User = None):

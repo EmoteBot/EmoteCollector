@@ -34,8 +34,10 @@ from aiohttp import ClientSession as _ClientSession
 import discord as _discord
 from discord.ext import commands as _commands
 
+from utils import errors
 
-_logger = _logging.getLogger('utils')  # i really need to start using __all__...
+
+_logger = _logging.getLogger('utils')
 
 
 class Utils:
@@ -70,14 +72,17 @@ class Utils:
 		return '\n'.join(lines)
 
 	async def create_gist(self, filename, contents: str, *, description=None):
-		"""Upload a single file to Github Gist. Multiple files Never™"""
+		"""Upload a single file to Github Gist. Multiple files Never™
+		This does not currently work since GitHub disabled anonymous gist creation."""
+
 		_logger.debug('Attempting to post %s to Gist', filename)
 
 		data = {
 			'public': False,
 			'files': {
 				filename: {
-					'content': contents}}}
+					'content': contents}},
+			'Accept': 'application/vnd.github.v3+json'}  # specify API version
 
 		if description is not None:
 			data['description'] = description
@@ -85,6 +90,12 @@ class Utils:
 		async with self.http_session.post('https://api.github.com/gists', data=_json.dumps(data)) as resp:
 			if resp.status == 201:
 				return _json.loads(await resp.text())['html_url']
+			else:
+				_logger.warning('posting %s failed with status code %s', filename, resp.status)
+				_logger.warning('text:')
+				_logger.warning(await resp.text())
+				_logger.debug('request data: ' + _json.dumps(data))
+				raise errors.HTTPException('Uploading to GitHub Gist failed.')
 
 	def format_user(self, id, *, mention=False):
 		"""Format a user ID for human readable display."""
