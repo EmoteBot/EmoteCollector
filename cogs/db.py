@@ -282,7 +282,11 @@ class Database:
 
 	async def _get_db(self):
 		credentials = self.bot.config['database']
-		db = await asyncpg.create_pool(**credentials)  # pylint: disable=invalid-name
+		try:
+			db = await asyncpg.create_pool(**credentials)  # pylint: disable=invalid-name
+		except ConnectionRefusedError:
+			logger.error('Failed to connect to the database!')
+			return await self.bot.logout()
 
 		await db.execute('SET TIME ZONE UTC')  # make sure timestamps are displayed correctly
 		await db.execute('CREATE SCHEMA IF NOT EXISTS connoisseur')
