@@ -384,7 +384,7 @@ class Emotes:
 			except discord.errors.Forbidden:
 				pass
 
-	@commands.command(enabled=False)
+	@commands.command()
 	@checks.not_blacklisted()
 	@utils.typing
 	async def list(self, context, *, user: discord.User = None):
@@ -392,19 +392,10 @@ class Emotes:
 		If a user is provided, the list will only contain emotes created by that user.
 		"""
 
-		table = StringIO()
-		table.write('Emoji | Name | Author\n')
-		table.write('----- | ---- | ------\n')
-
-		async for row in self.db.get_emotes(None if user is None else user.id):
-			table.write(self.format_row(row) + '\n')
-
-		description = 'list of all emotes'
-		if user is not None:
-			# e.g. "list of all emotes by null_byte#8191 (140516693242937345)"
-			description += ' by ' + self.utils.format_user(user.id, mention=False)
-		gist_url = await self.utils.create_gist('list.md', table.getvalue(), description=description)
-		await context.send(f'<{gist_url}>')
+		return await context.send(
+			'Sorry, this command is disabled for now. '
+			"Until I get this command working again, here's an older version of the list:\n"
+			'<https://gist.github.com/6d49f2bb0716f13eaea315cdf8fdf046>')
 
 	def format_row(self, record: asyncpg.Record):
 		"""Format a database record as "markdown" for the ec/list command."""
