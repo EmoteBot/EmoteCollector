@@ -17,6 +17,7 @@
 		"host": "127.0.0.1"},
 
 	"tokens": {
+		"github": "<get one here https://github.com/settings/tokens and grant it the gist permission>",
 		"discord": "sek.rit.token",
 		"stats": {
 			"bots.discord.pw": null,
