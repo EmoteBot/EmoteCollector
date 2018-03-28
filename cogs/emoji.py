@@ -78,7 +78,7 @@ class Emotes:
 				name='Modified',
 				value=self.utils.format_time(emote['modified']))
 		if emote['description'] is not None:
-			embed.add_field(name='Description',  value=emote['description'], inline=False)
+			embed.add_field(name='Description', value=emote['description'], inline=False)
 
 		await context.send(embed=embed)
 
