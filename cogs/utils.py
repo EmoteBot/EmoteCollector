@@ -27,27 +27,25 @@ strip_angle_brackets: <http://foo.example> -> http://foo.example
 
 import asyncio as _asyncio
 from datetime import datetime as _datetime
+import functools as _functools
+from github3 import GitHub as _GitHub
+from github3.exceptions import GitHubError as _GitHubError
 import json as _json
 import logging as _logging
 
-from aiohttp import ClientSession as _ClientSession
 import discord as _discord
 from discord.ext import commands as _commands
 
-from utils import errors
-
 
 _logger = _logging.getLogger('utils')
+_logger.setLevel(_logging.DEBUG)
 
 
 class Utils:
 	def __init__(self, bot):
 		self.bot = bot
-		self.http_session = _ClientSession(loop=bot.loop)
 		self.converter = _commands.clean_content(use_nicknames=False, escape_markdown=True)
-
-	def __unload(self):
-		self.http_session.close()
+		self.github = _GitHub(token=self.bot.config['tokens']['github'])
 
 	"""Emotes used to indicate success/failure. You can obtain these from the discordbots.org guild,
 	but I uploaded them to my test server
@@ -71,31 +69,23 @@ class Utils:
 			lines[0] = '\N{zero width space}\n' + lines[0]
 		return '\n'.join(lines)
 
-	async def create_gist(self, filename, contents: str, *, description=None):
+	async def create_gist(self, filename, content: str, *, description=''):
 		"""Upload a single file to Github Gist. Multiple files Never™
 		This does not currently work since GitHub disabled anonymous gist creation."""
 
 		_logger.debug('Attempting to post %s to Gist', filename)
-
-		data = {
-			'public': False,
-			'files': {
-				filename: {
-					'content': contents}},
-			'Accept': 'application/vnd.github.v3+json'}  # specify API version
-
-		if description is not None:
-			data['description'] = description
-
-		async with self.http_session.post('https://api.github.com/gists', data=_json.dumps(data)) as resp:
-			if resp.status == 201:
-				return _json.loads(await resp.text())['html_url']
-			else:
-				_logger.warning('posting %s failed with status code %s', filename, resp.status)
-				_logger.warning('text:')
-				_logger.warning(await resp.text())
-				_logger.debug('request data: ' + _json.dumps(data))
-				raise errors.HTTPException('Uploading to GitHub Gist failed.')
+		create_function = _functools.partial(self.github.create_gist,
+			description=description,
+			files={filename: {'content': content}},
+			public=False)
+		try:
+			gist = await self.bot.loop.run_in_executor(None, create_function)
+		except _GitHubError as ex:
+			_logging.error('gist error:')
+			_logging.error(ex.response.content)
+			raise
+		else:
+			return gist.html_url
 
 	def format_user(self, id, *, mention=False):
 		"""Format a user ID for human readable display."""
