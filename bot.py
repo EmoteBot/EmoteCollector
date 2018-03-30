@@ -24,6 +24,7 @@ class EmojiConnoisseur(commands.Bot):
 		super().__init__(
 			command_prefix=commands.when_mentioned_or(self.config['prefix']),
 			description=self.config['description'],
+			case_insensitive=True,
 			*args, **kwargs)
 
 	async def on_ready(self):
