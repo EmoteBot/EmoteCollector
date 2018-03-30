@@ -414,7 +414,7 @@ class Emotes:
 		url = self.db.emote_url(id)
 		# only set the width in order to preserve the aspect ratio of the emote
 		# however, if someone makes a really tall image this will still break that.
-		return f'<a href="url"><img src="{url}" width=32px></a> | `:{name}:` | {author}'
+		return f'<a href="{url}"><img src="{url}&size=32" width=32px></a> | `:{name}:` | {author}'
 
 	@commands.command(name='steal-all', hidden=True)
 	@commands.is_owner()
