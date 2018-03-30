@@ -60,7 +60,7 @@ class Database:
 
 		guilds = []
 		for guild in self.bot.guilds:
-			if await self.bot.is_owner(guild.owner) and guild.name.startswith('EmojiBackend'):
+			if guild.name.startswith('EmojiBackend') and await self.bot.is_owner(guild.owner):
 				guilds.append(guild)
 		self.guilds = guilds
 		logger.info('In %s backend guilds.', len(guilds))
