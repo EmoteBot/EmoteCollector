@@ -3,6 +3,7 @@
 
 import json
 import logging
+import re
 import traceback
 
 import discord
@@ -22,12 +23,19 @@ class EmojiConnoisseur(commands.Bot):
 			self.config = json.load(f)
 
 		super().__init__(
-			command_prefix=commands.when_mentioned_or(self.config['prefix']),
+			command_prefix=self.get_prefix_,
 			description=self.config['description'],
-			case_insensitive=True,
 			*args, **kwargs)
 
+	async def get_prefix_(self, bot, message):
+		prefix = self.config['prefix']
+		match = re.search(fr'^{prefix}', message.content, re.IGNORECASE)
+		# if there's no match then we want to pass no prefixes into when_mentioned_or
+		prefix = [] if match is None else match.group(0)
+		return commands.when_mentioned_or(prefix)(bot, message)
+
 	async def on_ready(self):
+		# "Playing ec/help"
 		await self.change_presence(activity=discord.Game(name=self.config['prefix'] + 'help'))
 
 		separator = '━' * 44
