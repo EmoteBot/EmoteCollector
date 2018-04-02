@@ -187,6 +187,9 @@ class Emotes:
 				raise errors.HTTPException(response.status)
 			image_data = BytesIO(await response.read())
 
+		# resize_until_small is normally blocking, because wand is.
+		# run_in_executor is magic that makes it non blocking somehow.
+		# also, None as the executor arg means "use the loop's default executor"
 		image_data = await self.bot.loop.run_in_executor(None, self.resize_until_small, image_data)
 		animated = self.is_animated(image_data.getvalue())
 		emote = await self.db.create_emote(name, author_id, animated, image_data.read())
@@ -220,29 +223,24 @@ class Emotes:
 		# so resizing sometimes does more harm than good.
 		max_resolution = 128  # pixels
 		size = cls.size(image_data)
-		while size > 2**8 * 2**10 and max_resolution > 16:  # don't resize past 32x32
+		while size > 256 * 2**10 and max_resolution >= 32:  # don't resize past 32x32 or 256KiB
 			logger.debug('image size too big (%s bytes)', size)
 			logger.debug('attempting resize to %s*%s pixels', max_resolution, max_resolution)
-			# resize_image is normally blocking, because wand is.
-			# run_in_executor is magic that makes it non blocking somehow.
-			# also, None as the executor arg means "use the loop's default executor"
-			image_data = cls.thumbnail(image_data, (max_resolution, max_resolution))
+			cls.thumbnail(image_data, (max_resolution, max_resolution))
 			size = cls.size(image_data)
 			max_resolution //= 2
 		return image_data
 
 	@classmethod
 	def thumbnail(cls, image_data: BytesIO, max_size=(128, 128)):
-		"""Resize an image to no more than max_size pixels, preserving aspect ratio."""
+		"""Resize an image in place to no more than max_size pixels, preserving aspect ratio."""
 		# Credit to @Liara#0001 (ID 136900814408122368)
 		# https://gitlab.com/Pandentia/element-zero/blob/47bc8eeeecc7d353ec66e1ef5235adab98ca9635/element_zero/cogs/emoji.py#L243-247
 		image = Image(blob=image_data)
 		image.resize(*cls.scale_resolution((image.width, image.height), max_size))
-		# TODO investigate whether we can mutate the original arg or if we have to create a new buffer
-		out = BytesIO()
-		image.save(file=out)
-		out.seek(0)
-		return out
+		image_data.truncate(0)  # clear the original buffer
+		image.save(file=image_data)
+		image_data.seek(0)  # Image.save seeks to the end
 
 	@staticmethod
 	def scale_resolution(old_res, new_res):
