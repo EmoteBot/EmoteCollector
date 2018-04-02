@@ -59,7 +59,7 @@ class Emotes:
 
 		- name: the name of the emote to get info on
 		"""
-		await context.fail_if_not_exists(name)
+		await self.db.ensure_emote_exists(name)
 		emote = await self.db.get_emote(name)
 
 		should_send_emote = await context.should_send_nsfw_emote(name)
@@ -99,7 +99,7 @@ class Emotes:
 	@checks.not_blacklisted()
 	async def big(self, context, name):
 		"""Shows the original image for the given emote"""
-		await context.fail_if_not_exists(name)
+		await self.db.ensure_emote_exists(name)
 
 		if not await context.should_send_nsfw_emote(name):
 			return
@@ -161,8 +161,6 @@ class Emotes:
 			await self.add_backend(name, url, author)
 		except errors.HTTPException as ex:
 			return f'URL error: server returned error code {ex}.'
-		except errors.ConnoisseurError as ex:
-			return str(ex)
 		except discord.HTTPException as ex:
 			logger.error(traceback.format_exc())
 			return (
@@ -290,8 +288,6 @@ class Emotes:
 		"""Renames an emote. You must own it."""
 		try:
 			await self.db.rename_emote(old_name, new_name, context.author.id)
-		except errors.ConnoisseurError as ex:
-			return await context.send(ex)
 		except discord.HTTPException as ex:
 			await context.send(self.format_http_exception(ex))
 			logger.error('Rename:')
@@ -338,7 +334,7 @@ class Emotes:
 		You can get the message ID by enabling developer mode (in Settings→Appearance),
 		then right clicking on the message you want and clicking "Copy ID". Same for channel IDs.
 		"""
-		await context.fail_if_not_exists(name)
+		await self.db.ensure_emote_exists(name)
 		db_emote = await self.db.get_emote(name)
 
 		if channel is None:
@@ -639,22 +635,11 @@ class Emotes:
 
 
 class BackendContext(utils.CustomContext):
-	async def fail_if_not_exists(self, name):
-		try:
-			await self.cog.db.ensure_emote_exists(name)
-		except errors.EmoteNotFoundError as ex:
-			await self.send(ex)
-			raise  # halts command execution
-
 	async def fail_if_not_owner(self, name):
 		# It may seem bad to do two identical database queries like this,
 		# but I'm pretty sure asyncpg caches queries.
-		await self.fail_if_not_exists(name)
-		try:
-			await self.cog.db.owner_check(name, self.author.id)
-		except errors.PermissionDeniedError as ex:
-			await self.send(ex)
-			raise
+		await self.cog.db.ensure_emote_exists(name)
+		await self.cog.db.owner_check(name, self.author.id)
 
 	async def should_send_nsfw_emote(self, name):
 		"""return whether the emote given by name should be sent, depending on the channel's NSFW status"""
