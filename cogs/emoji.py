@@ -306,7 +306,7 @@ class Emotes:
 		try:
 			await self.db.set_emote_description(name, context.author.id, description)
 		except errors.ConnoisseurError as ex:
-			await context.send(ex)
+			return await context.send(ex)
 
 		await context.try_add_reaction(self.utils.SUCCESS_EMOTES[True])
 
