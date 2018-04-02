@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-from .external.stats import Stats
+from ben_cogs.stats import Stats
 
 
 class Stats(Stats):
