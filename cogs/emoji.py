@@ -215,12 +215,12 @@ class Emotes:
 	def resize_until_small(cls, image_data: BytesIO):
 		"""If the image_data is bigger than 256KB, resize it until it's not"""
 		# It's important that we only attempt to resize the image when we have to,
-		# ie when it exceeds the Discord limit of 256KB.
-		# Apparently some <256KB images become larger when we attempt to resize them,
+		# ie when it exceeds the Discord limit of 256KiB.
+		# Apparently some <256KiB images become larger when we attempt to resize them,
 		# so resizing sometimes does more harm than good.
 		max_resolution = 128  # pixels
 		size = cls.size(image_data)
-		while size > 256_000 and max_resolution > 16:  # don't resize past 32x32
+		while size > 2**8 * 2**10 and max_resolution > 16:  # don't resize past 32x32
 			logger.debug('image size too big (%s bytes)', size)
 			logger.debug('attempting resize to %s*%s pixels', max_resolution, max_resolution)
 			# resize_image is normally blocking, because wand is.
