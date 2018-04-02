@@ -40,7 +40,7 @@ def emotes(author_id=None):
 
 
 def get_db():
-	with open('data/config.json') as config_file:
+	with open('../data/config.json') as config_file:
 		credentials = json.load(config_file)['database']
 
 	db = psycopg2.connect(**credentials, cursor_factory=psycopg2.extras.DictCursor)
