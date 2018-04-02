@@ -62,7 +62,8 @@ class Emotes:
 		await context.fail_if_not_exists(name)
 		emote = await self.db.get_emote(name)
 
-		embed = discord.Embed(title=self.db.format_emote(emote))
+		should_send_emote = await context.should_send_nsfw_emote(name)
+		embed = discord.Embed(title=self.db.format_emote(emote) if should_send_emote else emote['name'])
 		if emote['created'] is not None:
 			logger.debug('setting timestamp to %s', emote['created'])
 			embed.timestamp = emote['created']
@@ -76,9 +77,10 @@ class Emotes:
 		if emote['modified'] is not None:
 			embed.add_field(
 				name='Modified',
-				value=self.utils.format_time(emote['modified']))
+				value=self.utils.format_time(emote['modified']) + '\N{hangul filler}')
 		if emote['description'] is not None:
 			embed.add_field(name='Description', value=emote['description'], inline=False)
+		embed.add_field(name='NSFW', value=('No', 'Yes')[emote['nsfw']])
 
 		await context.send(embed=embed)
 
@@ -98,6 +100,10 @@ class Emotes:
 	async def big(self, context, name):
 		"""Shows the original image for the given emote"""
 		await context.fail_if_not_exists(name)
+
+		if not await context.should_send_nsfw_emote(name):
+			return
+
 		emote = await self.db.get_emote(name)
 
 		async with self.session.get(self.db.emote_url(emote['id'])) as resp:
@@ -305,12 +311,13 @@ class Emotes:
 		- Describe how it's used
 		Currently, there's a limit of 500 characters.
 		"""
-		try:
-			await self.db.set_emote_description(name, context.author.id, description)
-		except errors.ConnoisseurError as ex:
-			await context.send(ex)
-
+		await self.db.set_emote_description(name, context.author.id, description)
 		await context.try_add_reaction(self.utils.SUCCESS_EMOTES[True])
+
+	@commands.command(name='togglensfw')
+	async def toggle_nsfw(self, context, name):
+		new_state = await self.db.toggle_emote_nsfw(name, context.author.id)
+		return await context.send(f'`:{name}:` is now {"N" if new_state else ""}SFW')
 
 	@staticmethod
 	def format_http_exception(exception: discord.HTTPException):
@@ -338,6 +345,9 @@ class Emotes:
 			channel = context.channel
 		else:
 			channel = context.guild.get_channel(channel)
+
+		if not await context.should_send_nsfw_emote(name):
+			return
 
 		if message is None:
 			# get the second to last message (ie ignore the invoking message)
@@ -478,8 +488,8 @@ class Emotes:
 		# XXX this will fail if len > 2000
 		await context.send(self.utils.fix_first_line(messages))
 
-	@commands.command()
-	async def toggle(self, context):
+	@commands.command(name='toggle')
+	async def toggle_user(self, context):
 		"""Toggles the emote auto response (;name;) for you.
 		This is global, ie it affects all servers you are in.
 
@@ -537,13 +547,15 @@ class Emotes:
 
 		if isinstance(message.channel, discord.DMChannel):
 			guild = None
+			include_nsfw = False
 		else:
 			guild = message.guild.id
+			include_nsfw = message.channel.is_nsfw()
 
 		if not await self.db.get_state(guild, message.author.id):
 			return
 
-		reply = await self.extract_emotes(message.content)
+		reply = await self.extract_emotes(message.content, include_nsfw)
 		if reply is None:  # don't send empty whitespace
 			return
 
@@ -565,8 +577,9 @@ class Emotes:
 		if message_id not in self.replies or 'content' not in data:
 			return
 
-		emotes = await self.extract_emotes(data['content'])
 		reply = self.replies[message_id]
+		include_nsfw = False if isinstance(reply.channel, discord.DMChannel) else reply.channel.is_nsfw()
+		emotes = await self.extract_emotes(data['content'], include_nsfw)
 		if emotes is None:
 			del self.replies[message_id]
 			return await reply.delete()
@@ -576,20 +589,20 @@ class Emotes:
 
 		await reply.edit(content=emotes)
 
-	async def extract_emotes(self, message: str):
+	async def extract_emotes(self, message: str, include_nsfw=False):
 		"""Parse all emotes (:name: or ;name;) from a message"""
 		# don't respond to code blocks or custom emotes, since custom emotes also have :foo: in them
 		message = self.RE_CODE.sub('', message)
 		message = self.RE_CUSTOM_EMOTE.sub('', message)
 		lines = message.splitlines()
 
-		result = [await self.extract_emotes_line(line) for line in lines]
+		result = [await self.extract_emotes_line(line, include_nsfw) for line in lines]
 		result_message = self.utils.fix_first_line(result)
 
 		if result_message.replace('\N{zero width space}', '').strip() != '':  # don't send an empty message
 			return result_message
 
-	async def extract_emotes_line(self, line: str) -> str:
+	async def extract_emotes_line(self, line: str, include_nsfw=False) -> str:
 		"""Extract emotes from a single line."""
 		# RE_EMOTE uses the first group to match the same punctuation mark on both ends,
 		# so the second group is the actual name
@@ -601,6 +614,8 @@ class Emotes:
 		for name in names:
 			emote = await self.db.get_emote(name)
 			if emote is None:
+				continue
+			if not include_nsfw and await self.db.get_emote_nsfw(name):
 				continue
 			formatted_emotes.append(self.db.format_emote(emote))
 
@@ -640,6 +655,17 @@ class BackendContext(utils.CustomContext):
 		except errors.PermissionDeniedError as ex:
 			await self.send(ex)
 			raise
+
+	async def should_send_nsfw_emote(self, name):
+		"""return whether the emote given by name should be sent, depending on the channel's NSFW status"""
+		if isinstance(self.channel, discord.DMChannel):
+			include_nsfw = False
+		else:
+			include_nsfw = self.channel.is_nsfw()
+		nsfw_status = await self.cog.db.get_emote_nsfw(name)
+		if not nsfw_status:
+			return True
+		return include_nsfw
 
 
 def setup(bot):
