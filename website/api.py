@@ -64,8 +64,8 @@ class EmojiConnoisseurDateTime(fields.Raw):
 class List(Resource):
 	fields = {
 		'name': fields.String,
-		'id': fields.Integer,
-		'author': fields.Integer,
+		'id': fields.String,  # JSON cannot handle large nums
+		'author': fields.String,  # same here
 		'animated': fields.Boolean,
 		'nsfw': fields.Boolean,
 		'created': EmojiConnoisseurDateTime,
