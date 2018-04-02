@@ -100,9 +100,9 @@ class Emotes:
 		await context.fail_if_not_exists(name)
 		emote = await self.db.get_emote(name)
 
-		async with self.session.get(self.db.emote_url(emote['id'])) as resp:
-			extension = '.gif' if emote['animated'] else '.png'
-			await context.send(file=discord.File(BytesIO(await resp.read()), emote['name'] + extension))
+		embed = discord.Embed(title=emote['name'])
+		embed.set_image(url=self.db.emote_url(emote['id']))
+		await context.send(embed=embed)
 
 	@commands.command(aliases=['create'])
 	@checks.not_blacklisted()
