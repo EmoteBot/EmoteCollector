@@ -11,6 +11,7 @@ from discord.ext import commands
 
 from cogs.emoji import BackendContext
 
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('bot')
 logger.setLevel(logging.DEBUG)

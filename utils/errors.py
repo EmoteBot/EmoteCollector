@@ -1,4 +1,7 @@
-class ConnoisseurError(Exception):
+from discord.ext.commands import CommandError
+
+
+class ConnoisseurError(CommandError):
 	"""Generic error with the bot. This can be used to catch all bot errors."""
 	pass
 
@@ -22,7 +25,7 @@ class EmoteNotFoundError(ConnoisseurError):
 
 class InvalidImageError(ConnoisseurError):
 	"""The image is not a GIF, PNG, or JPG"""
-	def __init__(self, name):
+	def __init__(self):
 		super().__init__('The image supplied was not a GIF, PNG, or JPG.')
 
 
