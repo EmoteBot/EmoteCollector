@@ -26,24 +26,17 @@ def iter_from_query(query, *args):
 		yield from cursor
 
 
-def emotes(include_nsfw=False):
+def emotes(author_id=None):
 	"""return an iterator that gets emotes from the database.
 	If author id is provided, get only emotes from them."""
 	query = 'SELECT * FROM emojis '
-	if not include_nsfw:
-		query += 'WHERE NOT nsfw '
+	args = []
+	if author_id is not None:
+		query += 'WHERE author = %s '
+		args.append(author_id)
 	query += 'ORDER BY LOWER(name)'
 
-	return iter_from_query(query)
-
-
-def emotes_by_author(author_id, include_nsfw=False):
-	query = 'SELECT * FROM emojis WHERE author = %s '
-	if not include_nsfw:
-		query += 'AND NOT nsfw '
-	query += 'ORDER BY LOWER(name)'
-
-	return iter_from_query(query, author_id)
+	return iter_from_query(query, *args)
 
 
 def get_db():
@@ -83,14 +76,8 @@ class List(Resource):
 	def get(self):
 		parser = RequestParser()
 		parser.add_argument('author', type=int, default=None)
-		parser.add_argument('nsfw', type=bool)
 		args = parser.parse_args()
-		nsfw = 'nsfw' in args  # allow &nsfw instead of &nsfw=true
-		if args.author is None:
-			it = emotes(nsfw)
-		else:
-			it = emotes_by_author(args.author, nsfw)
-		return list(map(dict, it))
+		return list(map(dict, emotes(args.author)))
 
 
 api.add_resource(List, '/emotes')
