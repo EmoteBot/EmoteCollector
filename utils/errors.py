@@ -1,4 +1,7 @@
-class ConnoisseurError(Exception):
+from discord.ext.commands import CommandError
+
+
+class ConnoisseurError(CommandError):
 	"""Generic error with the bot. This can be used to catch all bot errors."""
 	pass
 
