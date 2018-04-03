@@ -44,7 +44,6 @@ _logger.setLevel(_logging.DEBUG)
 class Utils:
 	def __init__(self, bot):
 		self.bot = bot
-		self.converter = _commands.clean_content(use_nicknames=False, escape_markdown=True)
 		self.github = _GitHub(token=self.bot.config['tokens']['github'])
 
 	"""Emotes used to indicate success/failure. You can obtain these from the discordbots.org guild,
@@ -52,8 +51,8 @@ class Utils:
 	so that both the staging and the stable versions of the bot can use them"""
 	SUCCESS_EMOTES = ('<:tickNo:416845770239508512>', '<:tickYes:416845760810844160>')
 
-	async def codeblock(self, context, message, *, lang=''):
-		cleaned = await self.converter.convert(context, str(message))
+	async def codeblock(self, message, *, lang=''):
+		cleaned = message.replace('```', '\N{zero width space}'.join('```'))
 		return f'```{lang}\n{cleaned}```'
 
 	@staticmethod
