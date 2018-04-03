@@ -41,8 +41,10 @@ class PrettyTable(PrettyTable):
 		for option, default in defaults.items():
 			options.setdefault(option, default)
 
-		super().__init__(rows[0].keys(),
-			**options)
+		if rows:
+			super().__init__(rows[0].keys(), **options)
+		else:
+			super().__init__()
 		# PrettyTable's constructor does not set this property for some reason
 		self.align = options.get('align', 'l')  # left align
 

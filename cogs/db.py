@@ -30,12 +30,12 @@ class Database:
 	@commands.is_owner()
 	async def sql_command(self, context, *, query):
 		"""Gets the rows of a SQL query. Prepared statements are not supported."""
-		start = time.time()
+		start = time.monotonic()
 		# XXX properly strip codeblocks
 		results = await self.db.fetch(query.replace('`', ''))
-		elapsed = time.time() - start
+		elapsed = time.monotonic() - start
 
-		message = await self.utils_cog.codeblock(context, PrettyTable(results))
+		message = await self.utils_cog.codeblock(str(PrettyTable(results)))
 		return await context.send(f'{message}*{len(results)} rows retrieved in {elapsed:.2f} seconds.*')
 
 	@staticmethod
