@@ -323,7 +323,7 @@ class Emotes:
 
 	@commands.command()
 	@checks.not_blacklisted()
-	async def react(self, context, name, message: int = None, channel: int = None):
+	async def react(self, context, name, message: int = None, channel: discord.TextChannel = None):
 		"""Add a reaction to a message. Sad reacts only please.
 		If no message ID and no channel ID is provided, it'll react to the last sent message.
 		You can get the message ID by enabling developer mode (in Settings→Appearance),
@@ -334,8 +334,6 @@ class Emotes:
 
 		if channel is None:
 			channel = context.channel
-		else:
-			channel = context.guild.get_channel(channel)
 
 		if message is None:
 			# get the second to last message (ie ignore the invoking message)
