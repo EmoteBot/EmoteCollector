@@ -10,7 +10,6 @@ import discord
 from discord.ext import commands
 
 from cogs.emoji import BackendContext
-from utils import errors
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('bot')
