@@ -18,8 +18,8 @@ logger.setLevel(logging.DEBUG)
 
 class EmojiConnoisseur(commands.Bot):
 	def __init__(self, *args, **kwargs):
-		with open('data/config.json') as f:
-			self.config = json.load(f)
+		with open('data/config.json') as conf:
+			self.config = json.load(conf)
 
 		super().__init__(
 			command_prefix=self.get_prefix_,
@@ -39,8 +39,8 @@ class EmojiConnoisseur(commands.Bot):
 
 		separator = '━' * 44
 		logger.info(separator)
-		logger.info('Logged in as: %s' % self.user)
-		logger.info('ID: %s' % self.user.id)
+		logger.info('Logged in as: %s', self.user)
+		logger.info('ID: %s', self.user.id)
 		logger.info(separator)
 
 	async def on_message(self, message):
@@ -81,8 +81,9 @@ class EmojiConnoisseur(commands.Bot):
 			logger.error('%s tried to run %s but is not the owner', context.author, context.command.name)
 		elif isinstance(error, commands.CommandInvokeError):
 			await context.send('An internal error occured while trying to run that command.')
-			logger.error('In %s:' % context.command.qualified_name)
+			logger.error('In %s:', context.command.qualified_name)
 			logger.error(''.join(traceback.format_tb(error.original.__traceback__)))
+			# pylint: disable=logging-format-interpolation
 			logger.error('{0.__class__.__name__}: {0}'.format(error.original))
 
 	def run(self, *args, **kwargs):
@@ -97,10 +98,10 @@ class EmojiConnoisseur(commands.Bot):
 			try:
 				self.load_extension(extension)
 			except:  # pylint: disable=bare-except
-				logger.error('Failed to load ' + extension)
+				logger.error('Failed to load %s', extension)
 				logger.error(traceback.format_exc())
 			else:
-				logger.info('Successfully loaded ' + extension)
+				logger.info('Successfully loaded %s', extension)
 
 		super().run(self.config['tokens']['discord'], *args, **kwargs)
 
