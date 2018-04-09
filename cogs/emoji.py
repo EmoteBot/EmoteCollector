@@ -101,7 +101,7 @@ class Emotes:
 		emote = await self.db.get_emote(name)
 
 		embed = discord.Embed(title=emote['name'])
-		embed.set_image(url=self.db.emote_url(emote['id']))
+		embed.set_image(url=self.db.emote_url(emote['id'], emote['animated']))
 		await context.send(embed=embed)
 
 	@commands.command(aliases=['create'])
@@ -405,9 +405,9 @@ class Emotes:
 
 	def format_row(self, record: asyncpg.Record):
 		"""Format a database record as "markdown" for the ec/list command."""
-		name, id, author, *_ = record  # discard extra columns
+		name, id, author, animated, *_ = record  # discard extra columns
 		author = self.utils.format_user(author)
-		url = self.db.emote_url(id)
+		url = self.db.emote_url(id, animated)
 		# only set the width in order to preserve the aspect ratio of the emote
 		# however, if someone makes a really tall image this will still break that.
 		return f'<a href="{url}"><img src="{url}&size=32" width=32px></a> | `:{name}:` | {author}'

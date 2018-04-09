@@ -46,9 +46,9 @@ class Database:
 		return f"<{'a' if animated else ''}:{name}:{id}>"
 
 	@staticmethod
-	def emote_url(emote_id):
+	def emote_url(emote_id, animated: bool = False):
 		"""Convert an emote ID to the image URL for that emote."""
-		return f'https://cdn.discordapp.com/emojis/{emote_id}?v=1'
+		return f'https://cdn.discordapp.com/emojis/{emote_id}{".gif" if animated else ""}?v=1'
 
 	async def find_backend_guilds(self):
 		"""Find all the guilds used to store emotes"""
