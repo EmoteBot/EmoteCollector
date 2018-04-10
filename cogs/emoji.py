@@ -226,7 +226,7 @@ class Emotes:
 		while size > 256 * 2**10 and max_resolution >= 32:  # don't resize past 32x32 or 256KiB
 			logger.debug('image size too big (%s bytes)', size)
 			logger.debug('attempting resize to %s*%s pixels', max_resolution, max_resolution)
-			cls.thumbnail(image_data, (max_resolution, max_resolution))
+			image_data = cls.thumbnail(image_data, (max_resolution, max_resolution))
 			size = cls.size(image_data)
 			max_resolution //= 2
 		return image_data
@@ -238,9 +238,13 @@ class Emotes:
 		# https://gitlab.com/Pandentia/element-zero/blob/47bc8eeeecc7d353ec66e1ef5235adab98ca9635/element_zero/cogs/emoji.py#L243-247
 		image = Image(blob=image_data)
 		image.resize(*cls.scale_resolution((image.width, image.height), max_size))
-		image_data.truncate(0)  # clear the original buffer
-		image.save(file=image_data)
-		image_data.seek(0)  # Image.save seeks to the end
+		# we create a new buffer here because there's wand errors otherwise.
+		# specific error:
+		# MissingDelegateError: no decode delegate for this image format `' @ error/blob.c/BlobToImage/353
+		out = BytesIO()
+		image.save(file=out)
+		out.seek(0)
+		return out
 
 	@staticmethod
 	def scale_resolution(old_res, new_res):
