@@ -7,7 +7,7 @@ import aiofiles
 from discord.ext import commands
 
 
-class Memes:
+class Meme:
 	def __init__(self, bot):
 		self.bot = bot
 		self.bot.loop.create_task(self.read_memes())
@@ -24,4 +24,4 @@ class Memes:
 
 
 def setup(bot):
-	bot.add_cog(Memes(bot))
+	bot.add_cog(Meme(bot))
