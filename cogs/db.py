@@ -100,15 +100,21 @@ class Database:
 		return await self.db.fetchval('SELECT blacklist_reason from user_opt WHERE id = $1', user_id)
 
 	async def set_user_blacklist(self, user_id, reason=None):
-		"""make user_id blacklisted :c"""
+		"""make user_id blacklisted
+		setting reason to None removes the user's blacklist"""
 		# insert regardless of whether it exists
 		# and if it does exist, update
 		await self.db.execute("""
 			INSERT INTO user_opt (id, blacklist_reason) VALUES ($1, $2)
 			ON CONFLICT (id) DO UPDATE SET blacklist_reason = EXCLUDED.blacklist_reason""", user_id, reason)
 
-	async def get_emote(self, name):
-		return await self.db.fetchrow('SELECT * FROM emojis WHERE name ILIKE $1', name)
+	async def get_emote(self, name) -> asyncpg.Record:
+		"""get an emote object by name"""
+		# we use LOWER(name) = LOWER($1) instead of ILIKE because ILIKE has some wildcarding stuff
+		# that we don't want
+		# probably LOWER(name) = $1, name.lower() would also work, but this looks cleaner
+		# and keeps the lowercasing behavior consistent
+		return await self.db.fetchrow('SELECT * FROM emojis WHERE LOWER(name) = LOWER($1)', name)
 
 	async def get_formatted_emote(self, name):
 		emote = await self.get_emote(name)
@@ -142,8 +148,10 @@ class Database:
 	async def ensure_emote_does_not_exist(self, name):
 		"""fail with an exception if an emote called `name` does not exist
 		this is to reduce duplicated exception raising code."""
-		if await self.get_emote(name) is not None:
-			raise errors.EmoteExistsError(name)
+		emote = await self.get_emote(name)
+		if emote is not None:
+			# use the original capitalization of the name
+			raise errors.EmoteExistsError(emote['name'])
 
 	async def create_emote(self, name, author_id, animated, image_data: bytes):
 		blacklist_reason = await self.get_user_blacklist(author_id)
@@ -184,7 +192,7 @@ class Database:
 			raise errors.DiscordError()
 
 		await emote.delete()
-		await self.db.execute('DELETE FROM emojis WHERE name ILIKE $1', name)
+		await self.db.execute('DELETE FROM emojis WHERE LOWER(name) = LOWER($1)', name)
 
 	async def rename_emote(self, old_name, new_name, user_id):
 		"""rename an emote from old_name to new_name. user_id must be authorized."""
@@ -210,7 +218,7 @@ class Database:
 		await self.owner_check(name, user_id)
 		try:
 			await self.db.execute(
-				'UPDATE emojis SET DESCRIPTION = $2 WHERE NAME ILIKE $1',
+				'UPDATE emojis SET DESCRIPTION = $2 WHERE LOWER(name) = LOWER($1)',
 				name,
 				description)
 		# wowee that's a verbose exception name
