@@ -377,7 +377,12 @@ class Emotes:
 		except asyncio.TimeoutError:
 			logger.warn("react: user didn't react in time")
 		finally:
-			await asyncio.sleep(0.6)
+			# if we don't sleep, it would appear that the bot never un-reacted
+			# i.e. the reaction button would still say "2" even after we remove our reaction
+			# in my testing, 120ms is the minimum amount of time needed to work around this.
+			# unfortunately, if you look at the list of reactions, it still says the bot reacted.
+			# no amount of sleeping can fix that, in my tests.
+			await asyncio.sleep(0.12)
 			await message.remove_reaction(emote_str, context.guild.me)
 			try:
 				await context.message.delete()
