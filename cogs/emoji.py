@@ -4,6 +4,7 @@
 import asyncio
 import imghdr
 from io import BytesIO, StringIO
+import itertools
 import logging
 import random
 import re
@@ -589,9 +590,21 @@ class Emotes:
 		message = self.RE_CUSTOM_EMOTE.sub('', message)
 		lines = message.splitlines()
 
-		result = [await self.extract_emotes_line(line) for line in lines]
-		result_message = self.utils.fix_first_line(result)
+		# list instead of generator because itertools cannot handle async generators :(
+		extracted_lines = [await self.extract_emotes_line(line) for line in lines]
+		# remove leading newlines
+		# e.g. if someone sends
+		# foo
+		# bar
+		# :cruz:
+		# :cruz:
+		#
+		# quux, we should only send :cruz:\n:cruz:
+		extracted_lines = itertools.dropwhile(lambda line: not line, extracted_lines)
+		# remove trailing newlines
+		extracted_lines = itertools.takewhile(bool, extracted_lines)
 
+		result_message = self.utils.fix_first_line(list(extracted_lines))
 		if result_message.replace('\N{zero width space}', '').strip() != '':  # don't send an empty message
 			return result_message
 
