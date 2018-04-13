@@ -386,7 +386,8 @@ class Emotes:
 			await message.remove_reaction(emote_str, context.guild.me)
 			try:
 				await context.message.delete()
-			except discord.errors.Forbidden:
+			except (discord.errors.Forbidden, discord.errors.NotFound):
+				# we're not allowed to delete the invoking message, or the user already has
 				pass
 
 	@commands.command()
