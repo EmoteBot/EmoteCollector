@@ -18,13 +18,20 @@ logger = logging.getLogger('cogs.db')
 class Database:
 	def __init__(self, bot):
 		self.bot = bot
-		self.bot.loop.create_task(self._get_db())
+		self.tasks = []
+		self.tasks.append(self.bot.loop.create_task(self._get_db()))
 		# without backend guild enumeration, the bot will report all guilds being full
-		self.bot.loop.create_task(self.find_backend_guilds())
+		self.tasks.append(self.bot.loop.create_task(self.find_backend_guilds()))
 		self.utils_cog = self.bot.get_cog('Utils')
 
 	def __unload(self):
-		self.bot.loop.create_task(self.db.close())
+		for task in self.tasks:
+			task.cancel()
+
+		try:
+			self.bot.loop.create_task(self.db.close())
+		except AttributeError:
+			pass  # db has not been set yet
 
 	@commands.command(name='sql', hidden=True)
 	@commands.is_owner()
