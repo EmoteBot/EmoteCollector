@@ -199,9 +199,11 @@ class Emotes:
 		animated = self.is_animated(image_data.getvalue())
 		emote = await self.db.create_emote(name, author_id, animated, image_data.read())
 
+		return emote
+
 	@staticmethod
 	def is_animated(image_data: bytes):
-		"""Return if the image data is animated, or raise InvalidImageError if it's not an image."""
+		"""Return whether the image data is animated, or raise InvalidImageError if it's not an image."""
 		type = imghdr.what(None, image_data)
 		if type == 'gif':
 			return True
