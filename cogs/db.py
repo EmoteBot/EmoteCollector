@@ -171,8 +171,9 @@ class Database:
 
 	async def is_owner(self, name, user_id):
 		"""return whether the user has permissions to modify this emote"""
-		await self.ensure_emote_exists(name)
 		emote = await self.get_emote(name)
+		if emote is None:
+			raise errors.EmoteNotFoundError(name)
 		user = discord.Object(user_id)
 		return await self.bot.is_owner(user) or emote['author'] == user.id
 
