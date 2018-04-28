@@ -473,7 +473,7 @@ class Emotes:
 
 		return zip(names, image_urls, authors)
 
-	@commands.command(name='steal-these')
+	@commands.command(name='steal-these', hidden=True)
 	@checks.not_blacklisted()
 	@utils.typing
 	async def steal_these(self, context, *emotes):
