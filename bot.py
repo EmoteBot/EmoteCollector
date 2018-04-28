@@ -9,8 +9,7 @@ import traceback
 import discord
 from discord.ext import commands
 
-from cogs.emoji import BackendContext
-
+from utils import CustomContext
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('bot')
@@ -47,8 +46,8 @@ class EmojiConnoisseur(commands.Bot):
 	async def on_message(self, message):
 		if not self.should_reply(message):
 			return
-		# inject the permissions checks
-		await self.invoke(await self.get_context(message, cls=BackendContext))
+		# inject our context
+		await self.invoke(await self.get_context(message, cls=CustomContext))
 
 	def should_reply(self, message):
 		"""return whether the bot should reply to a given message"""

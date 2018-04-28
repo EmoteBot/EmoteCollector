@@ -8,7 +8,8 @@ class ConnoisseurError(CommandError):
 
 class HTTPException(ConnoisseurError):
 	"""The server did not respond with an OK status code."""
-	pass
+	def __init__(self, status):
+		super().__init__(f'URL error: server returned error code {status}')
 
 
 class EmoteExistsError(ConnoisseurError):

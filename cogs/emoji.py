@@ -64,7 +64,7 @@ class Emotes:
 
 		- name: the name of the emote to get info on
 		"""
-		await context.fail_if_not_exists(name)
+		await self.db.ensure_emote_exists(name)
 		emote = await self.db.get_emote(name)
 
 		embed = discord.Embed(title=self.db.format_emote(emote))
@@ -102,7 +102,7 @@ class Emotes:
 	@checks.not_blacklisted()
 	async def big(self, context, name):
 		"""Shows the original image for the given emote"""
-		await context.fail_if_not_exists(name)
+		await self.db.ensure_emote_exists(name)
 		emote = await self.db.get_emote(name)
 
 		embed = discord.Embed(title=emote['name'])
@@ -149,19 +149,12 @@ class Emotes:
 			return await context.send('Your message had no emotes and no name!')
 
 		message = await self.add_safe(name, url, context.message.author.id)
-		if message is None:
-			logger.warn('add_safe returned None')
-		else:
-			await context.send(message)
+		await context.send(message)
 
-	async def add_safe(self, name, url, author):
+	async def add_safe(self, name, url, author_id):
 		"""Try to add an emote. Returns a string that should be sent to the user."""
 		try:
-			await self.add_backend(name, url, author)
-		except errors.HTTPException as ex:
-			return f'URL error: server returned error code {ex}.'
-		except errors.ConnoisseurError as ex:
-			return str(ex)
+			emote = await self.add_backend(name, url, author_id)
 		except discord.HTTPException as ex:
 			logger.error(traceback.format_exc())
 			return (
@@ -172,8 +165,7 @@ class Emotes:
 		except ValueError:
 			return 'Error: Invalid URL.'
 		else:
-			# f-strings are not async so we use % formatting instead
-			return 'Emote %s successfully created.' % await self.db.get_formatted_emote(name)
+			return f'Emote {self.db.format_emote(emote)} successfully created.'
 
 	async def add_backend(self, name, url, author_id):
 		"""Actually add an emote to the database."""
@@ -293,8 +285,6 @@ class Emotes:
 		"""Renames an emote. You must own it."""
 		try:
 			await self.db.rename_emote(old_name, new_name, context.author.id)
-		except errors.ConnoisseurError as ex:
-			return await context.send(ex)
 		except discord.HTTPException as ex:
 			await context.send(self.format_http_exception(ex))
 			logger.error('Rename:')
@@ -314,11 +304,7 @@ class Emotes:
 		- Describe how it's used
 		Currently, there's a limit of 500 characters.
 		"""
-		try:
-			await self.db.set_emote_description(name, context.author.id, description)
-		except errors.ConnoisseurError as ex:
-			return await context.send(ex)
-
+		await self.db.set_emote_description(name, context.author.id, description)
 		await context.try_add_reaction(self.utils.SUCCESS_EMOTES[True])
 
 	@staticmethod
@@ -340,7 +326,7 @@ class Emotes:
 		You can get the message ID by enabling developer mode (in Settings→Appearance),
 		then right clicking on the message you want and clicking "Copy ID".
 		"""
-		await context.fail_if_not_exists(name)
+		await self.db.ensure_emote_exists(name)
 		db_emote = await self.db.get_emote(name)
 
 		if channel is None:
@@ -540,6 +526,10 @@ class Emotes:
 
 	## EVENTS
 
+	async def on_command_error(self, context, error):
+		if isinstance(error, errors.ConnoisseurError):
+			await context.send(error)
+
 	async def on_message(self, message):
 		"""Reply to messages containing :name: or ;name; with the corresponding emotes.
 		This is like half the functionality of the bot"""
@@ -646,25 +636,6 @@ class Emotes:
 	async def on_raw_bulk_message_delete(self, message_ids, _):
 		for message_id in message_ids:
 			await self.on_raw_message_delete(message_id, _)
-
-
-class BackendContext(utils.CustomContext):
-	async def fail_if_not_exists(self, name):
-		try:
-			await self.cog.db.ensure_emote_exists(name)
-		except errors.EmoteNotFoundError as ex:
-			await self.send(ex)
-			raise  # halts command execution
-
-	async def fail_if_not_owner(self, name):
-		# It may seem bad to do two identical database queries like this,
-		# but I'm pretty sure asyncpg caches queries.
-		await self.fail_if_not_exists(name)
-		try:
-			await self.cog.db.owner_check(name, self.author.id)
-		except errors.PermissionDeniedError as ex:
-			await self.send(ex)
-			raise
 
 
 def setup(bot):
