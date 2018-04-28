@@ -132,7 +132,7 @@ class Emotes:
 		elif len(args) == 1:
 			match = self.RE_CUSTOM_EMOTE.match(args[0])
 			if match is None:
-				return await context.send("That's not an emote!")
+				return await context.send("That's not a custom emote.")
 			else:
 				name, id = match.groups()
 				url = self.db.emote_url(id)
@@ -516,7 +516,7 @@ class Emotes:
 		If this server is opt-out, the emote auto response is off for all users,
 		and they must run ec/toggle before the bot will respond to them.
 
-		Opt out mode is useful for very large servers where the bot's response would be annoying or
+		Opt in mode is useful for very large servers where the bot's response would be annoying or
 		would conflict with that of other bots.
 		"""
 		if await self.db.toggle_guild_state(context.guild.id):
