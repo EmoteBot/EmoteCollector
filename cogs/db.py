@@ -99,8 +99,7 @@ class Database:
 				COUNT(*) FILTER (WHERE NOT animated) AS static,
 				COUNT(*) FILTER (WHERE animated) AS animated,
 				COUNT(*) AS total
-			FROM emojis;
-			""")
+			FROM emojis;""")
 
 	async def get_user_blacklist(self, user_id):
 		"""return a reason for the user's blacklist, or None if not blacklisted"""
@@ -179,7 +178,7 @@ class Database:
 	async def is_owner(self, name, user_id):
 		"""return whether the user has permissions to modify this emote"""
 		emote = await self.get_emote(name)
-		if emote is None:
+		if emote is None:  # you can't own an emote that doesn't exist
 			raise errors.EmoteNotFoundError(name)
 		user = discord.Object(user_id)
 		return await self.bot.is_owner(user) or emote['author'] == user.id
@@ -302,7 +301,8 @@ class Database:
 			db = await asyncpg.create_pool(**credentials)  # pylint: disable=invalid-name
 		except ConnectionRefusedError:
 			logger.error('Failed to connect to the database!')
-			return await self.bot.logout()
+			await self.bot.logout()
+			return
 
 		await db.execute('SET TIME ZONE UTC')  # make sure timestamps are displayed correctly
 		await db.execute('CREATE SCHEMA IF NOT EXISTS connoisseur')
