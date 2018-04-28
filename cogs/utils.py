@@ -38,7 +38,6 @@ from discord.ext import commands as _commands
 
 
 _logger = _logging.getLogger('utils')
-_logger.setLevel(_logging.DEBUG)
 
 
 class Utils:
