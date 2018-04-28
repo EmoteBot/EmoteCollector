@@ -40,7 +40,11 @@ class Emotes:
 		self.bot = bot
 		self.utils = self.bot.get_cog('Utils')
 		self.db = self.bot.get_cog('Database')
-		self.session = aiohttp.ClientSession(loop=self.bot.loop, read_timeout=30)
+		self.http = aiohttp.ClientSession(loop=self.bot.loop, read_timeout=30, headers={
+			'User-Agent':
+				'EmojiConnoisseurBot (https://github.com/bmintz/emoji-connoisseur) '
+				+ self.bot.http.user_agent
+		})
 
 		# Keep track of replies so that if the user edits/deletes a message,
 		# we delete/edit the corresponding reply.
@@ -49,7 +53,7 @@ class Emotes:
 		self.replies = utils.LRUDict(size=1000)
 
 	def __unload(self):
-		self.session.close()
+		self.http.close()
 
 	## COMMANDS
 
@@ -177,13 +181,13 @@ class Emotes:
 
 		# credits to @Liara#0001 (ID 136900814408122368) for most of this part
 		# https://gitlab.com/Pandentia/element-zero/blob/47bc8eeeecc7d353ec66e1ef5235adab98ca9635/element_zero/cogs/emoji.py#L217-228
-		async with self.session.head(url, timeout=5) as response:
+		async with self.http.head(url, timeout=5) as response:
 			if response.reason != 'OK':
 				raise errors.HTTPException(response.status)
 			if response.headers.get('Content-Type') not in ('image/png', 'image/jpeg', 'image/gif'):
 				raise errors.InvalidImageError
 
-		async with self.session.get(url) as response:
+		async with self.http.get(url) as response:
 			if response.reason != 'OK':
 				raise errors.HTTPException(response.status)
 			image_data = BytesIO(await response.read())
@@ -450,7 +454,7 @@ class Emotes:
 	async def scrape_list(self, list_url):
 		"""Extract all emotes from a given list URL, in Element Zero's format.
 		Return an iterable of (name, image, author ID) tuples."""
-		async with self.session.get(list_url) as resp:
+		async with self.http.get(list_url) as resp:
 			text = await resp.text()
 		return self.parse_list(text)
 
