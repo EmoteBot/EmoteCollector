@@ -6,7 +6,6 @@ import imghdr
 from io import BytesIO, StringIO
 import itertools
 import logging
-import random
 import re
 import traceback
 
@@ -359,11 +358,11 @@ class Emotes:
 			message,
 			'Permission denied! Make sure the bot has permission to react to that message.')
 
-		def check(emote, message_id, channel_id, user_id):
+		def check(payload):
 			return (
-				message_id == message.id
-				and user_id == context.message.author.id
-				and db_emote['id'] == getattr(emote, 'id', None))  # unicode emoji have no id
+				payload.message_id == message.id
+				and payload.user_id == context.message.author.id
+				and db_emote['id'] == getattr(payload.emoji, 'id', None))  # unicode emoji have no id
 
 		try:
 			await self.bot.wait_for('raw_reaction_add', timeout=30, check=check)
@@ -562,16 +561,16 @@ class Emotes:
 
 		self.replies[message.id] = await message.channel.send(reply)
 
-	async def on_raw_message_edit(self, message_id, data):
+	async def on_raw_message_edit(self, payload):
 		"""Ensure that when a message containing emotes is edited, the corresponding emote reply is, too."""
 		# data = https://discordapp.com/developers/docs/resources/channel#message-object
-		if message_id not in self.replies or 'content' not in data:
+		if payload.message_id not in self.replies or 'content' not in payload.data:
 			return
 
-		emotes = await self.extract_emotes(data['content'])
-		reply = self.replies[message_id]
+		emotes = await self.extract_emotes(payload.data['content'])
+		reply = self.replies[payload.message_id]
 		if emotes is None:
-			del self.replies[message_id]
+			del self.replies[payload.message_id]
 			return await reply.delete()
 		elif emotes == reply.content:
 			# don't edit a message if we don't need to
@@ -621,8 +620,8 @@ class Emotes:
 
 		return ''.join(formatted_emotes)
 
-	async def on_raw_message_delete(self, message_id, _):
-		"""Ensure that when a message containing emotes is deleted, the emote reply is, too."""
+	async def delete_reply(self, message_id):
+		"""Delete our reply to a message containing emotes."""
 		try:
 			message = self.replies.pop(message_id)
 		except KeyError:
@@ -633,9 +632,13 @@ class Emotes:
 		except discord.HTTPException:
 			pass
 
-	async def on_raw_bulk_message_delete(self, message_ids, _):
-		for message_id in message_ids:
-			await self.on_raw_message_delete(message_id, _)
+	async def on_raw_message_delete(self, payload):
+		"""Ensure that when a message containing emotes is deleted, the emote reply is, too."""
+		await self.delete_reply(payload.message_id)
+
+	async def on_raw_bulk_message_delete(self, payload):
+		for message_id in payload.message_ids:
+			await self.delete_reply(message_id)
 
 
 def setup(bot):
