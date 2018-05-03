@@ -32,6 +32,8 @@ from github3 import GitHub as _GitHub
 from github3.exceptions import GitHubError as _GitHubError
 import json as _json
 import logging as _logging
+import os.path
+import urllib.parse
 
 import discord as _discord
 from discord.ext import commands as _commands
@@ -48,7 +50,7 @@ class Utils:
 	"""Emotes used to indicate success/failure. You can obtain these from the discordbots.org guild,
 	but I uploaded them to my test server
 	so that both the staging and the stable versions of the bot can use them"""
-	SUCCESS_EMOTES = ('<:tickNo:416845770239508512>', '<:tickYes:416845760810844160>')
+	SUCCESS_EMOTES = ('<:error:416845770239508512>', '<:success:416845760810844160>')
 
 	async def codeblock(self, message, *, lang=''):
 		cleaned = message.replace('```', '\N{zero width space}'.join('```'))
@@ -84,6 +86,13 @@ class Utils:
 			raise
 		else:
 			return gist.html_url
+
+	@staticmethod
+	def emote_info(url):
+		"""Return a two tuple (name, animated) for the given emote url"""
+		path = urllib.parse.urlparse(url).path
+		filename, extension = os.path.splitext(os.path.basename(path))
+		return int(filename), extension == '.gif'
 
 	def format_user(self, id, *, mention=False):
 		"""Format a user ID for human readable display."""
