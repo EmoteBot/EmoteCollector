@@ -24,6 +24,7 @@ class EmojiConnoisseur(commands.Bot):
 		super().__init__(
 			command_prefix=self.get_prefix_,
 			description=self.config['description'],
+			activity=discord.Game(name=self.config['prefix'] + 'help')  # "Playing ec/help"
 			*args, **kwargs)
 
 	async def get_prefix_(self, bot, message):
@@ -34,9 +35,6 @@ class EmojiConnoisseur(commands.Bot):
 		return commands.when_mentioned_or(prefix)(bot, message)
 
 	async def on_ready(self):
-		# "Playing ec/help"
-		await self.change_presence(activity=discord.Game(name=self.config['prefix'] + 'help'))
-
 		separator = '━' * 44
 		logger.info(separator)
 		logger.info('Logged in as: %s', self.user)
