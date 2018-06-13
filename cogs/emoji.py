@@ -112,7 +112,9 @@ class Emotes:
 	@checks.not_blacklisted()
 	@utils.typing
 	async def add(self, context, *args):
-		"""Add a new emote to the bot. You can use it like this:
+		"""Add a new emote to the bot.
+
+		You can use it like this:
 		`ec/add :thonkang:` (if you already have that emote)
 		`ec/add rollsafe https://image.noelshack.com/fichiers/2017/06/1486495269-rollsafe.png`
 		`ec/add speedtest <https://cdn.discordapp.com/emojis/379127000398430219.png>`
