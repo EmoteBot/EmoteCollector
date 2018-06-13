@@ -11,7 +11,7 @@ class Meta:
 
 	@commands.command()
 	async def support(self, context):
-		"""Directs you the support server."""
+		"""Directs you to the support server."""
 		try:
 			await context.author.send('https://discord.gg/' + self.bot.config['support_server_invite_code'])
 			await context.try_add_reaction('\N{open mailbox with raised flag}')
