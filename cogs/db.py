@@ -233,6 +233,22 @@ class Database:
 		except asyncpg.StringDataRightTruncationError as exception:
 			raise errors.EmoteDescriptionTooLong from exception
 
+	async def set_emote_preservation(self, name, should_preserve: bool):
+		"""change the preservation status of an emote.
+		if an emote is preserved, it should not be decayed due to lack of use
+		"""
+		await self.ensure_emote_exists(name)
+		await self.db.execute(
+			'UPDATE emojis SET preserve = $1 WHERE LOWER(name) = LOWER($2)',
+			should_preserve, name)
+
+	async def should_preserve_emote(self, name):
+		"""return whether the emote should be prevented from being decayed"""
+		result = await self.db.fetchval('SELECT preserve FROM emojis WHERE LOWER(name) = LOWER($1)', name)
+		if result is None:
+			raise errors.EmoteNotFoundError(name)
+		return result
+
 	async def log_emote_use(self, emote, guild_id, user_id):
 		await self.db.execute(
 			'INSERT INTO emote_usage_history (emote_id, guild_id, user_id) VALUES ($1, $2, $3)',
