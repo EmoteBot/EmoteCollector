@@ -242,7 +242,7 @@ class Database:
 			'UPDATE emojis SET preserve = $1 WHERE LOWER(name) = LOWER($2)',
 			should_preserve, name)
 
-	async def should_preserve_emote(self, name):
+	async def get_emote_preservation(self, name):
 		"""return whether the emote should be prevented from being decayed"""
 		result = await self.db.fetchval('SELECT preserve FROM emojis WHERE LOWER(name) = LOWER($1)', name)
 		if result is None:
