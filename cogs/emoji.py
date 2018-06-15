@@ -545,6 +545,18 @@ class Emotes:
 		else:
 			await context.send(f'User blacklisted with reason `{reason}`.')
 
+	@commands.command(hidden=True)
+	@commands.is_owner()
+	async def preserve(self, context, should_preserve: bool, *names):
+		"""Sets preservation status of emotes."""
+		names = set(names)
+		for name in names:
+			try:
+				await self.db.set_emote_preservation(name, should_preserve)
+			except errors.EmoteNotFoundError as ex:
+				await context.send(ex)
+		await context.send(self.utils.SUCCESS_EMOTES[True])
+
 	## EVENTS
 
 	async def on_command_error(self, context, error):
