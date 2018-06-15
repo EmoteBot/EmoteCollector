@@ -251,8 +251,8 @@ class Database:
 
 	async def log_emote_use(self, emote, guild_id, user_id):
 		await self.db.execute(
-			'INSERT INTO emote_usage_history (emote_id, guild_id, user_id) VALUES ($1, $2, $3)',
-			emote['id'], guild_id, user_id)
+			'INSERT INTO emote_usage_history (emote_id, guild_id, user_id) VALUES ($1)',
+			emote['id'])
 
 	async def _toggle_state(self, table_name, id, default):
 		"""toggle the state for a user or guild. If there's no entry already, new state = default."""
@@ -360,6 +360,11 @@ class Database:
 			CREATE TABLE IF NOT EXISTS guild_opt(
 				id BIGINT NOT NULL UNIQUE,
 				state BOOLEAN NOT NULL)""")
+		await db.execute("""
+			CREATE TABLE IF NOT EXISTS emote_usage_history(
+				id BIGINT REFERENCES emojis (id),
+				time TIMESTAMP WITH TIME ZONE DEFAULT (now() at time zone 'UTC')""")
+
 		self.db = db  # pylint: disable=invalid-name
 
 
