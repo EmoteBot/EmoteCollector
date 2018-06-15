@@ -314,7 +314,8 @@ class Database:
 				animated BOOLEAN DEFAULT FALSE,
 				description VARCHAR(280),
 				created TIMESTAMP WITH TIME ZONE DEFAULT (now() at time zone 'UTC'),
-				modified TIMESTAMP WITH TIME ZONE)""")
+				modified TIMESTAMP WITH TIME ZONE,
+				preserve BOOLEAN DEFAULT FALSE)""")
 		await db.execute("""
 			-- https://stackoverflow.com/a/26284695/1378440
 			CREATE OR REPLACE FUNCTION update_modified_column()
