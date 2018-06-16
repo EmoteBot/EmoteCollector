@@ -136,6 +136,17 @@ class Database:
 		# and keeps the lowercasing behavior consistent
 		return await self.db.fetchrow('SELECT * FROM emojis WHERE LOWER(name) = LOWER($1)', name)
 
+	async def get_emote_usage(self, emote: asyncpg.Record) -> int:
+		"""return how many times this emote was used"""
+		count = await self.db.fetchval(
+			'SELECT COUNT(*) FROM emote_usage_history WHERE id = $1',
+			emote['id'])
+
+		if count is None:
+			raise errors.EmoteNotFoundError(emote['name'])
+
+		return count
+
 	async def get_formatted_emote(self, name):
 		emote = await self.get_emote(name)
 		if emote is None:
