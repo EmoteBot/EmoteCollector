@@ -244,7 +244,8 @@ class Database:
 			raise errors.DiscordError
 
 		await emote.delete()
-		await self.db.execute('DELETE FROM emojis WHERE LOWER(name) = LOWER($1)', name)
+		await self.db.execute('DELETE FROM emote_usage_history WHERE id = $1', db_emote['id'])
+		await self.db.execute('DELETE FROM emojis WHERE id = $1', db_emote['id'])
 
 	async def rename_emote(self, old_name, new_name, user_id):
 		"""rename an emote from old_name to new_name. user_id must be authorized."""
