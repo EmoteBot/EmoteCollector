@@ -59,12 +59,13 @@ class Paginator:
 			if reaction not in self.navigation:
 				continue  # not worth our time
 
+			await self.navigation[reaction]()
+
+			await asyncio.sleep(0.2)
 			try:
 				await self._message.remove_reaction(reaction, user)
 			except discord.Forbidden:
 				pass  # oh well, we tried
-
-			await self.navigation[reaction]()
 
 	async def stop(self, *, delete=None):
 		"""Aborts pagination."""
