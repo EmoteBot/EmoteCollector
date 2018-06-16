@@ -389,6 +389,8 @@ class Emotes:
 			await self.bot.wait_for('raw_reaction_add', timeout=30, check=check)
 		except asyncio.TimeoutError:
 			logger.warn("react: user didn't react in time")
+		else:
+			await self.db.log_emote_use(db_emote['id'])
 		finally:
 			# if we don't sleep, it would appear that the bot never un-reacted
 			# i.e. the reaction button would still say "2" even after we remove our reaction
@@ -399,11 +401,9 @@ class Emotes:
 			await message.remove_reaction(emote_str, context.guild.me)
 			try:
 				await context.message.delete()
-			except (discord.errors.Forbidden, discord.errors.NotFound):
+			except discord.errors.HTTPException:
 				# we're not allowed to delete the invoking message, or the user already has
 				pass
-		else:
-			await self.db.log_emote_use(db_emote['id'])
 
 	@commands.command()
 	@checks.not_blacklisted()
