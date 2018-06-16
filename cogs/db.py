@@ -191,12 +191,20 @@ class Database:
 
 	async def remove_emote(self, name, user_id):
 		"""Remove an emote given by name.
-		- user_id: the user trying to remove this emote"""
-		await self.owner_check(name, user_id)
+		- user_id: the user trying to remove this emote,
+		  or None if their ownership should not
+		  be verified
+		"""
+		if user_id is not None:
+			await self.owner_check(name, user_id)
+
 		db_emote = await self.get_emote(name)
+		if db_emote is None:
+			raise errors.EmoteNotFoundError
+
 		emote = self.bot.get_emoji(db_emote['id'])
 		if emote is None:
-			raise errors.DiscordError()
+			raise errors.DiscordError
 
 		await emote.delete()
 		await self.db.execute('DELETE FROM emojis WHERE LOWER(name) = LOWER($1)', name)
