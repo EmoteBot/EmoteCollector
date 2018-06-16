@@ -601,7 +601,7 @@ class Emotes:
 		if payload.message_id not in self.replies or 'content' not in payload.data:
 			return
 
-		emotes = await self.extract_emotes(payload.data['content'])
+		emotes = await self.extract_emotes(payload.data['content'], log_usage=False)
 		reply = self.replies[payload.message_id]
 		if emotes is None:
 			del self.replies[payload.message_id]
@@ -612,15 +612,24 @@ class Emotes:
 
 		await reply.edit(content=emotes)
 
-	async def extract_emotes(self, message: str):
+	async def extract_emotes(self, message: str, *, log_usage=True):
 		"""Parse all emotes (:name: or ;name;) from a message"""
 		# don't respond to code blocks or custom emotes, since custom emotes also have :foo: in them
 		message = self.RE_CODE.sub('', message)
 		message = self.RE_CUSTOM_EMOTE.sub('', message)
 		lines = message.splitlines()
 
-		# list instead of generator because itertools cannot handle async generators :(
-		extracted_lines = [await self.extract_emotes_line(line) for line in lines]
+		extracted_lines = []
+		emotes_used = set()
+		for line in lines:
+			extracted_line, emotes_used_line = await self.extract_emotes_line(line)
+			extracted_lines.append(extracted_line)
+			emotes_used.update(emotes_used_line)
+
+		if log_usage:
+			for emote in emotes_used:
+				await self.db.log_emote_use(emote)
+
 		# remove leading newlines
 		# e.g. if someone sends
 		# foo
@@ -643,16 +652,18 @@ class Emotes:
 		# so the second group is the actual name
 		names = [match.group(2) for match in self.RE_EMOTE.finditer(line)]
 		if not names:
-			return ''
+			return '', set()
 
 		formatted_emotes = []
+		emotes_used = set()
 		for name in names:
 			emote = await self.db.get_emote(name)
 			if emote is None:
 				continue
 			formatted_emotes.append(self.db.format_emote(emote))
+			emotes_used.add(emote['id'])
 
-		return ''.join(formatted_emotes)
+		return ''.join(formatted_emotes), emotes_used
 
 	async def delete_reply(self, message_id):
 		"""Delete our reply to a message containing emotes."""
