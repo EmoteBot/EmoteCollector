@@ -402,6 +402,8 @@ class Emotes:
 			except (discord.errors.Forbidden, discord.errors.NotFound):
 				# we're not allowed to delete the invoking message, or the user already has
 				pass
+		else:
+			await self.db.log_emote_use(db_emote['id'])
 
 	@commands.command()
 	@checks.not_blacklisted()
