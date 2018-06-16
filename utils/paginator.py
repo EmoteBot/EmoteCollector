@@ -64,7 +64,7 @@ class Paginator:
 			await asyncio.sleep(0.2)
 			try:
 				await self._message.remove_reaction(reaction, user)
-			except discord.Forbidden:
+			except discord.HTTPException:
 				pass  # oh well, we tried
 
 	async def stop(self, *, delete=None):
