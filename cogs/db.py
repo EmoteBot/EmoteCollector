@@ -1,6 +1,7 @@
 #!/usr/bin/env python3.6
 # encoding: utf-8
 
+import asyncio
 from datetime import datetime
 import logging
 import random
@@ -23,6 +24,7 @@ class Database:
 		self.tasks.append(self.bot.loop.create_task(self._get_db()))
 		# without backend guild enumeration, the bot will report all guilds being full
 		self.tasks.append(self.bot.loop.create_task(self.find_backend_guilds()))
+		self.tasks.append(self.bot.loop.create_task(self.decay_loop()))
 		self.utils_cog = self.bot.get_cog('Utils')
 
 	def __unload(self):
@@ -33,6 +35,17 @@ class Database:
 			self.bot.loop.create_task(self.db.close())
 		except AttributeError:
 			pass  # db has not been set yet
+
+	async def decay_loop(self):
+		while True:
+			if not self.bot.config.get('decay', False):
+				return
+			await self.bot.wait_until_ready()
+
+			cutoff = datetime.datetime.utcnow() - datetime.timedelta(weeks=4)
+			await self.decay(cutoff, 1)
+
+			await asyncio.sleep(600)
 
 	@commands.command(name='sql', hidden=True)
 	@commands.is_owner()
@@ -263,7 +276,7 @@ class Database:
 			'INSERT INTO emote_usage_history (id) VALUES ($1)',
 			emote_id)
 
-	async def decay_emotes(self, cutoff: datetime, usage_threshold):
+	async def decay(self, cutoff: datetime, usage_threshold):
 		"""remove emotes that should be removed due to inactivity.
 
 		all emotes that:
