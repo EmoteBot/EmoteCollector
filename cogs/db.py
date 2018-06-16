@@ -388,6 +388,7 @@ class Database:
 				created TIMESTAMP WITH TIME ZONE DEFAULT (now() at time zone 'UTC'),
 				modified TIMESTAMP WITH TIME ZONE,
 				preserve BOOLEAN DEFAULT FALSE)""")
+		await db.execute('CREATE UNIQUE INDEX ON emojis (LOWER(name))')
 		await db.execute("""
 			-- https://stackoverflow.com/a/26284695/1378440
 			CREATE OR REPLACE FUNCTION update_modified_column()
