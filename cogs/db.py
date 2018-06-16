@@ -1,6 +1,7 @@
 #!/usr/bin/env python3.6
 # encoding: utf-8
 
+from datetime import datetime
 import logging
 import random
 import time
@@ -257,10 +258,10 @@ class Database:
 			raise errors.EmoteNotFoundError(name)
 		return result
 
-	async def log_emote_use(self, emote, guild_id, user_id):
+	async def log_emote_use(self, emote_id):
 		await self.db.execute(
-			'INSERT INTO emote_usage_history (emote_id, guild_id, user_id) VALUES ($1)',
-			emote['id'])
+			'INSERT INTO emote_usage_history (id) VALUES ($1)',
+			emote_id)
 
 	async def _toggle_state(self, table_name, id, default):
 		"""toggle the state for a user or guild. If there's no entry already, new state = default."""
