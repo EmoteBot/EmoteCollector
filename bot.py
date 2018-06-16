@@ -16,7 +16,7 @@ logger = logging.getLogger('bot')
 logger.setLevel(logging.DEBUG)
 
 
-class EmojiConnoisseur(commands.Bot):
+class EmojiConnoisseur(commands.AutoShardedBot):
 	def __init__(self, *args, **kwargs):
 		with open('data/config.json') as conf:
 			self.config = json.load(conf)
