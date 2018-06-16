@@ -68,23 +68,38 @@ class Emotes:
 		await self.db.ensure_emote_exists(name)
 		emote = await self.db.get_emote(name)
 
-		embed = discord.Embed(title=self.db.format_emote(emote))
+		embed = discord.Embed()
+
+		title = self.db.format_emote(emote)
+		if emote['preserve']: title += ' (Preserved)'
+		embed.title = title
+
+		if emote['description'] is not None:
+			embed.description = emote['description']
+
 		if emote['created'] is not None:
-			logger.debug('setting timestamp to %s', emote['created'])
 			embed.timestamp = emote['created']
 			embed.set_footer(text='Created')
 
-		embed.add_field(
-			name='Owner',
-			# prevent modified and owner from being jammed up against each other
-			# #BlameDiscord™
-			value=self.utils.format_user(emote['author'], mention=True) + '\N{hangul filler}')
+		avatar = None
+		try:
+			avatar = self.bot.get_user(emote['author']).avatar_url_as(static_format='png', size=32)
+		except AttributeError:
+			pass
+
+		name = self.utils.format_user(emote['author'], mention=False)
+		if avatar is None:
+			embed.set_author(name=name)
+		else:
+			embed.set_author(name=name, icon_url=avatar)
+
 		if emote['modified'] is not None:
 			embed.add_field(
-				name='Modified',
-				value=self.utils.format_time(emote['modified']))
-		if emote['description'] is not None:
-			embed.add_field(name='Description', value=emote['description'], inline=False)
+				name='Last modified',
+				# hangul filler prevents the embed fields from jamming next to each other
+				value=self.utils.format_time(emote['modified']) + '\N{hangul filler}')
+
+		embed.add_field(name='Usage count', value=await self.db.get_emote_usage(emote))
 
 		await context.send(embed=embed)
 
