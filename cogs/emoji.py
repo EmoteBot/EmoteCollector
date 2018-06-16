@@ -17,8 +17,10 @@ from discord.ext import commands
 from wand.image import Image
 
 import utils
+from utils import async_enumerate
 from utils import checks
 from utils import errors
+from utils.paginator import ListPaginator
 
 logger = logging.getLogger('cogs.emoji')
 
@@ -423,6 +425,32 @@ class Emotes:
 
 		gist_url = await self.utils.create_gist('list.md', table.getvalue(), description=description)
 		await context.send(f'<{gist_url}>')
+
+	@commands.command()
+	async def popular(self, context):
+		"""Lists popular emojis."""
+
+		# code generously provided by @Liara#0001 under the MIT License:
+		# https://gitlab.com/Pandentia/element-zero/blob/ca7d7f97e068e89334e66692922d9a8744e3e9be/element_zero/cogs/emoji.py#L364-399
+		await context.trigger_typing()
+
+		processed = []
+
+		async for i, emote in async_enumerate(self.db.get_popular_emotes()):
+			if i == 200:
+				break
+
+			formatted = self.db.format_emote(emote)
+
+			author = self.utils.format_user(emote['author'], mention=True)
+
+			c = emote['usage']
+			multiple = '' if c == 1 else 's'
+
+			processed.append(f'{formatted}, used **{c}** time{multiple}, owned by **{author}**')
+
+		paginator = ListPaginator(context, processed)
+		await paginator.begin()
 
 	def format_row(self, record: asyncpg.Record):
 		"""Format a database record as "markdown" for the ec/list command."""

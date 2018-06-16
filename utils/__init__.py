@@ -29,6 +29,14 @@ from wrapt import ObjectProxy
 from cogs.utils import Utils  # note: we would like access to some functions that *are* hot-reloadable
 from . import checks
 from . import errors
+from . import paginator
+
+
+async def async_enumerate(async_iterator, start=0):
+	i = int(start)
+	async for x in async_iterator:
+		yield i, x
+		i += 1
 
 
 class PrettyTable(PrettyTable):

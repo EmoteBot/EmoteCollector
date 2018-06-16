@@ -165,6 +165,23 @@ class Database:
 				async for row in connection.cursor(query, *args):
 					yield row
 
+	async def get_popular_emotes(self):
+		"""return an async iterator that gets emotes from the db sorted by popularity"""
+		query = """
+			SELECT *, (
+				SELECT COUNT(*)
+				FROM emote_usage_history
+				WHERE id = emojis.id
+			) AS usage
+			FROM emojis
+			ORDER BY usage DESC, LOWER("name")
+		"""
+
+		async with self.db.acquire() as connection:
+			async with connection.transaction():
+				async for row in connection.cursor(query):
+					yield row
+
 	async def ensure_emote_exists(self, name):
 		"""fail with an exception if an emote called `name` does not exist
 		this is to reduce duplicated exception raising code."""
