@@ -263,6 +263,34 @@ class Database:
 			'INSERT INTO emote_usage_history (id) VALUES ($1)',
 			emote_id)
 
+	async def decay_emotes(self, cutoff: datetime, usage_threshold):
+		"""remove emotes that should be removed due to inactivity.
+
+		all emotes that:
+			- were created before `cutoff`, and
+			- have been used < `usage_threshold` between now and cutoff, and
+			- are not preserved
+		will be removed.
+		"""
+
+		emotes = await self.db.fetch("""
+			SELECT *
+			FROM emojis
+			WHERE (
+				SELECT COUNT(*)
+				FROM emote_usage_history
+				WHERE
+					id = emojis.id
+					AND time > $1
+			) < $2
+				AND NOT preserve
+				AND created < $1;
+		""", cutoff, usage_threshold)
+
+		for emote in emotes:
+			logger.info('decaying %s', emote['name'])
+			await self.remove_emote(emote['name'], user_id=None)
+
 	async def _toggle_state(self, table_name, id, default):
 		"""toggle the state for a user or guild. If there's no entry already, new state = default."""
 		# see _get_state for why string formatting is OK here
