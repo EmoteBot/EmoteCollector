@@ -363,7 +363,7 @@ class Database:
 		await db.execute("""
 			CREATE TABLE IF NOT EXISTS emote_usage_history(
 				id BIGINT REFERENCES emojis (id),
-				time TIMESTAMP WITH TIME ZONE DEFAULT (now() at time zone 'UTC')""")
+				time TIMESTAMP WITH TIME ZONE DEFAULT (now() at time zone 'UTC'))""")
 
 		self.db = db  # pylint: disable=invalid-name
 
