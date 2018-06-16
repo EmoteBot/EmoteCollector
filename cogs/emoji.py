@@ -52,7 +52,9 @@ class Emotes:
 		self.replies = utils.LRUDict(size=1000)
 
 	def __unload(self):
-		self.http.close()
+		# aiohttp can't decide if this should be a coroutine...
+		# i think it shouldn't be, since it never awaits
+		self.bot.loop.create_task(self.http.close())
 
 	## COMMANDS
 
