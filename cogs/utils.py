@@ -103,7 +103,10 @@ class Utils:
 		# mention: <@140516693242937345> (null byte#8191)
 		# this allows people to still see the username and discrim
 		# if they don't share a server with that user
-		return f'{user.mention if mention else user} ({user if mention else user.id})'
+		if mention:
+			return f'{user.mention} (@{user})'
+		else:
+			return f'@{user} ({user.id})'
 
 	@staticmethod
 	def format_time(date: _datetime):
