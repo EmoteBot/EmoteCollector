@@ -1,1 +1,1 @@
-AGPLv3: https://github.com/bmintz/emoji-connoisseur/blob/master/LICENSE.md
+AGPLv3: https://github.com/EmojiConnoisseur/EmojiConnoisseur/blob/master/LICENSE.md
