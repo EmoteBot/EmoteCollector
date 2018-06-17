@@ -12,22 +12,31 @@ bot in order to update. Any stuff that goes in Utils can be hot reloaded without
 
 __all__ = ('CustomContext', 'checks', 'errors', 'typing', 'LRUDict')
 
-
+from collections import OrderedDict
+from datetime import datetime
 from functools import wraps
 from typing import Sequence, Union
 
 import asyncio
 from asyncpg import Record
-from collections import OrderedDict
 import discord
 from discord.ext import commands
+import discord.utils
 from lru import LRU as _LRUDict	 # sunder only because we are defining our own, better LRUDict
 from prettytable import PrettyTable
-from wrapt import ObjectProxy as ObjectProxy
+from wrapt import ObjectProxy
 
 from cogs.utils import Utils  # note: we would like access to some functions that *are* hot-reloadable
 from . import checks
 from . import errors
+from . import paginator
+
+
+async def async_enumerate(async_iterator, start=0):
+	i = int(start)
+	async for x in async_iterator:
+		yield i, x
+		i += 1
 
 
 class PrettyTable(PrettyTable):
@@ -41,8 +50,10 @@ class PrettyTable(PrettyTable):
 		for option, default in defaults.items():
 			options.setdefault(option, default)
 
-		super().__init__(rows[0].keys(),
-			**options)
+		if rows:
+			super().__init__(rows[0].keys(), **options)
+		else:
+			super().__init__()
 		# PrettyTable's constructor does not set this property for some reason
 		self.align = options.get('align', 'l')  # left align
 
@@ -53,11 +64,10 @@ class PrettyTable(PrettyTable):
 class CustomContext(commands.Context):
 	"""A custom context for discord.py which adds some utility functions."""
 
-	async def try_add_reaction(
-			self,
-			emoji: discord.Emoji,
-			message: discord.Message = None,
-			fallback_message=''):
+	async def try_add_reaction(self,
+		emoji: discord.Emoji,
+		message: discord.Message = None,
+		fallback_message=''):
 		"""Try to add a reaction to the message. If it fails, send a message instead."""
 		if message is None:
 			message = self.message
@@ -79,8 +89,8 @@ def typing(func):
 	# TODO investigate whether wraps really works on asyncs (probably not).
 	# Either way, `wrapt` provides a better @wraps, maybe that would work
 	async def wrapped(*args, **kwargs):	 # pylint: disable=missing-docstring
-		# if func is a method, args starts with self, context, ...
-		# otherwise args starts with context, ...
+		# if func is a method, args starts with (self, context, ...)
+		# otherwise args starts with (context, ...)
 		context = args[0] if isinstance(args[0], commands.Context) else args[1]
 		async with context.typing():
 			# XXX Currently there is a bug in context.typing, or maybe in the official Discord client
@@ -126,5 +136,5 @@ class LRUDict(ObjectProxy):
 					# lru.LRU doesn't support this, although dict does
 					self[k] = v
 
-		if kwargs:  # prevent infinite recursion
+		if kwargs:
 			self.update(kwargs)

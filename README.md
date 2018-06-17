@@ -30,10 +30,11 @@ Note that this bot is still in <em>beta</em> status, and is subject to change at
 	<li><code>ec/remove &lt;name&gt;</code> removes an emote from the bot. You have to own it though.</li>
 	<li><code>ec/rename &lt;old name&gt; &lt;new name&gt;</code> renames an emote. You have to own it.</li>
 	<li>
-		<p><code>ec/react &lt;name&gt; &lt;message ID&gt; [channel ID]</code> adds a reaction to the message.
-		This one's pretty cool since the reaction appears to come from you, rather than the bot.
-		<p>You can get the message/channel ID by enabling developer mode (in Settings→Appearance),
-		then right clicking on the message you want and clicking "Copy ID". Same for channel IDs.
+		<p><code>ec/react &lt;name&gt; [message ID] [#channel]</code> adds a reaction to the message.
+		This one's pretty cool since the reaction appears to come from you, rather than the bot.<br>
+		If you leave off the message ID, the bot will react to the last sent message.</p>
+		<p>Otherwise, you can get the message ID by enabling developer mode (in Settings→Appearance),
+		then right clicking on the message you want and clicking "Copy ID".</p>
 		<p>After running this command, the bot will add the reaction to the message, and wait for you to also react.
         Once you react, or after 30s, the bot will remove its reaction.
 		Confused? It works like this:<br>

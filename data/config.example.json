@@ -1,6 +1,7 @@
 {
 	"release": "development",
 	"description": "Curates emojis from any server and lets you use them without Nitro.",
+	"decay": true,
 	"prefix": "ec/",
 	"client_id": "1234",
 	"copyright_license_file": "data/short-license.txt",

@@ -32,28 +32,28 @@ from github3 import GitHub as _GitHub
 from github3.exceptions import GitHubError as _GitHubError
 import json as _json
 import logging as _logging
+import os.path
+import urllib.parse
 
 import discord as _discord
 from discord.ext import commands as _commands
 
 
 _logger = _logging.getLogger('utils')
-_logger.setLevel(_logging.DEBUG)
 
 
 class Utils:
 	def __init__(self, bot):
 		self.bot = bot
-		self.converter = _commands.clean_content(use_nicknames=False, escape_markdown=True)
 		self.github = _GitHub(token=self.bot.config['tokens']['github'])
 
 	"""Emotes used to indicate success/failure. You can obtain these from the discordbots.org guild,
 	but I uploaded them to my test server
 	so that both the staging and the stable versions of the bot can use them"""
-	SUCCESS_EMOTES = ('<:tickNo:416845770239508512>', '<:tickYes:416845760810844160>')
+	SUCCESS_EMOTES = ('<:error:416845770239508512>', '<:success:416845760810844160>')
 
-	async def codeblock(self, context, message, *, lang=''):
-		cleaned = await self.converter.convert(context, str(message))
+	async def codeblock(self, message, *, lang=''):
+		cleaned = message.replace('```', '\N{zero width space}'.join('```'))
 		return f'```{lang}\n{cleaned}```'
 
 	@staticmethod
@@ -87,6 +87,13 @@ class Utils:
 		else:
 			return gist.html_url
 
+	@staticmethod
+	def emote_info(url):
+		"""Return a two tuple (name, animated) for the given emote url"""
+		path = urllib.parse.urlparse(url).path
+		filename, extension = os.path.splitext(os.path.basename(path))
+		return int(filename), extension == '.gif'
+
 	def format_user(self, id, *, mention=False):
 		"""Format a user ID for human readable display."""
 		user = self.bot.get_user(id)
@@ -96,7 +103,10 @@ class Utils:
 		# mention: <@140516693242937345> (null byte#8191)
 		# this allows people to still see the username and discrim
 		# if they don't share a server with that user
-		return f'{user.mention if mention else user} ({user if mention else user.id})'
+		if mention:
+			return f'{user.mention} (@{user})'
+		else:
+			return f'@{user} ({user.id})'
 
 	@staticmethod
 	def format_time(date: _datetime):

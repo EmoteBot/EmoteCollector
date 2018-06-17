@@ -1,6 +1,8 @@
 #!/usr/bin/env python3.6
 # encoding: utf-8
 
+import asyncio
+from datetime import datetime
 import logging
 import random
 import time
@@ -18,24 +20,43 @@ logger = logging.getLogger('cogs.db')
 class Database:
 	def __init__(self, bot):
 		self.bot = bot
-		self.bot.loop.create_task(self._get_db())
+		self.tasks = []
+		self.tasks.append(self.bot.loop.create_task(self._get_db()))
 		# without backend guild enumeration, the bot will report all guilds being full
-		self.bot.loop.create_task(self.find_backend_guilds())
+		self.tasks.append(self.bot.loop.create_task(self.find_backend_guilds()))
+		self.tasks.append(self.bot.loop.create_task(self.decay_loop()))
 		self.utils_cog = self.bot.get_cog('Utils')
 
 	def __unload(self):
-		self.bot.loop.create_task(self.db.close())
+		for task in self.tasks:
+			task.cancel()
+
+		try:
+			self.bot.loop.create_task(self.db.close())
+		except AttributeError:
+			pass  # db has not been set yet
+
+	async def decay_loop(self):
+		while True:
+			if not self.bot.config.get('decay', False):
+				return
+			await self.bot.wait_until_ready()
+
+			cutoff = datetime.datetime.utcnow() - datetime.timedelta(weeks=4)
+			await self.decay(cutoff, 1)
+
+			await asyncio.sleep(600)
 
 	@commands.command(name='sql', hidden=True)
 	@commands.is_owner()
 	async def sql_command(self, context, *, query):
 		"""Gets the rows of a SQL query. Prepared statements are not supported."""
-		start = time.time()
+		start = time.monotonic()
 		# XXX properly strip codeblocks
 		results = await self.db.fetch(query.replace('`', ''))
-		elapsed = time.time() - start
+		elapsed = time.monotonic() - start
 
-		message = await self.utils_cog.codeblock(context, PrettyTable(results))
+		message = await self.utils_cog.codeblock(str(PrettyTable(results)))
 		return await context.send(f'{message}*{len(results)} rows retrieved in {elapsed:.2f} seconds.*')
 
 	@staticmethod
@@ -46,9 +67,9 @@ class Database:
 		return f"<{'a' if animated else ''}:{name}:{id}>"
 
 	@staticmethod
-	def emote_url(emote_id):
+	def emote_url(emote_id, animated: bool = False):
 		"""Convert an emote ID to the image URL for that emote."""
-		return f'https://cdn.discordapp.com/emojis/{emote_id}?v=1'
+		return f'https://cdn.discordapp.com/emojis/{emote_id}{".gif" if animated else ""}?v=1'
 
 	async def find_backend_guilds(self):
 		"""Find all the guilds used to store emotes"""
@@ -60,7 +81,7 @@ class Database:
 
 		guilds = []
 		for guild in self.bot.guilds:
-			if await self.bot.is_owner(guild.owner) and guild.name.startswith('EmojiBackend'):
+			if guild.name.startswith('EmojiBackend') and await self.bot.is_owner(guild.owner):
 				guilds.append(guild)
 		self.guilds = guilds
 		logger.info('In %s backend guilds.', len(guilds))
@@ -92,23 +113,34 @@ class Database:
 				COUNT(*) FILTER (WHERE NOT animated) AS static,
 				COUNT(*) FILTER (WHERE animated) AS animated,
 				COUNT(*) AS total
-			FROM emojis;
-			""")
+			FROM emojis;""")
 
 	async def get_user_blacklist(self, user_id):
 		"""return a reason for the user's blacklist, or None if not blacklisted"""
 		return await self.db.fetchval('SELECT blacklist_reason from user_opt WHERE id = $1', user_id)
 
 	async def set_user_blacklist(self, user_id, reason=None):
-		"""make user_id blacklisted :c"""
+		"""make user_id blacklisted
+		setting reason to None removes the user's blacklist"""
 		# insert regardless of whether it exists
 		# and if it does exist, update
 		await self.db.execute("""
 			INSERT INTO user_opt (id, blacklist_reason) VALUES ($1, $2)
 			ON CONFLICT (id) DO UPDATE SET blacklist_reason = EXCLUDED.blacklist_reason""", user_id, reason)
 
-	async def get_emote(self, name):
-		return await self.db.fetchrow('SELECT * FROM emojis WHERE name ILIKE $1', name)
+	async def get_emote(self, name) -> asyncpg.Record:
+		"""get an emote object by name"""
+		# we use LOWER(name) = LOWER($1) instead of ILIKE because ILIKE has some wildcarding stuff
+		# that we don't want
+		# probably LOWER(name) = $1, name.lower() would also work, but this looks cleaner
+		# and keeps the lowercasing behavior consistent
+		return await self.db.fetchrow('SELECT * FROM emojis WHERE LOWER(name) = LOWER($1)', name)
+
+	async def get_emote_usage(self, emote: asyncpg.Record) -> int:
+		"""return how many times this emote was used"""
+		return await self.db.fetchval(
+			'SELECT COUNT(*) FROM emote_usage_history WHERE id = $1',
+			emote['id'])
 
 	async def get_formatted_emote(self, name):
 		emote = await self.get_emote(name)
@@ -133,6 +165,23 @@ class Database:
 				async for row in connection.cursor(query, *args):
 					yield row
 
+	async def get_popular_emotes(self):
+		"""return an async iterator that gets emotes from the db sorted by popularity"""
+		query = """
+			SELECT *, (
+				SELECT COUNT(*)
+				FROM emote_usage_history
+				WHERE id = emojis.id
+			) AS usage
+			FROM emojis
+			ORDER BY usage DESC, LOWER("name")
+		"""
+
+		async with self.db.acquire() as connection:
+			async with connection.transaction():
+				async for row in connection.cursor(query):
+					yield row
+
 	async def ensure_emote_exists(self, name):
 		"""fail with an exception if an emote called `name` does not exist
 		this is to reduce duplicated exception raising code."""
@@ -142,8 +191,10 @@ class Database:
 	async def ensure_emote_does_not_exist(self, name):
 		"""fail with an exception if an emote called `name` does not exist
 		this is to reduce duplicated exception raising code."""
-		if await self.get_emote(name) is not None:
-			raise errors.EmoteExistsError(name)
+		emote = await self.get_emote(name)
+		if emote is not None:
+			# use the original capitalization of the name
+			raise errors.EmoteExistsError(emote['name'])
 
 	async def create_emote(self, name, author_id, animated, image_data: bytes):
 		blacklist_reason = await self.get_user_blacklist(author_id)
@@ -163,8 +214,9 @@ class Database:
 
 	async def is_owner(self, name, user_id):
 		"""return whether the user has permissions to modify this emote"""
-		await self.ensure_emote_exists(name)
 		emote = await self.get_emote(name)
+		if emote is None:  # you can't own an emote that doesn't exist
+			raise errors.EmoteNotFoundError(name)
 		user = discord.Object(user_id)
 		return await self.bot.is_owner(user) or emote['author'] == user.id
 
@@ -176,15 +228,24 @@ class Database:
 
 	async def remove_emote(self, name, user_id):
 		"""Remove an emote given by name.
-		- user_id: the user trying to remove this emote"""
-		await self.owner_check(name, user_id)
+		- user_id: the user trying to remove this emote,
+		  or None if their ownership should not
+		  be verified
+		"""
+		if user_id is not None:
+			await self.owner_check(name, user_id)
+
 		db_emote = await self.get_emote(name)
+		if db_emote is None:
+			raise errors.EmoteNotFoundError
+
 		emote = self.bot.get_emoji(db_emote['id'])
 		if emote is None:
-			raise errors.DiscordError()
+			raise errors.DiscordError
 
 		await emote.delete()
-		await self.db.execute('DELETE FROM emojis WHERE name ILIKE $1', name)
+		await self.db.execute('DELETE FROM emote_usage_history WHERE id = $1', db_emote['id'])
+		await self.db.execute('DELETE FROM emojis WHERE id = $1', db_emote['id'])
 
 	async def rename_emote(self, old_name, new_name, user_id):
 		"""rename an emote from old_name to new_name. user_id must be authorized."""
@@ -210,7 +271,7 @@ class Database:
 		await self.owner_check(name, user_id)
 		try:
 			await self.db.execute(
-				'UPDATE emojis SET DESCRIPTION = $2 WHERE NAME ILIKE $1',
+				'UPDATE emojis SET DESCRIPTION = $2 WHERE LOWER(name) = LOWER($1)',
 				name,
 				description)
 		# wowee that's a verbose exception name
@@ -218,10 +279,54 @@ class Database:
 		except asyncpg.StringDataRightTruncationError as exception:
 			raise errors.EmoteDescriptionTooLong from exception
 
-	async def log_emote_use(self, emote, guild_id, user_id):
+	async def set_emote_preservation(self, name, should_preserve: bool):
+		"""change the preservation status of an emote.
+		if an emote is preserved, it should not be decayed due to lack of use
+		"""
+		await self.ensure_emote_exists(name)
 		await self.db.execute(
-			'INSERT INTO emote_usage_history (emote_id, guild_id, user_id) VALUES ($1, $2, $3)',
-			emote['id'], guild_id, user_id)
+			'UPDATE emojis SET preserve = $1 WHERE LOWER(name) = LOWER($2)',
+			should_preserve, name)
+
+	async def get_emote_preservation(self, name):
+		"""return whether the emote should be prevented from being decayed"""
+		result = await self.db.fetchval('SELECT preserve FROM emojis WHERE LOWER(name) = LOWER($1)', name)
+		if result is None:
+			raise errors.EmoteNotFoundError(name)
+		return result
+
+	async def log_emote_use(self, emote_id):
+		await self.db.execute(
+			'INSERT INTO emote_usage_history (id) VALUES ($1)',
+			emote_id)
+
+	async def decay(self, cutoff: datetime, usage_threshold):
+		"""remove emotes that should be removed due to inactivity.
+
+		all emotes that:
+			- were created before `cutoff`, and
+			- have been used < `usage_threshold` between now and cutoff, and
+			- are not preserved
+		will be removed.
+		"""
+
+		emotes = await self.db.fetch("""
+			SELECT *
+			FROM emojis
+			WHERE (
+				SELECT COUNT(*)
+				FROM emote_usage_history
+				WHERE
+					id = emojis.id
+					AND time > $1
+			) < $2
+				AND NOT preserve
+				AND created < $1;
+		""", cutoff, usage_threshold)
+
+		for emote in emotes:
+			logger.info('decaying %s', emote['name'])
+			await self.remove_emote(emote['name'], user_id=None)
 
 	async def _toggle_state(self, table_name, id, default):
 		"""toggle the state for a user or guild. If there's no entry already, new state = default."""
@@ -286,7 +391,8 @@ class Database:
 			db = await asyncpg.create_pool(**credentials)  # pylint: disable=invalid-name
 		except ConnectionRefusedError:
 			logger.error('Failed to connect to the database!')
-			return await self.bot.logout()
+			await self.bot.logout()
+			return
 
 		await db.execute('SET TIME ZONE UTC')  # make sure timestamps are displayed correctly
 		await db.execute('CREATE SCHEMA IF NOT EXISTS connoisseur')
@@ -298,7 +404,9 @@ class Database:
 				animated BOOLEAN DEFAULT FALSE,
 				description VARCHAR(280),
 				created TIMESTAMP WITH TIME ZONE DEFAULT (now() at time zone 'UTC'),
-				modified TIMESTAMP WITH TIME ZONE)""")
+				modified TIMESTAMP WITH TIME ZONE,
+				preserve BOOLEAN DEFAULT FALSE)""")
+		await db.execute('CREATE UNIQUE INDEX ON emojis (LOWER(name))')
 		await db.execute("""
 			-- https://stackoverflow.com/a/26284695/1378440
 			CREATE OR REPLACE FUNCTION update_modified_column()
@@ -327,6 +435,11 @@ class Database:
 			CREATE TABLE IF NOT EXISTS guild_opt(
 				id BIGINT NOT NULL UNIQUE,
 				state BOOLEAN NOT NULL)""")
+		await db.execute("""
+			CREATE TABLE IF NOT EXISTS emote_usage_history(
+				id BIGINT REFERENCES emojis (id),
+				time TIMESTAMP WITH TIME ZONE DEFAULT (now() at time zone 'UTC'))""")
+
 		self.db = db  # pylint: disable=invalid-name
 
 

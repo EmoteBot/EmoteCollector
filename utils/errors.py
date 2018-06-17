@@ -8,7 +8,8 @@ class ConnoisseurError(CommandError):
 
 class HTTPException(ConnoisseurError):
 	"""The server did not respond with an OK status code."""
-	pass
+	def __init__(self, status):
+		super().__init__(f'URL error: server returned error code {status}')
 
 
 class EmoteExistsError(ConnoisseurError):
@@ -25,7 +26,7 @@ class EmoteNotFoundError(ConnoisseurError):
 
 class InvalidImageError(ConnoisseurError):
 	"""The image is not a GIF, PNG, or JPG"""
-	def __init__(self, name):
+	def __init__(self):
 		super().__init__('The image supplied was not a GIF, PNG, or JPG.')
 
 

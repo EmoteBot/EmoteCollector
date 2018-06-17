@@ -3,43 +3,49 @@
 
 import json
 import logging
+import re
 import traceback
 
 import discord
 from discord.ext import commands
 
-from cogs.emoji import BackendContext
-from utils import errors
+from utils import CustomContext
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('bot')
 logger.setLevel(logging.DEBUG)
 
 
-class EmojiConnoisseur(commands.Bot):
+class EmojiConnoisseur(commands.AutoShardedBot):
 	def __init__(self, *args, **kwargs):
-		with open('data/config.json') as f:
-			self.config = json.load(f)
+		with open('data/config.json') as conf:
+			self.config = json.load(conf)
 
 		super().__init__(
-			command_prefix=commands.when_mentioned_or(self.config['prefix']),
+			command_prefix=self.get_prefix_,
 			description=self.config['description'],
+			activity=discord.Game(name=self.config['prefix'] + 'help'),  # "Playing ec/help"
 			*args, **kwargs)
 
-	async def on_ready(self):
-		await self.change_presence(activity=discord.Game(name=self.config['prefix'] + 'help'))
+	async def get_prefix_(self, bot, message):
+		prefix = self.config['prefix']
+		match = re.search(fr'^{prefix}', message.content, re.IGNORECASE)
+		# if there's no match then we want to pass no prefixes into when_mentioned_or
+		prefix = [] if match is None else match.group(0)
+		return commands.when_mentioned_or(prefix)(bot, message)
 
+	async def on_ready(self):
 		separator = '━' * 44
 		logger.info(separator)
-		logger.info('Logged in as: %s' % self.user)
-		logger.info('ID: %s' % self.user.id)
+		logger.info('Logged in as: %s', self.user)
+		logger.info('ID: %s', self.user.id)
 		logger.info(separator)
 
 	async def on_message(self, message):
 		if not self.should_reply(message):
 			return
-		# inject the permissions checks
-		await self.invoke(await self.get_context(message, cls=BackendContext))
+		# inject our context
+		await self.invoke(await self.get_context(message, cls=CustomContext))
 
 	def should_reply(self, message):
 		"""return whether the bot should reply to a given message"""
@@ -70,11 +76,12 @@ class EmojiConnoisseur(commands.Bot):
 		elif isinstance(error, (commands.UserInputError, errors.ConnoisseurError)):
 			await context.send(error)
 		elif isinstance(error, commands.NotOwner):
-			logger.error('%s tried to run %s but is not the owner' % (context.author, context.command.name))
+			logger.error('%s tried to run %s but is not the owner', context.author, context.command.name)
 		elif isinstance(error, commands.CommandInvokeError):
-			await context.send('An internal error occurred while running that command.')
-			logger.error('In %s:' % context.command.qualified_name)
+			await context.send('An internal error occured while trying to run that command.')
+			logger.error('In %s:', context.command.qualified_name)
 			logger.error(''.join(traceback.format_tb(error.original.__traceback__)))
+			# pylint: disable=logging-format-interpolation
 			logger.error('{0.__class__.__name__}: {0}'.format(error.original))
 
 	def run(self, *args, **kwargs):
@@ -85,14 +92,15 @@ class EmojiConnoisseur(commands.Bot):
 				'cogs.meta',
 				'jishaku',
 				'cogs.stats',
-				'ben_cogs.misc'):
+				'ben_cogs.misc',
+				'cogs.meme'):
 			try:
 				self.load_extension(extension)
 			except:  # pylint: disable=bare-except
-				logger.error('Failed to load ' + extension)
+				logger.error('Failed to load %s', extension)
 				logger.error(traceback.format_exc())
 			else:
-				logger.info('Successfully loaded ' + extension)
+				logger.info('Successfully loaded %s', extension)
 
 		super().run(self.config['tokens']['discord'], *args, **kwargs)
 
