@@ -21,7 +21,7 @@ def format_sql_conditions(conditions):
 	return 'WHERE ' + ' AND '.join(conditions) + ' '
 
 
-def emotes(author_id=None, include_nsfw=False):
+def emotes(author_id=None):
 	"""return an iterator that gets emotes from the database.
 	If author id is provided, get only emotes from them.
 	If include_nsfw, list all emotes."""
@@ -31,12 +31,9 @@ def emotes(author_id=None, include_nsfw=False):
 	if author_id is not None:
 		conditions.append('author = %s')
 		args.append(author_id)
-	if not include_nsfw:
-		conditions.append('NOT nsfw')
 
 	query += format_sql_conditions(conditions)
 	query += 'ORDER BY LOWER(name)'
-	print(query)
 	return iter_from_query(query, *args)
 
 
