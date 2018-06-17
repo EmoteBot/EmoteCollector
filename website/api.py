@@ -35,7 +35,9 @@ class List(Resource):
 		'animated': fields.Boolean,
 		'created': EmojiConnoisseurDateTime,
 		'modified': EmojiConnoisseurDateTime,
-		'description': fields.String}
+		'preserve': fields.Boolean,
+		'description': fields.String,
+	}
 
 	@marshal_with(fields)
 	def get(self):
