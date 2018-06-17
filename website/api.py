@@ -33,7 +33,6 @@ class List(Resource):
 		'id': fields.String,  # JSON cannot handle large nums
 		'author': fields.String,  # same here
 		'animated': fields.Boolean,
-		'nsfw': fields.Boolean,
 		'created': EmojiConnoisseurDateTime,
 		'modified': EmojiConnoisseurDateTime,
 		'description': fields.String}
@@ -42,10 +41,8 @@ class List(Resource):
 	def get(self):
 		parser = RequestParser()
 		parser.add_argument('author', type=int, default=None)
-		parser.add_argument('nsfw', store_missing=False)
 		args = parser.parse_args()
-		include_nsfw = 'nsfw' in args
-		return list(map(dict, db.emotes(args.author, include_nsfw)))
+		return list(map(dict, db.emotes(args.author)))
 
 
 api.add_resource(List, '/emotes')

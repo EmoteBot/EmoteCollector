@@ -197,17 +197,6 @@ class Database:
 		await emote.edit(name=new_name)
 		await self.db.execute('UPDATE emojis SET name = $2 where id = $1', emote.id, new_name)
 
-	async def get_emote_nsfw(self, name) -> bool:
-		"""return whether the emote is Not Safe For Work"""
-		return await self.db.fetchval('SELECT nsfw FROM emojis WHERE name ILIKE $1', name)
-
-	async def toggle_emote_nsfw(self, name, user_id) -> bool:
-		"""toggle the emote's NSFW status. the default is SFW (safe for work)
-		return the new status"""
-		await self.owner_check(name, user_id)
-		await self.db.execute('UPDATE emojis SET nsfw = NOT nsfw WHERE name ILIKE $1', name)
-		return await self.get_emote_nsfw(name)
-
 	async def set_emote_description(self, name, user_id, description=None):
 		"""Set an emote's description.
 
@@ -309,8 +298,7 @@ class Database:
 				animated BOOLEAN DEFAULT FALSE,
 				description VARCHAR(280),
 				created TIMESTAMP WITH TIME ZONE DEFAULT (now() at time zone 'UTC'),
-				modified TIMESTAMP WITH TIME ZONE,
-				nsfw BOOLEAN DEFAULT FALSE)""")
+				modified TIMESTAMP WITH TIME ZONE)""")
 		await db.execute("""
 			-- https://stackoverflow.com/a/26284695/1378440
 			CREATE OR REPLACE FUNCTION update_modified_column()
