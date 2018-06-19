@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset=utf-8>
+{% set title = 'List of all emotes' %}
+{% if author is not none %}
+	{% set title = title + ' by author ID %d' % author %}
+{% endif %}
+<title>{{ title }}</title>
+<style>
+body {
+	font-family: sans-serif;}
+.center, th {
+	text-align: center;}
+table {
+	border-spacing: 0;
+	border-collapse: collapse;}
+.emote {
+	max-height: 32px;
+	max-width: 32px;}
+span.data {
+	padding: .2em;
+	border-radius: 3px;
+	font-family: monospace;}
+td, th {
+	border: solid 2px;
+	padding: .2em .5em;}
+</style>
+</head>
+<body lang=en>
+<h1>{{ title }}</h1>
+<table>
+<thead><tr>
+<th>Emote</th>
+<th>Name</th>
+{# we don't show the author column if it's gonna be the same every time #}
+{% if author is none %}
+<th>Author ID</th>
+{% endif %}
+<th>Preserved</th>
+</tr></thead>
+
+{% for emote in emotes %}
+<tr>
+<td class="center"><img src="{{ emote_url(emote.id, emote.animated) }}&size=64" class="emote"></td>
+<td><span class="data">{{ emote.name }}</span></td>
+{% if author is none %}
+<td><span class="data">{{ emote.author }}</span></td>
+{% endif %}
+<td>{{ 'yes' if emote.preserve else '' }}</td>
+</tr>
+{% endfor %}
+
+</table>
+</body>
+</html>
