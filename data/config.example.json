@@ -16,7 +16,7 @@
 		"password": "hunter2",
 		"database": "connoisseur",
 		"host": "127.0.0.1",
-		"port": "5432"},
+		"port": 5432},
 
 	"tokens": {
 		"discord": "sek.rit.token",
