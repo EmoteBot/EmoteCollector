@@ -15,10 +15,10 @@
 		"user": "connoisseur",
 		"password": "hunter2",
 		"database": "connoisseur",
-		"host": "127.0.0.1"},
+		"host": "127.0.0.1",
+		"port": "5432"},
 
 	"tokens": {
-		"github": "<get one here https://github.com/settings/tokens and grant it the gist permission>",
 		"discord": "sek.rit.token",
 		"stats": {
 			"bots.discord.pw": null,
