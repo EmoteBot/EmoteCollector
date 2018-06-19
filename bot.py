@@ -73,7 +73,7 @@ class EmojiConnoisseur(commands.AutoShardedBot):
 				await context.author.send(message)
 			except discord.Forbidden:
 				await context.send(message)
-		elif isinstance(error, (commands.UserInputError, errors.ConnoisseurError)):
+		elif isinstance(error, errors.ConnoisseurError):
 			await context.send(error)
 		elif isinstance(error, commands.NotOwner):
 			logger.error('%s tried to run %s but is not the owner', context.author, context.command.name)
