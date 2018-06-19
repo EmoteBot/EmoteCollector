@@ -38,7 +38,7 @@ Note that this bot is still in <em>beta</em> status, and is subject to change at
 		<p>After running this command, the bot will add the reaction to the message, and wait for you to also react.
         Once you react, or after 30s, the bot will remove its reaction.
 		Confused? It works like this:<br>
-		<img src="https://why-are-you-buying-clothes-at.the-soup.store/829b79.gif" alt="demonstration of how the ec/react command works"></p>
+		<img src="https://discord.coffee/829b79.gif" alt="demonstration of how the ec/react command works"></p>
 	</li>
 	<li>
 		<code>ec/list [user]</code> gives you a list of all emotes. If you provide a user (IDs, names, and @mentions all work),
