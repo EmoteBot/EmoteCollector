@@ -1,0 +1,5 @@
+localhost:80 ec.localhost:80
+
+root static/
+proxy /list localhost:8080
+proxy /api  localhost:8081
