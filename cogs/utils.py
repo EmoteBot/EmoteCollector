@@ -89,7 +89,7 @@ class Utils:
 
 	@staticmethod
 	def emote_info(url):
-		"""Return a two tuple (name, animated) for the given emote url"""
+		"""Return a two tuple (id, animated) for the given emote url"""
 		path = urllib.parse.urlparse(url).path
 		filename, extension = os.path.splitext(os.path.basename(path))
 		return int(filename), extension == '.gif'
