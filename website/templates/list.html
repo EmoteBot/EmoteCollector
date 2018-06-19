@@ -24,7 +24,7 @@
 
 {% for emote in emotes %}
 <tr>
-<td class="center"><img src="{{ emote_url(emote.id, emote.animated) }}&size=64" class="emote"></td>
+<td class="center"><img src="{{ emote_url(emote.id, emote.animated) }}" class="emote"></td>
 <td><span class="data">{{ emote.name }}</span></td>
 {% if author is none %}
 <td><span class="data">{{ emote.author }}</span></td>
