@@ -10,13 +10,12 @@ With that out of the way, here's how to install the bot.
 -1) `sudo apt install libmagickwand-dev`
 0) `pip3 install -r requirements.txt`
 1) Make a new bot app at https://discordapp.com/developers/applications/me.
-2) Run `echo CREATE DATABASE connoisseur | sudo -u postgres psql`, then run these sql commands in
-`sudo -u postgres psql connoisseur`:
+2) Run these sql commands in `sudo -u postgres psql`:
 ```sql
-CREATE ROLE connoisseur WITH LOGIN PASSWORD 'hunter2';
-CREATE SCHEMA connoisseur; -- skip this if you want to use an existing schema
-GRANT ALL PRIVILEGES ON SCHEMA connoisseur TO connoisseur;
-GRANT ALL PRIVILEGES ON DATABASE connoisseur TO connoisseur;
+CREATE USER connoisseur;
+\password connoisseur
+-- enter and confirm a password
+CREATE DATABASE connoisseur OWNER connoisseur;
 ```
 3) Copy `data/config.example.json` to `data/config.json`,
 and edit `client_id`, `tokens.discord`, and the database section.
@@ -32,6 +31,6 @@ If you want it to create less than 100 guilds, edit `on_ready`. I recommend 5 fo
 Sign in to your new Discord backend account, and start filling out CAPTCHAs.
 6) Edit your timezone in postgresql.conf to UTC.
 On my system, postgresql.conf is located in `/etc/postgresql/9.6/main`.
-6) Run `./bot.py`.
+7) Run `./bot.py`.
 
 If you need any help, DM @null byte#8191 or file a GitHub issue.
