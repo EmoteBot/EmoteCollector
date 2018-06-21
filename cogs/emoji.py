@@ -35,7 +35,7 @@ class Emotes:
 	RE_CUSTOM_EMOTE = re.compile(r'<a?:(\w{2,32}):(\d{15,21})>', re.ASCII)
 
 	"""Matches code blocks, which should be ignored."""
-	RE_CODE = re.compile(r'`{1,3}.+?`{1,3}', re.DOTALL)
+	RE_CODE = re.compile(r'(`{1,3}).+?\1', re.DOTALL)
 
 	def __init__(self, bot):
 		self.bot = bot
