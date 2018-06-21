@@ -41,11 +41,11 @@ class Utils:
 		return await channel.history(limit=-index, reverse=True).next()
 
 	@staticmethod
-	def fix_first_line(lines: list) -> str:
+	def fix_first_line(message: str) -> str:
 		"""In compact mode, prevent the first line from being misaligned because of the bot's username"""
-		if len(lines) > 1:
-			lines[0] = '\N{zero width space}\n' + lines[0]
-		return '\n'.join(lines)
+		if '\n' in message:
+			message = '\N{zero width space}\n' + message
+		return message
 
 	@staticmethod
 	def emote_info(url):

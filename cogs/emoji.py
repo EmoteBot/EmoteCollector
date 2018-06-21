@@ -29,7 +29,7 @@ class Emotes:
 	"""Commands related to the main functionality of the bot"""
 
 	"""Matches :foo: and ;foo; but not :foo;. Used for emotes in text."""
-	RE_EMOTE = re.compile(r'(:|;)(\w{2,32})\1', re.ASCII)
+	RE_EMOTE = re.compile(r'(:|;)(?P<name>\w{2,32})\1|(?P<newline>\n)', re.ASCII)
 
 	"""Matches only custom server emoji."""
 	RE_CUSTOM_EMOTE = re.compile(r'<a?:(\w{2,32}):(\d{15,21})>', re.ASCII)
@@ -110,10 +110,10 @@ class Emotes:
 	async def count(self, context):
 		"""Tells you how many emotes are in my database."""
 		static, animated, total = await self.db.count()
-		message = [
-			f'Static emotes: {static}',
-			f'Animated emotes: {animated}',
-			f'Total: {total}']
+		message = (
+			f'Static emotes: {static}\n'
+			f'Animated emotes: {animated}\n'
+			f'Total: {total}')
 		await context.send(self.utils.fix_first_line(message))
 
 	@commands.command()
@@ -298,7 +298,8 @@ class Emotes:
 
 			messages.append(f'`:{db_emote["name"]}:` was successfully deleted.')
 
-		await context.send(self.utils.fix_first_line(messages))
+		message = '\n'.join(messages)
+		await context.send(self.utils.fix_first_line(message))
 
 	@commands.command(aliases=['mv'])
 	async def rename(self, context, old_name, new_name):
@@ -518,8 +519,8 @@ class Emotes:
 			name, id = match.groups()
 			image_url = self.db.emote_url(id)
 			messages.append(await self.add_safe(name, image_url, context.author.id))
-		# XXX this will fail if len > 2000
-		await context.send(self.utils.fix_first_line(messages))
+		message = '\n'.join(messages)
+		await context.send(self.utils.fix_first_line(message))
 
 	@commands.command()
 	async def toggle(self, context):
@@ -640,20 +641,24 @@ class Emotes:
 		# don't respond to code blocks or custom emotes, since custom emotes also have :foo: in them
 		message = self.RE_CODE.sub('', message)
 		message = self.RE_CUSTOM_EMOTE.sub('', message)
-		lines = message.splitlines()
 
-		extracted_lines = []
+		extracted = []
 		emotes_used = set()
-		for line in lines:
-			extracted_line, emotes_used_line = await self.extract_emotes_line(line)
-			extracted_lines.append(extracted_line)
-			emotes_used.update(emotes_used_line)
+		for match in self.RE_EMOTE.finditer(message):
+			name, newline = match.groups()[1:]
+			if name:
+				db_emote = await self.db.get_emote(name)
+				if db_emote is not None:
+					extracted.append(self.db.format_emote(db_emote))
+					emotes_used.add(db_emote['id'])
+			if newline:
+				extracted.append(newline)
 
 		if log_usage:
 			for emote in emotes_used:
 				await self.db.log_emote_use(emote)
 
-		# remove leading newlines
+		# remove leading and trailing newlines
 		# e.g. if someone sends
 		# foo
 		# bar
@@ -661,32 +666,9 @@ class Emotes:
 		# :cruz:
 		#
 		# quux, we should only send :cruz:\n:cruz:
-		extracted_lines = itertools.dropwhile(lambda line: not line, extracted_lines)
-		# remove trailing newlines
-		extracted_lines = itertools.takewhile(bool, extracted_lines)
-
-		result_message = self.utils.fix_first_line(list(extracted_lines))
-		if result_message.replace('\N{zero width space}', '').strip() != '':  # don't send an empty message
-			return result_message
-
-	async def extract_emotes_line(self, line: str) -> str:
-		"""Extract emotes from a single line."""
-		# RE_EMOTE uses the first group to match the same punctuation mark on both ends,
-		# so the second group is the actual name
-		names = [match.group(2) for match in self.RE_EMOTE.finditer(line)]
-		if not names:
-			return '', set()
-
-		formatted_emotes = []
-		emotes_used = set()
-		for name in names:
-			emote = await self.db.get_emote(name)
-			if emote is None:
-				continue
-			formatted_emotes.append(self.db.format_emote(emote))
-			emotes_used.add(emote['id'])
-
-		return ''.join(formatted_emotes), emotes_used
+		extracted = ''.join(extracted).strip()
+		if extracted:
+			return self.utils.fix_first_line(extracted)
 
 	async def delete_reply(self, message_id):
 		"""Delete our reply to a message containing emotes."""
