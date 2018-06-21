@@ -612,7 +612,7 @@ class Emotes:
 				await message.author.send(
 					f'You have been blacklisted from using emotes with the reason `{blacklist_reason}`. '
 					'To appeal, please join the support server using the support command.')
-			except (discord.HTTPException, discord.Forbidden):
+			except discord.HTTPException:
 				pass
 			return
 
