@@ -32,6 +32,24 @@ from . import errors
 from . import paginator
 
 
+def load_json_compat(data: str):
+	"""evaluate a python dictionary/list/thing, while maintaining compatibility with JSON"""
+	# >HOLD UP! Why the heck are you using eval in production??
+	# Short answer: JSON sucks for a configuration format:
+	# 	It can be hard to read
+	# 	Only one type of quote is allowed
+	# 	No trailing commas are allowed
+	# 	No multi-line strings
+	# 	But most importantly, NO COMMENTS!
+	# >OK but you didn't answer my question
+	# Well I would use another configuration language, but they all suck.
+	# To really answer your question, the config file is 100% trusted data.
+	# NOTHING the user ever sends, ends up in there.
+	# Furthermore, the if the user ever does get a hold of the config.py file,
+	# then they already have the bot token and have totally compromised the bot.
+	globals = dict(true=True, false=False, null=None)
+	return eval(data, globals)
+
 async def async_enumerate(async_iterator, start=0):
 	i = int(start)
 	async for x in async_iterator:

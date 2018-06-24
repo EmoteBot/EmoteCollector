@@ -1,7 +1,6 @@
 #!/usr/bin/env python3.6
 # encoding: utf-8
 
-import json
 import logging
 import re
 import traceback
@@ -9,7 +8,7 @@ import traceback
 import discord
 from discord.ext import commands
 
-from utils import CustomContext
+from utils import CustomContext, load_json_compat
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('bot')
@@ -18,8 +17,8 @@ logger.setLevel(logging.DEBUG)
 
 class EmojiConnoisseur(commands.AutoShardedBot):
 	def __init__(self, *args, **kwargs):
-		with open('data/config.json') as conf:
-			self.config = json.load(conf)
+		with open('data/config.py') as conf:
+			self.config = load_json_compat(conf.read())
 
 		super().__init__(
 			command_prefix=self.get_prefix_,
@@ -61,7 +60,7 @@ class EmojiConnoisseur(commands.AutoShardedBot):
 			app = await self.application_info()
 			self.owner_id = app.owner.id
 
-		return user.id == self.owner_id or str(user.id) in self.config['extra_owners']
+		return user.id == self.owner_id or user.id in self.config['extra_owners']
 
 	# https://github.com/Rapptz/RoboDanny/blob/ca75fae7de132e55270e53d89bc19dd2958c2ae0/bot.py#L77-L85
 	async def on_command_error(self, context, error):
