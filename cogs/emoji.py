@@ -518,13 +518,20 @@ class Emotes:
 		This is like half the functionality of the bot"""
 		if not self.bot.should_reply(message):
 			return
+
+		context = await self.bot.get_context(message)
+		if context.valid:
+			# user invoked a command, rather than the emote auto response
+			# so don't a second time
+			return
+
 		if message.guild and not message.guild.me.permissions_in(message.channel).external_emojis:
 			return
 
-		if isinstance(message.channel, discord.DMChannel):
-			guild = None
-		else:
+		if message.guild:
 			guild = message.guild.id
+		else:
+			guild = None
 
 		if not await self.db.get_state(guild, message.author.id):
 			return
