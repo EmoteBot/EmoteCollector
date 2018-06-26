@@ -18,6 +18,36 @@ from utils import PrettyTable, errors
 logger = logging.getLogger('cogs.db')
 
 
+class DatabaseEmote(dict):
+	def __init__(self, x, **kwargs):
+		if x is not None or kwargs:
+			super().__init__(x, **kwargs)
+
+	def __getattr__(self, name):
+		return self[name]
+
+	def __setattr__(self, name, value):
+		self[name] = value
+
+	def __delattr__(self, name):
+		del self[name]
+
+	def __str__(self):
+		animated = 'a' if self.animated else ''
+		return '<{0}:{1.name}:{1.id}>'.format(animated, self)
+
+	@classmethod
+	async def convert(cls, context, name: str):
+		name = name.strip().strip(':;')
+		cog = context.bot.get_cog('Database')
+		emote = await cog.get_emote(name)
+
+		if not emote:
+			raise errors.EmoteNotFoundError(name)
+		else:
+			return emote
+
+
 class Database:
 	def __init__(self, bot):
 		self.bot = bot
@@ -59,13 +89,6 @@ class Database:
 
 		message = await self.utils_cog.codeblock(str(PrettyTable(results)))
 		return await context.send(f'{message}*{len(results)} rows retrieved in {elapsed:.2f} seconds.*')
-
-	@staticmethod
-	def format_emote(emote: asyncpg.Record):
-		animated = emote['animated']
-		name = emote['name']
-		id = emote['id']
-		return f"<{'a' if animated else ''}:{name}:{id}>"
 
 	@staticmethod
 	def emote_url(emote_id, animated: bool = False):
@@ -129,26 +152,20 @@ class Database:
 			INSERT INTO user_opt (id, blacklist_reason) VALUES ($1, $2)
 			ON CONFLICT (id) DO UPDATE SET blacklist_reason = EXCLUDED.blacklist_reason""", user_id, reason)
 
-	async def get_emote(self, name) -> asyncpg.Record:
+	async def get_emote(self, name) -> DatabaseEmote:
 		"""get an emote object by name"""
 		# we use LOWER(name) = LOWER($1) instead of ILIKE because ILIKE has some wildcarding stuff
 		# that we don't want
 		# probably LOWER(name) = $1, name.lower() would also work, but this looks cleaner
 		# and keeps the lowercasing behavior consistent
-		return await self.db.fetchrow('SELECT * FROM emojis WHERE LOWER(name) = LOWER($1)', name)
+		return DatabaseEmote(
+			await self.db.fetchrow('SELECT * FROM emojis WHERE LOWER(name) = LOWER($1)', name))
 
 	async def get_emote_usage(self, emote: asyncpg.Record) -> int:
 		"""return how many times this emote was used"""
 		return await self.db.fetchval(
 			'SELECT COUNT(*) FROM emote_usage_history WHERE id = $1',
 			emote['id'])
-
-	async def get_formatted_emote(self, name):
-		emote = await self.get_emote(name)
-		if emote is None:
-			raise errors.EmoteNotFoundError(name)
-
-		return self.format_emote(emote)
 
 	async def get_emotes(self, author_id=None):
 		"""return an async iterator that gets emotes from the database.
@@ -186,14 +203,14 @@ class Database:
 	async def ensure_emote_exists(self, name):
 		"""fail with an exception if an emote called `name` does not exist
 		this is to reduce duplicated exception raising code."""
-		if await self.get_emote(name) is None:
+		if not await self.get_emote(name):
 			raise errors.EmoteNotFoundError(name)
 
 	async def ensure_emote_does_not_exist(self, name):
 		"""fail with an exception if an emote called `name` does not exist
 		this is to reduce duplicated exception raising code."""
 		emote = await self.get_emote(name)
-		if emote is not None:
+		if emote:
 			# use the original capitalization of the name
 			raise errors.EmoteExistsError(emote['name'])
 
@@ -216,7 +233,7 @@ class Database:
 	async def is_owner(self, name, user_id):
 		"""return whether the user has permissions to modify this emote"""
 		emote = await self.get_emote(name)
-		if emote is None:  # you can't own an emote that doesn't exist
+		if not emote:  # you can't own an emote that doesn't exist
 			raise errors.EmoteNotFoundError(name)
 		user = discord.Object(user_id)
 		return await self.bot.is_owner(user) or emote['author'] == user.id
@@ -237,7 +254,7 @@ class Database:
 			await self.owner_check(name, user_id)
 
 		db_emote = await self.get_emote(name)
-		if db_emote is None:
+		if not db_emote:
 			raise errors.EmoteNotFoundError
 
 		emote = self.bot.get_emoji(db_emote['id'])

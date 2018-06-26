@@ -15,10 +15,12 @@ import discord
 from discord.ext import commands
 from wand.image import Image
 
+from cogs.db import DatabaseEmote
 import utils
 from utils import async_enumerate
 from utils import checks
 from utils import errors
+from utils import HistoryMessage
 from utils.paginator import ListPaginator
 
 logger = logging.getLogger('cogs.emoji')
@@ -61,17 +63,14 @@ class Emotes:
 
 	@commands.command()
 	@checks.not_blacklisted()
-	async def info(self, context, name):
+	async def info(self, context, emote: DatabaseEmote):
 		"""Gives info on an emote.
 
-		- name: the name of the emote to get info on
+		The emote must be in the database.
 		"""
-		await self.db.ensure_emote_exists(name)
-		emote = await self.db.get_emote(name)
-
 		embed = discord.Embed()
 
-		title = self.db.format_emote(emote)
+		title = str(emote)
 		if emote['preserve']: title += ' (Preserved)'
 		embed.title = title
 
@@ -117,11 +116,8 @@ class Emotes:
 
 	@commands.command()
 	@checks.not_blacklisted()
-	async def big(self, context, name):
+	async def big(self, context, emote: DatabaseEmote):
 		"""Shows the original image for the given emote"""
-		await self.db.ensure_emote_exists(name)
-		emote = await self.db.get_emote(name)
-
 		embed = discord.Embed(title=emote['name'])
 		embed.set_image(url=self.db.emote_url(emote['id'], emote['animated']))
 		await context.send(embed=embed)
@@ -184,7 +180,7 @@ class Emotes:
 		except ValueError:
 			return 'Error: Invalid URL.'
 		else:
-			return f'Emote {self.db.format_emote(emote)} successfully created.'
+			return f'Emote {emote} successfully created.'
 
 	async def add_backend(self, name, url, author_id):
 		"""Actually add an emote to the database."""
@@ -340,40 +336,37 @@ class Emotes:
 
 	@commands.command()
 	@checks.not_blacklisted()
-	async def react(self, context, name, message: int = None, channel: discord.TextChannel = None):
+	async def react(self, context, emote: DatabaseEmote, *, message: HistoryMessage = None):
 		"""Add a reaction to a message. Sad reacts only please.
-		If no message ID and no channel is provided, it'll react to the last sent message.
-		You can get the message ID by enabling developer mode (in Settings→Appearance),
-		then right clicking on the message you want and clicking "Copy ID".
-		"""
-		await self.db.ensure_emote_exists(name)
-		db_emote = await self.db.get_emote(name)
 
-		if channel is None:
-			channel = context.channel
+		To specify the message, either provide a keyword to search for, or a message ID.
+		If you don't specify a message, the last message sent in this channel will be chosen.
+		Otherwise, the first message matching the keyword will be reacted to.
+		"""
+
+		sender_permissions = context.channel.permissions_for(context.author)
+		permissions = context.channel.permissions_for(context.guild.me)
+		if not sender_permissions.read_message_history or not permissions.read_message_history:
+		    return await context.send('Unable to react: no permission to read message history.')
+		if not sender_permissions.add_reactions or not permissions.add_reactions:
+		    return await context.send('Unable to react: no permission to add reactions.')
 
 		if message is None:
 			# get the second to last message (ie ignore the invoking message)
 			message = await self.utils.get_message(context.channel, -2)
-		else:
-			try:
-				message = await channel.get_message(message)
-			except discord.NotFound:
-				return await context.send(
-					'Message not found! Make sure your message and channel IDs are correct.')
-			except discord.Forbidden:
-				return await context.send(
-					'Permission denied! Make sure the bot has permission to read that message.')
 
 		# there's no need to react to a message if that reaction already exists
 		def same_emote(reaction):
-			return getattr(reaction.emoji, 'id', None) == db_emote['id']
+			return getattr(reaction.emoji, 'id', None) == emote['id']
 
 		if discord.utils.find(same_emote, message.reactions):
-			return await context.send('You can already react to that message, silly!', delete_after=5)
+			return await context.send(
+				'You can already react to that message with that emote.',
+				delete_after=5)
 
-		emote_str = self.utils.strip_angle_brackets(self.db.format_emote(db_emote))
+		emote_str = str(emote).strip('<>')
 
+		await message.add_reaction(emote_str)
 		await context.try_add_reaction(
 			emote_str,
 			message,
@@ -383,14 +376,14 @@ class Emotes:
 			return (
 				payload.message_id == message.id
 				and payload.user_id == context.message.author.id
-				and db_emote['id'] == getattr(payload.emoji, 'id', None))  # unicode emoji have no id
+				and emote['id'] == getattr(payload.emoji, 'id', None))  # unicode emoji have no id
 
 		try:
 			await self.bot.wait_for('raw_reaction_add', timeout=30, check=check)
 		except asyncio.TimeoutError:
-			logger.warn("react: user didn't react in time")
+			pass
 		else:
-			await self.db.log_emote_use(db_emote['id'])
+			await self.db.log_emote_use(emote['id'])
 		finally:
 			# if we don't sleep, it would appear that the bot never un-reacted
 			# i.e. the reaction button would still say "2" even after we remove our reaction
@@ -427,7 +420,7 @@ class Emotes:
 			if i == 200:
 				break
 
-			formatted = self.db.format_emote(emote)
+			formatted = str(emote)
 
 			author = self.utils.format_user(emote['author'], mention=True)
 
@@ -578,11 +571,11 @@ class Emotes:
 		extracted = []
 		emotes_used = set()
 		for match in self.RE_EMOTE.finditer(message):
-			name, newline = match.groups()[1:]
+			name, newline = match.groups()[1:]  # the first group matches : or ;
 			if name:
 				db_emote = await self.db.get_emote(name)
-				if db_emote is not None:
-					extracted.append(self.db.format_emote(db_emote))
+				if db_emote:
+					extracted.append(str(db_emote))
 					emotes_used.add(db_emote['id'])
 			if newline:
 				extracted.append(newline)

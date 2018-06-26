@@ -50,11 +50,48 @@ def load_json_compat(data: str):
 	globals = dict(true=True, false=False, null=None)
 	return eval(data, globals)
 
+
 async def async_enumerate(async_iterator, start=0):
 	i = int(start)
 	async for x in async_iterator:
 		yield i, x
 		i += 1
+
+
+class HistoryMessage(commands.Converter):
+	@classmethod
+	async def convert(cls, context, argument):
+		# ID conversion
+		try:
+			offset_or_id = int(argument)
+		except ValueError:
+			pass
+		else:
+			if offset_or_id > 21154535154122752:  # smallest known snowflake
+				return await _cls.get_message(id)
+			elif offset_or_id < 0:  # it's an offset
+				utils_cog = context.bot.get_cog('Utils')
+				# skip the invoking message
+				return await utils_cog.get_message(context.channel, offset_or_id - 1)
+
+		async for message in context.history():
+			if message.id == context.message.id:
+				continue  # skip the invoking message
+			if argument.casefold() in message.content.casefold():
+				return message
+
+		raise commands.BadArgument('Message not found.')
+
+	@staticmethod
+	async def _get_message(id):
+		try:
+			return await context.channel.get_message(id)
+		except discord.NotFound:
+			raise commands.BadArgument(
+				'Message not found! Make sure your message ID is correct.') from None
+		except discord.Forbidden:
+			raise commands.BadArgument(
+				'Permission denied! Make sure the bot has permission to read that message.') from None
 
 
 class PrettyTable(PrettyTable):
