@@ -1,12 +1,10 @@
 aiofiles
 asyncpg
-beautifulsoup4
 ben_cogs
 # v1462 changed raw events to take in a slotted payload class
 git+https://github.com/Rapptz/discord.py@rewrite#egg=discord.py>=1.0.0a1462
 jishaku>0.1.1
 lru-dict
-lxml
 prettytable
 wand
 wrapt
