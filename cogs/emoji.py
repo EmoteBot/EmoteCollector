@@ -147,7 +147,12 @@ class Emotes:
 		elif len(args) == 1:
 			match = self.RE_CUSTOM_EMOTE.match(args[0])
 			if match is None:
-				return await context.send("That's not a custom emote.")
+				return await context.send(
+					'Error: I expected a custom emote as the first argument, '
+					'but I got something else. '
+					"If you're trying to add an emote using an image URL, "
+					'you need to provide a name as the first argument, like this:\n'
+					'`{}add NAME_HERE URL_HERE`'.format(context.prefix))
 			else:
 				name, id = match.groups()
 				url = self.db.emote_url(id)
@@ -160,7 +165,7 @@ class Emotes:
 			else:
 				url = self.db.emote_url(match.group(2))
 
-		else:
+		elif not args:
 			return await context.send('Your message had no emotes and no name!')
 
 		message = await self.add_safe(name, url, context.message.author.id)
