@@ -181,7 +181,7 @@ class Database:
 		async with self.db.acquire() as connection:
 			async with connection.transaction():
 				async for row in connection.cursor(query, *args):
-					yield row
+					yield DatabaseEmote(row)
 
 	async def get_popular_emotes(self):
 		"""return an async iterator that gets emotes from the db sorted by popularity"""
@@ -198,7 +198,7 @@ class Database:
 		async with self.db.acquire() as connection:
 			async with connection.transaction():
 				async for row in connection.cursor(query):
-					yield row
+					yield DatabaseEmote(row)
 
 	async def ensure_emote_exists(self, name):
 		"""fail with an exception if an emote called `name` does not exist
