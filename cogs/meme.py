@@ -10,6 +10,7 @@ from utils import load_json_compat
 class Meme:
 	def __init__(self, bot):
 		self.bot = bot
+		self.utils = self.bot.get_cog('Utils')
 		self.read_memes_task = self.bot.loop.create_task(self.read_memes())
 
 	def __unload(self):
@@ -23,7 +24,7 @@ class Meme:
 	async def meme(self, context, *, name):
 		response = self.memes.get(name)
 		if response is not None:
-			await context.send(response)
+			await context.send(self.utils.fix_first_line(response))
 
 
 def setup(bot):
