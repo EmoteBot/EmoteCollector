@@ -21,6 +21,7 @@ class EmojiConnoisseur(commands.AutoShardedBot):
 			self.config = load_json_compat(conf.read())
 
 		super().__init__(
+			#command_prefix=commands.when_mentioned_or(self.config['prefix']),
 			command_prefix=self.get_prefix_,
 			description=self.config['description'],
 			activity=discord.Game(name=self.config['prefix'] + 'help'),  # "Playing ec/help"
@@ -30,8 +31,11 @@ class EmojiConnoisseur(commands.AutoShardedBot):
 		prefix = self.config['prefix']
 		match = re.search(fr'^{prefix}', message.content, re.IGNORECASE)
 		# if there's no match then we want to pass no prefixes into when_mentioned_or
-		prefix = [] if match is None else match.group(0)
-		return commands.when_mentioned_or(prefix)(bot, message)
+
+		if match is None:
+			return commands.when_mentioned(bot, message)
+		else:
+			return commands.when_mentioned_or(match.group(0))(bot, message)
 
 	async def on_ready(self):
 		separator = '━' * 44
