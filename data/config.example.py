@@ -27,4 +27,5 @@
 		'discord': 'sek.rit.token',  # get this from https://discordapp.com/developers/applications/me
 		'stats': {  # keep these set to None unless your bot is listed on either of these sites
 			'bots.discord.pw': None,
-			'discordbots.org': None}}}
+			'discordbots.org': None,
+			'botsfordiscord.com': None}}}
