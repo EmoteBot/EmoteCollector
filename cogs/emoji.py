@@ -279,10 +279,12 @@ class Emotes:
 
 	@commands.command(aliases=['delete', 'delet', 'del', 'rm'])
 	@utils.typing
-	async def remove(self, context, *args):
+	async def remove(self, context, *names):
 		"""Removes one or more emotes from the bot. You must own all of them."""
+		if not names:
+			return await context.send('Error: you must provide the name of at least one emote to remove')
 		messages = []
-		for name in args:
+		for name in names:
 			try:
 				await self.db.owner_check(name, context.author.id)
 			except errors.ConnoisseurError as ex:
