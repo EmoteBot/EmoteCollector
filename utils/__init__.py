@@ -68,11 +68,13 @@ class HistoryMessage(commands.Converter):
 			pass
 		else:
 			if offset_or_id > 21154535154122752:  # smallest known snowflake
-				return await _cls.get_message(id)
-			elif offset_or_id < 0:  # it's an offset
+				id = offset_or_id
+				return await cls._get_message(context.channel, id)
+			elif offset_or_id < 0:
+				offset = offset_or_id
 				utils_cog = context.bot.get_cog('Utils')
 				# skip the invoking message
-				return await utils_cog.get_message(context.channel, offset_or_id - 1)
+				return await utils_cog.get_message(context.channel, offset - 1)
 
 		async for message in context.history():
 			if message.id == context.message.id:
@@ -83,9 +85,9 @@ class HistoryMessage(commands.Converter):
 		raise commands.BadArgument('Message not found.')
 
 	@staticmethod
-	async def _get_message(id):
+	async def _get_message(channel, id):
 		try:
-			return await context.channel.get_message(id)
+			return await channel.get_message(id)
 		except discord.NotFound:
 			raise commands.BadArgument(
 				'Message not found! Make sure your message ID is correct.') from None
