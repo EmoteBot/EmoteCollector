@@ -33,7 +33,7 @@ from . import paginator
 
 
 def load_json_compat(data: str):
-	"""evaluate a python dictionary/list/thing, while maintaining compatibility with JSON"""
+	"""evaluate a python dictionary/list/thing, while maintaining some compatibility with JSON"""
 	# >HOLD UP! Why the heck are you using eval in production??
 	# Short answer: JSON sucks for a configuration format:
 	# 	It can be hard to read
