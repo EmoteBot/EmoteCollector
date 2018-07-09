@@ -124,7 +124,6 @@ class Emotes:
 
 	@commands.command(aliases=['create'])
 	@checks.not_blacklisted()
-	@utils.typing
 	async def add(self, context, *args):
 		"""Add a new emote to the bot.
 
@@ -157,7 +156,7 @@ class Emotes:
 				name, id = match.groups()
 				url = self.db.emote_url(id)
 
-		elif len(args) == 2:
+		elif len(args) >= 2:
 			name = args[0]
 			match = self.RE_CUSTOM_EMOTE.match(args[1])
 			if match is None:
@@ -168,7 +167,8 @@ class Emotes:
 		elif not args:
 			return await context.send('Your message had no emotes and no name!')
 
-		message = await self.add_safe(name, url, context.message.author.id)
+		async with context.typing():
+			message = await self.add_safe(name, url, context.message.author.id)
 		await context.send(message)
 
 	async def add_safe(self, name, url, author_id):
