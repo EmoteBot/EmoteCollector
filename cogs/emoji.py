@@ -541,10 +541,6 @@ class Emotes:
 		if not await self.db.get_state(guild, message.author.id):
 			return
 
-		reply = await self.extract_emotes(message.content)
-		if reply is None:  # don't send empty whitespace
-			return
-
 		blacklist_reason = await self.db.get_user_blacklist(message.author.id)
 		if blacklist_reason is not None:
 			try:
@@ -553,6 +549,10 @@ class Emotes:
 					'To appeal, please join the support server using the support command.')
 			except discord.HTTPException:
 				pass
+			return
+
+		reply = await self.extract_emotes(message.content)
+		if reply is None:  # don't send empty whitespace
 			return
 
 		self.replies[message.id] = await message.channel.send(reply)
