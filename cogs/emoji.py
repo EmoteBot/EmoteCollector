@@ -278,7 +278,6 @@ class Emotes:
 		return new_width, old_height * new_width//old_width
 
 	@commands.command(aliases=['delete', 'delet', 'del', 'rm'])
-	@utils.typing
 	async def remove(self, context, *names):
 		"""Removes one or more emotes from the bot. You must own all of them."""
 		if not names:
