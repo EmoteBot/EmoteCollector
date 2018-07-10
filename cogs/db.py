@@ -184,7 +184,7 @@ class Database:
 		"""
 		return self._database_emote_cursor(query)
 
-	async def decayable_emotes(self, cutoff: datetime, usage_threshold):
+	def decayable_emotes(self, cutoff: datetime, usage_threshold):
 		"""remove emotes that should be removed due to inactivity.
 
 		returns an async iterator over all emotes that:
@@ -240,22 +240,6 @@ class Database:
 			# use the original capitalization of the name
 			raise errors.EmoteExistsError(emote['name'])
 
-	async def create_emote(self, name, author_id, animated, image_data: bytes):
-		blacklist_reason = await self.get_user_blacklist(author_id)
-		if blacklist_reason:
-			raise errors.UserBlacklisted(blacklist_reason)
-		await self.ensure_emote_does_not_exist(name)
-
-		# checks passed
-		guild = self.free_guild(animated)
-
-		emote = await guild.create_custom_emoji(name=name, image=image_data)
-		await self.db.execute(
-			'INSERT INTO emojis(name, id, author, animated) VALUES ($1, $2, $3, $4)',
-			name, emote.id, author_id, animated)
-
-		return await self.get_emote(name)
-
 	async def is_owner(self, name, user_id):
 		"""return whether the user has permissions to modify this emote"""
 		emote = await self.get_emote(name)
@@ -272,10 +256,21 @@ class Database:
 
 	## Actions
 
-	async def decay(self):
-		async for emote in self.decayable_emotes():
-			logger.info('decaying %s', emote['name'])
-			await self.remove_emote(emote['name'], user_id=None)
+	async def create_emote(self, name, author_id, animated, image_data: bytes):
+		blacklist_reason = await self.get_user_blacklist(author_id)
+		if blacklist_reason:
+			raise errors.UserBlacklisted(blacklist_reason)
+		await self.ensure_emote_does_not_exist(name)
+
+		# checks passed
+		guild = self.free_guild(animated)
+
+		emote = await guild.create_custom_emoji(name=name, image=image_data)
+		await self.db.execute(
+			'INSERT INTO emojis(name, id, author, animated) VALUES ($1, $2, $3, $4)',
+			name, emote.id, author_id, animated)
+
+		return await self.get_emote(name)
 
 	async def remove_emote(self, name, user_id):
 		"""Remove an emote given by name.
@@ -350,6 +345,11 @@ class Database:
 		await self.db.execute(
 			'INSERT INTO emote_usage_history (id) VALUES ($1)',
 			emote_id)
+
+	async def decay(self, cutoff, usage_threshold):
+		async for emote in self.decayable_emotes(cutoff, usage_threshold):
+			logger.info('decaying %s', emote['name'])
+			await self.remove_emote(emote['name'], user_id=None)
 
 	## User / Guild Options
 
