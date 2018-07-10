@@ -71,12 +71,13 @@ class Database:
 		while True:
 			if not self.bot.config.get('decay', False):
 				return
+
 			await self.bot.wait_until_ready()
 
 			cutoff = datetime.datetime.utcnow() - datetime.timedelta(weeks=4)
-			await self.decay(cutoff, 1)
+			await self.decay(cutoff, 10)
 
-			await asyncio.sleep(600)
+			await asyncio.sleep(60*10)
 
 	@commands.command(name='sql', hidden=True)
 	@commands.is_owner()
@@ -130,6 +131,8 @@ class Database:
 		# hopefully this lets us bypass the rate limit more often, since emote rates are per-guild
 		return random.choice(free_guilds)
 
+	## Informational
+
 	async def count(self) -> asyncpg.Record:
 		"""Return (not animated count, animated count, total)"""
 		return await self.db.fetchrow("""
@@ -138,19 +141,6 @@ class Database:
 				COUNT(*) FILTER (WHERE animated) AS animated,
 				COUNT(*) AS total
 			FROM emojis;""")
-
-	async def get_user_blacklist(self, user_id):
-		"""return a reason for the user's blacklist, or None if not blacklisted"""
-		return await self.db.fetchval('SELECT blacklist_reason from user_opt WHERE id = $1', user_id)
-
-	async def set_user_blacklist(self, user_id, reason=None):
-		"""make user_id blacklisted
-		setting reason to None removes the user's blacklist"""
-		# insert regardless of whether it exists
-		# and if it does exist, update
-		await self.db.execute("""
-			INSERT INTO user_opt (id, blacklist_reason) VALUES ($1, $2)
-			ON CONFLICT (id) DO UPDATE SET blacklist_reason = EXCLUDED.blacklist_reason""", user_id, reason)
 
 	async def get_emote(self, name) -> DatabaseEmote:
 		"""get an emote object by name"""
@@ -167,7 +157,9 @@ class Database:
 			'SELECT COUNT(*) FROM emote_usage_history WHERE id = $1',
 			emote['id'])
 
-	async def get_emotes(self, author_id=None):
+	## Iterators
+
+	def all_emotes(self, author_id=None):
 		"""return an async iterator that gets emotes from the database.
 		If author id is provided, get only emotes from them."""
 		query = 'SELECT * FROM emojis '
@@ -177,13 +169,9 @@ class Database:
 			args.append(author_id)
 		query += 'ORDER BY LOWER(name)'
 
-		# gee whiz, just look at all these indents!
-		async with self.db.acquire() as connection:
-			async with connection.transaction():
-				async for row in connection.cursor(query, *args):
-					yield DatabaseEmote(row)
+		return self._database_emote_cursor(query)
 
-	async def get_popular_emotes(self):
+	def popular_emotes(self):
 		"""return an async iterator that gets emotes from the db sorted by popularity"""
 		query = """
 			SELECT *, (
@@ -194,11 +182,49 @@ class Database:
 			FROM emojis
 			ORDER BY usage DESC, LOWER("name")
 		"""
+		return self._database_emote_cursor(query)
+
+	async def decayable_emotes(self, cutoff: datetime, usage_threshold):
+		"""remove emotes that should be removed due to inactivity.
+
+		returns an async iterator over all emotes that:
+			- were created before `cutoff`, and
+			- have been used < `usage_threshold` between now and cutoff, and
+			- are not preserved
+		"""
+
+		return self._database_emote_cursor("""
+			SELECT *
+			FROM emojis
+			WHERE (
+				SELECT COUNT(*)
+				FROM emote_usage_history
+				WHERE
+					id = emojis.id
+					AND time > $1
+			) < $2
+				AND NOT preserve
+				AND created < $1;
+		""", cutoff, usage_threshold)
+
+	async def _database_emote_cursor(self, query, *args):
+		"""like _cursor, but wraps results in DatabaseEmote objects"""
+
+		async for row in self._cursor(query, *args):
+			yield DatabaseEmote(row)
+
+	async def _cursor(self, query, *args):
+		"""return an Async Generator over all records selected by the query and its args"""
 
 		async with self.db.acquire() as connection:
 			async with connection.transaction():
-				async for row in connection.cursor(query):
-					yield DatabaseEmote(row)
+				async for row in connection.cursor(query, *args):
+					# we can't just return connection.cursor(...)
+					# because the connection would be closed by the time we returned
+					# so we have to become a generator to keep the conn open
+					yield row
+
+	## Checks
 
 	async def ensure_emote_exists(self, name):
 		"""fail with an exception if an emote called `name` does not exist
@@ -243,6 +269,13 @@ class Database:
 		this is to reduce duplicated exception raising code."""
 		if not await self.is_owner(name, user_id):
 			raise errors.PermissionDeniedError(name)
+
+	## Actions
+
+	async def decay(self):
+		async for emote in self.decayable_emotes():
+			logger.info('decaying %s', emote['name'])
+			await self.remove_emote(emote['name'], user_id=None)
 
 	async def remove_emote(self, name, user_id):
 		"""Remove an emote given by name.
@@ -318,33 +351,7 @@ class Database:
 			'INSERT INTO emote_usage_history (id) VALUES ($1)',
 			emote_id)
 
-	async def decay(self, cutoff: datetime, usage_threshold):
-		"""remove emotes that should be removed due to inactivity.
-
-		all emotes that:
-			- were created before `cutoff`, and
-			- have been used < `usage_threshold` between now and cutoff, and
-			- are not preserved
-		will be removed.
-		"""
-
-		emotes = await self.db.fetch("""
-			SELECT *
-			FROM emojis
-			WHERE (
-				SELECT COUNT(*)
-				FROM emote_usage_history
-				WHERE
-					id = emojis.id
-					AND time > $1
-			) < $2
-				AND NOT preserve
-				AND created < $1;
-		""", cutoff, usage_threshold)
-
-		for emote in emotes:
-			logger.info('decaying %s', emote['name'])
-			await self.remove_emote(emote['name'], user_id=None)
+	## User / Guild Options
 
 	async def _toggle_state(self, table_name, id, default):
 		"""toggle the state for a user or guild. If there's no entry already, new state = default."""
@@ -402,6 +409,23 @@ class Database:
 			state = user_state  # user state overrides guild state
 
 		return state
+
+	## Blacklists
+
+	async def get_user_blacklist(self, user_id):
+		"""return a reason for the user's blacklist, or None if not blacklisted"""
+		return await self.db.fetchval('SELECT blacklist_reason from user_opt WHERE id = $1', user_id)
+
+	async def set_user_blacklist(self, user_id, reason=None):
+		"""make user_id blacklisted
+		setting reason to None removes the user's blacklist"""
+		# insert regardless of whether it exists
+		# and if it does exist, update
+		await self.db.execute("""
+			INSERT INTO user_opt (id, blacklist_reason) VALUES ($1, $2)
+			ON CONFLICT (id) DO UPDATE SET blacklist_reason = EXCLUDED.blacklist_reason""", user_id, reason)
+
+	##
 
 	async def _get_db(self):
 		credentials = self.bot.config['database']
