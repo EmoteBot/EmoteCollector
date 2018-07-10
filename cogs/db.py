@@ -269,7 +269,7 @@ class Database:
 		"""rename an emote from old_name to new_name. user_id must be authorized."""
 		await self.owner_check(old_name, user_id)
 		# don't fail if new_name is a different capitalization of old_name
-		if old_name.lower() != new_name.lower() and await self.get_emote(new_name) is not None:
+		if old_name.lower() != new_name.lower() and await self.get_emote(new_name):
 			raise errors.EmoteExistsError(new_name)
 		db_emote = await self.get_emote(old_name)
 		emote = self.bot.get_emoji(db_emote['id'])
