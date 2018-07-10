@@ -96,7 +96,8 @@ class EmojiConnoisseur(commands.AutoShardedBot):
 				'jishaku',
 				'cogs.stats',
 				'ben_cogs.misc',
-				'cogs.meme'):
+				'cogs.meme',
+				'ben_cogs.debug'):
 			try:
 				self.load_extension(extension)
 			except:  # pylint: disable=bare-except
