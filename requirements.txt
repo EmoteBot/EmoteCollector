@@ -1,6 +1,6 @@
 aiofiles
 asyncpg
-ben_cogs
+ben_cogs>=0.0.11
 # v1462 changed raw events to take in a slotted payload class
 git+https://github.com/Rapptz/discord.py@rewrite#egg=discord.py>=1.0.0a1462
 jishaku>0.1.1
