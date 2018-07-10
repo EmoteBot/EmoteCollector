@@ -418,22 +418,21 @@ class Emotes:
 
 		# code generously provided by @Liara#0001 under the MIT License:
 		# https://gitlab.com/Pandentia/element-zero/blob/ca7d7f97e068e89334e66692922d9a8744e3e9be/element_zero/cogs/emoji.py#L364-399
-		await context.trigger_typing()
-
 		processed = []
 
-		async for i, emote in async_enumerate(self.db.get_popular_emotes()):
-			if i == 200:
-				break
+		async with context.typing():
+			async for i, emote in async_enumerate(self.db.popular_emotes()):
+				if i == 200:
+					break
 
-			formatted = str(emote)
+				formatted = str(emote)
 
-			author = self.utils.format_user(emote['author'], mention=True)
+				author = self.utils.format_user(emote['author'], mention=True)
 
-			c = emote['usage']
-			multiple = '' if c == 1 else 's'
+				c = emote['usage']
+				multiple = '' if c == 1 else 's'
 
-			processed.append(f'{formatted}, used **{c}** time{multiple}, owned by **{author}**')
+				processed.append(f'{formatted}, used **{c}** time{multiple}, owned by **{author}**')
 
 		paginator = ListPaginator(context, processed)
 		await paginator.begin()
