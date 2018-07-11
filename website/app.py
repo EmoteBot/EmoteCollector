@@ -24,6 +24,6 @@ def stream_template(template_name, **context):
 
 def emote_url(emote_id, animated: bool = False):
 	"""Convert an emote ID to the image URL for that emote."""
-	return f'https://cdn.discordapp.com/emojis/{emote_id}{".gif" if animated else ".png"}?v=1&size=64'
+	return f'https://cdn.discordapp.com/emojis/{emote_id}{".gif" if animated else ".png"}?v=1'
 
 app.jinja_env.globals['emote_url'] = emote_url

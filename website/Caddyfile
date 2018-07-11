@@ -1,5 +1,14 @@
-localhost:80 ec.localhost:80
+(conf) {
+	root static/
+	proxy /list localhost:8080
+	proxy /api  localhost:8081
+}
 
-root static/
-proxy /list localhost:8080
-proxy /api  localhost:8081
+localhost:2018 ec.localhost:2018 127.0.01:2018 [::1]:2018 {
+	import conf
+}
+
+*.ngrok.io:443 *.ngrok.io:80 {
+	import conf
+	tls off
+}

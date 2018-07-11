@@ -11,28 +11,58 @@
 </head>
 <body lang=en>
 <h1>{{ title }}</h1>
+
 <table>
 <thead><tr>
-<th>Emote</th>
-<th>Name</th>
-{# we don't show the author column if it's gonna be the same every time #}
-{% if author is none %}
-<th>Author ID</th>
-{% endif %}
-<th>Preserved</th>
+	<th>Emote</th>
+	<th>Name</th>
+
+	{# we don't show the author column if it's gonna be the same every time #}
+	{% if author is none %}
+		<th>Author ID</th>
+	{% endif %}
+
+	<th>Preserved?</th>
 </tr></thead>
 
 {% for emote in emotes %}
-<tr>
-<td class="center"><img src="{{ emote_url(emote.id, emote.animated) }}" class="emote"></td>
-<td><span class="data">{{ emote.name }}</span></td>
-{% if author is none %}
-<td><span class="data">{{ emote.author }}</span></td>
-{% endif %}
-<td>{{ 'yes' if emote.preserve else '' }}</td>
-</tr>
+	<tr>
+		<td class="center">
+			{% set url = emote_url(emote.id, emote.animated) %}
+			<a href="{{ url }}">
+				{% if emote.animated %}
+					{% set alt = 'an animated emote' %}
+				{% else %}
+					{% set alt = 'an emote' %}
+				{% endif %}
+				<img src="{{ url }}" class="emote" alt="{{ alt }}" title=":{{ emote.name }}:">
+			</a>
+		</td>
+
+		<td lang=""><span class="data">{{ emote.name }}</span></td>
+
+		{% if author is none %}
+			<td><span class="data">{{ emote.author }}</span></td>
+		{% endif %}
+
+		<td>
+		{% if emote.preserve %}
+			<img
+			src=/img/jar.png
+			alt="A jar of preserves"
+			title="This emote has been preserved and will not be removed if it goes unused.">
+		{% endif %}
+		</td>
+
+	</tr>
 {% endfor %}
 
 </table>
+
+<footer>
+	<a href="https://icons8.com/icon/69253/empty-jam-jar">Empty Jam Jar icon</a>
+	was provided by Icons8 and used under the terms of the
+	<a rel=license href="https://creativecommons.org/licenses/by-nd/3.0/">Creative Commons Attribution-NoDerivs 3.0 License</a>.
+</footer>
 </body>
 </html>
