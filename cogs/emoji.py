@@ -454,6 +454,10 @@ class Emotes:
 			animated, name, id = match.groups()
 			image_url = self.db.emote_url(id)
 			messages.append(await self.add_safe(name, image_url, context.author.id))
+
+		if not messages:
+			return await context.send('Error: no existing custom emotes were provided.')
+
 		message = '\n'.join(messages)
 		await context.send(self.utils.fix_first_line(message))
 
