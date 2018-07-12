@@ -10,8 +10,17 @@
 <link rel=stylesheet href=/css/list.css>
 </head>
 <body lang=en>
-<h1>{{ title }}</h1>
-
+<header>
+	<h1>{{ title }}</h1>
+	{% if not request.headers.get('X-Forwarded-From').endswith('onion') %}
+		<p>
+			Now available as a
+			<a href="http://emotesqil3yd4zb3.onion/list">v2</a>
+			<a href="http://emotesdikhisgxdcmh7wtlvzfw2yxp4vmkyy6mu5wixzgqfmxvuotryd.onion/list">v3</a>
+			Tor .onion service!
+		</p>
+	{% endif %}
+</header>
 <table>
 <thead><tr>
 	<th>Emote</th>
