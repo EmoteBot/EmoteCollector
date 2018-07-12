@@ -21,6 +21,11 @@
 		</p>
 	{% endif %}
 </header>
+
+{# load the "preservation" icon before the actual emote icons #}
+{# sometimes it just takes a while to load, even longer than the first emote #}
+<link rel=prefetch href=/img/jar.png>
+
 <table>
 <thead><tr>
 	<th>Emote</th>
