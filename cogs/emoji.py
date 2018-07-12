@@ -33,7 +33,7 @@ class Emotes:
 	RE_EMOTE = re.compile(r'(:|;)(?P<name>\w{2,32})\1|(?P<newline>\n)', re.ASCII)
 
 	"""Matches only custom server emoji."""
-	RE_CUSTOM_EMOTE = re.compile(r'<a?:(\w{2,32}):(\d{15,21})>', re.ASCII)
+	RE_CUSTOM_EMOTE = re.compile(r'<(?P<animated>a?):(?P<name>\w{2,32}):(?P<id>\d{17,})>', re.ASCII)
 
 	"""Matches code blocks, which should be ignored."""
 	RE_CODE = re.compile(r'(`{1,3}).+?\1', re.DOTALL)
@@ -119,7 +119,7 @@ class Emotes:
 	async def big(self, context, emote: DatabaseEmote):
 		"""Shows the original image for the given emote"""
 		embed = discord.Embed(title=emote['name'])
-		embed.set_image(url=self.db.emote_url(emote['id'], emote['animated']))
+		embed.set_image(url=emote.url)
 		await context.send(embed=embed)
 
 	@commands.command(aliases=['create'])
@@ -153,8 +153,8 @@ class Emotes:
 					'you need to provide a name as the first argument, like this:\n'
 					'`{}add NAME_HERE URL_HERE`'.format(context.prefix))
 			else:
-				name, id = match.groups()
-				url = self.db.emote_url(id)
+				animated, name, id = match.groups()
+				url = self.db.emote_url(id, animated=animated)
 
 		elif len(args) >= 2:
 			name = args[0]
@@ -162,7 +162,7 @@ class Emotes:
 			if match is None:
 				url = self.utils.strip_angle_brackets(args[1])
 			else:
-				url = self.db.emote_url(match.group(2))
+				url = self.db.emote_url(match.group('id'))
 
 		elif not args:
 			return await context.send('Your message had no emotes and no name!')
@@ -370,13 +370,16 @@ class Emotes:
 				'You can already react to that message with that emote.',
 				delete_after=5)
 
-		emote_str = str(emote).strip('<>')
+		try:
+			await message.add_reaction(emote.as_reaction())
+		except discord.Forbidden:
+			return await context.send('Unable to react: permission denied.')
+		except discord.HTTPException:
+			return await context.send('Unable to react. Discord must be acting up.')
 
-		await message.add_reaction(emote_str)
-		await context.try_add_reaction(
-			emote_str,
-			message,
-			'Permission denied! Make sure the bot has permission to react to that message.')
+		instruction_message = await context.send(
+			"OK! I've reacted to that message. "
+			"Please add your reaction now.")
 
 		def check(payload):
 			return (
@@ -397,12 +400,13 @@ class Emotes:
 			# unfortunately, if you look at the list of reactions, it still says the bot reacted.
 			# no amount of sleeping can fix that, in my tests.
 			await asyncio.sleep(0.2)
-			await message.remove_reaction(emote_str, context.guild.me)
-			try:
-				await context.message.delete()
-			except discord.errors.HTTPException:
-				# we're not allowed to delete the invoking message, or the user already has
-				pass
+			await message.remove_reaction(emote.as_reaction(), context.guild.me)
+
+			for message in context.message, instruction_message:
+				try:
+					await message.delete()
+				except discord.HTTPException:
+					pass
 
 	@commands.command()
 	async def list(self, context, *, user: discord.User = None):
@@ -447,7 +451,7 @@ class Emotes:
 
 		messages = []
 		for match in self.RE_CUSTOM_EMOTE.finditer(''.join(emotes)):
-			name, id = match.groups()
+			animated, name, id = match.groups()
 			image_url = self.db.emote_url(id)
 			messages.append(await self.add_safe(name, image_url, context.author.id))
 		message = '\n'.join(messages)

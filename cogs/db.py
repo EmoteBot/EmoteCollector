@@ -32,9 +32,20 @@ class DatabaseEmote(dict):
 	def __delattr__(self, name):
 		del self[name]
 
+	def __hash__(self):
+		return self.id >> 22
+
 	def __str__(self):
 		animated = 'a' if self.animated else ''
 		return '<{0}:{1.name}:{1.id}>'.format(animated, self)
+
+	def as_reaction(self):
+		return f':{self.name}:{self.id}'
+
+	@property
+	def url(self):
+		extension = 'gif' if self.animated else 'png'
+		return f'https://cdn.discordapp.com/emojis/{self.id}.{extension}?v=1'
 
 	@classmethod
 	async def convert(cls, context, name: str):
@@ -85,14 +96,17 @@ class Database:
 		"""Gets the rows of a SQL query. Prepared statements are not supported."""
 		start = time.monotonic()
 		# XXX properly strip codeblocks
-		results = await self.db.fetch(query.replace('`', ''))
+		try:
+			results = await self.db.fetch(query.replace('`', ''))
+		except asyncpg.PostgresError as exception:
+			return await context.send(exception)
 		elapsed = time.monotonic() - start
 
 		message = await self.utils_cog.codeblock(str(PrettyTable(results)))
 		return await context.send(f'{message}*{len(results)} rows retrieved in {elapsed:.2f} seconds.*')
 
 	@staticmethod
-	def emote_url(emote_id, animated: bool = False):
+	def emote_url(emote_id, *, animated: bool = False):
 		"""Convert an emote ID to the image URL for that emote."""
 		return f'https://cdn.discordapp.com/emojis/{emote_id}{".gif" if animated else ".png"}?v=1'
 
