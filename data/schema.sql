@@ -45,3 +45,5 @@ CREATE TABLE IF NOT EXISTS guild_opt(
 CREATE TABLE IF NOT EXISTS emote_usage_history(
 	id BIGINT REFERENCES emojis (id),
 	time TIMESTAMP WITH TIME ZONE DEFAULT (now() at time zone 'UTC'));
+
+CREATE INDEX IF NOT EXISTS emote_usage_history_id_idx ON emote_usage_history (id);
