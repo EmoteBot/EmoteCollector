@@ -51,13 +51,7 @@ class DatabaseEmote(dict):
 	async def convert(cls, context, name: str):
 		name = name.strip().strip(':;')
 		cog = context.bot.get_cog('Database')
-		emote = await cog.get_emote(name)
-
-		if not emote:
-			raise errors.EmoteNotFoundError(name)
-		else:
-			return emote
-
+		return await cog.get_emote(name)
 
 class Database:
 	def __init__(self, bot):
@@ -68,6 +62,7 @@ class Database:
 		self.tasks.append(self.bot.loop.create_task(self.find_backend_guilds()))
 		self.tasks.append(self.bot.loop.create_task(self.decay_loop()))
 		self.utils_cog = self.bot.get_cog('Utils')
+		self.logger = self.bot.get_cog('Logger')
 
 	def __unload(self):
 		for task in self.tasks:
@@ -162,8 +157,11 @@ class Database:
 		# that we don't want
 		# probably LOWER(name) = $1, name.lower() would also work, but this looks cleaner
 		# and keeps the lowercasing behavior consistent
-		return DatabaseEmote(
-			await self.db.fetchrow('SELECT * FROM emojis WHERE LOWER(name) = LOWER($1)', name))
+		result = await self.db.fetchrow('SELECT * FROM emojis WHERE LOWER(name) = LOWER($1)', name)
+		if result:
+			return DatabaseEmote(result)
+		else:
+			raise errors.EmoteNotFoundError(name)
 
 	async def get_emote_usage(self, emote: asyncpg.Record) -> int:
 		"""return how many times this emote was used"""
@@ -240,40 +238,34 @@ class Database:
 
 	## Checks
 
-	async def ensure_emote_exists(self, name):
-		"""fail with an exception if an emote called `name` does not exist
-		this is to reduce duplicated exception raising code."""
-		if not await self.get_emote(name):
-			raise errors.EmoteNotFoundError(name)
-
 	async def ensure_emote_does_not_exist(self, name):
 		"""fail with an exception if an emote called `name` does not exist
 		this is to reduce duplicated exception raising code."""
-		emote = await self.get_emote(name)
-		if emote:
-			# use the original capitalization of the name
-			raise errors.EmoteExistsError(emote['name'])
 
-	async def is_owner(self, name, user_id):
+		try:
+			emote = await self.get_emote(name)
+		except errors.EmoteNotFoundError:
+			pass
+		else:
+			# use the original capitalization of the name
+			raise errors.EmoteExistsError(emote.name)
+
+	async def is_owner(self, emote, user_id):
 		"""return whether the user has permissions to modify this emote"""
-		emote = await self.get_emote(name)
 		if not emote:  # you can't own an emote that doesn't exist
 			raise errors.EmoteNotFoundError(name)
 		user = discord.Object(user_id)
-		return await self.bot.is_owner(user) or emote['author'] == user.id
+		return await self.bot.is_owner(user) or emote.author == user.id
 
-	async def owner_check(self, name, user_id):
+	async def owner_check(self, emote, user_id):
 		"""like is_owner but fails with an exception if the user is not authorized.
 		this is to reduce duplicated exception raising code."""
-		if not await self.is_owner(name, user_id):
+		if not await self.is_owner(emote, user_id):
 			raise errors.PermissionDeniedError(name)
 
 	## Actions
 
 	async def create_emote(self, name, author_id, animated, image_data: bytes):
-		blacklist_reason = await self.get_user_blacklist(author_id)
-		if blacklist_reason:
-			raise errors.UserBlacklisted(blacklist_reason)
 		await self.ensure_emote_does_not_exist(name)
 
 		# checks passed
@@ -286,37 +278,41 @@ class Database:
 
 		return await self.get_emote(name)
 
-	async def remove_emote(self, name, user_id):
+	async def remove_emote(self, emote, user_id):
 		"""Remove an emote given by name.
 		- user_id: the user trying to remove this emote,
 		  or None if their ownership should not
 		  be verified
+
+		returns the emote that was deleted
 		"""
+		db_emote = emote
 		if user_id is not None:
-			await self.owner_check(name, user_id)
+			await self.owner_check(db_emote, user_id)
 
-		db_emote = await self.get_emote(name)
-		if not db_emote:
-			raise errors.EmoteNotFoundError
-
-		emote = self.bot.get_emoji(db_emote['id'])
-		if emote is None:
+		discord_emote = self.bot.get_emoji(emote.id)
+		if discord_emote is None:
 			raise errors.DiscordError
 
-		await emote.delete()
-		await self.db.execute('DELETE FROM emote_usage_history WHERE id = $1', db_emote['id'])
-		await self.db.execute('DELETE FROM emojis WHERE id = $1', db_emote['id'])
+		await discord_emote.delete()
+		await self.db.execute('DELETE FROM emote_usage_history WHERE id = $1', db_emote.id)
+		await self.db.execute('DELETE FROM emojis WHERE id = $1', db_emote.id)
+		return db_emote
 
 	async def rename_emote(self, old_name, new_name, user_id):
 		"""rename an emote from old_name to new_name. user_id must be authorized."""
-		await self.owner_check(old_name, user_id)
+
 		# don't fail if new_name is a different capitalization of old_name
-		if old_name.lower() != new_name.lower() and await self.get_emote(new_name):
-			raise errors.EmoteExistsError(new_name)
+		if old_name.lower() != new_name.lower():
+			await self.ensure_emote_does_not_exist(new_name)
+
 		db_emote = await self.get_emote(old_name)
-		emote = self.bot.get_emoji(db_emote['id'])
-		await emote.edit(name=new_name)
-		await self.db.execute('UPDATE emojis SET name = $2 where id = $1', emote.id, new_name)
+		await self.owner_check(db_emote, user_id)
+
+		discord_emote = self.bot.get_emoji(db_emote.id)
+
+		await discord_emote.edit(name=new_name)
+		await self.db.execute('UPDATE emojis SET name = $2 where id = $1', discord_emote.id, new_name)
 
 	async def set_emote_description(self, name, user_id, description=None):
 		"""Set an emote's description.
@@ -328,22 +324,24 @@ class Database:
 		- Write about why you like the emote
 		- Describe how it's used
 		"""
-		await self.owner_check(name, user_id)
+		emote = await self.get_emote(name)
+		await self.owner_check(emote, user_id)
+
 		try:
 			await self.db.execute(
-				'UPDATE emojis SET DESCRIPTION = $2 WHERE LOWER(name) = LOWER($1)',
-				name,
+				'UPDATE emojis SET DESCRIPTION = $2 WHERE id = $1',
+				emote.id,
 				description)
 		# wowee that's a verbose exception name
 		# like why not just call it "StringTooLongError"?
 		except asyncpg.StringDataRightTruncationError as exception:
-			raise errors.EmoteDescriptionTooLong from exception
+			raise errors.EmoteDescriptionTooLong
 
 	async def set_emote_preservation(self, name, should_preserve: bool):
 		"""change the preservation status of an emote.
 		if an emote is preserved, it should not be decayed due to lack of use
 		"""
-		await self.ensure_emote_exists(name)
+		await self.get_emote(name)  # ensure it exists
 		await self.db.execute(
 			'UPDATE emojis SET preserve = $1 WHERE LOWER(name) = LOWER($2)',
 			should_preserve, name)
@@ -360,10 +358,14 @@ class Database:
 			'INSERT INTO emote_usage_history (id) VALUES ($1)',
 			emote_id)
 
-	async def decay(self, cutoff, usage_threshold):
+	async def decay(self, cutoff=None, usage_threshold=2):
+		if cutoff is None:
+			cutoff = datetime.datetime.utcnow() - datetime.timedelta(weeks=4)
+
 		async for emote in self.decayable_emotes(cutoff, usage_threshold):
 			logger.info('decaying %s', emote['name'])
-			await self.remove_emote(emote['name'], user_id=None)
+			await self.logger.on_emote_decay(emote)
+			await self.remove_emote(emote, user_id=None)
 
 	## User / Guild Options
 

@@ -42,6 +42,7 @@ class Emotes:
 		self.bot = bot
 		self.utils = self.bot.get_cog('Utils')
 		self.db = self.bot.get_cog('Database')
+		self.logger = self.bot.get_cog('Logger')
 		self.http = aiohttp.ClientSession(loop=self.bot.loop, read_timeout=30, headers={
 			'User-Agent':
 				'EmojiConnoisseurBot (https://github.com/bmintz/emoji-connoisseur) '
@@ -210,6 +211,7 @@ class Emotes:
 		image_data = await self.bot.loop.run_in_executor(None, self.resize_until_small, image_data)
 		animated = self.is_animated(image_data.getvalue())
 		emote = await self.db.create_emote(name, author_id, animated, image_data.read())
+		self.bot.dispatch('emote_add', emote)
 
 		return emote
 
@@ -285,19 +287,22 @@ class Emotes:
 		messages = []
 		for name in names:
 			try:
-				await self.db.owner_check(name, context.author.id)
-			except errors.ConnoisseurError as ex:
+				emote = await self.db.get_emote(name)
+			except errors.EmoteNotFoundError as ex:
 				messages.append(str(ex))
 				continue
-			db_emote = await self.db.get_emote(name)
-			logger.debug('Trying to delete %s %s', db_emote['name'], db_emote['id'])
 
+			# log the emote removal *first* because if we were to do it afterwards,
+			# the emote would not display (since it's already removed)
+			removal_message = await self.logger.on_emote_remove(emote)
 			try:
-				await self.db.remove_emote(name, context.author.id)
+				await self.db.remove_emote(emote, context.author.id)
 			except (errors.ConnoisseurError, errors.DiscordError) as ex:
 				messages.append(str(ex))
-
-			messages.append(f'`:{db_emote["name"]}:` was successfully deleted.')
+				# undo the log
+				await removal_message.delete()
+			else:
+				messages.append(f'`{emote} :{emote.name}:` was successfully deleted.')
 
 		message = '\n'.join(messages)
 		await context.send(self.utils.fix_first_line(message))
@@ -515,9 +520,11 @@ class Emotes:
 		names = set(names)
 		for name in names:
 			try:
-				await self.db.set_emote_preservation(name, should_preserve)
+				emote = await self.db.set_emote_preservation(name, should_preserve)
 			except errors.EmoteNotFoundError as ex:
 				await context.send(ex)
+			else:
+				self.bot.dispatch('emote_preserve', emote)
 		await context.send(self.utils.SUCCESS_EMOTES[True])
 
 	## EVENTS
@@ -593,10 +600,13 @@ class Emotes:
 		for match in self.RE_EMOTE.finditer(message):
 			name, newline = match.groups()[1:]  # the first group matches : or ;
 			if name:
-				db_emote = await self.db.get_emote(name)
-				if db_emote:
+				try:
+					db_emote = await self.db.get_emote(name)
+				except errors.EmoteNotFoundError:
+					continue
+				else:
 					extracted.append(str(db_emote))
-					emotes_used.add(db_emote['id'])
+					emotes_used.add(db_emote.id)
 			if newline:
 				extracted.append(newline)
 

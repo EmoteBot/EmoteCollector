@@ -62,33 +62,34 @@ class Logger:
 			e.set_footer(text=footer)
 
 		try:
-			await self.channel.send(embed=e)
+			return await self.channel.send(embed=e)
 		except AttributeError:
+			# the channel isn't configured
 			pass
 		except discord.HTTPException:
 			pass
 
-	async def log_emoji_action(self, emote, action, color):
-		author = self.utils.format_user(emote.author)
+	async def log_emote_action(self, emote, action, color):
+		author = self.utils.format_user(emote.author, mention=True)
 		description = f'{emote} - :{emote.name}:\nOwner: {author}'
 
-		await self._log(title=action, description=description, color=color)
+		return await self._log(title=action, description=description, color=color)
 
-	async def log_emoji_add(self, emoji):
+	async def on_emote_add(self, emote):
 		if self.settings['add']:
-			await self.log_emoji_action(emoji, 'Add', LogColor.ADD)
+			return await self.log_emote_action(emote, 'Add', LogColor.ADD)
 
-	async def log_emoji_remove(self, emoji):
+	async def on_emote_remove(self, emote):
 		if self.settings['remove']:
-			await self.log_emoji_action(emoji, 'Remove', LogColor.REMOVE)
+			return await self.log_emote_action(emote, 'Remove', LogColor.REMOVE)
 
-	async def log_emoji_decay(self, emoji):
+	async def on_emote_decay(self, emote):
 		if self.settings['decay']:
-			await self.log_emoji_action(emoji, 'Decay', LogColor.DECAY)
+			return await self.log_emote_action(emote, 'Decay', LogColor.DECAY)
 
-	async def log_emoji_force_remove(self, emoji):
+	async def on_emote_force_remove(self, emote):
 		if self.settings['force_remove']:
-			await self.log_emoji_action(emoji, 'Removal by a moderator', LogColor.FORCE_REMOVE)
+			return await self.log_emote_action(emote, 'Removal by a moderator', LogColor.FORCE_REMOVE)
 
 
 def setup(bot):
