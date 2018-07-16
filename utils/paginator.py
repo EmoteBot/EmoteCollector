@@ -42,11 +42,11 @@ class Paginator:
 	async def begin(self):
 		"""Starts pagination"""
 		self._stopped = False
-		self._embed = discord.Embed(description='Please wait, pages are loading...')
+		self._embed = discord.Embed()
+		await self.first_page()
 		self._message = await self.target.send(embed=self._embed)
 		for button in self.navigation:
 			await self._message.add_reaction(button)
-		await self.first_page()
 		while not self._stopped:
 			try:
 				reaction, user = await self._client.wait_for('reaction_add', check=self.predicate, timeout=self.timeout)
@@ -88,7 +88,10 @@ class Paginator:
 	async def format_page(self):
 		self._embed.description = self.pages[self._page]
 		self._embed.set_footer(text=self.footer.format(self._page + 1, len(self.pages)))
-		await self._message.edit(embed=self._embed)
+		if self._message:
+			await self._message.edit(embed=self._embed)
+		else:
+			self._message = await self.target.send(embed=self._embed)
 
 	async def first_page(self):
 		self._page = 0
