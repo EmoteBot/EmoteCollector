@@ -92,6 +92,7 @@ class EmojiConnoisseur(commands.AutoShardedBot):
 				'cogs.utils',  # load first, since other cogs depend on it
 				'cogs.db',
 				'cogs.emoji',
+				'cogs.logging',
 				'cogs.meta',
 				'jishaku',
 				'cogs.stats',

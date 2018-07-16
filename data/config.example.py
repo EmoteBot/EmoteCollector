@@ -12,6 +12,15 @@
 	# note: currently nothing is sent except a notification of the bot's guild count being a power of 2
 	'send_logs_to': 140516693242937345,
 
+	'logs': {
+		'emotes': {  # log changes to emotes
+			'channel': None,
+			'settings': {
+				'add': False,  # whether to log whenever an emote is added
+				'remove': False,  # whether to log whenever an emote is removed by the author
+				'force_remove': True,  # whether to log whenever an emote is removed by a moderator
+				'decay': True}}  # whether to log decayed emotes
+
 	'extra_owners': [
 		140516693242937345],  # User IDs of people authorized to run privileged commands on the bot
 
