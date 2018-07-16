@@ -452,7 +452,10 @@ class Emotes:
 				c = emote['usage']
 				multiple = '' if c == 1 else 's'
 
-				processed.append(f'{formatted}, used **{c}** time{multiple}, owned by **{author}**')
+				processed.append(
+					f'{formatted} (:{emote.name}:) '
+					f'— used **{c}** time{multiple} '
+					f'— owned by **{author}**')  # note: these are em dashes, not hyphens!
 
 		paginator = ListPaginator(context, processed)
 		await paginator.begin()
