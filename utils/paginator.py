@@ -44,7 +44,6 @@ class Paginator:
 		self._stopped = False
 		self._embed = discord.Embed()
 		await self.first_page()
-		self._message = await self.target.send(embed=self._embed)
 		for button in self.navigation:
 			await self._message.add_reaction(button)
 		while not self._stopped:
