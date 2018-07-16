@@ -1,9 +1,10 @@
 import colorsys
 import datetime
-import enum
+import logging
 
 import discord
 
+logger = logging.getLogger(__name__)
 
 class LogColor:  # like an enum but we don't want the conversion of fields to the Enum type
 	__slots__ = ()
@@ -74,7 +75,7 @@ class Logger:
 		try:
 			self.settings.update(self.bot.config['logs']['emotes']['settings'])
 		except KeyError:
-			pass
+			logging.warning('emote logging has not been configured! emote logging will not take place')
 
 	async def _log(self, **fields):
 		footer = fields.pop('footer', None)
@@ -90,8 +91,8 @@ class Logger:
 		except AttributeError:
 			# the channel isn't configured
 			pass
-		except discord.HTTPException:
-			pass
+		except discord.HTTPException as exception:
+			logging.error(self.utils.format_http_exception(exception))
 
 	async def log_emote_action(self, emote, action, color):
 		author = self.utils.format_user(emote.author, mention=True)

@@ -8,6 +8,7 @@ Various utilities for use in discord.py bots.
 
 import asyncio as _asyncio
 from datetime import datetime as _datetime
+import discord as _discord
 import functools as _functools
 import json as _json
 import logging as _logging
@@ -80,6 +81,19 @@ class Utils:
 		if string.startswith('<') and string.endswith('>'):
 			return string[1:-1]
 		return string
+
+	@staticmethod
+	def format_http_exception(exception: _discord.HTTPException):
+		"""Formats a discord.HTTPException for relaying to the user.
+		Sample return value:
+
+		BAD REQUEST (status code: 400):
+		Invalid Form Body
+		In image: File cannot be larger than 256 kb.
+		"""
+		return (
+			f'{exception.response.reason} (status code: {exception.response.status}):'
+			f'\n{exception.text}')
 
 
 def setup(bot):

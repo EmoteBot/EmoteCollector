@@ -180,7 +180,7 @@ class Emotes:
 			logger.error(traceback.format_exc())
 			return (
 				'An error occurred while creating the emote:\n'
-				+ self.format_http_exception(ex))
+				+ self.utils.format_http_exception(ex))
 		except asyncio.TimeoutError:
 			return 'Error: retrieving the image took too long.'
 		except ValueError:
@@ -326,7 +326,7 @@ class Emotes:
 		try:
 			await self.db.rename_emote(old_name, new_name, context.author.id)
 		except discord.HTTPException as ex:
-			await context.send(self.format_http_exception(ex))
+			await context.send(self.utils.format_http_exception(ex))
 		else:
 			await context.send('Emote successfully renamed.')
 
@@ -344,17 +344,6 @@ class Emotes:
 		"""
 		await self.db.set_emote_description(name, context.author.id, description)
 		await context.try_add_reaction(self.utils.SUCCESS_EMOTES[True])
-
-	@staticmethod
-	def format_http_exception(exception: discord.HTTPException):
-		"""Formats a discord.HTTPException for relaying to the user.
-		Sample return value:
-
-		BAD REQUEST (status code: 400):
-		Invalid Form Body
-		In image: File cannot be larger than 256 kb.
-		"""
-		return f'{exception.response.reason} (status code: {exception.response.status}):\n{exception.text}'
 
 	@commands.command()
 	@checks.not_blacklisted()
