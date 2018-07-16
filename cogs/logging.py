@@ -7,7 +7,6 @@ import discord
 
 def _hsv_to_discord_color(h, s, v):
 	r,g,b = colorsys.hsv_to_rgb(h/255,s/255,v)
-	print(r,g,b)
 	return discord.Color.from_rgb(*map(int, (r,g,b)))
 
 class LogColor:  # like an enum but we don't want the conversion of fields to the Enum type
