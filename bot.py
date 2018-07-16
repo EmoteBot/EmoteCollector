@@ -90,9 +90,9 @@ class EmojiConnoisseur(commands.AutoShardedBot):
 	def run(self, *args, **kwargs):
 		for extension in (
 				'cogs.utils',  # load first, since other cogs depend on it
+				'cogs.logging',
 				'cogs.db',
 				'cogs.emoji',
-				'cogs.logging',
 				'cogs.meta',
 				'jishaku',
 				'cogs.stats',
