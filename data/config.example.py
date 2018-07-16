@@ -17,9 +17,11 @@
 			'channel': None,
 			'settings': {
 				'add': False,  # whether to log whenever an emote is added
+				'preserve': True,  # whether to log whenever an emote is preserved
+				'unpreserve': True,  # ditto, but for marking an emote as "not preserved" / decayable
 				'remove': False,  # whether to log whenever an emote is removed by the author
 				'force_remove': True,  # whether to log whenever an emote is removed by a moderator
-				'decay': True}}  # whether to log decayed emotes
+				'decay': True}}},  # whether to log decayed emotes
 
 	'extra_owners': [
 		140516693242937345],  # User IDs of people authorized to run privileged commands on the bot

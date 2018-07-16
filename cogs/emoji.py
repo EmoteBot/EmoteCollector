@@ -538,7 +538,7 @@ class Emotes:
 			except errors.EmoteNotFoundError as ex:
 				await context.send(ex)
 			else:
-				self.bot.dispatch('emote_preserve', emote)
+				self.bot.dispatch(f'emote_{"un" if not should_preserve else ""}preserve', emote)
 		await context.send(self.utils.SUCCESS_EMOTES[True])
 
 	## EVENTS

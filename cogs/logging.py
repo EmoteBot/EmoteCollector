@@ -5,17 +5,28 @@ import enum
 import discord
 
 
-def _hsv_to_discord_color(h, s, v):
-	r,g,b = colorsys.hsv_to_rgb(h/255,s/255,v)
-	return discord.Color.from_rgb(*map(int, (r,g,b)))
-
 class LogColor:  # like an enum but we don't want the conversion of fields to the Enum type
 	__slots__ = ()
 
-	ADD = _hsv_to_discord_color(86, 144, 175)
-	REMOVE = _hsv_to_discord_color(2, 198, 244)
-	FORCE_REMOVE = REMOVE  # TODO pick a diff color (maybe darker red?)
-	DECAY = _hsv_to_discord_color(141, 78, 139)
+	def _hsv_to_discord_color(h, s, v):
+		r,g,b = colorsys.hsv_to_rgb(h/255,s/255,v)
+		return discord.Color.from_rgb(*map(int, (r,g,b)))
+
+	GREEN = _hsv_to_discord_color(86, 144, 175)  # green
+	RED = _hsv_to_discord_color(2, 198, 244)  # red
+	GRAY = _hsv_to_discord_color(141, 78, 139)  # gray
+	GREY = GRAY
+
+	ADD = GREEN
+	PRESERVE = GREEN
+	REMOVE = RED
+	FORCE_REMOVE = RED  # TODO pick a diff color (maybe darker red?)
+	UNPRESERVE = RED
+	DECAY = GRAY
+
+	del _hsv_to_discord_color
+
+LogColour = LogColor
 
 # based on code provided by Pandentia
 # https://gitlab.com/Pandentia/element-zero/blob/dbc695bc9ea7ba2a553e26db1f5fabcba600ef98/element_zero/util/logging.py
@@ -44,7 +55,18 @@ class Logger:
 		self.channel = self.bot.get_channel(channel_id)
 
 	def init_settings(self):
-		self.settings = dict(add=False, remove=False, force_remove=False, decay=False)
+		self.settings = dict.fromkeys(
+			(
+				'add',
+				'remove',
+				'force_remove',
+				'decay',
+				'preserve',
+				'unpreserve',
+			),
+			False
+		)
+		dict(add=False, remove=False, force_remove=False, decay=False, preserve=False)
 
 		try:
 			self.settings.update(self.bot.config['logs']['emotes']['settings'])
@@ -70,7 +92,7 @@ class Logger:
 
 	async def log_emote_action(self, emote, action, color):
 		author = self.utils.format_user(emote.author, mention=True)
-		description = f'{emote} - :{emote.name}:\nOwner: {author}'
+		description = f'{emote} — :{emote.name}:\nOwner: {author}'
 
 		return await self._log(title=action, description=description, color=color)
 
@@ -89,6 +111,14 @@ class Logger:
 	async def on_emote_force_remove(self, emote):
 		if self.settings['force_remove']:
 			return await self.log_emote_action(emote, 'Removal by a moderator', LogColor.FORCE_REMOVE)
+
+	async def on_emote_preserve(self, emote):
+		if self.settings['preserve']:
+			await self.log_emote_action(emote, 'Preservation', LogColor.PRESERVE)
+
+	async def on_emote_unpreserve(self, emote):
+		if self.settings['unpreserve']:
+			await self.log_emote_action(emote, 'Un-preservation', LogColor.UNPRESERVE)
 
 
 def setup(bot):
