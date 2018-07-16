@@ -8,7 +8,3 @@ lru-dict
 prettytable
 wand
 wrapt
-
-# for the backend creator only
-pgi
-selenium
