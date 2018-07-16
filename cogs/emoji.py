@@ -308,14 +308,25 @@ class Emotes:
 		await context.send(self.utils.fix_first_line(message))
 
 	@commands.command(aliases=['mv'])
-	async def rename(self, context, old_name, new_name):
-		"""Renames an emote. You must own it."""
+	async def rename(self, context, *args):
+		"""Renames an emote. You must own it.
+
+		Example:
+		ec/rename a b
+		Renames :a: to :b:
+		"""
+
+		# allow e.g. foo{bar,baz} -> rename foobar to foobaz
+		if len(args) == 1:
+			print(utils.expand_cartesian_product(args[0]))
+			old_name, new_name = utils.expand_cartesian_product(args[0])
+			if not new_name:
+				return await context.send('Error: you must provide a new name for the emote.')
+
 		try:
 			await self.db.rename_emote(old_name, new_name, context.author.id)
 		except discord.HTTPException as ex:
 			await context.send(self.format_http_exception(ex))
-			logger.error('Rename:')
-			logger.error(traceback.format_exc())
 		else:
 			await context.send('Emote successfully renamed.')
 

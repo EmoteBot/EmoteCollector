@@ -10,14 +10,13 @@ Note: try to put stuff in the Utils cog. Any code that goes in here requires a r
 bot in order to update. Any stuff that goes in Utils can be hot reloaded without downtime.
 """
 
-__all__ = ('CustomContext', 'checks', 'errors', 'typing', 'LRUDict')
-
+import asyncio
 from collections import OrderedDict
 from datetime import datetime
 from functools import wraps
+import re
 from typing import Sequence, Union
 
-import asyncio
 from asyncpg import Record
 import discord
 from discord.ext import commands
@@ -30,6 +29,34 @@ from cogs.utils import Utils  # note: we would like access to some functions tha
 from . import checks
 from . import errors
 from . import paginator
+
+
+def expand_cartesian_product(str) -> (str, str):
+	"""expand a string containing one non-nested cartesian product strings into two strings
+
+	>>> expand_cartesian_product('foo{bar,baz}')
+	('foobar', 'foobaz')
+	>>> expand_cartesian_product('{old,new}')
+	('old', 'new')
+	>>> expand_cartesian_product('uninteresting')
+	('uninteresting', '')
+	>>> expand_cartesian_product('{foo,bar,baz}')
+	('foo,bar', 'baz')  # edge case that i don't need to fix
+
+	"""
+
+	match = re.search('{([^{}]*),([^{}]*)}', str)
+	if match:
+		return (
+			_expand_one_cartesian_product(str, match, 1),
+			_expand_one_cartesian_product(str, match, 2)
+		)
+	else:
+		return (str, '')
+
+
+def _expand_one_cartesian_product(str, match, group):
+	return str[:match.start()] + match.group(group) + str[match.end():]
 
 
 def load_json_compat(data: str):
@@ -195,3 +222,5 @@ class LRUDict(ObjectProxy):
 
 		if kwargs:
 			self.update(kwargs)
+
+__all__ = tuple(name for name in globals() if not name.startswith('_'))
