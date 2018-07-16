@@ -12,16 +12,19 @@ class LogColor:  # like an enum but we don't want the conversion of fields to th
 		r,g,b = colorsys.hsv_to_rgb(h/255,s/255,v)
 		return discord.Color.from_rgb(*map(int, (r,g,b)))
 
-	GREEN = _hsv_to_discord_color(86, 144, 175)  # green
-	RED = _hsv_to_discord_color(2, 198, 244)  # red
-	GRAY = _hsv_to_discord_color(141, 78, 139)  # gray
+	GREEN = _hsv_to_discord_color(86, 144, 175)
+	LIGHT_GREEN = _hsv_to_discord_color(86, 144, 80)
+	RED = _hsv_to_discord_color(2, 198, 244)
+	DARK_RED = _hsv_to_discord_color(2, 125, 255)
+	LIGHT_RED = _hsv_to_discord_color(2, 125, 200)
+	GRAY = _hsv_to_discord_color(141, 78, 139)
 	GREY = GRAY
 
 	ADD = GREEN
-	PRESERVE = GREEN
+	PRESERVE = LIGHT_GREEN
 	REMOVE = RED
-	FORCE_REMOVE = RED  # TODO pick a diff color (maybe darker red?)
-	UNPRESERVE = RED
+	FORCE_REMOVE = DARK_RED  # TODO pick a diff color (maybe darker red?)
+	UNPRESERVE = LIGHT_RED
 	DECAY = GRAY
 
 	del _hsv_to_discord_color
