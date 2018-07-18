@@ -87,7 +87,7 @@ class Database:
 			print('decaying')
 
 			cutoff = datetime.datetime.utcnow() - datetime.timedelta(weeks=4)
-			await self.decay(cutoff, 10)
+			await self.decay(cutoff, 2)
 
 			await asyncio.sleep(60*10)
 
