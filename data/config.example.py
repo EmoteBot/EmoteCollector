@@ -12,12 +12,13 @@
 	'send_logs_to': 140516693242937345,
 
 	'ignore_bots': {
-		'default': False,
-		'overrrides': {
+		'default': True,
+		'overrides': {
 			'guilds': frozenset({
+				# put guild IDs in here for which you want to override the default behavior
 			}),
 			'channels': frozenset({
-				#346520204332892163,
+				# put channel IDs in here for which you want to override the default behavior
 			}),
 		}
 	},
