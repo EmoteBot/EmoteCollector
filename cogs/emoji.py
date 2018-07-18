@@ -66,7 +66,7 @@ class Emotes:
 		for paginator in self.paginators:
 			self.bot.loop.create_task(paginator.stop())
 
-	## COMMANDS
+	## COMMANDS
 
 	@commands.command()
 	@checks.not_blacklisted()
@@ -537,7 +537,7 @@ class Emotes:
 				self.bot.dispatch(f'emote_{"un" if not should_preserve else ""}preserve', emote)
 		await context.send(self.utils.SUCCESS_EMOTES[True])
 
-	## EVENTS
+	## EVENTS
 
 	async def on_command_error(self, context, error):
 		if isinstance(error, errors.ConnoisseurError):

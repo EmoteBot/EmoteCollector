@@ -16,7 +16,6 @@ from utils import PrettyTable, errors
 
 
 logger = logging.getLogger('cogs.db')
-logger.setLevel(logging.DEBUG)
 
 class DatabaseEmote(dict):
 	def __init__(self, x, **kwargs):
@@ -146,7 +145,7 @@ class Database:
 		# hopefully this lets us bypass the rate limit more often, since emote rates are per-guild
 		return random.choice(free_guilds)
 
-	## Informational
+	## Informational
 
 	async def count(self) -> asyncpg.Record:
 		"""Return (not animated count, animated count, total)"""
@@ -175,7 +174,7 @@ class Database:
 			'SELECT COUNT(*) FROM emote_usage_history WHERE id = $1',
 			emote['id'])
 
-	## Iterators
+	## Iterators
 
 	def all_emotes(self, author_id=None):
 		"""return an async iterator that gets emotes from the database.
@@ -242,7 +241,7 @@ class Database:
 					# so we have to become a generator to keep the conn open
 					yield row
 
-	## Checks
+	## Checks
 
 	async def ensure_emote_does_not_exist(self, name):
 		"""fail with an exception if an emote called `name` does not exist
@@ -269,7 +268,7 @@ class Database:
 		if not await self.is_owner(emote, user_id):
 			raise errors.PermissionDeniedError(name)
 
-	## Actions
+	## Actions
 
 	async def create_emote(self, name, author_id, animated, image_data: bytes):
 		await self.ensure_emote_does_not_exist(name)
@@ -374,7 +373,7 @@ class Database:
 			await self.logger.on_emote_decay(emote)
 			await self.remove_emote(emote, user_id=None)
 
-	## User / Guild Options
+	## User / Guild Options
 
 	async def _toggle_state(self, table_name, id, default):
 		"""toggle the state for a user or guild. If there's no entry already, new state = default."""
@@ -433,7 +432,7 @@ class Database:
 
 		return state
 
-	## Blacklists
+	## Blacklists
 
 	async def get_user_blacklist(self, user_id):
 		"""return a reason for the user's blacklist, or None if not blacklisted"""
@@ -448,7 +447,7 @@ class Database:
 			INSERT INTO user_opt (id, blacklist_reason) VALUES ($1, $2)
 			ON CONFLICT (id) DO UPDATE SET blacklist_reason = EXCLUDED.blacklist_reason""", user_id, reason)
 
-	##
+	##
 
 	async def _get_db(self):
 		credentials = self.bot.config['database']
