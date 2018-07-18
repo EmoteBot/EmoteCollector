@@ -1,15 +1,18 @@
 #!/usr/bin/env python3.6
 # encoding: utf-8
 
+import asyncio
 import logging
 import re
 import traceback
 
 import discord
 from discord.ext import commands
+import uvloop
 
 from utils import CustomContext, load_json_compat
 
+asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('bot')
 logger.setLevel(logging.DEBUG)
@@ -56,13 +59,19 @@ class EmojiConnoisseur(commands.AutoShardedBot):
 		"""return whether the bot should reply to a given message"""
 		# don't reply to bots, unless we're in dev mode
 		# never reply to ourself
+		if message.author == self.user:
+			return False
+		if message.author.bot and not self._should_reply_to_bot(message):
+			return False
+		return not message.content
+
 		return not (
 			message.author == self.user
 			or (message.author.bot and not self._should_reply_to_bot(message))
 			or not message.content)
 
 	def _should_reply_to_bot(self, message):
-		should_reply = not self.config['ignore_bots'].get('default')
+		should_reply = self.config['ignore_bots'].get('default')
 		overrides = self.config['ignore_bots'].get('overrides', {})
 
 		def check_override(obj, attr):
@@ -122,7 +131,7 @@ class EmojiConnoisseur(commands.AutoShardedBot):
 			else:
 				logger.info('Successfully loaded %s', extension)
 
-		super().run(self.config['tokens']['discord'], *args, **kwargs)
+		super().run(self.config['tokens'].pop('discord'), *args, **kwargs)
 
 
 # defined in a function so it can be run from a REPL if need be

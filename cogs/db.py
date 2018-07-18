@@ -452,12 +452,7 @@ class Database:
 
 	async def _get_db(self):
 		credentials = self.bot.config['database']
-		try:
-			db = await asyncpg.create_pool(**credentials)  # pylint: disable=invalid-name
-		except ConnectionRefusedError:
-			logger.error('Failed to connect to the database!')
-			await self.bot.logout()
-			return
+		db = await asyncpg.create_pool(**credentials)  # pylint: disable=invalid-name
 
 		async with aiofiles.open('data/schema.sql') as f:
 			await db.execute(await f.read())
