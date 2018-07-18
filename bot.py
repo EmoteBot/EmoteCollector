@@ -122,14 +122,10 @@ class EmojiConnoisseur(commands.AutoShardedBot):
 				'cogs.stats',
 				'ben_cogs.misc',
 				'cogs.meme',
-				'ben_cogs.debug'):
-			try:
-				self.load_extension(extension)
-			except:  # pylint: disable=bare-except
-				logger.error('Failed to load %s', extension)
-				logger.error(traceback.format_exc())
-			else:
-				logger.info('Successfully loaded %s', extension)
+				'ben_cogs.debug',
+		):
+			self.load_extension(extension)
+			logger.info('Successfully loaded %s', extension)
 
 		super().run(self.config['tokens'].pop('discord'), *args, **kwargs)
 
