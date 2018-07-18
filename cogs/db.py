@@ -2,7 +2,7 @@
 # encoding: utf-8
 
 import asyncio
-from datetime import datetime
+import datetime
 import logging
 import random
 import time
@@ -16,7 +16,7 @@ from utils import PrettyTable, errors
 
 
 logger = logging.getLogger('cogs.db')
-
+logger.setLevel(logging.DEBUG)
 
 class DatabaseEmote(dict):
 	def __init__(self, x, **kwargs):
@@ -56,6 +56,7 @@ class DatabaseEmote(dict):
 class Database:
 	def __init__(self, bot):
 		self.bot = bot
+		self.ready = asyncio.Event()
 		self.tasks = []
 		self.tasks.append(self.bot.loop.create_task(self._get_db()))
 		# without backend guild enumeration, the bot will report all guilds being full
@@ -75,10 +76,15 @@ class Database:
 
 	async def decay_loop(self):
 		while True:
+			logger.debug('entering decay loop')
 			if not self.bot.config.get('decay', False):
+				logger.warning('decay disabled! make sure it\'s enabled in the config.')
 				return
+			logger.debug('decay enabled')
 
 			await self.bot.wait_until_ready()
+			await self.ready.wait()
+			print('decaying')
 
 			cutoff = datetime.datetime.utcnow() - datetime.timedelta(weeks=4)
 			await self.decay(cutoff, 10)
@@ -457,7 +463,7 @@ class Database:
 			await db.execute(await f.read())
 
 		self.db = db  # pylint: disable=invalid-name
-
+		self.ready.set()
 
 def setup(bot):
 	bot.add_cog(Database(bot))
