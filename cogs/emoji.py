@@ -308,7 +308,8 @@ class Emotes:
 				# undo the log
 				await removal_message.delete()
 			else:
-				messages.append(f'`{emote} :{emote.name}:` was successfully deleted.')
+				# escape it in case someone makes an emote called "joy", we don't want to display 😂
+				messages.append(f'`\\:{emote.name}:` was successfully deleted.')
 
 		message = '\n'.join(messages)
 		await context.send(self.utils.fix_first_line(message))
@@ -459,7 +460,7 @@ class Emotes:
 				multiple = '' if c == 1 else 's'
 
 				processed.append(
-					f'{formatted} (:{emote.name}:) '
+					f'{formatted} (\\:{emote.name}:) '
 					f'— used **{c}** time{multiple} '
 					f'— owned by **{author}**')  # note: these are em dashes, not hyphens!
 
