@@ -549,6 +549,8 @@ class Emotes:
 		if not self.bot.should_reply(message):
 			return
 
+		await self.db.ready.wait()
+
 		context = await self.bot.get_context(message)
 		if context.valid:
 			# user invoked a command, rather than the emote auto response
