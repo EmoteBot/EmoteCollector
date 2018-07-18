@@ -8,6 +8,7 @@ import itertools
 import logging
 import re
 import traceback
+import weakref
 
 import aiohttp
 import asyncpg
@@ -55,10 +56,15 @@ class Emotes:
 		# TODO investigate how much RAM this dict actually uses. (sys.getsizeof)
 		self.replies = utils.LRUDict(size=1000)
 
+		# keep track of created paginators so that we can remove their reaction buttons on unload
+		self.paginators = weakref.WeakSet()
+
 	def __unload(self):
 		# aiohttp can't decide if this should be a coroutine...
 		# i think it shouldn't be, since it never awaits
 		self.bot.loop.create_task(self.http.close())
+		for paginator in self.paginators:
+			self.bot.loop.create_task(paginator.stop())
 
 	## COMMANDS
 
@@ -447,6 +453,7 @@ class Emotes:
 					f'— owned by **{author}**')  # note: these are em dashes, not hyphens!
 
 		paginator = ListPaginator(context, processed)
+		self.paginators.add(paginator)
 		await paginator.begin()
 
 	@commands.command(name='steal-these', hidden=True)

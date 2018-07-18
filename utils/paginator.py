@@ -10,7 +10,7 @@ from discord.ext.commands import Context
 
 
 class Paginator:
-	def __init__(self, ctx: Context, pages: typing.Iterable, *, timeout=300, delete_message=True, predicate=None,
+	def __init__(self, ctx: Context, pages: typing.Iterable, *, timeout=300, delete_message=False, predicate=None,
 				 delete_message_on_timeout=False):
 		if predicate is None:
 			def predicate(_, user):
