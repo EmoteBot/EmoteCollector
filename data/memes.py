@@ -7,7 +7,7 @@
 		'rGeneralPublicLicensesaredesignedtomakesurethatyouhavethefreedomtodistributecopies'
 		'offreesoftwareandchargeforthemifyouwishthatyoureceivesourcecodeorcangetitifyouwant'
 		'itthatyoucanchangethesoftwareorusepiecesofitinnewfreeprogramsandthatyouknowyoucand'
-		'othesethings:423488990889639937>'),
+		'othesethings:469239262819123210>'),
 	'xd': '\n'.join((
 		'😂😂😂😂😂😂😂😂😂😂😂😂😂😂😂',
 		'😂🆒🆒🆒🆒🆒🆒🆒🆒🆒🆒🆒🆒🆒😂',
