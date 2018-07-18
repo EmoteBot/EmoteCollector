@@ -83,7 +83,7 @@ class Database:
 
 			await self.bot.wait_until_ready()
 			await self.ready.wait()
-			print('decaying')
+			logger.debug('decaying')
 
 			cutoff = datetime.datetime.utcnow() - datetime.timedelta(weeks=4)
 			await self.decay(cutoff, 2)
@@ -359,10 +359,15 @@ class Database:
 			raise errors.EmoteNotFoundError(name)
 		return result
 
-	async def log_emote_use(self, emote_id):
-		await self.db.execute(
-			'INSERT INTO emote_usage_history (id) VALUES ($1)',
-			emote_id)
+	async def log_emote_use(self, emote_id, user_id=None):
+		await self.db.execute("""
+			INSERT INTO emote_usage_history (id)
+			-- this is SELECT ... WHERE NOT EXISTS, not INSERT INTO ... WHERE NOT EXISTS
+			-- https://stackoverflow.com/a/15710598
+			SELECT ($1)
+			WHERE NOT EXISTS (
+				SELECT * FROM emojis WHERE id = $1 AND author = $2)""",
+			emote_id, user_id)
 
 	async def decay(self, cutoff=None, usage_threshold=2):
 		if cutoff is None:

@@ -403,7 +403,7 @@ class Emotes:
 		except asyncio.TimeoutError:
 			pass
 		else:
-			await self.db.log_emote_use(emote['id'])
+			await self.db.log_emote_use(emote['id'], context.author.id)
 		finally:
 			# if we don't sleep, it would appear that the bot never un-reacted
 			# i.e. the reaction button would still say "2" even after we remove our reaction
@@ -578,11 +578,13 @@ class Emotes:
 				pass
 			return
 
-		reply = await self.extract_emotes(message.content)
+		reply, emotes_used = await self.extract_emotes(message.content)
 		if reply is None:  # don't send empty whitespace
 			return
 
 		self.replies[message.id] = await message.channel.send(reply)
+		for emote in emotes_used:
+			await self.db.log_emote_use(emote, message.author.id)
 
 	async def on_raw_message_edit(self, payload):
 		"""Ensure that when a message containing emotes is edited, the corresponding emote reply is, too."""
@@ -590,7 +592,7 @@ class Emotes:
 		if payload.message_id not in self.replies or 'content' not in payload.data:
 			return
 
-		emotes = await self.extract_emotes(payload.data['content'], log_usage=False)
+		emotes, _ = await self.extract_emotes(payload.data['content'])
 		reply = self.replies[payload.message_id]
 		if emotes is None:
 			del self.replies[payload.message_id]
@@ -601,7 +603,7 @@ class Emotes:
 
 		await reply.edit(content=emotes)
 
-	async def extract_emotes(self, message: str, *, log_usage=True):
+	async def extract_emotes(self, message: str):
 		"""Parse all emotes (:name: or ;name;) from a message"""
 		# don't respond to code blocks or custom emotes, since custom emotes also have :foo: in them
 		message = self.RE_CODE.sub('', message)
@@ -622,10 +624,6 @@ class Emotes:
 			if newline:
 				extracted.append(newline)
 
-		if log_usage:
-			for emote in emotes_used:
-				await self.db.log_emote_use(emote)
-
 		# remove leading and trailing newlines
 		# e.g. if someone sends
 		# foo
@@ -636,7 +634,9 @@ class Emotes:
 		# quux, we should only send :cruz:\n:cruz:
 		extracted = ''.join(extracted).strip()
 		if extracted:
-			return self.utils.fix_first_line(extracted)
+			return self.utils.fix_first_line(extracted), emotes_used
+		else:
+			return None, emotes_used
 
 	async def delete_reply(self, message_id):
 		"""Delete our reply to a message containing emotes."""
