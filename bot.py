@@ -57,28 +57,19 @@ class EmojiConnoisseur(commands.AutoShardedBot):
 
 	def should_reply(self, message):
 		"""return whether the bot should reply to a given message"""
-		# don't reply to bots, unless we're in dev mode
-		# never reply to ourself
-		if message.author == self.user:
-			return False
-		if message.author.bot and not self._should_reply_to_bot(message):
-			return False
-		return not message.content
-
 		return not (
 			message.author == self.user
 			or (message.author.bot and not self._should_reply_to_bot(message))
 			or not message.content)
 
 	def _should_reply_to_bot(self, message):
-		should_reply = self.config['ignore_bots'].get('default')
-		overrides = self.config['ignore_bots'].get('overrides', {})
+		should_reply = not self.config['ignore_bots'].get('default')
+		overrides = self.config['ignore_bots']['overrides']
 
-		def check_override(obj, attr):
-			location = getattr(obj, attr)
-			return location and getattr(location, 'id') in overrides.get(attr, frozenset())
+		def check_override(location, overrides_key):
+			return location and location.id in overrides[overrides_key]
 
-		if check_override(message, 'guild') or check_override(message, 'channel'):
+		if check_override(message.guild, 'guilds') or check_override(message.channel, 'channels'):
 			should_reply = not should_reply
 
 		return should_reply

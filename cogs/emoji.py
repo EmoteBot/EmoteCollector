@@ -554,7 +554,7 @@ class Emotes:
 		context = await self.bot.get_context(message)
 		if context.valid:
 			# user invoked a command, rather than the emote auto response
-			# so don't a second time
+			# so don't respond a second time
 			return
 
 		if message.guild and not message.guild.me.permissions_in(message.channel).external_emojis:
