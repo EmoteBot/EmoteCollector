@@ -66,7 +66,6 @@ class EmojiConnoisseur(commands.AutoShardedBot):
 		overrides = self.config['ignore_bots'].get('overrides', {})
 
 		def check_override(obj, attr):
-			print(obj, attr)
 			location = getattr(obj, attr)
 			return location and getattr(location, 'id') in overrides.get(attr, frozenset())
 
