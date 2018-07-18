@@ -361,12 +361,7 @@ class Emotes:
 		Otherwise, the first message matching the keyword will be reacted to.
 		"""
 
-		sender_permissions = context.channel.permissions_for(context.author)
-		permissions = context.channel.permissions_for(context.guild.me)
-		if not sender_permissions.read_message_history or not permissions.read_message_history:
-		    return await context.send('Unable to react: no permission to read message history.')
-		if not sender_permissions.add_reactions or not permissions.add_reactions:
-		    return await context.send('Unable to react: no permission to add reactions.')
+		await self._check_reaction_permissions(context)
 
 		if message is None:
 			# get the second to last message (ie ignore the invoking message)
@@ -411,13 +406,28 @@ class Emotes:
 			# unfortunately, if you look at the list of reactions, it still says the bot reacted.
 			# no amount of sleeping can fix that, in my tests.
 			await asyncio.sleep(0.2)
-			await message.remove_reaction(emote.as_reaction(), context.guild.me)
+			await message.remove_reaction(emote.as_reaction(), self.bot.user)
 
 			for message in context.message, instruction_message:
 				try:
 					await message.delete()
 				except discord.HTTPException:
 					pass
+
+	async def _check_reaction_permissions(self, context):
+		if not context.guild:
+			return
+
+		sender_permissions = context.channel.permissions_for(context.author)
+		permissions = context.channel.permissions_for(context.guild.me)
+		if not sender_permissions.read_message_history or not permissions.read_message_history:
+		    await context.send('Unable to react: no permission to read message history.')
+		    return False
+		if not sender_permissions.add_reactions or not permissions.add_reactions:
+		    await context.send('Unable to react: no permission to add reactions.')
+		    return False
+
+		return True
 
 	@commands.command()
 	async def list(self, context, *, user: discord.User = None):
