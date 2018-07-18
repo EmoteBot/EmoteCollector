@@ -58,7 +58,7 @@ class EmojiConnoisseur(commands.AutoShardedBot):
 		# never reply to ourself
 		return not (
 			message.author == self.user
-			or (message.author.bot and self._should_reply_to_bot(message))
+			or (message.author.bot and not self._should_reply_to_bot(message))
 			or not message.content)
 
 	def _should_reply_to_bot(self, message):
