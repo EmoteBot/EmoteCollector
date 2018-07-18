@@ -68,7 +68,6 @@ class EmojiConnoisseur(commands.AutoShardedBot):
 		def check_override(obj, attr):
 			print(obj, attr)
 			location = getattr(obj, attr)
-			print(location and getattr(location, 'id') in overrides.get(attr, frozenset()))
 			return location and getattr(location, 'id') in overrides.get(attr, frozenset())
 
 		if check_override(message, 'guild') or check_override(message, 'channel'):
