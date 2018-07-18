@@ -1,5 +1,4 @@
 {
-	'ignore_bots': True,
 	'description': 'Curates emojis from any server and lets you use them without Nitro.',
 	'decay': True,  # whether to enable the deletion of old emotes
 	'prefix': 'ec/',
@@ -11,6 +10,17 @@
 	# a user ID of someone to send logs to
 	# note: currently nothing is sent except a notification of the bot's guild count being a power of 2
 	'send_logs_to': 140516693242937345,
+
+	'ignore_bots': {
+		'default': False,
+		'overrrides': {
+			'guilds': frozenset({
+			}),
+			'channels': frozenset({
+				#346520204332892163,
+			}),
+		}
+	},
 
 	'logs': {
 		'emotes': {  # log changes to emotes

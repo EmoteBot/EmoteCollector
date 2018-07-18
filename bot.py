@@ -58,8 +58,23 @@ class EmojiConnoisseur(commands.AutoShardedBot):
 		# never reply to ourself
 		return not (
 			message.author == self.user
-			or (message.author.bot and self.config['ignore_bots'])
+			or (message.author.bot and self._should_reply_to_bot(message))
 			or not message.content)
+
+	def _should_reply_to_bot(self, message):
+		should_reply = not self.config['ignore_bots'].get('default')
+		overrides = self.config['ignore_bots'].get('overrides', {})
+
+		def check_override(obj, attr):
+			print(obj, attr)
+			location = getattr(obj, attr)
+			print(location and getattr(location, 'id') in overrides.get(attr, frozenset()))
+			return location and getattr(location, 'id') in overrides.get(attr, frozenset())
+
+		if check_override(message, 'guild') or check_override(message, 'channel'):
+			should_reply = not should_reply
+
+		return should_reply
 
 	async def is_owner(self, user):
 		if self.owner_id is None:
