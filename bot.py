@@ -19,6 +19,8 @@ class EmojiConnoisseur(commands.AutoShardedBot):
 	def __init__(self, *args, **kwargs):
 		with open('data/config.py') as conf:
 			self.config = load_json_compat(conf.read())
+			# make lookup fast
+			self.config['extra_owners'] = frozenset(self.config['extra_owners'])
 
 		super().__init__(
 			#command_prefix=commands.when_mentioned_or(self.config['prefix']),
@@ -56,7 +58,7 @@ class EmojiConnoisseur(commands.AutoShardedBot):
 		# never reply to ourself
 		return not (
 			message.author == self.user
-			or (message.author.bot and self.config['release'] != 'development')
+			or (message.author.bot and self.config['ignore_bots'])
 			or not message.content)
 
 	async def is_owner(self, user):

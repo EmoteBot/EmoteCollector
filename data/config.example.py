@@ -1,5 +1,5 @@
 {
-	'release': 'development',  # change this to "production" unless running tests
+	'ignore_bots': True,
 	'description': 'Curates emojis from any server and lets you use them without Nitro.',
 	'decay': True,  # whether to enable the deletion of old emotes
 	'prefix': 'ec/',
