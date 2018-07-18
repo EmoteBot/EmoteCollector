@@ -309,7 +309,7 @@ class Emotes:
 				await removal_message.delete()
 			else:
 				# escape it in case someone makes an emote called "joy", we don't want to display 😂
-				messages.append(f'`\\:{emote.name}:` was successfully deleted.')
+				messages.append(f'\\:{emote.name}: was successfully deleted.')
 
 		message = '\n'.join(messages)
 		await context.send(self.utils.fix_first_line(message))
