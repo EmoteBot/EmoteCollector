@@ -415,7 +415,8 @@ class Emotes:
 					pass
 
 	async def _check_reaction_permissions(self, context):
-		if not context.guild:
+		# author might not be a Member, even in a guild, if it's a webhook.
+		if not context.guild or not isinstance(context.author, discord.Member):
 			return
 
 		sender_permissions = context.channel.permissions_for(context.author)
