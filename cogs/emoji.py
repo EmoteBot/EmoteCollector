@@ -482,22 +482,21 @@ class Emotes:
 		# https://gitlab.com/Pandentia/element-zero/blob/ca7d7f97e068e89334e66692922d9a8744e3e9be/element_zero/cogs/emoji.py#L364-399
 		processed = []
 
-		async with context.typing():
-			async for i, emote in async_enumerate(self.db.popular_emotes()):
-				if i == 200:
-					break
+		async for i, emote in async_enumerate(self.db.popular_emotes()):
+			if i == 200:
+				break
 
-				formatted = str(emote)
+			formatted = str(emote)
 
-				author = self.utils.format_user(emote['author'], mention=True)
+			author = self.utils.format_user(emote['author'], mention=True)
 
-				c = emote['usage']
-				multiple = '' if c == 1 else 's'
+			c = emote['usage']
+			multiple = '' if c == 1 else 's'
 
-				processed.append(
-					f'{formatted} (\\:{emote.name}:) '
-					f'— used **{c}** time{multiple} '
-					f'— owned by **{author}**')  # note: these are em dashes, not hyphens!
+			processed.append(
+				f'{formatted} (\\:{emote.name}:) '
+				f'— used **{c}** time{multiple} '
+				f'— owned by **{author}**')  # note: these are em dashes, not hyphens!
 
 		paginator = ListPaginator(context, processed)
 		self.paginators.add(paginator)
