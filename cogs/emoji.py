@@ -208,7 +208,7 @@ class Emotes:
 	async def add_backend(self, name, url, author_id):
 		"""Actually add an emote to the database."""
 		image_data = await self.fetch_emote(url)
-		emote = await self.create_emote_from_bytes(name, author_id, animated, image_data)
+		emote = await self.create_emote_from_bytes(name, author_id, image_data)
 
 		return emote
 
@@ -224,7 +224,7 @@ class Emotes:
 		async with self.http.get(url) as response:
 			if response.reason != 'OK':
 				raise errors.HTTPException(response.status)
-			return BytesIO(await response.read())
+			return io.BytesIO(await response.read())
 
 	async def create_emote_from_bytes(self, name, author_id, image_data):
 		# resize_until_small is normally blocking, because wand is.
