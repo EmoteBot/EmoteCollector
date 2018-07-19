@@ -156,7 +156,7 @@ class Database:
 				COUNT(*) AS total
 			FROM emote;""")
 
-	async def capacity(self):
+	def capacity(self):
 		"""return a three-tuple of static capacity, animated, total"""
 		return (len(self.guilds)*50,)*2+(len(self.guilds)*50*2,)
 
