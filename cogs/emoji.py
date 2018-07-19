@@ -121,11 +121,10 @@ class Emotes:
 		"""Tells you how many emotes are in my database."""
 		static, animated, total = await self.db.count()
 		static_cap, animated_cap, total_cap = self.db.capacity()
-		message = (
+		await context.send(
 			f'Static emotes: **{static} ⁄ {static_cap}**\n'
 			f'Animated emotes: **{animated} ⁄ {animated_cap}**\n'
 			f'**Total: {total} ⁄ {total_cap}**')
-		await context.send(self.utils.fix_first_line(message))
 
 	@commands.command()
 	@checks.not_blacklisted()
