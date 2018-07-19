@@ -129,9 +129,22 @@ class Emotes:
 
 	@commands.command()
 	@checks.not_blacklisted()
-	async def big(self, context, emote: DatabaseEmote):
-		"""Shows the original image for the given emote"""
-		embed = discord.Embed(title=emote['name'])
+	async def big(self, context, emote: DatabaseEmote, no_embed = ''):
+		"""Shows the original image for the given emote.
+
+		If the last argument is "noembed", the emote will be sent as a link instead,
+		for mobile users.
+		"""
+		func = self._big_noembed if no_embed else self._big_embed
+		await func(context, emote)
+
+	@staticmethod
+	async def _big_noembed(context, emote):
+		await context.send(f'{emote.name}: {emote.url}')
+
+	@staticmethod
+	async def _big_embed(context, emote):
+		embed = discord.Embed(title=emote.name)
 		embed.set_image(url=emote.url)
 		await context.send(embed=embed)
 
