@@ -26,7 +26,7 @@ def emotes(author_id=None):
 	"""return an iterator that gets emotes from the database.
 	If author id is provided, get only emotes from them.
 	If include_nsfw, list all emotes."""
-	query = 'SELECT * FROM emojis '
+	query = 'SELECT * FROM emote '
 	conditions = []
 	args = []
 	if author_id is not None:
