@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS emojis(
 	author BIGINT NOT NULL,
 	animated BOOLEAN DEFAULT FALSE,
 	description VARCHAR(280),
-	created TIMESTAMP WITH TIME ZONE DEFAULT (now() at time zone 'UTC'),
+	created TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
 	modified TIMESTAMP WITH TIME ZONE,
 	preserve BOOLEAN DEFAULT FALSE);
 
@@ -17,7 +17,7 @@ CREATE OR REPLACE FUNCTION update_modified_column()
 RETURNS TRIGGER AS $$
 BEGIN
 	IF row(NEW.*) IS DISTINCT FROM row(OLD.*) THEN
-		NEW.modified = now() at time zone 'UTC';
+		NEW.modified = CURRENT_TIMESTAMP;
 		RETURN NEW;
 	ELSE
 		RETURN OLD;
@@ -44,6 +44,6 @@ CREATE TABLE IF NOT EXISTS guild_opt(
 
 CREATE TABLE IF NOT EXISTS emote_usage_history(
 	id BIGINT REFERENCES emojis (id),
-	time TIMESTAMP WITH TIME ZONE DEFAULT (now() at time zone 'UTC'));
+	time TIMESTAMP WITH TIME ZONE DEFAULT (CURRENT_TIMESTAMP);
 
 CREATE INDEX IF NOT EXISTS emote_usage_history_id_idx ON emote_usage_history (id);
