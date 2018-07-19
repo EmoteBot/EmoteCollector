@@ -2,19 +2,26 @@
 # encoding: utf-8
 
 import asyncio
+from contextlib import contextmanager
 import imghdr
-from io import BytesIO, StringIO
+import io
 import itertools
 import logging
 import re
 import traceback
 import weakref
 
+logger = logging.getLogger('cogs.emoji')
+
 import aiohttp
 import asyncpg
 import discord
 from discord.ext import commands
-from wand.image import Image
+try:
+	from wand.image import Image
+except ImportError:
+	logger.warn('failed to import wand.image. image manipulation functions will be unavailable.')
+	Image = None
 
 from cogs.db import DatabaseEmote
 import utils
@@ -24,7 +31,6 @@ from utils import errors
 from utils import HistoryMessage
 from utils.paginator import ListPaginator
 
-logger = logging.getLogger('cogs.emoji')
 
 
 class Emotes:
@@ -201,8 +207,12 @@ class Emotes:
 
 	async def add_backend(self, name, url, author_id):
 		"""Actually add an emote to the database."""
-		await self.db.ensure_emote_does_not_exist(name)
+		image_data = await self.fetch_emote(url)
+		emote = await self.create_emote_from_bytes(name, author_id, animated, image_data)
 
+		return emote
+
+	async def fetch_emote(self, url):
 		# credits to @Liara#0001 (ID 136900814408122368) for most of this part
 		# https://gitlab.com/Pandentia/element-zero/blob/47bc8eeeecc7d353ec66e1ef5235adab98ca9635/element_zero/cogs/emoji.py#L217-228
 		async with self.http.head(url, timeout=5) as response:
@@ -214,8 +224,9 @@ class Emotes:
 		async with self.http.get(url) as response:
 			if response.reason != 'OK':
 				raise errors.HTTPException(response.status)
-			image_data = BytesIO(await response.read())
+			return BytesIO(await response.read())
 
+	async def create_emote_from_bytes(self, name, author_id, image_data):
 		# resize_until_small is normally blocking, because wand is.
 		# run_in_executor is magic that makes it non blocking somehow.
 		# also, None as the executor arg means "use the loop's default executor"
@@ -223,7 +234,6 @@ class Emotes:
 		animated = self.is_animated(image_data.getvalue())
 		emote = await self.db.create_emote(name, author_id, animated, image_data.read())
 		self.bot.dispatch('emote_add', emote)
-
 		return emote
 
 	@staticmethod
@@ -237,17 +247,24 @@ class Emotes:
 		else:
 			raise errors.InvalidImageError
 
-	@staticmethod
-	def size(data: BytesIO):
+	@classmethod
+	def size(cls, data: io.BytesIO):
 		"""return the size, in bytes, of the data a BytesIO object represents"""
-		old_pos = data.tell()
-		data.seek(0, 2)  # seek to the end
-		size = data.tell()
-		data.seek(old_pos)  # put it back the way we found it
-		return size
+		with cls.preserve_position(data):
+			data.seek(0, io.SEEK_END)
+			return data.tell()
+
+	@staticmethod
+	@contextmanager
+	def preserve_position(fp):
+		try:
+			old_pos = fp.tell()
+			yield
+		finally:
+			fp.seek(old_pos)
 
 	@classmethod
-	def resize_until_small(cls, image_data: BytesIO):
+	def resize_until_small(cls, image_data: io.BytesIO):
 		"""If the image_data is bigger than 256KB, resize it until it's not"""
 		# It's important that we only attempt to resize the image when we have to,
 		# ie when it exceeds the Discord limit of 256KiB.
@@ -264,7 +281,7 @@ class Emotes:
 		return image_data
 
 	@classmethod
-	def thumbnail(cls, image_data: BytesIO, max_size=(128, 128)):
+	def thumbnail(cls, image_data: io.BytesIO, max_size=(128, 128)):
 		"""Resize an image in place to no more than max_size pixels, preserving aspect ratio."""
 		# Credit to @Liara#0001 (ID 136900814408122368)
 		# https://gitlab.com/Pandentia/element-zero/blob/47bc8eeeecc7d353ec66e1ef5235adab98ca9635/element_zero/cogs/emoji.py#L243-247
@@ -273,7 +290,7 @@ class Emotes:
 		# we create a new buffer here because there's wand errors otherwise.
 		# specific error:
 		# MissingDelegateError: no decode delegate for this image format `' @ error/blob.c/BlobToImage/353
-		out = BytesIO()
+		out = io.BytesIO()
 		image.save(file=out)
 		out.seek(0)
 		return out
