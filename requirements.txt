@@ -6,6 +6,5 @@ git+https://github.com/Rapptz/discord.py@rewrite#egg=discord.py>=1.0.0a1462
 jishaku>0.1.1
 lru-dict
 prettytable
-uvloop
 wand
 wrapt

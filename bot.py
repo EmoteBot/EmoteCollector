@@ -8,11 +8,15 @@ import traceback
 
 import discord
 from discord.ext import commands
-#import uvloop
+try:
+	import uvloop
+except ImportError:
+	pass
+else:
+	asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
 from utils import CustomContext, load_json_compat
 
-#asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('bot')
 logger.setLevel(logging.DEBUG)
