@@ -144,6 +144,11 @@ class Emotes:
 		`ec/add` will upload a new emote using the first attachment as the image,
 		and its filename as the name
 		"""
+		if context.message.webhook_id or context.author.bot:
+			return await context.send(
+				'Sorry, webhooks and bots may not add emotes. '
+				'Go find a human to do it for you.')
+
 		if context.message.attachments:
 			attachment = context.message.attachments[0]
 			# as far as i can tell, this is how discord replaces filenames when you upload an emote image
