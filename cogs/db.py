@@ -156,6 +156,10 @@ class Database:
 				COUNT(*) AS total
 			FROM emote;""")
 
+	async def capacity(self):
+		"""return a three-tuple of static capacity, animated, total"""
+		return (len(self.guilds)*50,)*2+(len(self.guilds)*50*2,)
+
 	async def get_emote(self, name) -> DatabaseEmote:
 		"""get an emote object by name"""
 		# we use LOWER(name) = LOWER($1) instead of ILIKE because ILIKE has some wildcarding stuff

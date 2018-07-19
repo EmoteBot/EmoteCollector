@@ -32,7 +32,6 @@ from utils import HistoryMessage
 from utils.paginator import ListPaginator
 
 
-
 class Emotes:
 	"""Commands related to the main functionality of the bot"""
 
@@ -121,10 +120,11 @@ class Emotes:
 	async def count(self, context):
 		"""Tells you how many emotes are in my database."""
 		static, animated, total = await self.db.count()
+		static_cap, animated_cap, total_cap = self.db.capacity()
 		message = (
-			f'Static emotes: {static}\n'
-			f'Animated emotes: {animated}\n'
-			f'Total: {total}')
+			f'Static emotes: **{static} ⁄ {static_cap}**\n'
+			f'Animated emotes: **{animated} ⁄ {animated_cap}**\n'
+			f'**Total: {total} ⁄ {total_cap}**')
 		await context.send(self.utils.fix_first_line(message))
 
 	@commands.command()
