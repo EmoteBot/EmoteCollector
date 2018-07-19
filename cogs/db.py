@@ -154,7 +154,7 @@ class Database:
 				COUNT(*) FILTER (WHERE NOT animated) AS static,
 				COUNT(*) FILTER (WHERE animated) AS animated,
 				COUNT(*) AS total
-			FROM emojis;""")
+			FROM emote;""")
 
 	async def get_emote(self, name) -> DatabaseEmote:
 		"""get an emote object by name"""
@@ -162,7 +162,7 @@ class Database:
 		# that we don't want
 		# probably LOWER(name) = $1, name.lower() would also work, but this looks cleaner
 		# and keeps the lowercasing behavior consistent
-		result = await self.db.fetchrow('SELECT * FROM emojis WHERE LOWER(name) = LOWER($1)', name)
+		result = await self.db.fetchrow('SELECT * FROM emote WHERE LOWER(name) = LOWER($1)', name)
 		if result:
 			return DatabaseEmote(result)
 		else:
@@ -179,7 +179,7 @@ class Database:
 	def all_emotes(self, author_id=None):
 		"""return an async iterator that gets emotes from the database.
 		If author id is provided, get only emotes from them."""
-		query = 'SELECT * FROM emojis '
+		query = 'SELECT * FROM emote '
 		args = []
 		if author_id is not None:
 			query += 'WHERE author = $1 '
@@ -194,9 +194,9 @@ class Database:
 			SELECT *, (
 				SELECT COUNT(*)
 				FROM emote_usage_history
-				WHERE id = emojis.id
+				WHERE id = emote.id
 			) AS usage
-			FROM emojis
+			FROM emote
 			ORDER BY usage DESC, LOWER("name")
 		"""
 		return self._database_emote_cursor(query)
@@ -212,12 +212,12 @@ class Database:
 
 		return self._database_emote_cursor("""
 			SELECT *
-			FROM emojis
+			FROM emote
 			WHERE (
 				SELECT COUNT(*)
 				FROM emote_usage_history
 				WHERE
-					id = emojis.id
+					id = emote.id
 					AND time > $1
 			) < $2
 				AND NOT preserve
@@ -278,7 +278,7 @@ class Database:
 
 		emote = await guild.create_custom_emoji(name=name, image=image_data)
 		await self.db.execute(
-			'INSERT INTO emojis(name, id, author, animated) VALUES ($1, $2, $3, $4)',
+			'INSERT INTO emote(name, id, author, animated) VALUES ($1, $2, $3, $4)',
 			name, emote.id, author_id, animated)
 
 		return await self.get_emote(name)
@@ -301,7 +301,7 @@ class Database:
 
 		await discord_emote.delete()
 		await self.db.execute('DELETE FROM emote_usage_history WHERE id = $1', db_emote.id)
-		await self.db.execute('DELETE FROM emojis WHERE id = $1', db_emote.id)
+		await self.db.execute('DELETE FROM emote WHERE id = $1', db_emote.id)
 		return db_emote
 
 	async def rename_emote(self, old_name, new_name, user_id):
@@ -317,7 +317,7 @@ class Database:
 		discord_emote = self.bot.get_emoji(db_emote.id)
 
 		await discord_emote.edit(name=new_name)
-		await self.db.execute('UPDATE emojis SET name = $2 where id = $1', discord_emote.id, new_name)
+		await self.db.execute('UPDATE emote SET name = $2 where id = $1', discord_emote.id, new_name)
 
 	async def set_emote_description(self, name, user_id, description=None):
 		"""Set an emote's description.
@@ -334,7 +334,7 @@ class Database:
 
 		try:
 			await self.db.execute(
-				'UPDATE emojis SET DESCRIPTION = $2 WHERE id = $1',
+				'UPDATE emote SET DESCRIPTION = $2 WHERE id = $1',
 				emote.id,
 				description)
 		# wowee that's a verbose exception name
@@ -348,13 +348,13 @@ class Database:
 		"""
 		emote = await self.get_emote(name)  # ensure it exists
 		await self.db.execute(
-			'UPDATE emojis SET preserve = $1 WHERE LOWER(name) = LOWER($2)',
+			'UPDATE emote SET preserve = $1 WHERE LOWER(name) = LOWER($2)',
 			should_preserve, name)
 		return emote  # allow the caller to reuse the emote to reduce database queries
 
 	async def get_emote_preservation(self, name):
 		"""return whether the emote should be prevented from being decayed"""
-		result = await self.db.fetchval('SELECT preserve FROM emojis WHERE LOWER(name) = LOWER($1)', name)
+		result = await self.db.fetchval('SELECT preserve FROM emote WHERE LOWER(name) = LOWER($1)', name)
 		if result is None:
 			raise errors.EmoteNotFoundError(name)
 		return result
@@ -366,7 +366,7 @@ class Database:
 			-- https://stackoverflow.com/a/15710598
 			SELECT ($1)
 			WHERE NOT EXISTS (
-				SELECT * FROM emojis WHERE id = $1 AND author = $2)""",
+				SELECT * FROM emote WHERE id = $1 AND author = $2)""",
 			emote_id, user_id)
 
 	async def decay(self, cutoff=None, usage_threshold=2):

@@ -1,6 +1,6 @@
 SET TIME ZONE UTC;
 
-CREATE TABLE IF NOT EXISTS emojis(
+CREATE TABLE IF NOT EXISTS emote(
 	name VARCHAR(32) NOT NULL,
 	id BIGINT NOT NULL UNIQUE,
 	author BIGINT NOT NULL,
@@ -10,7 +10,8 @@ CREATE TABLE IF NOT EXISTS emojis(
 	modified TIMESTAMP WITH TIME ZONE,
 	preserve BOOLEAN DEFAULT FALSE);
 
-CREATE UNIQUE INDEX IF NOT EXISTS emojis_lower_idx ON emojis (LOWER(name));
+CREATE UNIQUE INDEX IF NOT EXISTS emote_lower_idx ON emote (LOWER(name));
+CREATE INDEX IF NOT EXISTS emote_author_idx ON emote (author);
 
 -- https://stackoverflow.com/a/26284695/1378440
 CREATE OR REPLACE FUNCTION update_modified_column()
@@ -25,10 +26,10 @@ BEGIN
 END;
 $$ language 'plpgsql';
 
-DROP TRIGGER IF EXISTS update_emoji_modtime ON emojis;
+DROP TRIGGER IF EXISTS update_emote_modtime ON emote;
 
-CREATE TRIGGER update_emoji_modtime
-BEFORE UPDATE ON emojis
+CREATE TRIGGER update_emote_modtime
+BEFORE UPDATE ON emote
 FOR EACH ROW EXECUTE PROCEDURE update_modified_column();
 
 DROP TABLE IF EXISTS blacklists;
@@ -47,3 +48,9 @@ CREATE TABLE IF NOT EXISTS emote_usage_history(
 	time TIMESTAMP WITH TIME ZONE DEFAULT (CURRENT_TIMESTAMP));
 
 CREATE INDEX IF NOT EXISTS emote_usage_history_id_idx ON emote_usage_history (id);
+
+-- old stuff
+DROP INDEX IF EXISTS emojis_lower_idx;
+DROP INDEX IF EXISTS emojis_author_idx;
+
+DROP TRIGGER IF EXISTS update_emoji_modtime ON emote;
