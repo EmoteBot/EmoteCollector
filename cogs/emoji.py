@@ -496,7 +496,7 @@ class Emotes:
 
 			formatted = str(emote)
 
-			author = utils.format_user(emote['author'], mention=True)
+			author = utils.format_user(self.bot.get_user(emote.author), mention=True)
 
 			c = emote['usage']
 			multiple = '' if c == 1 else 's'
