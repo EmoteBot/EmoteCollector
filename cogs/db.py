@@ -73,6 +73,24 @@ class Database:
 		except AttributeError:
 			pass  # db has not been set yet
 
+	async def find_backend_guilds(self):
+		"""Find all the guilds used to store emotes"""
+
+		if hasattr(self, 'guilds') and self.guilds:  # pylint: disable=access-member-before-definition
+			return
+
+		await self.bot.wait_until_ready()
+
+		guilds = []
+		for guild in self.bot.guilds:
+			if guild.name.startswith('EmojiBackend') and await self.bot.is_owner(guild.owner):
+				guilds.append(guild)
+		self.guilds = guilds
+		logger.info('In %s backend guilds.', len(guilds))
+
+		# allow other cogs that depend on the list of backend guilds to know when they've been found
+		self.bot.dispatch('backend_guild_enumeration', self.guilds)
+
 	async def decay_loop(self):
 		while True:
 			logger.debug('entering decay loop')
@@ -110,24 +128,6 @@ class Database:
 		"""Convert an emote ID to the image URL for that emote."""
 		return f'https://cdn.discordapp.com/emojis/{emote_id}{".gif" if animated else ".png"}?v=1'
 
-	async def find_backend_guilds(self):
-		"""Find all the guilds used to store emotes"""
-
-		if hasattr(self, 'guilds') and self.guilds:  # pylint: disable=access-member-before-definition
-			return
-
-		await self.bot.wait_until_ready()
-
-		guilds = []
-		for guild in self.bot.guilds:
-			if guild.name.startswith('EmojiBackend') and await self.bot.is_owner(guild.owner):
-				guilds.append(guild)
-		self.guilds = guilds
-		logger.info('In %s backend guilds.', len(guilds))
-
-		# allow other cogs that depend on the list of backend guilds to know when they've been found
-		self.bot.dispatch('backend_guild_enumeration', self.guilds)
-
 	def free_guild(self, animated=False):
 		"""Find a guild in the backend guilds suitable for storing an emote.
 
@@ -155,6 +155,10 @@ class Database:
 				COUNT(*) FILTER (WHERE animated) AS animated,
 				COUNT(*) AS total
 			FROM emote;""")
+
+	def capacity(self):
+		"""return a three-tuple of static capacity, animated, total"""
+		return (len(self.guilds)*50,)*2+(len(self.guilds)*50*2,)
 
 	async def get_emote(self, name) -> DatabaseEmote:
 		"""get an emote object by name"""
