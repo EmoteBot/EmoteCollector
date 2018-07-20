@@ -364,6 +364,8 @@ class Emotes:
 			old_name, new_name = utils.expand_cartesian_product(args[0])
 			if not new_name:
 				return await context.send('Error: you must provide a new name for the emote.')
+		else:
+			old_name, new_name, *_ = args
 
 		try:
 			await self.db.rename_emote(old_name, new_name, context.author.id)
