@@ -3,8 +3,7 @@
 
 from discord.ext import commands
 
-from .misc import get_message_by_offset
-
+import utils
 
 class HistoryMessage(commands.Converter):
 	@classmethod
@@ -33,7 +32,7 @@ class HistoryMessage(commands.Converter):
 			return await cls._get_message_by_id(context.channel, id)
 		elif offset_or_id < 0:
 			offset = offset_or_id
-			return await get_message_by_offset(context.channel, offset - 1)
+			return await utils.get_message_by_offset(context.channel, offset - 1)
 
 	@staticmethod
 	async def _get_message_by_id(channel, id):
