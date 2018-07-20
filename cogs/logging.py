@@ -40,7 +40,6 @@ LogColour = LogColor
 # Copyright © 2017–2018 Pandentia
 
 class Logger:
-
 	def __init__(self, bot):
 		self.bot = bot
 		self.db = self.bot.get_cog('Database')
@@ -56,6 +55,7 @@ class Logger:
 		try:
 			channel_id = self.bot.config['logs']['emotes']['channel']
 		except KeyError:
+			logger.warning('No logging channel was configured. Emote logging will not occur.')
 			return
 
 		self.channel = self.bot.get_channel(channel_id)
@@ -72,7 +72,6 @@ class Logger:
 			),
 			False
 		)
-		dict(add=False, remove=False, force_remove=False, decay=False, preserve=False)
 
 		try:
 			self.settings.update(self.bot.config['logs']['emotes']['settings'])
@@ -97,7 +96,7 @@ class Logger:
 			logging.error(utils.format_http_exception(exception))
 
 	async def log_emote_action(self, emote, action, color):
-		author = utils.format_user(self.bot.get_user(emote.author), mention=True)
+		author = utils.format_user(self.bot, emote.author, mention=True)
 		# \\ in case they name an emote, e.g. :grinning:
 		# we want to display :grinning:, not 😁
 		description = f'{emote} — \\:{emote.name}:\nOwner: {author}'
