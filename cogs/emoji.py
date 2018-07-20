@@ -165,16 +165,22 @@ class Emotes:
 				'Sorry, webhooks and bots may not add emotes. '
 				'Go find a human to do it for you.')
 
-		if context.message.attachments:
-			attachment = context.message.attachments[0]
-			# as far as i can tell, this is how discord replaces filenames when you upload an emote image
-			name = ''.join(args) if args else attachment.filename.split('.')[0].replace(' ', '')
-			url = attachment.url
+		try:
+			name, url = self.parse_add_command_args(context, args)
+		except commands.BadArgument as exception:
+			return await context.send(exception)
 
+		async with context.typing():
+			message = await self.add_safe(name, url, context.message.author.id)
+		await context.send(message)
+
+	def parse_add_command_args(self, context, args):
+		if context.message.attachments:
+			return self.parse_add_command_attachment(context, args)
 		elif len(args) == 1:
 			match = self.RE_CUSTOM_EMOTE.match(args[0])
 			if match is None:
-				return await context.send(
+				raise commands.BadArgument(
 					'Error: I expected a custom emote as the first argument, '
 					'but I got something else. '
 					"If you're trying to add an emote using an image URL, "
@@ -184,6 +190,7 @@ class Emotes:
 				animated, name, id = match.groups()
 				url = self.db.emote_url(id, animated=animated)
 
+			return name, url
 		elif len(args) >= 2:
 			name = args[0]
 			match = self.RE_CUSTOM_EMOTE.match(args[1])
@@ -192,12 +199,18 @@ class Emotes:
 			else:
 				url = self.db.emote_url(match.group('id'))
 
+			return name, url
 		elif not args:
-			return await context.send('Your message had no emotes and no name!')
+			raise commands.BadArgument('Your message had no emotes and no name!')
 
-		async with context.typing():
-			message = await self.add_safe(name, url, context.message.author.id)
-		await context.send(message)
+	@staticmethod
+	def parse_add_command_attachment(context, args):
+		attachment = context.message.attachments[0]
+		# as far as i can tell, this is how discord replaces filenames when you upload an emote image
+		name = ''.join(args) if args else attachment.filename.split('.')[0].replace(' ', '')
+		url = attachment.url
+
+		return name, url
 
 	async def add_safe(self, name, url, author_id):
 		"""Try to add an emote. Returns a string that should be sent to the user."""
