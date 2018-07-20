@@ -25,7 +25,6 @@ except ImportError:
 
 from cogs.db import DatabaseEmote
 import utils
-from utils import async_enumerate
 from utils import checks
 from utils import errors
 from utils.converter import HistoryMessage
@@ -478,7 +477,7 @@ class Emotes:
 		# https://gitlab.com/Pandentia/element-zero/blob/ca7d7f97e068e89334e66692922d9a8744e3e9be/element_zero/cogs/emoji.py#L364-399
 		processed = []
 
-		async for i, emote in async_enumerate(self.db.popular_emotes()):
+		async for i, emote in utils.async_enumerate(self.db.popular_emotes()):
 			if i == 200:
 				break
 
