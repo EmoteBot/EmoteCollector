@@ -2,7 +2,7 @@
 # encoding: utf-8
 
 import asyncio
-from contextlib import contextmanager
+import contextlib
 import imghdr
 import io
 import itertools
@@ -265,14 +265,13 @@ class Emotes:
 			data.seek(0, io.SEEK_END)
 			return data.tell()
 
-	@staticmethod
-	@contextmanager
-	def preserve_position(fp):
-		try:
-			old_pos = fp.tell()
-			yield
-		finally:
-			fp.seek(old_pos)
+	class preserve_position(contextlib.AbstractContextManager):
+		def __init__(self, fp):
+			self.fp = fp
+			self.old_pos = fp.tell()
+
+		def __exit__(self, *excinfo):
+			self.fp.seek(self.old_pos)
 
 	@classmethod
 	def resize_until_small(cls, image_data: io.BytesIO):
