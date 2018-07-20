@@ -8,17 +8,6 @@ from discord.ext import commands
 import utils
 
 
-class KeywordMessage(commands.Converter):
-	@staticmethod
-	async def convert(context, argument):
-		async for message in context.history():
-			if message.id == context.message.id:
-				continue  # skip the invoking message
-			if argument.casefold() in message.content.casefold():
-				return message
-
-		raise commands.BadArgument('Message not found.')
-
 class OffsetMessage(commands.Converter):
 	@staticmethod
 	async def convert(context, offset):
@@ -44,5 +33,22 @@ class IDMessage(commands.Converter):
 		except discord.Forbidden:
 			raise commands.BadArgument(
 				'Permission denied! Make sure the bot has permission to read that message.') from None
+
+class KeywordMessage(commands.Converter):
+	@staticmethod
+	async def convert(context, argument):
+		def emote_to_name(match):
+			return match.group('name')
+
+		def normalize(message):
+			return utils.emote.RE_CUSTOM_EMOTE.sub(emote_to_name, message).casefold()
+
+		async for message in context.history():
+			if message.id == context.message.id:
+				continue  # skip the invoking message
+			if argument.casefold() in normalize(message.content):
+				return message
+
+		raise commands.BadArgument('Message not found.')
 
 Message = typing.Union[OffsetMessage, IDMessage, KeywordMessage]
