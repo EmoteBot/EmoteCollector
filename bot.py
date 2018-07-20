@@ -110,7 +110,7 @@ class EmojiConnoisseur(commands.AutoShardedBot):
 		for extension in (
 				'cogs.logging',
 				'cogs.db',
-				'cogs.emoji',
+				'cogs.emote',
 				'cogs.meta',
 				'jishaku',
 				'cogs.stats',

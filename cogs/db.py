@@ -40,12 +40,13 @@ class DatabaseEmote(dict):
 		return '<{0}:{1.name}:{1.id}>'.format(animated, self)
 
 	def as_reaction(self):
+		"""return this emote as a string suitable for passing to Message.add_reaction"""
+		# apparently "a:" is not necessary for animated emote reactions
 		return f':{self.name}:{self.id}'
 
 	@property
 	def url(self):
-		extension = 'gif' if self.animated else 'png'
-		return f'https://cdn.discordapp.com/emojis/{self.id}.{extension}?v=1'
+		return utils.emote.url(self.id, animated=self.animated)
 
 	@classmethod
 	async def convert(cls, context, name: str):
@@ -122,11 +123,6 @@ class Database:
 
 		message = await utils.codeblock(str(PrettyTable(results)))
 		return await context.send(f'{message}*{len(results)} rows retrieved in {elapsed:.2f} seconds.*')
-
-	@staticmethod
-	def emote_url(emote_id, *, animated: bool = False):
-		"""Convert an emote ID to the image URL for that emote."""
-		return f'https://cdn.discordapp.com/emojis/{emote_id}{".gif" if animated else ".png"}?v=1'
 
 	def free_guild(self, animated=False):
 		"""Find a guild in the backend guilds suitable for storing an emote.
