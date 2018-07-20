@@ -27,7 +27,6 @@ from cogs.db import DatabaseEmote
 import utils
 from utils import checks
 from utils import errors
-from utils.converter import HistoryMessage
 from utils.paginator import ListPaginator
 
 
@@ -396,7 +395,7 @@ class Emotes:
 
 	@commands.command()
 	@checks.not_blacklisted()
-	async def react(self, context, emote: DatabaseEmote, *, message: HistoryMessage = None):
+	async def react(self, context, emote: DatabaseEmote, *, message: utils.converter.Message = None):
 		"""Add a reaction to a message. Sad reacts only please.
 
 		To specify the message, either provide a keyword to search for, or a message ID.

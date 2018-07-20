@@ -1,22 +1,16 @@
 #!/usr/bin/env python3
 # encoding: utf-8
 
+import typing
+
 from discord.ext import commands
 
 import utils
 
-class HistoryMessage(commands.Converter):
-	@classmethod
-	async def convert(cls, context, argument):
-		try:
-			offset_or_id = int(argument)
-		except ValueError:
-			return await cls._get_message_by_keyword(context, argument)
-		else:
-			return await cls._get_message_by_number(offset_or_id)
 
+class KeywordMessage(commands.Converter):
 	@staticmethod
-	async def _get_message_by_keyword(context, argument):
+	async def convert(context, argument):
 		async for message in context.history():
 			if message.id == context.message.id:
 				continue  # skip the invoking message
@@ -25,22 +19,30 @@ class HistoryMessage(commands.Converter):
 
 		raise commands.BadArgument('Message not found.')
 
-	@classmethod
-	async def _convert_from_number(cls, offset_or_id):
-		if offset_or_id > utils.SMALLEST_SNOWFLAKE:
-			id = offset_or_id
-			return await cls._get_message_by_id(context.channel, id)
-		elif offset_or_id < 0:
-			offset = offset_or_id
-			return await utils.get_message_by_offset(context.channel, offset - 1)
-
+class OffsetMessage(commands.Converter):
 	@staticmethod
-	async def _get_message_by_id(channel, id):
+	async def convert(context, offset):
+		if offset is None:
+			# get the second to last message (skip the invoking message)
+			offset = -2
+		if offset < 0:
+			return await utils.get_message_by_offset(context.channel, offset)
+
+		raise commands.BadArgument('Not a message offset.')
+
+class IDMessage(commands.Converter):
+	@staticmethod
+	async def convert(context, id):
+		if offset < utils.SMALLEST_SNOWFLAKE:
+			raise commands.BadArgument('Not a valid message ID.')
+
 		try:
-			return await channel.get_message(id)
+			return await context.channel.get_message(id)
 		except discord.NotFound:
 			raise commands.BadArgument(
 				'Message not found! Make sure your message ID is correct.') from None
 		except discord.Forbidden:
 			raise commands.BadArgument(
 				'Permission denied! Make sure the bot has permission to read that message.') from None
+
+Message = typing.Union[OffsetMessage, IDMessage, KeywordMessage]
