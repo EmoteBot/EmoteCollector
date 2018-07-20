@@ -97,7 +97,7 @@ class Emotes:
 		except AttributeError:
 			pass
 
-		name = utils.format_user(bot, emote.author, mention=False)
+		name = utils.format_user(self.bot, emote.author, mention=False)
 		if avatar is None:
 			embed.set_author(name=name)
 		else:
@@ -496,7 +496,7 @@ class Emotes:
 
 			formatted = str(emote)
 
-			author = utils.format_user(bot, emote.author, mention=True)
+			author = utils.format_user(self.bot, emote.author, mention=True)
 
 			c = emote.usage
 			multiple = '' if c == 1 else 's'
