@@ -4,6 +4,9 @@ import logging
 
 import discord
 
+import utils
+
+
 logger = logging.getLogger(__name__)
 
 class LogColor:  # like an enum but we don't want the conversion of fields to the Enum type
@@ -41,7 +44,6 @@ class Logger:
 	def __init__(self, bot):
 		self.bot = bot
 		self.db = self.bot.get_cog('Database')
-		self.utils = self.bot.get_cog('Utils')
 
 		self.bot.loop.create_task(self.init_channel())
 		self.init_settings()
@@ -92,10 +94,10 @@ class Logger:
 			# the channel isn't configured
 			pass
 		except discord.HTTPException as exception:
-			logging.error(self.utils.format_http_exception(exception))
+			logging.error(utils.format_http_exception(exception))
 
 	async def log_emote_action(self, emote, action, color):
-		author = self.utils.format_user(emote.author, mention=True)
+		author = utils.format_user(self.bot.get_user(emote.author), mention=True)
 		# \\ in case they name an emote, e.g. :grinning:
 		# we want to display :grinning:, not 😁
 		description = f'{emote} — \\:{emote.name}:\nOwner: {author}'

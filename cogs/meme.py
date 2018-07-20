@@ -4,13 +4,11 @@
 import aiofiles
 from discord.ext import commands
 
-from utils import load_json_compat
-
+import utils
 
 class Meme:
 	def __init__(self, bot):
 		self.bot = bot
-		self.utils = self.bot.get_cog('Utils')
 		self.read_memes_task = self.bot.loop.create_task(self.read_memes())
 
 	def __unload(self):
@@ -18,13 +16,13 @@ class Meme:
 
 	async def read_memes(self):
 		async with aiofiles.open('data/memes.py') as f:
-			self.memes = load_json_compat(await f.read())
+			self.memes = utils.load_json_compat(await f.read())
 
 	@commands.command(hidden=True)
 	async def meme(self, context, *, name):
 		response = self.memes.get(name)
 		if response is not None:
-			await context.send(self.utils.fix_first_line(response))
+			await context.send(utils.fix_first_line(response))
 
 
 def setup(bot):

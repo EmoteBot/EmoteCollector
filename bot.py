@@ -15,7 +15,7 @@ except ImportError:
 else:
 	asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
-from utils import CustomContext, load_json_compat
+import utils
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('bot')
@@ -25,7 +25,7 @@ logger.setLevel(logging.DEBUG)
 class EmojiConnoisseur(commands.AutoShardedBot):
 	def __init__(self, *args, **kwargs):
 		with open('data/config.py') as conf:
-			self.config = load_json_compat(conf.read())
+			self.config = utils.load_json_compat(conf.read())
 			# make lookup fast
 			self.config['extra_owners'] = frozenset(self.config['extra_owners'])
 
@@ -57,7 +57,7 @@ class EmojiConnoisseur(commands.AutoShardedBot):
 		if not self.should_reply(message):
 			return
 		# inject our context
-		await self.invoke(await self.get_context(message, cls=CustomContext))
+		await self.invoke(await self.get_context(message, cls=utils.context.CustomContext))
 
 	def should_reply(self, message):
 		"""return whether the bot should reply to a given message"""
@@ -108,7 +108,6 @@ class EmojiConnoisseur(commands.AutoShardedBot):
 
 	def run(self, *args, **kwargs):
 		for extension in (
-				'cogs.utils',  # load first, since other cogs depend on it
 				'cogs.logging',
 				'cogs.db',
 				'cogs.emoji',

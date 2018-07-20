@@ -12,6 +12,7 @@ import asyncpg
 import discord
 from discord.ext import commands
 
+import utils
 from utils import PrettyTable, errors
 
 
@@ -61,7 +62,6 @@ class Database:
 		# without backend guild enumeration, the bot will report all guilds being full
 		self.tasks.append(self.bot.loop.create_task(self.find_backend_guilds()))
 		self.tasks.append(self.bot.loop.create_task(self.decay_loop()))
-		self.utils_cog = self.bot.get_cog('Utils')
 		self.logger = self.bot.get_cog('Logger')
 
 	def __unload(self):
@@ -102,7 +102,7 @@ class Database:
 			return await context.send(exception)
 		elapsed = time.monotonic() - start
 
-		message = await self.utils_cog.codeblock(str(PrettyTable(results)))
+		message = await utils.codeblock(str(PrettyTable(results)))
 		return await context.send(f'{message}*{len(results)} rows retrieved in {elapsed:.2f} seconds.*')
 
 	@staticmethod

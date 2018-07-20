@@ -28,7 +28,7 @@ import utils
 from utils import async_enumerate
 from utils import checks
 from utils import errors
-from utils import HistoryMessage
+from utils.converter import HistoryMessage
 from utils.paginator import ListPaginator
 
 
@@ -47,7 +47,6 @@ class Emotes:
 
 	def __init__(self, bot):
 		self.bot = bot
-		self.utils = self.bot.get_cog('Utils')
 		self.db = self.bot.get_cog('Database')
 		self.logger = self.bot.get_cog('Logger')
 		self.http = aiohttp.ClientSession(loop=self.bot.loop, read_timeout=30, headers={
@@ -100,7 +99,7 @@ class Emotes:
 		except AttributeError:
 			pass
 
-		name = self.utils.format_user(emote['author'], mention=False)
+		name = utils.format_user(self.bot.get_user(emote.author), mention=False)
 		if avatar is None:
 			embed.set_author(name=name)
 		else:
@@ -110,7 +109,7 @@ class Emotes:
 			embed.add_field(
 				name='Last modified',
 				# hangul filler prevents the embed fields from jamming next to each other
-				value=self.utils.format_time(emote['modified']) + '\N{hangul filler}')
+				value=utils.format_time(emote['modified']) + '\N{hangul filler}')
 
 		embed.add_field(name='Usage count', value=await self.db.get_emote_usage(emote))
 
@@ -125,7 +124,7 @@ class Emotes:
 			f'Static emotes: {static}\n'
 			f'Animated emotes: {animated}\n'
 			f'Total: {total}')
-		await context.send(self.utils.fix_first_line(message))
+		await context.send(utils.fix_first_line(message))
 
 	@commands.command()
 	@checks.not_blacklisted()
@@ -191,7 +190,7 @@ class Emotes:
 			name = args[0]
 			match = self.RE_CUSTOM_EMOTE.match(args[1])
 			if match is None:
-				url = self.utils.strip_angle_brackets(args[1])
+				url = utils.strip_angle_brackets(args[1])
 			else:
 				url = self.db.emote_url(match.group('id'))
 
@@ -210,7 +209,7 @@ class Emotes:
 			logger.error(traceback.format_exc())
 			return (
 				'An error occurred while creating the emote:\n'
-				+ self.utils.format_http_exception(ex))
+				+ utils.format_http_exception(ex))
 		except asyncio.TimeoutError:
 			return 'Error: retrieving the image took too long.'
 		except ValueError:
@@ -347,7 +346,7 @@ class Emotes:
 				messages.append(f'\\:{emote.name}: was successfully deleted.')
 
 		message = '\n'.join(messages)
-		await context.send(self.utils.fix_first_line(message))
+		await context.send(utils.fix_first_line(message))
 
 	@commands.command(aliases=['mv'])
 	async def rename(self, context, *args):
@@ -360,7 +359,6 @@ class Emotes:
 
 		# allow e.g. foo{bar,baz} -> rename foobar to foobaz
 		if len(args) == 1:
-			print(utils.expand_cartesian_product(args[0]))
 			old_name, new_name = utils.expand_cartesian_product(args[0])
 			if not new_name:
 				return await context.send('Error: you must provide a new name for the emote.')
@@ -368,7 +366,7 @@ class Emotes:
 		try:
 			await self.db.rename_emote(old_name, new_name, context.author.id)
 		except discord.HTTPException as ex:
-			await context.send(self.utils.format_http_exception(ex))
+			await context.send(utils.format_http_exception(ex))
 		else:
 			await context.send('Emote successfully renamed.')
 
@@ -385,7 +383,7 @@ class Emotes:
 		Currently, there's a limit of 500 characters.
 		"""
 		await self.db.set_emote_description(name, context.author.id, description)
-		await context.try_add_reaction(self.utils.SUCCESS_EMOTES[True])
+		await context.try_add_reaction(utils.SUCCESS_EMOTES[True])
 
 	@commands.command()
 	@checks.not_blacklisted()
@@ -401,7 +399,7 @@ class Emotes:
 
 		if message is None:
 			# get the second to last message (ie ignore the invoking message)
-			message = await self.utils.get_message(context.channel, -2)
+			message = await utils.get_message(context.channel, -2)
 
 		# there's no need to react to a message if that reaction already exists
 		def same_emote(reaction):
@@ -488,7 +486,7 @@ class Emotes:
 
 			formatted = str(emote)
 
-			author = self.utils.format_user(emote['author'], mention=True)
+			author = utils.format_user(emote['author'], mention=True)
 
 			c = emote['usage']
 			multiple = '' if c == 1 else 's'
@@ -520,7 +518,7 @@ class Emotes:
 			return await context.send('Error: no existing custom emotes were provided.')
 
 		message = '\n'.join(messages)
-		await context.send(self.utils.fix_first_line(message))
+		await context.send(utils.fix_first_line(message))
 
 	@commands.command()
 	async def toggle(self, context):
@@ -581,7 +579,7 @@ class Emotes:
 				await context.send(ex)
 			else:
 				self.bot.dispatch(f'emote_{"un" if not should_preserve else ""}preserve', emote)
-		await context.send(self.utils.SUCCESS_EMOTES[True])
+		await context.send(utils.SUCCESS_EMOTES[True])
 
 	## EVENTS
 
@@ -680,7 +678,7 @@ class Emotes:
 		# quux, we should only send :cruz:\n:cruz:
 		extracted = ''.join(extracted).strip()
 		if extracted:
-			return self.utils.fix_first_line(extracted), emotes_used
+			return utils.fix_first_line(extracted), emotes_used
 		else:
 			return None, emotes_used
 
