@@ -18,6 +18,19 @@ from prettytable import PrettyTable
 from wrapt import ObjectProxy
 
 
+"""miscellaneous utility functions and constants"""
+
+
+"""Stanislav#0001's user ID
+This is useful to test whether a number is a snowflake:
+if it's greater than this number, it probably is"""
+SMALLEST_SNOWFLAKE = 21154535154122752
+
+"""Emotes used to indicate success/failure. You can obtain these from the discordbots.org guild,
+but I uploaded them to my test server
+so that both the staging and the stable versions of the bot can use them"""
+SUCCESS_EMOTES = ('<:error:416845770239508512>', '<:success:416845760810844160>')
+
 class PrettyTable(PrettyTable):
 	"""an extension of PrettyTable that works with asyncpg's Records and looks better"""
 	def __init__(self, rows: Sequence[Union[asyncpg.Record, collections.OrderedDict]], **options):
@@ -38,7 +51,6 @@ class PrettyTable(PrettyTable):
 
 		for row in rows:
 			self.add_row(row)
-
 
 class LRUDict(ObjectProxy):
 	"""An extension of lru.LRU to add `pop` and fix `update`"""
@@ -74,12 +86,6 @@ class LRUDict(ObjectProxy):
 
 		if kwargs:
 			self.update(kwargs)
-
-
-"""Emotes used to indicate success/failure. You can obtain these from the discordbots.org guild,
-but I uploaded them to my test server
-so that both the staging and the stable versions of the bot can use them"""
-SUCCESS_EMOTES = ('<:error:416845770239508512>', '<:success:416845760810844160>')
 
 def typing(func):
 	"""Makes a command function run with the context.typing() context manager.

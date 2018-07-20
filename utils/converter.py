@@ -27,7 +27,7 @@ class HistoryMessage(commands.Converter):
 
 	@classmethod
 	async def _convert_from_number(cls, offset_or_id):
-		if offset_or_id > 21154535154122752:  # smallest known snowflake
+		if offset_or_id > utils.SMALLEST_SNOWFLAKE:
 			id = offset_or_id
 			return await cls._get_message_by_id(context.channel, id)
 		elif offset_or_id < 0:
