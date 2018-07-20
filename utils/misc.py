@@ -127,14 +127,9 @@ def fix_first_line(message: str) -> str:
 		message = '\N{zero width space}\n' + message
 	return message
 
-def emote_info(url):
-	"""Return a two tuple (id, animated) for the given emote url"""
-	path = urllib.parse.urlparse(url).path
-	filename, extension = os.path.splitext(os.path.basename(path))
-	return int(filename), extension == '.gif'
-
-def format_user(user, *, mention=False):
+def format_user(bot, id, *, mention=False):
 	"""Format a user ID for human readable display."""
+	user = bot.get_user(id)
 	if user is None:
 		return f'Unknown user with ID {id}'
 	# not mention: @null byte#8191 (140516693242937345)
