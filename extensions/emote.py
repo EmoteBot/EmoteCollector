@@ -11,7 +11,7 @@ import re
 import traceback
 import weakref
 
-logger = logging.getLogger('cogs.emoji')
+logger = logging.getLogger(__name__)
 
 import aiohttp
 import asyncpg
