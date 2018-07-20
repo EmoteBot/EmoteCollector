@@ -398,7 +398,7 @@ class Emotes:
 
 		if message is None:
 			# get the second to last message (ie ignore the invoking message)
-			message = await utils.get_message(context.channel, -2)
+			message = await utils.get_message_by_offset(context.channel, -2)
 
 		# there's no need to react to a message if that reaction already exists
 		def same_emote(reaction):
