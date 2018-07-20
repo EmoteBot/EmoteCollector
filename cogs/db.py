@@ -172,11 +172,11 @@ class Database:
 		else:
 			raise errors.EmoteNotFoundError(name)
 
-	async def get_emote_usage(self, emote: asyncpg.Record) -> int:
+	async def get_emote_usage(self, emote) -> int:
 		"""return how many times this emote was used"""
 		return await self.db.fetchval(
 			'SELECT COUNT(*) FROM emote_usage_history WHERE id = $1',
-			emote['id'])
+			emote.id)
 
 	## Iterators
 
@@ -378,7 +378,7 @@ class Database:
 			cutoff = datetime.datetime.utcnow() - datetime.timedelta(weeks=4)
 
 		async for emote in self.decayable_emotes(cutoff, usage_threshold):
-			logger.info('decaying %s', emote['name'])
+			logger.info('decaying %s', emote.name)
 			await self.logger.on_emote_decay(emote)
 			await self.remove_emote(emote, user_id=None)
 

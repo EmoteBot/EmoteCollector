@@ -81,19 +81,19 @@ class Emotes:
 		embed = discord.Embed()
 
 		title = str(emote)
-		if emote['preserve']: title += ' (Preserved)'
+		if emote.preserve: title += ' (Preserved)'
 		embed.title = title
 
-		if emote['description'] is not None:
-			embed.description = emote['description']
+		if emote.description is not None:
+			embed.description = emote.description
 
-		if emote['created'] is not None:
-			embed.timestamp = emote['created']
+		if emote.created is not None:
+			embed.timestamp = emote.created
 			embed.set_footer(text='Created')
 
 		avatar = None
 		try:
-			avatar = self.bot.get_user(emote['author']).avatar_url_as(static_format='png', size=32)
+			avatar = self.bot.get_user(emote.author).avatar_url_as(static_format='png', size=32)
 		except AttributeError:
 			pass
 
@@ -103,11 +103,11 @@ class Emotes:
 		else:
 			embed.set_author(name=name, icon_url=avatar)
 
-		if emote['modified'] is not None:
+		if emote.modified is not None:
 			embed.add_field(
 				name='Last modified',
 				# hangul filler prevents the embed fields from jamming next to each other
-				value=utils.format_time(emote['modified']) + '\N{hangul filler}')
+				value=utils.format_time(emote.modified) + '\N{hangul filler}')
 
 		embed.add_field(name='Usage count', value=await self.db.get_emote_usage(emote))
 
@@ -413,7 +413,7 @@ class Emotes:
 
 		# there's no need to react to a message if that reaction already exists
 		def same_emote(reaction):
-			return getattr(reaction.emoji, 'id', None) == emote['id']
+			return getattr(reaction.emoji, 'id', None) == emote.id
 
 		if discord.utils.find(same_emote, message.reactions):
 			return await context.send(
@@ -435,14 +435,14 @@ class Emotes:
 			return (
 				payload.message_id == message.id
 				and payload.user_id == context.message.author.id
-				and emote['id'] == getattr(payload.emoji, 'id', None))  # unicode emoji have no id
+				and emote.id == getattr(payload.emoji, 'id', None))  # unicode emoji have no id
 
 		try:
 			await self.bot.wait_for('raw_reaction_add', timeout=30, check=check)
 		except asyncio.TimeoutError:
 			pass
 		else:
-			await self.db.log_emote_use(emote['id'], context.author.id)
+			await self.db.log_emote_use(emote.id, context.author.id)
 		finally:
 			# if we don't sleep, it would appear that the bot never un-reacted
 			# i.e. the reaction button would still say "2" even after we remove our reaction
@@ -498,7 +498,7 @@ class Emotes:
 
 			author = utils.format_user(bot, emote.author, mention=True)
 
-			c = emote['usage']
+			c = emote.usage
 			multiple = '' if c == 1 else 's'
 
 			processed.append(
