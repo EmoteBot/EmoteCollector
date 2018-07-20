@@ -215,7 +215,7 @@ class Emotes:
 	async def add_safe(self, name, url, author_id):
 		"""Try to add an emote. Returns a string that should be sent to the user."""
 		try:
-			emote = await self.add_backend(name, url, author_id)
+			emote = await self.add_from_url(name, url, author_id)
 		except discord.HTTPException as ex:
 			logger.error(traceback.format_exc())
 			return (
@@ -228,8 +228,7 @@ class Emotes:
 		else:
 			return f'Emote {emote} successfully created.'
 
-	async def add_backend(self, name, url, author_id):
-		"""Actually add an emote to the database."""
+	async def add_from_url(self, name, url, author_id):
 		image_data = await self.fetch_emote(url)
 		emote = await self.create_emote_from_bytes(name, author_id, image_data)
 
@@ -249,7 +248,7 @@ class Emotes:
 				raise errors.HTTPException(response.status)
 			return io.BytesIO(await response.read())
 
-	async def create_emote_from_bytes(self, name, author_id, image_data):
+	async def create_emote_from_bytes(self, name, author_id, image_data: io.BytesIO):
 		# resize_until_small is normally blocking, because wand is.
 		# run_in_executor is magic that makes it non blocking somehow.
 		# also, None as the executor arg means "use the loop's default executor"
