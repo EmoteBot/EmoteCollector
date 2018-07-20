@@ -108,14 +108,14 @@ class EmojiConnoisseur(commands.AutoShardedBot):
 
 	def run(self, *args, **kwargs):
 		for extension in (
-				'cogs.logging',
-				'cogs.db',
-				'cogs.emote',
-				'cogs.meta',
+				'extensions.logging',
+				'extensions.db',
+				'extensions.emote',
+				'extensions.meta',
 				'jishaku',
-				'cogs.stats',
+				'extensions.stats',
 				'ben_cogs.misc',
-				'cogs.meme',
+				'extensions.meme',
 				'ben_cogs.debug',
 		):
 			self.load_extension(extension)

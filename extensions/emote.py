@@ -23,7 +23,7 @@ except ImportError:
 	logger.warn('failed to import wand.image. image manipulation functions will be unavailable.')
 	Image = None
 
-from cogs.db import DatabaseEmote
+from extensions.db import DatabaseEmote
 import utils
 from utils import checks
 from utils import errors
@@ -32,12 +32,6 @@ from utils.paginator import ListPaginator
 
 class Emotes:
 	"""Commands related to the main functionality of the bot"""
-
-	"""Matches :foo: and ;foo; but not :foo;. Used for emotes in text."""
-	RE_EMOTE = re.compile(r'(:|;)(?P<name>\w{2,32})\1|(?P<newline>\n)', re.ASCII)
-
-	"""Matches only custom server emoji."""
-	RE_CUSTOM_EMOTE = re.compile(r'<(?P<animated>a?):(?P<name>\w{2,32}):(?P<id>\d{17,})>', re.ASCII)
 
 	"""Matches code blocks, which should be ignored."""
 	RE_CODE = re.compile(r'(`{1,3}).+?\1', re.DOTALL)
@@ -177,7 +171,7 @@ class Emotes:
 		if context.message.attachments:
 			return self.parse_add_command_attachment(context, args)
 		elif len(args) == 1:
-			match = self.RE_CUSTOM_EMOTE.match(args[0])
+			match = utils.emote.RE_CUSTOM_EMOTE.match(args[0])
 			if match is None:
 				raise commands.BadArgument(
 					'Error: I expected a custom emote as the first argument, '
@@ -187,16 +181,16 @@ class Emotes:
 					'`{}add NAME_HERE URL_HERE`'.format(context.prefix))
 			else:
 				animated, name, id = match.groups()
-				url = self.db.emote_url(id, animated=animated)
+				url = utils.emote.url(id, animated=animated)
 
 			return name, url
 		elif len(args) >= 2:
 			name = args[0]
-			match = self.RE_CUSTOM_EMOTE.match(args[1])
+			match = utils.emote.RE_CUSTOM_EMOTE.match(args[1])
 			if match is None:
 				url = utils.strip_angle_brackets(args[1])
 			else:
-				url = self.db.emote_url(match.group('id'))
+				url = utils.emote.url(match.group('id'))
 
 			return name, url
 		elif not args:
@@ -370,6 +364,8 @@ class Emotes:
 			old_name, new_name = utils.expand_cartesian_product(args[0])
 			if not new_name:
 				return await context.send('Error: you must provide a new name for the emote.')
+		else:
+			old_name, new_name, *_ = args
 
 		try:
 			await self.db.rename_emote(old_name, new_name, context.author.id)
@@ -517,9 +513,9 @@ class Emotes:
 			return await context.send('You need to provide one or more custom emotes.')
 
 		messages = []
-		for match in self.RE_CUSTOM_EMOTE.finditer(''.join(emotes)):
+		for match in utils.emote.RE_CUSTOM_EMOTE.finditer(''.join(emotes)):
 			animated, name, id = match.groups()
-			image_url = self.db.emote_url(id)
+			image_url = utils.emote.url(id)
 			messages.append(await self.add_safe(name, image_url, context.author.id))
 
 		if not messages:
@@ -659,11 +655,11 @@ class Emotes:
 		"""Parse all emotes (:name: or ;name;) from a message"""
 		# don't respond to code blocks or custom emotes, since custom emotes also have :foo: in them
 		message = self.RE_CODE.sub('', message)
-		message = self.RE_CUSTOM_EMOTE.sub('', message)
+		message = utils.emote.RE_CUSTOM_EMOTE.sub('', message)
 
 		extracted = []
 		emotes_used = set()
-		for match in self.RE_EMOTE.finditer(message):
+		for match in utils.emote.RE_EMOTE.finditer(message):
 			name, newline = match.groups()[1:]  # the first group matches : or ;
 			if name:
 				try:

@@ -16,7 +16,7 @@ import utils
 from utils import PrettyTable, errors
 
 
-logger = logging.getLogger('cogs.db')
+logger = logging.getLogger(__name__)
 
 class DatabaseEmote(dict):
 	def __init__(self, x, **kwargs):
