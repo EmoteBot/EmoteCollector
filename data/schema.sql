@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS guild_opt(
 	state BOOLEAN NOT NULL);
 
 CREATE TABLE IF NOT EXISTS emote_usage_history(
-	id BIGINT REFERENCES emojis (id),
+	id BIGINT REFERENCES emote (id),
 	time TIMESTAMP WITH TIME ZONE DEFAULT (CURRENT_TIMESTAMP));
 
 CREATE INDEX IF NOT EXISTS emote_usage_history_id_idx ON emote_usage_history (id);
