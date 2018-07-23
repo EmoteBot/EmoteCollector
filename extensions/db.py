@@ -381,7 +381,7 @@ class Database:
 			cutoff = datetime.datetime.utcnow() - datetime.timedelta(weeks=4)
 
 		async for emote in self.decayable_emotes(cutoff, usage_threshold):
-			logger.info('decaying %s', emote.name)
+			logger.debug('decaying %s', emote.name)
 			await self.logger.on_emote_decay(emote)
 			await self.remove_emote(emote, user_id=None)
 
