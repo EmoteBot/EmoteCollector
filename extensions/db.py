@@ -191,6 +191,7 @@ class Database:
 				SELECT COUNT(*)
 				FROM emote_usage_history
 				WHERE id = emote.id
+				AND time > (CURRENT_TIMESTAMP - INTERVAL '4 weeks')
 			) AS usage
 			FROM emote
 			ORDER BY usage DESC, LOWER("name")
@@ -227,8 +228,8 @@ class Database:
 					id = emote.id
 					AND time > $1
 			) < $2
-				AND NOT preserve
-				AND created < $1;
+			AND NOT preserve
+			AND created < $1;
 		""", cutoff, usage_threshold)
 
 	async def _database_emote_cursor(self, query, *args):
