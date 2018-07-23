@@ -19,10 +19,6 @@ from utils import PrettyTable, errors
 logger = logging.getLogger(__name__)
 
 class DatabaseEmote(dict):
-	def __init__(self, x, **kwargs):
-		if x is not None or kwargs:
-			super().__init__(x, **kwargs)
-
 	def __getattr__(self, name):
 		return self[name]
 
