@@ -17,10 +17,9 @@ else:
 
 import utils
 
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('bot')
-logger.setLevel(logging.DEBUG)
-
 
 class EmojiConnoisseur(commands.AutoShardedBot):
 	def __init__(self, *args, **kwargs):
@@ -99,8 +98,10 @@ class EmojiConnoisseur(commands.AutoShardedBot):
 			await context.send(error)
 		elif isinstance(error, commands.NotOwner):
 			logger.error('%s tried to run %s but is not the owner', context.author, context.command.name)
-		elif isinstance(error, commands.CommandInvokeError):
-			await context.send('An internal error occured while trying to run that command.')
+		else:
+			if isinstance(error, commands.CommandInvokeError):
+				await context.send('An internal error occured while trying to run that command.')
+
 			logger.error('In %s:', context.command.qualified_name)
 			logger.error(''.join(traceback.format_tb(error.original.__traceback__)))
 			# pylint: disable=logging-format-interpolation
@@ -123,11 +124,9 @@ class EmojiConnoisseur(commands.AutoShardedBot):
 
 		super().run(self.config['tokens'].pop('discord'), *args, **kwargs)
 
-
 # defined in a function so it can be run from a REPL if need be
 def run():
 	EmojiConnoisseur().run()
-
 
 if __name__ == '__main__':
 	run()
