@@ -126,17 +126,17 @@ class Emotes:
 		for mobile users.
 		"""
 		func = self._big_noembed if no_embed else self._big_embed
-		await context.send(func(emote))
+		await func(context, emote)
 
 	@staticmethod
-	def _big_noembed(emote):
-		return f'{emote.name}: {emote.url}'
+	async def _big_noembed(context, emote):
+		await context.send(f'{emote.name}: {emote.url}')
 
 	@staticmethod
-	def _big_embed(emote):
+	async def _big_embed(context, emote):
 		embed = discord.Embed(title=emote.name)
 		embed.set_image(url=emote.url)
-		return embed
+		await context.send(embed=embed)
 
 	@commands.command(aliases=['create'])
 	@checks.not_blacklisted()
