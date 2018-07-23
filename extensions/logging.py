@@ -17,7 +17,7 @@ class LogColor:  # like an enum but we don't want the conversion of fields to th
 		return discord.Color.from_rgb(*map(int, (r,g,b)))
 
 	GREEN = _hsv_to_discord_color(86, 144, 175)
-	LIGHT_GREEN = _hsv_to_discord_color(86, 144, 80)
+	DARK_GREEN = _hsv_to_discord_color(85, 100, 165)
 	RED = _hsv_to_discord_color(2, 198, 244)
 	DARK_RED = _hsv_to_discord_color(2, 125, 255)
 	LIGHT_RED = _hsv_to_discord_color(2, 125, 200)
@@ -25,9 +25,9 @@ class LogColor:  # like an enum but we don't want the conversion of fields to th
 	GREY = GRAY
 
 	ADD = GREEN
-	PRESERVE = LIGHT_GREEN
+	PRESERVE = DARK_GREEN
 	REMOVE = RED
-	FORCE_REMOVE = DARK_RED  # TODO pick a diff color (maybe darker red?)
+	FORCE_REMOVE = DARK_RED
 	UNPRESERVE = LIGHT_RED
 	DECAY = GRAY
 
