@@ -285,11 +285,11 @@ class Database:
 		guild = self.free_guild(animated)
 
 		emote = await guild.create_custom_emoji(name=name, image=image_data)
-		await self.db.execute(
-			'INSERT INTO emote(name, id, author, animated) VALUES ($1, $2, $3, $4)',
-			name, emote.id, author_id, animated)
-
-		return await self.get_emote(name)
+		db_emote = await self.db.fetchrow("""
+			INSERT INTO emote(name, id, author, animated)
+			VALUES ($1, $2, $3, $4)
+			RETURNING *""", name, emote.id, author_id, animated)
+		return DatabaseEmote(db_emote)
 
 	async def remove_emote(self, emote, user_id):
 		"""Remove an emote given by name.
@@ -362,10 +362,7 @@ class Database:
 
 	async def get_emote_preservation(self, name):
 		"""return whether the emote should be prevented from being decayed"""
-		result = await self.db.fetchval('SELECT preserve FROM emote WHERE LOWER(name) = LOWER($1)', name)
-		if result is None:
-			raise errors.EmoteNotFoundError(name)
-		return result
+		return (await self.get_emote(name)).preserve
 
 	async def log_emote_use(self, emote_id, user_id=None):
 		await self.db.execute("""
@@ -374,6 +371,8 @@ class Database:
 			-- https://stackoverflow.com/a/15710598
 			SELECT ($1)
 			WHERE NOT EXISTS (
+				-- restrict emote logging to non-owners
+				-- this should reduce some spam and stats-inflation
 				SELECT * FROM emote WHERE id = $1 AND author = $2)""",
 			emote_id, user_id)
 
@@ -391,9 +390,10 @@ class Database:
 	async def _toggle_state(self, table_name, id, default):
 		"""toggle the state for a user or guild. If there's no entry already, new state = default."""
 		# see _get_state for why string formatting is OK here
-		await self.db.execute(f"""
+		return await self.db.fetchval(f"""
 			INSERT INTO {table_name} (id, state) VALUES ($1, $2)
 			ON CONFLICT (id) DO UPDATE SET state = NOT {table_name}.state
+			RETURNING state
 		""", id, default)
 
 	async def toggle_user_state(self, user_id, guild_id=None) -> bool:
@@ -407,16 +407,15 @@ class Database:
 		if guild_state is not None:
 			# if the auto response is enabled for the guild then toggling the user state should opt out
 			default = not guild_state
-		await self._toggle_state('user_opt', user_id, default)
-		return await self.get_user_state(user_id)
+		return await self._toggle_state('user_opt', user_id, default)
 
 	async def toggle_guild_state(self, guild_id):
 		"""Togle whether this guild is opt out.
 		If this guild is opt in, the emote auto response will be disabled
 		except for users that have opted in to it using `toggle_user_state`.
-		Otherwise, the response will be on for all users except those that have opted out."""
-		await self._toggle_state('guild_opt', guild_id, False)
-		return await self.get_guild_state(guild_id)
+		Otherwise, the response will be on for all users except those that have opted out.
+		"""
+		return await self._toggle_state('guild_opt', guild_id, False)
 
 	async def _get_state(self, table_name, id):
 		# unfortunately, using $1 for table_name is a syntax error
@@ -458,7 +457,8 @@ class Database:
 		# and if it does exist, update
 		await self.db.execute("""
 			INSERT INTO user_opt (id, blacklist_reason) VALUES ($1, $2)
-			ON CONFLICT (id) DO UPDATE SET blacklist_reason = EXCLUDED.blacklist_reason""", user_id, reason)
+			ON CONFLICT (id) DO UPDATE SET blacklist_reason = EXCLUDED.blacklist_reason""",
+		user_id, reason)
 
 	##
 
