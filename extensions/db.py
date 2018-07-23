@@ -357,15 +357,19 @@ class Database:
 		"""change the preservation status of an emote.
 		if an emote is preserved, it should not be decayed due to lack of use
 		"""
-		emote = await self.get_emote(name)  # ensure it exists
-		await self.db.execute(
-			'UPDATE emote SET preserve = $1 WHERE LOWER(name) = LOWER($2)',
-			should_preserve, name)
-		return emote  # allow the caller to reuse the emote to reduce database queries
+		emote = await self.db.fetchrow("""
+			UPDATE emote
+			SET preserve = $1
+			WHERE LOWER(name) = LOWER($2)
+			RETURNING *""", should_preserve, name)
 
-	async def get_emote_preservation(self, name):
-		"""return whether the emote should be prevented from being decayed"""
-		return (await self.get_emote(name)).preserve
+		# why are we doing this "if not emote" checking, when we could just call get_emote
+		# before insert?
+		# because that would constitute an extra database query which we don't need
+		if not emote:
+			raise errors.EmoteNotFoundError(name)
+		else:
+			return DatabaseEmote(emote) # allow the caller to reuse the emote to reduce database queries
 
 	async def log_emote_use(self, emote_id, user_id=None):
 		await self.db.execute("""
