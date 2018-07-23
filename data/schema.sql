@@ -21,10 +21,8 @@ BEGIN
 		NEW.modified = CURRENT_TIMESTAMP;
 		RETURN NEW;
 	ELSE
-		RETURN OLD;
-	END IF;
-END;
-$$ language 'plpgsql';
+		RETURN OLD; END IF; END;
+$$ LANGUAGE plpgsql;
 
 DROP TRIGGER IF EXISTS update_emote_modtime ON emote;
 
@@ -48,8 +46,19 @@ CREATE TABLE IF NOT EXISTS emote_usage_history(
 	time TIMESTAMP WITH TIME ZONE DEFAULT (CURRENT_TIMESTAMP));
 
 CREATE INDEX IF NOT EXISTS emote_usage_history_id_idx ON emote_usage_history (id);
+CREATE INDEX IF NOT EXISTS emote_usage_history_time_idx ON emote_usage_history (time);
 
--- old stuff
+-- utility funcs --
+
+CREATE OR REPLACE FUNCTION str_contains(text, text) RETURNS bool AS $$
+BEGIN
+	-- strpos(haystack, needle)
+	-- we want str_contains(needle, haystack)
+	RETURN strpos($2, $1) > 0; END;
+$$ LANGUAGE plpgsql;
+
+-- old stuff --
+
 DROP INDEX IF EXISTS emojis_lower_idx;
 DROP INDEX IF EXISTS emojis_author_idx;
 

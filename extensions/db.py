@@ -201,6 +201,17 @@ class Database:
 		"""
 		return self._database_emote_cursor(query)
 
+	def search(self, substring):
+		"""return an async iterator that gets emotes from the db whose name contains `substring`."""
+
+		query = """
+			SELECT *
+			FROM emote
+			WHERE str_contains($1, name)
+			ORDER BY LOWER(name) ASC
+		"""
+		return self._database_emote_cursor(query, substring)
+
 	def decayable_emotes(self, cutoff: datetime, usage_threshold):
 		"""remove emotes that should be removed due to inactivity.
 

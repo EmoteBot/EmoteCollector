@@ -170,6 +170,7 @@ class Emotes:
 	def parse_add_command_args(self, context, args):
 		if context.message.attachments:
 			return self.parse_add_command_attachment(context, args)
+
 		elif len(args) == 1:
 			match = utils.emote.RE_CUSTOM_EMOTE.match(args[0])
 			if match is None:
@@ -184,6 +185,7 @@ class Emotes:
 				url = utils.emote.url(id, animated=animated)
 
 			return name, url
+
 		elif len(args) >= 2:
 			name = args[0]
 			match = utils.emote.RE_CUSTOM_EMOTE.match(args[1])
@@ -193,6 +195,7 @@ class Emotes:
 				url = utils.emote.url(match.group('id'))
 
 			return name, url
+
 		elif not args:
 			raise commands.BadArgument('Your message had no emotes and no name!')
 
@@ -475,6 +478,19 @@ class Emotes:
 		"""
 
 		await context.send('https://emoji-connoisseur.python-for.life/list' + (f'/{user.id}' if user else ''))
+
+	@commands.command(aliases=['find'])
+	async def search(self, context, query):
+		"""Search for emotes whose name contains "query"."""
+
+		processed = []
+
+		async for i, emote in utils.async_enumerate(self.db.search(query)):
+			processed.append(f'{emote} (\\:{emote.name}:)')
+
+		paginator = ListPaginator(context, processed)
+		self.paginators.add(paginator)
+		await paginator.begin()
 
 	@commands.command()
 	async def popular(self, context):
