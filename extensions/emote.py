@@ -488,6 +488,9 @@ class Emotes:
 		async for i, emote in utils.async_enumerate(self.db.search(query)):
 			processed.append(f'{emote} (\\:{emote.name}:)')
 
+		if not processed:
+			return await context.send('No results matched your query.')
+
 		paginator = ListPaginator(context, processed)
 		self.paginators.add(paginator)
 		await paginator.begin()
@@ -515,6 +518,9 @@ class Emotes:
 				f'{formatted} (\\:{emote.name}:) '
 				f'— used **{c}** time{multiple} '
 				f'— owned by **{author}**')  # note: these are em dashes, not hyphens!
+
+		if not processed:
+			return await context.send('No emotes have been created yet. Be the first!')
 
 		paginator = ListPaginator(context, processed)
 		self.paginators.add(paginator)
