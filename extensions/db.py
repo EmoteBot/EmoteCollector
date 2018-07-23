@@ -203,7 +203,7 @@ class Database:
 		query = """
 			SELECT *
 			FROM emote
-			WHERE str_contains($1, name)
+			WHERE str_contains(LOWER($1), LOWER(name))
 			ORDER BY LOWER(name) ASC
 		"""
 		return self._database_emote_cursor(query, substring)
