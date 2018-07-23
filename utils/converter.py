@@ -11,19 +11,31 @@ import utils
 class OffsetMessage(commands.Converter):
 	@staticmethod
 	async def convert(context, offset):
-		if offset is None:
-			# get the second to last message (skip the invoking message)
-			offset = -2
+		try:
+			offset = int(offset, base=0) - 1  # skip the invoking message
+		except ValueError:
+			raise commands.BadArgument('Not a valid integer.')
+
 		if offset < 0:
 			return await utils.get_message_by_offset(context.channel, offset)
 
 		raise commands.BadArgument('Not a message offset.')
 
+def _validate_snowflake(argument: str):
+	try:
+		id = int(argument)
+	except ValueError:
+		raise commands.BadArgument('Not a valid integer.')
+
+	if id < utils.SMALLEST_SNOWFLAKE:
+		raise commands.BadArgument('Not a valid message ID.')
+
+	return id
+
 class IDMessage(commands.Converter):
 	@staticmethod
 	async def convert(context, id):
-		if offset < utils.SMALLEST_SNOWFLAKE:
-			raise commands.BadArgument('Not a valid message ID.')
+		id = _validate_snowflake(id)
 
 		try:
 			return await context.channel.get_message(id)
@@ -34,6 +46,27 @@ class IDMessage(commands.Converter):
 			raise commands.BadArgument(
 				'Permission denied! Make sure the bot has permission to read that message.') from None
 
+async def _search_for_message(target, predicate):
+	async for message in target.history():
+		if predicate(message):
+			return message
+
+	raise commands.BadArgument('Message not found.')
+
+class MemberMessage(commands.Converter):
+	_member_converter = commands.converter.MemberConverter()
+
+	@classmethod
+	async def convert(cls, context, argument):
+		m = await cls._member_converter.convert(context, argument)
+
+		def predicate(message):
+			return (
+				message.id != context.message.id
+				and message.author == context.author)
+
+		return await _search_for_message(context, predicate)
+
 class KeywordMessage(commands.Converter):
 	@staticmethod
 	async def convert(context, argument):
@@ -43,12 +76,9 @@ class KeywordMessage(commands.Converter):
 		def normalize(message):
 			return utils.emote.RE_CUSTOM_EMOTE.sub(emote_to_name, message).casefold()
 
-		async for message in context.history():
-			if message.id == context.message.id:
-				continue  # skip the invoking message
-			if argument.casefold() in normalize(message.content):
-				return message
+		def predicate(message):
+			return message.id != context.message.id and argument.casefold() in normalize(message.content)
 
-		raise commands.BadArgument('Message not found.')
+		return await _search_for_message(context, predicate)
 
-Message = typing.Union[OffsetMessage, IDMessage, KeywordMessage]
+Message = typing.Union[OffsetMessage, IDMessage, MemberMessage, KeywordMessage]
