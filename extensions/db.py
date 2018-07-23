@@ -100,8 +100,7 @@ class Database:
 			await self.ready.wait()
 			logger.debug('decaying')
 
-			cutoff = datetime.datetime.utcnow() - datetime.timedelta(weeks=4)
-			await self.decay(cutoff, 2)
+			await self.decay()
 
 			await asyncio.sleep(60*10)
 
@@ -209,14 +208,18 @@ class Database:
 		"""
 		return self._database_emote_cursor(query, substring)
 
-	def decayable_emotes(self, cutoff: datetime, usage_threshold):
-		"""remove emotes that should be removed due to inactivity.
+	def decayable_emotes(self, cutoff: datetime = None, usage_threshold=2):
+		"""emotes that should be removed due to inactivity.
 
 		returns an async iterator over all emotes that:
 			- were created before `cutoff`, and
 			- have been used < `usage_threshold` between now and cutoff, and
 			- are not preserved
+
+		the default cutoff is 4 weeks.
 		"""
+		if cutoff is None:
+			cutoff = datetime.datetime.utcnow() - datetime.timedelta(weeks=4)
 
 		return self._database_emote_cursor("""
 			SELECT *
