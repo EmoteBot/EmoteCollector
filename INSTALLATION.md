@@ -33,4 +33,4 @@ Sign in to your new Discord backend account, and start filling out CAPTCHAs.
 On my system, postgresql.conf is located in `/etc/postgresql/9.6/main`.
 7) Run `./bot.py`.
 
-If you need any help, DM @null byte#8191 or file a GitHub issue.
+If you need any help, DM @lambda#0987 or file a GitHub issue.
