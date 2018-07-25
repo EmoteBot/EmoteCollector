@@ -5,7 +5,6 @@ import asyncio
 import collections
 from datetime import datetime
 import functools
-import os.path
 import re
 from typing import Sequence, Union
 import urllib.parse
@@ -13,9 +12,7 @@ import urllib.parse
 import asyncpg
 import discord
 from discord.ext import commands
-from lru import LRU as _LRUDict	 # sunder only because we are defining our own, better LRUDict
 from prettytable import PrettyTable
-from wrapt import ObjectProxy
 
 
 """miscellaneous utility functions and constants"""
@@ -52,40 +49,29 @@ class PrettyTable(PrettyTable):
 		for row in rows:
 			self.add_row(row)
 
-class LRUDict(ObjectProxy):
-	"""An extension of lru.LRU to add `pop` and fix `update`"""
-
-	_sentinel = object()  # used to detect when no argument is passed
+class LRUDict(collections.OrderedDict):
+	"""a dictionary with fixed size, sorted by last use"""
 
 	def __init__(self, size):
-		super().__init__(_LRUDict(size))
+		super().__init__()
+		self.size = size
 
-	def pop(self, key, default=_sentinel):
-		"""L.pop(k[,d]) -> v, remove specified key and return the corresponding value.
-		If key is not found, d is returned if given, otherwise KeyError is raised
-		"""
-		if default is self._sentinel and key not in self:
-			raise KeyError(key)
-		result = self[key]
+	def __getitem__(self, key):
+		result = super().__getitem__(key)
 		del self[key]
+		super().__setitem__(key, result)
 		return result
 
-	def update(self, d=None, **kwargs):
-		"""L.update([d, ]**kwargs) -> None.	 Update L from dict/iterable d and kwargs.
-		If d is present and has a .keys() method, then does:  for k in d: L[k] = d[k]
-		If d is present and lacks a .keys() method, then does:	for k, v in d: L[k] = v
-		In either case, this is followed by: for k in kwargs:  L[k] = kwargs[k]
-		"""
-		if d is not None:
-			if hasattr(d, 'keys'):
-				self.__wrapped__.update(d)
-			else:
-				for k, v in d:
-					# lru.LRU doesn't support this, although dict does
-					self[k] = v
+	def __setitem__(self, key, value):
+		try:
+			# if an entry exists at key, make sure it's moved up
+			del self[key]
+		except KeyError:
+			# we only need to do this when adding a new key
+			if len(self) >= self.size:
+				self.popitem(last=False)
 
-		if kwargs:
-			self.update(kwargs)
+		super().__setitem__(key, value)
 
 def typing(func):
 	"""Makes a command function run with the context.typing() context manager.
