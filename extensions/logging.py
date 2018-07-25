@@ -97,9 +97,7 @@ class Logger:
 
 	async def log_emote_action(self, emote, action, color):
 		author = utils.format_user(self.bot, emote.author, mention=True)
-		# \\ in case they name an emote, e.g. :grinning:
-		# we want to display :grinning:, not 😁
-		description = f'{emote} — \\:{emote.name}:\nOwner: {author}'
+		description = f'{emote} — {emote.escaped_name()}\nOwner: {author}'
 
 		return await self._log(title=action, description=description, color=color)
 
