@@ -19,7 +19,7 @@ class Meta:
 			await context.try_add_reaction('\N{cross mark}')
 			await context.send('Unable to send invite in DMs. Please allow DMs from server members.')
 
-	@commands.command()
+	@commands.command(aliases=['inv'])
 	async def invite(self, context):
 		"""Gives you a link to add me to your server."""
 		# these are the same as the attributes of discord.Permissions
