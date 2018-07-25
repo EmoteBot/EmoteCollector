@@ -58,12 +58,12 @@ class MemberMessage(commands.Converter):
 
 	@classmethod
 	async def convert(cls, context, argument):
-		m = await cls._member_converter.convert(context, argument)
+		member = await cls._member_converter.convert(context, argument)
 
 		def predicate(message):
 			return (
 				message.id != context.message.id
-				and message.author == context.author)
+				and message.author == member)
 
 		return await _search_for_message(context, predicate)
 
