@@ -40,6 +40,17 @@ class DatabaseEmote(dict):
 		# apparently "a:" is not necessary for animated emote reactions
 		return f':{self.name}:{self.id}'
 
+	def escaped_name(self):
+		"""return the emote's name in colons, suitable for displaying how to use the emote
+		or when the emote no longer exists."""
+		# \ in case they name an emote, e.g. :grinning:
+		# we want to display :grinning:, not 😁
+		return fr'\:{self.name}:'
+
+	def with_name(self):
+		"""return this emote as a string suitable for displaying in a list form or embed"""
+		return f'{self} ({self.escaped_name()})'
+
 	@property
 	def url(self):
 		return utils.emote.url(self.id, animated=self.animated)

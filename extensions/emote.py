@@ -73,7 +73,7 @@ class Emotes:
 		"""
 		embed = discord.Embed()
 
-		title = str(emote)
+		title = emote.with_name()
 		if emote.preserve: title += ' (Preserved)'
 		embed.title = title
 
@@ -347,8 +347,7 @@ class Emotes:
 				# undo the log
 				await removal_message.delete()
 			else:
-				# escape it in case someone makes an emote called "joy", we don't want to display 😂
-				messages.append(f'\\:{emote.name}: was successfully deleted.')
+				messages.append(f'{emote.escaped_name()} was successfully deleted.')
 
 		message = '\n'.join(messages)
 		await context.send(utils.fix_first_line(message))
@@ -488,7 +487,7 @@ class Emotes:
 		processed = []
 
 		async for i, emote in utils.async_enumerate(self.db.search(query)):
-			processed.append(f'{emote} (\\:{emote.name}:)')
+			processed.append(emote.with_name())
 
 		if not processed:
 			return await context.send('No results matched your query.')
@@ -517,7 +516,7 @@ class Emotes:
 			multiple = '' if c == 1 else 's'
 
 			processed.append(
-				f'{formatted} (\\:{emote.name}:) '
+				f'{emote.with_name()} '
 				f'— used **{c}** time{multiple} '
 				f'— owned by **{author}**')  # note: these are em dashes, not hyphens!
 
