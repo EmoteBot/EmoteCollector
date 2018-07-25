@@ -42,7 +42,7 @@ class Emotes:
 		self.logger = self.bot.get_cog('Logger')
 		self.http = aiohttp.ClientSession(loop=self.bot.loop, read_timeout=30, headers={
 			'User-Agent':
-				'EmojiConnoisseurBot (https://github.com/bmintz/emoji-connoisseur) '
+				'EmojiConnoisseurBot (https://github.com/EmojiConnoisseur/EmojiConnoisseur) '
 				+ self.bot.http.user_agent
 		})
 

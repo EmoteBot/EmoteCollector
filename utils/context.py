@@ -9,7 +9,8 @@ class CustomContext(commands.Context):
 	async def try_add_reaction(self,
 		emoji: discord.Emoji,
 		message: discord.Message = None,
-		fallback_message=''):
+		fallback_message=''
+	):
 		"""Try to add a reaction to the message. If it fails, send a message instead."""
 		if message is None:
 			message = self.message

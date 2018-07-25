@@ -1,5 +1,5 @@
 {
-	'description': 'Curates emojis from any server and lets you use them without Nitro.',
+	'description': 'Curates emotes from any server and lets you use them without Nitro.',
 	'decay': True,  # whether to enable the deletion of old emotes
 	'prefix': 'ec/',
 	# the contents of this file will be sent to the user when they run the "copyright" command

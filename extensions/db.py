@@ -442,7 +442,7 @@ class Database:
 		return await self.db.fetchval(f'SELECT state FROM {table_name} WHERE id = $1', id)
 
 	async def get_user_state(self, user_id):
-		"""return this user's global preference for the emoji auto response"""
+		"""return this user's global preference for the emote auto response"""
 		return await self._get_state('user_opt', user_id)
 
 	async def get_guild_state(self, guild_id):
