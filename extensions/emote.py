@@ -50,7 +50,7 @@ class Emotes:
 		# we delete/edit the corresponding reply.
 		# Each message supposedly takes up about 256 bytes of RAM.
 		# Don't store more than 1MiB of them.
-		self.replies = utils.LRUDict(size=1024**2/256)
+		self.replies = utils.LRUDict(size=1024**2//256)
 
 		# keep track of created paginators so that we can remove their reaction buttons on unload
 		self.paginators = weakref.WeakSet()
