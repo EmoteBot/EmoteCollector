@@ -4,11 +4,11 @@
 
 Emoji Connoisseur lets you use emotes you don't have, even without Nitro.
 
-Once you've found an emoji you'd like to use, just send it as if you were sending a regular Discord emoji (e.g. :speedtest:).
+Once you've found an emote you'd like to use, just send it as if you were sending a regular Discord emote (e.g. :speedtest:).
 It will be detected and sent by the bot. Using semicolons (;thonkang;) is also supported.
 
 If you don't want the bot to respond to you, you can run `ec/toggle`. If the server is opt-in, this will enable the bot response instead.
-If you have permissions to manage emojis on a server, you can run `ec/toggleserver` to make the auto response opt-in.
+If you have permissions to manage emotes on a server, you can run `ec/toggleserver` to make the auto response opt-in.
 
 Note that this bot is still in <em>beta</em> status, and is subject to change at any time until it becomes stable.
 
