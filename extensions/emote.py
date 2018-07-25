@@ -402,7 +402,8 @@ class Emotes:
 		Otherwise, the first message matching the keyword will be reacted to.
 		"""
 
-		await self._check_reaction_permissions(context)
+		if not await self._check_reaction_permissions(context):
+			return
 
 		if message is None:
 			# get the second to last message (ie ignore the invoking message)
@@ -458,10 +459,11 @@ class Emotes:
 	async def _check_reaction_permissions(self, context):
 		# author might not be a Member, even in a guild, if it's a webhook.
 		if not context.guild or not isinstance(context.author, discord.Member):
-			return
+			return True
 
 		sender_permissions = context.channel.permissions_for(context.author)
 		permissions = context.channel.permissions_for(context.guild.me)
+
 		if not sender_permissions.read_message_history or not permissions.read_message_history:
 		    await context.send('Unable to react: no permission to read message history.')
 		    return False
