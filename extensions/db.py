@@ -288,7 +288,7 @@ class Database:
 		"""like is_owner but fails with an exception if the user is not authorized.
 		this is to reduce duplicated exception raising code."""
 		if not await self.is_owner(emote, user_id):
-			raise errors.PermissionDeniedError(name)
+			raise errors.PermissionDeniedError(emote.name)
 
 	## Actions
 
