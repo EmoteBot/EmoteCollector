@@ -45,6 +45,8 @@ CREATE TABLE IF NOT EXISTS emote_usage_history(
 	id BIGINT,
 	time TIMESTAMP WITH TIME ZONE DEFAULT (CURRENT_TIMESTAMP));
 
+CREATE INDEX IF NOT EXISTS emote_usage_history_id_idx ON emote_usage_history (id);
+
 -- https://stackoverflow.com/a/25499662
 ALTER TABLE emote_usage_history
 	DROP CONSTRAINT IF EXISTS emote_usage_history_id_fkey,
