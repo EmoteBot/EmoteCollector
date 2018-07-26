@@ -322,7 +322,6 @@ class Database:
 			raise errors.DiscordError
 
 		await discord_emote.delete()
-		await self.db.execute('DELETE FROM emote_usage_history WHERE id = $1', db_emote.id)
 		await self.db.execute('DELETE FROM emote WHERE id = $1', db_emote.id)
 		return db_emote
 

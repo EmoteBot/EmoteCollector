@@ -42,10 +42,15 @@ CREATE TABLE IF NOT EXISTS guild_opt(
 	state BOOLEAN NOT NULL);
 
 CREATE TABLE IF NOT EXISTS emote_usage_history(
-	id BIGINT REFERENCES emote (id),
+	id BIGINT,
 	time TIMESTAMP WITH TIME ZONE DEFAULT (CURRENT_TIMESTAMP));
 
-CREATE INDEX IF NOT EXISTS emote_usage_history_id_idx ON emote_usage_history (id);
+-- https://stackoverflow.com/a/25499662
+ALTER TABLE emote_usage_history
+	DROP CONSTRAINT IF EXISTS emote_usage_history_id_fkey,
+	ADD CONSTRAINT emote_usage_history_id_fkey FOREIGN KEY (id)
+		REFERENCES emote (id) ON DELETE CASCADE;
+
 CREATE INDEX IF NOT EXISTS emote_usage_history_time_idx ON emote_usage_history (time);
 
 -- utility funcs --
