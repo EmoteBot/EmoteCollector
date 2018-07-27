@@ -42,7 +42,7 @@ class Emotes:
 		self.logger = self.bot.get_cog('Logger')
 		self.http = aiohttp.ClientSession(loop=self.bot.loop, read_timeout=30, headers={
 			'User-Agent':
-				'EmojiConnoisseurBot (https://github.com/EmojiConnoisseur/EmojiConnoisseur) '
+				self.bot.config['user_agent'] + ' '
 				+ self.bot.http.user_agent
 		})
 
@@ -463,7 +463,7 @@ class Emotes:
 		If a user is provided, the list will only contain emotes created by that user.
 		"""
 
-		await context.send('https://emoji-connoisseur.python-for.life/list' + (f'/{user.id}' if user else ''))
+		await context.send(self.bot.config['website'] + '/list' + (f'/{user.id}' if user else ''))
 
 	@commands.command(aliases=['find'])
 	async def search(self, context, query):

@@ -2,6 +2,11 @@
 	'description': 'Curates emotes from any server and lets you use them without Nitro.',
 	'decay': True,  # whether to enable the deletion of old emotes
 	'prefix': 'ec/',
+	# your instance of the stuff in the website/ directory of this repo
+	'website': 'https://emoji-connoisseur.python-for.life',
+	# change this user agent if you change the code
+	'user_agent': 'EmojiConnoisseurBot (https://github.com/EmojiConnoisseur/EmojiConnoisseur)',
+
 	# the contents of this file will be sent to the user when they run the "copyright" command
 	# as provided by ben_cogs
 	'copyright_license_file': 'data/short-license.txt',
