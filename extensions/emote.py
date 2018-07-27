@@ -386,7 +386,8 @@ class Emotes:
 		Otherwise, the first message matching the keyword will be reacted to.
 		"""
 
-		await self._check_reaction_permissions(context)
+		if not await self._check_reaction_permissions(context):
+			return
 
 		if message is None:
 			# get the second to last message (ie ignore the invoking message)
@@ -442,10 +443,11 @@ class Emotes:
 	async def _check_reaction_permissions(self, context):
 		# author might not be a Member, even in a guild, if it's a webhook.
 		if not context.guild or not isinstance(context.author, discord.Member):
-			return
+			return True
 
 		sender_permissions = context.channel.permissions_for(context.author)
 		permissions = context.channel.permissions_for(context.guild.me)
+
 		if not sender_permissions.read_message_history or not permissions.read_message_history:
 		    await context.send('Unable to react: no permission to read message history.')
 		    return False
@@ -529,6 +531,48 @@ class Emotes:
 
 		message = '\n'.join(messages)
 		await context.send(utils.fix_first_line(message))
+
+	@commands.command(hidden=True)
+	@commands.is_owner()
+	async def recover(self, context, message_id):
+		"""recovers a decayed or removed emote from the log channel.
+
+		message_id is the ID of the log message.
+		"""
+
+		try:
+			channel = self.bot.get_cog('Logger').channel
+		except AttributeError:
+			return await context.send('Logger cog not loaded.')
+
+		try:
+			message = await channel.get_message(message_id)
+		except discord.NotFound:
+			return await context.send('Message not found.')
+
+		try:
+			description = message.embeds[0].description
+		except IndexError:
+			return await context.send('No embeds in that message.')
+
+		try:
+			emote = utils.emote.RE_CUSTOM_EMOTE.match(description)
+		except TypeError:
+			return await context.send('No description in that embed.')
+		name = emote.group('name')
+
+		try:
+			url = utils.emote.url(emote.group('id'), animated=emote.group('animated'))
+		except AttributeError:
+			return await context.send("No custom emotes in that embed's description.")
+
+		try:
+			author = int((re.search(r'<@!?(\d{17,})>', description) or re.search('Unknown user with ID (\d{17,})', description)).group(1))
+		except AttributeError:
+			return await context.send('No author IDs found in that embed.')
+
+		message = await self.add_safe(name, url, author)
+		await context.send(message)
 
 	@commands.command()
 	async def toggle(self, context):
