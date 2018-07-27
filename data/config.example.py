@@ -3,6 +3,7 @@
 	'decay': True,  # whether to enable the deletion of old emotes
 	'prefix': 'ec/',
 	# your instance of the stuff in the website/ directory of this repo
+	# if this is left blank, the ec/list command will be disabled.
 	'website': 'https://emoji-connoisseur.python-for.life',
 	# change this user agent if you change the code
 	'user_agent': 'EmojiConnoisseurBot (https://github.com/EmojiConnoisseur/bot)',

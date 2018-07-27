@@ -462,7 +462,6 @@ class Emotes:
 		"""List all emotes the bot knows about.
 		If a user is provided, the list will only contain emotes created by that user.
 		"""
-
 		await context.send(self.bot.config['website'] + '/list' + (f'/{user.id}' if user else ''))
 
 	@commands.command(aliases=['find'])
@@ -759,3 +758,7 @@ class Emotes:
 
 def setup(bot):
 	bot.add_cog(Emotes(bot))
+
+	if not bot.config['website']:
+		# XXX maybe a hacky way to do this
+		bot.remove_command('list')
