@@ -462,7 +462,28 @@ class Emotes:
 		"""List all emotes the bot knows about.
 		If a user is provided, the list will only contain emotes created by that user.
 		"""
-		await context.send(self.bot.config['website'] + '/list' + (f'/{user.id}' if user else ''))
+		processed = []
+
+		args = []
+		if user is not None:
+			args.append(user.id)
+
+		async for emote in self.db.all_emotes(*args):
+			author = utils.format_user(self.bot, emote.author, mention=True)
+
+			processed.append(
+				f'{emote.with_name()} {" (Preserved)" if emote.preserve else ""} '
+				f'— owned by **{author}**')
+
+		if not processed:
+			return await context.send('No emotes have been created yet. Be the first!')
+
+		paginator = ListPaginator(context, processed)
+		if self.bot.config['website']:
+			end_path = f'/{user.id}' if user else ''
+			paginator.text_message = f'Also check out the list website at {self.bot.config["website"]}/list{end_path}.'
+
+		await paginator.begin()
 
 	@commands.command(aliases=['find'])
 	async def search(self, context, query):
@@ -470,7 +491,7 @@ class Emotes:
 
 		processed = []
 
-		async for i, emote in utils.async_enumerate(self.db.search(query)):
+		async for emote in self.db.search(query):
 			processed.append(emote.with_name())
 
 		if not processed:
@@ -491,8 +512,6 @@ class Emotes:
 		async for i, emote in utils.async_enumerate(self.db.popular_emotes()):
 			if i == 200:
 				break
-
-			formatted = str(emote)
 
 			author = utils.format_user(self.bot, emote.author, mention=True)
 
@@ -758,7 +777,3 @@ class Emotes:
 
 def setup(bot):
 	bot.add_cog(Emotes(bot))
-
-	if not bot.config['website']:
-		# XXX maybe a hacky way to do this
-		bot.remove_command('list')

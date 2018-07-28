@@ -11,7 +11,7 @@ from discord.ext.commands import Context
 
 class Paginator:
 	def __init__(self, ctx: Context, pages: typing.Iterable, *, timeout=300, delete_message=False, predicate=None,
-				 delete_message_on_timeout=False):
+				 delete_message_on_timeout=False, text_message=None):
 		if predicate is None:
 			def predicate(_, user):
 				return user == ctx.message.author
@@ -22,6 +22,7 @@ class Paginator:
 		self.target = ctx.channel
 		self.delete_msg = delete_message
 		self.delete_msg_timeout = delete_message_on_timeout
+		self.text_message = text_message
 
 		self._stopped = None  # we use this later
 		self._embed = None
@@ -87,10 +88,15 @@ class Paginator:
 	async def format_page(self):
 		self._embed.description = self.pages[self._page]
 		self._embed.set_footer(text=self.footer.format(self._page + 1, len(self.pages)))
+
+		kwargs = {'embed': self._embed}
+		if self.text_message:
+			kwargs['content'] = self.text_message
+
 		if self._message:
-			await self._message.edit(embed=self._embed)
+			await self._message.edit(**kwargs)
 		else:
-			self._message = await self.target.send(embed=self._embed)
+			self._message = await self.target.send(**kwargs)
 
 	async def first_page(self):
 		self._page = 0
