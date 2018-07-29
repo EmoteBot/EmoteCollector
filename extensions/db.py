@@ -77,7 +77,7 @@ class Database:
 			task.cancel()
 
 		try:
-			self.bot.loop.create_task(self.db.close())
+			self.bot.loop.create_task(self._pool.close())
 		except AttributeError:
 			pass  # db has not been set yet
 
@@ -122,7 +122,7 @@ class Database:
 		start = time.monotonic()
 		# XXX properly strip codeblocks
 		try:
-			results = await self.db.fetch(query.replace('`', ''))
+			results = await self._pool.fetch(query.replace('`', ''))
 		except asyncpg.PostgresError as exception:
 			return await context.send(exception)
 		elapsed = time.monotonic() - start
@@ -151,7 +151,7 @@ class Database:
 
 	async def count(self) -> asyncpg.Record:
 		"""Return (not animated count, animated count, total)"""
-		return await self.db.fetchrow("""
+		return await self._pool.fetchrow("""
 			SELECT
 				COUNT(*) FILTER (WHERE NOT animated) AS static,
 				COUNT(*) FILTER (WHERE animated) AS animated,
@@ -168,7 +168,7 @@ class Database:
 		# that we don't want
 		# probably LOWER(name) = $1, name.lower() would also work, but this looks cleaner
 		# and keeps the lowercasing behavior consistent
-		result = await self.db.fetchrow('SELECT * FROM emote WHERE LOWER(name) = LOWER($1)', name)
+		result = await self._pool.fetchrow('SELECT * FROM emote WHERE LOWER(name) = LOWER($1)', name)
 		if result:
 			return DatabaseEmote(result)
 		else:
@@ -176,7 +176,7 @@ class Database:
 
 	async def get_emote_usage(self, emote) -> int:
 		"""return how many times this emote was used"""
-		return await self.db.fetchval(
+		return await self._pool.fetchval(
 			'SELECT COUNT(*) FROM emote_usage_history WHERE id = $1',
 			emote.id)
 
@@ -255,7 +255,7 @@ class Database:
 	async def _cursor(self, query, *args):
 		"""return an Async Generator over all records selected by the query and its args"""
 
-		async with self.db.acquire() as connection:
+		async with self._pool.acquire() as connection:
 			async with connection.transaction():
 				async for row in connection.cursor(query, *args):
 					# we can't just return connection.cursor(...)
@@ -299,7 +299,7 @@ class Database:
 		guild = self.free_guild(animated)
 
 		emote = await guild.create_custom_emoji(name=name, image=image_data)
-		db_emote = await self.db.fetchrow("""
+		db_emote = await self._pool.fetchrow("""
 			INSERT INTO emote(name, id, author, animated)
 			VALUES ($1, $2, $3, $4)
 			RETURNING *""", name, emote.id, author_id, animated)
@@ -322,7 +322,7 @@ class Database:
 			raise errors.DiscordError
 
 		await discord_emote.delete()
-		await self.db.execute('DELETE FROM emote WHERE id = $1', db_emote.id)
+		await self._pool.execute('DELETE FROM emote WHERE id = $1', db_emote.id)
 		return db_emote
 
 	async def rename_emote(self, old_name, new_name, user_id):
@@ -338,7 +338,7 @@ class Database:
 		discord_emote = self.bot.get_emoji(db_emote.id)
 
 		await discord_emote.edit(name=new_name)
-		await self.db.execute('UPDATE emote SET name = $2 where id = $1', discord_emote.id, new_name)
+		await self._pool.execute('UPDATE emote SET name = $2 where id = $1', discord_emote.id, new_name)
 
 	async def set_emote_description(self, name, user_id, description=None):
 		"""Set an emote's description.
@@ -354,7 +354,7 @@ class Database:
 		await self.owner_check(emote, user_id)
 
 		try:
-			await self.db.execute(
+			await self._pool.execute(
 				'UPDATE emote SET DESCRIPTION = $2 WHERE id = $1',
 				emote.id,
 				description)
@@ -367,7 +367,7 @@ class Database:
 		"""change the preservation status of an emote.
 		if an emote is preserved, it should not be decayed due to lack of use
 		"""
-		emote = await self.db.fetchrow("""
+		emote = await self._pool.fetchrow("""
 			UPDATE emote
 			SET preserve = $1
 			WHERE LOWER(name) = LOWER($2)
@@ -382,7 +382,7 @@ class Database:
 			return DatabaseEmote(emote) # allow the caller to reuse the emote to reduce database queries
 
 	async def log_emote_use(self, emote_id, user_id=None):
-		await self.db.execute("""
+		await self._pool.execute("""
 			INSERT INTO emote_usage_history (id)
 			-- this is SELECT ... WHERE NOT EXISTS, not INSERT INTO ... WHERE NOT EXISTS
 			-- https://stackoverflow.com/a/15710598
@@ -407,7 +407,7 @@ class Database:
 	async def _toggle_state(self, table_name, id, default):
 		"""toggle the state for a user or guild. If there's no entry already, new state = default."""
 		# see _get_state for why string formatting is OK here
-		return await self.db.fetchval(f"""
+		return await self._pool.fetchval(f"""
 			INSERT INTO {table_name} (id, state) VALUES ($1, $2)
 			ON CONFLICT (id) DO UPDATE SET state = NOT {table_name}.state
 			RETURNING state
@@ -438,7 +438,7 @@ class Database:
 		# unfortunately, using $1 for table_name is a syntax error
 		# however, since table name is always hardcoded input from other functions in this module,
 		# it's ok to use string formatting here
-		return await self.db.fetchval(f'SELECT state FROM {table_name} WHERE id = $1', id)
+		return await self._pool.fetchval(f'SELECT state FROM {table_name} WHERE id = $1', id)
 
 	async def get_user_state(self, user_id):
 		"""return this user's global preference for the emote auto response"""
@@ -465,14 +465,14 @@ class Database:
 
 	async def get_user_blacklist(self, user_id):
 		"""return a reason for the user's blacklist, or None if not blacklisted"""
-		return await self.db.fetchval('SELECT blacklist_reason from user_opt WHERE id = $1', user_id)
+		return await self._pool.fetchval('SELECT blacklist_reason from user_opt WHERE id = $1', user_id)
 
 	async def set_user_blacklist(self, user_id, reason=None):
 		"""make user_id blacklisted
 		setting reason to None removes the user's blacklist"""
 		# insert regardless of whether it exists
 		# and if it does exist, update
-		await self.db.execute("""
+		await self._pool.execute("""
 			INSERT INTO user_opt (id, blacklist_reason) VALUES ($1, $2)
 			ON CONFLICT (id) DO UPDATE SET blacklist_reason = EXCLUDED.blacklist_reason""",
 		user_id, reason)
@@ -481,12 +481,12 @@ class Database:
 
 	async def _get_db(self):
 		credentials = self.bot.config['database']
-		db = await asyncpg.create_pool(**credentials)  # pylint: disable=invalid-name
+		pool = await asyncpg.create_pool(**credentials)  # pylint: disable=invalid-name
 
 		async with aiofiles.open('data/schema.sql') as f:
-			await db.execute(await f.read())
+			await pool.execute(await f.read())
 
-		self.db = db  # pylint: disable=invalid-name
+		self._pool = pool
 		self.ready.set()
 
 def setup(bot):

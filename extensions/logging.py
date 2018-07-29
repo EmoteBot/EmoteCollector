@@ -42,7 +42,6 @@ LogColour = LogColor
 class Logger:
 	def __init__(self, bot):
 		self.bot = bot
-		self.db = self.bot.get_cog('Database')
 
 		self.bot.loop.create_task(self.init_channel())
 		self.init_settings()
