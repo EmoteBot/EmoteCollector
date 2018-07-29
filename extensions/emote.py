@@ -85,10 +85,8 @@ class Emotes:
 			embed.set_footer(text='Created')
 
 		avatar = None
-		try:
+		with contextlib.suppress(AttributeError):
 			avatar = self.bot.get_user(emote.author).avatar_url_as(static_format='png', size=32)
-		except AttributeError:
-			pass
 
 		name = utils.format_user(self.bot, emote.author, mention=False)
 		if avatar is None:
@@ -435,10 +433,8 @@ class Emotes:
 			await message.remove_reaction(emote.as_reaction(), self.bot.user)
 
 			for message in context.message, instruction_message:
-				try:
+				with contextlib.suppress(discord.HTTPException):
 					await message.delete()
-				except discord.HTTPException:
-					pass
 
 	async def _check_reaction_permissions(self, context):
 		# author might not be a Member, even in a guild, if it's a webhook.
@@ -686,13 +682,10 @@ class Emotes:
 
 		blacklist_reason = await self.db.get_user_blacklist(message.author.id)
 		if blacklist_reason is not None:
-			try:
-				await message.author.send(
+			with contextlib.suppress(discord.HTTPException):
+				return await message.author.send(
 					f'You have been blacklisted from using emotes with the reason `{blacklist_reason}`. '
 					'To appeal, please join the support server using the support command.')
-			except discord.HTTPException:
-				pass
-			return
 
 		reply, emotes_used = await self.extract_emotes(message.content)
 		if reply is None:  # don't send empty whitespace
@@ -761,10 +754,8 @@ class Emotes:
 		except KeyError:
 			return
 
-		try:
+		with contextlib.suppress(discord.HTTPException):
 			await message.delete()
-		except discord.HTTPException:
-			pass
 
 	async def on_raw_message_delete(self, payload):
 		"""Ensure that when a message containing emotes is deleted, the emote reply is, too."""

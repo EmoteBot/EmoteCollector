@@ -10,6 +10,7 @@ import base64
 import typing
 import asyncio
 import inspect
+import contextlib
 
 import discord
 
@@ -119,10 +120,8 @@ def get_needed_guild():
 async def on_member_join(member):
 	bot.needed_guilds.remove(member.guild)
 	print(len(bot.guilds) - len(bot.needed_guilds), 'down,', len(bot.needed_guilds), 'to go.', end=' ')
-	try:
+	with contextlib.suppress(ValueError):
 		print('Now add', get_needed_guild().name, end='.\n')
-	except ValueError:
-		pass
 
 
 def get_bot_user_id():

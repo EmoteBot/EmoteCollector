@@ -2,6 +2,7 @@
 # encoding: utf-8
 
 import asyncio
+import contextlib
 import datetime
 import logging
 import random
@@ -76,10 +77,8 @@ class Database:
 		for task in self.tasks:
 			task.cancel()
 
-		try:
+		with contextlib.suppress(AttributeError):  # in case db has not been set yet
 			self.bot.loop.create_task(self._pool.close())
-		except AttributeError:
-			pass  # db has not been set yet
 
 	async def find_backend_guilds(self):
 		"""Find all the guilds used to store emotes"""

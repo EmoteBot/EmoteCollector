@@ -1,4 +1,5 @@
 import asyncio
+import contextlib
 import typing
 
 import discord
@@ -62,10 +63,8 @@ class Paginator:
 			await self.navigation[reaction]()
 
 			await asyncio.sleep(0.2)
-			try:
+			with contextlib.suppress(discord.HTTPException):
 				await self._message.remove_reaction(reaction, user)
-			except discord.HTTPException:
-				pass  # oh well, we tried
 
 	async def stop(self, *, delete=None):
 		"""Aborts pagination."""
