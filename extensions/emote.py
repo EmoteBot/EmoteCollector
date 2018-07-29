@@ -328,7 +328,8 @@ class Emotes:
 			except (errors.ConnoisseurError, errors.DiscordError) as ex:
 				messages.append(str(ex))
 				# undo the log
-				await removal_message.delete()
+				with contextlib.suppress(AttributeError):
+					await removal_message.delete()
 			else:
 				messages.append(f'{emote.escaped_name()} was successfully deleted.')
 

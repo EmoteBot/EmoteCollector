@@ -389,8 +389,13 @@ class Database:
 
 		async for emote in self.decayable_emotes(cutoff, usage_threshold):
 			logger.debug('decaying %s', emote.name)
-			await self.logger.on_emote_decay(emote)
-			await self.remove_emote(emote, user_id=None)
+			removal_message = await self.logger.on_emote_decay(emote)
+			try:
+				await self.remove_emote(emote, user_id=None)
+			except (errors.ConnoisseurError, errors.DiscordError) as ex:
+				logger.error('decaying %s failed due to %s', emote.name, ex)
+				with contextlib.suppress(AttributeError):
+					await removal_message.delete()
 
 	## User / Guild Options
 
