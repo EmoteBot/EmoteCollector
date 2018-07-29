@@ -16,6 +16,11 @@ class Meta:
 
 	@commands.command()
 	async def about(self, context):
+		"""Tells you information about the bot itself."""
+		# this command is based off of code provided by Rapptz under the MIT license
+		# https://github.com/Rapptz/RoboDanny/blob/f6638d520ea0f559cb2ae28b862c733e1f165970/cogs/stats.py
+		# Copyright © 2015 Rapptz
+
 		embed = discord.Embed(description=self.bot.config['description'])
 
 		embed.add_field(name='Latest changes', value=self._latest_changes(), inline=False)
