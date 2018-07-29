@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 # encoding: utf-8
 
+import os
+
+import psutil
+
 import discord
 from discord.ext import commands
 
@@ -8,6 +12,42 @@ from discord.ext import commands
 class Meta:
 	def __init__(self, bot):
 		self.bot = bot
+		self.process = psutil.Process()
+
+	@commands.command()
+	async def about(self, context):
+		embed = discord.Embed(description=self.bot.config['description'])
+
+		embed.add_field(name='Latest changes', value=self._latest_changes(), inline=False)
+
+		embed.title = 'Official Bot Support Invite'
+		embed.url = 'https://discord.gg/' + self.bot.config['support_server_invite_code']
+
+		owner = self.bot.get_user(self.bot.config.get('primary_owner', self.bot.owner_id))
+		embed.set_author(name=str(owner), icon_url=owner.avatar_url)
+
+		embed.add_field(name='Servers', value=await self.bot.get_cog('Stats').guild_count())
+
+		debug_cog = self.bot.get_cog('Debug')
+		cpu_usage = self.process.cpu_percent() / psutil.cpu_count()
+		embed.add_field(name='Process', value=f'{debug_cog.memory_usage()}\n{cpu_usage:.2f}% CPU')
+
+		embed.add_field(name='Uptime', value=self.bot.get_cog('Misc').uptime(brief=True))
+		embed.set_footer(text='Made with discord.py', icon_url='http://i.imgur.com/5BFecvA.png')
+
+		await context.send(embed=embed)
+
+	def _latest_changes(self):
+		cmd = fr'git show -s HEAD~3..HEAD --format="[{{}}]({self.bot.config["repo"]}/commit/%H) %s (%cr)"'
+		if os.name == 'posix':
+			cmd = cmd.format(r'\`%h\`')
+		else:
+			cmd = cmd.format(r'`%h`')
+
+		try:
+			return os.popen(cmd).read().strip()
+		except OSError:
+			return 'Could not fetch due to memory error. Sorry.'
 
 	@commands.command()
 	async def support(self, context):

@@ -1,6 +1,6 @@
 aiofiles
 asyncpg
-ben_cogs>=0.0.14
+ben_cogs>=0.0.15
 # v1494 fixed typing.Union converter support in py3.7
 git+https://github.com/Rapptz/discord.py@rewrite#egg=discord.py>=1.0.0a1494
 jishaku>0.1.1

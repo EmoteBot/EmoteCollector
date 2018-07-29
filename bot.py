@@ -25,8 +25,10 @@ class EmojiConnoisseur(commands.AutoShardedBot):
 	def __init__(self, *args, **kwargs):
 		with open('data/config.py') as conf:
 			self.config = utils.load_json_compat(conf.read())
-			# make lookup fast
-			self.config['extra_owners'] = frozenset(self.config['extra_owners'])
+
+			self.owners = set(self.config['extra_owners'])
+			if self.config.get('primary_owner'):
+				self.owners.add(self.config['primary_owner'])
 
 		super().__init__(
 			#command_prefix=commands.when_mentioned_or(self.config['prefix']),
@@ -82,7 +84,7 @@ class EmojiConnoisseur(commands.AutoShardedBot):
 			app = await self.application_info()
 			self.owner_id = app.owner.id
 
-		return user.id == self.owner_id or user.id in self.config['extra_owners']
+		return user.id == self.owner_id or user.id in self.owners
 
 	# https://github.com/Rapptz/RoboDanny/blob/ca75fae7de132e55270e53d89bc19dd2958c2ae0/bot.py#L77-L85
 	async def on_command_error(self, context, error):
