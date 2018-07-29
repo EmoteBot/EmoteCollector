@@ -192,7 +192,7 @@ class Database:
 			args.append(author_id)
 		query += 'ORDER BY LOWER(name)'
 
-		return self._database_emote_cursor(query)
+		return self._database_emote_cursor(query, *args)
 
 	def popular_emotes(self):
 		"""return an async iterator that gets emotes from the db sorted by popularity"""
