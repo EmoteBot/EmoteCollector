@@ -14,21 +14,12 @@ import discord
 from discord.ext import commands
 
 import utils
-from utils import PrettyTable, errors
+from utils import errors
 
 
 logger = logging.getLogger(__name__)
 
-class DatabaseEmote(dict):
-	def __getattr__(self, name):
-		return self[name]
-
-	def __setattr__(self, name, value):
-		self[name] = value
-
-	def __delattr__(self, name):
-		del self[name]
-
+class DatabaseEmote(utils.AttrDict):
 	def __hash__(self):
 		return self.id >> 22
 
@@ -126,7 +117,7 @@ class Database:
 			return await context.send(exception)
 		elapsed = time.monotonic() - start
 
-		message = await utils.codeblock(str(PrettyTable(results)))
+		message = await utils.codeblock(str(utils.PrettyTable(results)))
 		return await context.send(f'{message}*{len(results)} rows retrieved in {elapsed:.2f} seconds.*')
 
 	def free_guild(self, animated=False):

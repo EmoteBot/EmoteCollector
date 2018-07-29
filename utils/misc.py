@@ -73,6 +73,12 @@ class LRUDict(collections.OrderedDict):
 
 		super().__setitem__(key, value)
 
+AttrDict = type('AttrDict', (dict,), {
+	'__getattr__': dict.__getitem__,
+	'__setattr__': dict.__setitem__,
+	'__delattr__': dict.__delitem__,
+})
+
 def typing(func):
 	"""Makes a command function run with the context.typing() context manager.
 	This will make the bot appear to be typing until the command returns.
