@@ -115,7 +115,7 @@ class Database:
 
 			await asyncio.sleep(60*10)
 
-	@commands.command(name='sql', hidden=True)
+	@commands.command(name='sql', aliases=['SQL'], hidden=True)
 	@commands.is_owner()
 	async def sql_command(self, context, *, query):
 		"""Gets the rows of a SQL query. Prepared statements are not supported."""
