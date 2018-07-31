@@ -241,25 +241,27 @@ class Emotes:
 		if not names:
 			return await context.send('Error: you must provide the name of at least one emote to remove')
 		messages = []
-		for name in names:
-			try:
-				emote = await self.db.get_emote(name)
-			except errors.EmoteNotFoundError as ex:
-				messages.append(str(ex))
-				continue
 
-			# log the emote removal *first* because if we were to do it afterwards,
-			# the emote would not display (since it's already removed)
-			removal_message = await self.logger.on_emote_remove(emote)
-			try:
-				await self.db.remove_emote(emote, context.author.id)
-			except (errors.ConnoisseurError, errors.DiscordError) as ex:
-				messages.append(str(ex))
-				# undo the log
-				with contextlib.suppress(AttributeError):
-					await removal_message.delete()
-			else:
-				messages.append(f'{emote.escaped_name()} was successfully deleted.')
+		async with context.typing():
+			for name in names:
+				try:
+					emote = await self.db.get_emote(name)
+				except errors.EmoteNotFoundError as ex:
+					messages.append(str(ex))
+					continue
+
+				# log the emote removal *first* because if we were to do it afterwards,
+				# the emote would not display (since it's already removed)
+				removal_message = await self.logger.on_emote_remove(emote)
+				try:
+					await self.db.remove_emote(emote, context.author.id)
+				except (errors.ConnoisseurError, errors.DiscordError) as ex:
+					messages.append(str(ex))
+					# undo the log
+					with contextlib.suppress(AttributeError):
+						await removal_message.delete()
+				else:
+					messages.append(f'{emote.escaped_name()} was successfully deleted.')
 
 		message = '\n'.join(messages)
 		await context.send(utils.fix_first_line(message))
