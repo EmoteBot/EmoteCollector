@@ -202,6 +202,10 @@ class Emotes:
 			return f'Emote {emote} successfully created.'
 
 	async def add_from_url(self, name, url, author_id):
+		# db.create_emote already does this, but do it again here so that we can fail early
+		# in case resizing takes a long time.
+		await self.db.ensure_emote_does_not_exist(name)
+
 		image_data = await self.fetch_emote(url)
 		emote = await self.create_emote_from_bytes(name, author_id, image_data)
 
