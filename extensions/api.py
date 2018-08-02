@@ -40,9 +40,10 @@ class API:
 		token = await self.token(context.author.id)
 		await self.send_token(context, token)
 
-	@token_command.command()
+	@token_command.command(name='regenerate')
 	async def regenerate_command(self, context):
 		"""Regenerates your user token. Use this if your token is compromised."""
+		print('regenerate')
 		token = await self.regenerate_token(context.author.id)
 		await self.send_token(context, token, new=True)
 
