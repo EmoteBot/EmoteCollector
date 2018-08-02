@@ -23,6 +23,24 @@ class API:
 		await db_cog.ready.wait()
 		self._pool = db_cog._pool
 
+	@staticmethod
+	def any_parent_command_is(command, parent_command):
+		while command is not None:
+			if command is parent_command:
+				return True
+			command = command.parent
+		return False
+
+	async def __local_check(self, context):
+		if self.any_parent_command_is(context.command, self.token_command):
+			# bots may not have API tokens
+			# we're doing this as a local check because
+			# A) if invoke_without_command=True, checks don't propagate to subcommands
+			# B) even if invoke_without_command=False, checks still don't propagate to sub-sub-commands
+			# AFAIK
+			return not context.author.bot
+		return True
+
 	@commands.group(invoke_without_command=True)
 	async def api(self, context):
 		"""Commands related to the Emoji Connoisseur API.
@@ -43,7 +61,6 @@ class API:
 	@token_command.command(name='regenerate')
 	async def regenerate_command(self, context):
 		"""Regenerates your user token. Use this if your token is compromised."""
-		print('regenerate')
 		token = await self.regenerate_token(context.author.id)
 		await self.send_token(context, token, new=True)
 
