@@ -54,11 +54,12 @@ class EmojiConnoisseur(commands.AutoShardedBot):
 		logger.info('ID: %s', self.user.id)
 		logger.info(separator)
 
+	async def get_context(self, message, **kwargs):
+		return await super().get_context(message, cls=utils.context.CustomContext, **kwargs)
+
 	async def on_message(self, message):
-		if not self.should_reply(message):
-			return
-		# inject our context
-		await self.invoke(await self.get_context(message, cls=utils.context.CustomContext))
+		if self.should_reply(message):
+			await self.process_commands(message)
 
 	def should_reply(self, message):
 		"""return whether the bot should reply to a given message"""
