@@ -55,6 +55,12 @@ ALTER TABLE emote_usage_history
 
 CREATE INDEX IF NOT EXISTS emote_usage_history_time_idx ON emote_usage_history (time);
 
+CREATE TABLE IF NOT EXISTS api_token(
+	id BIGINT PRIMARY KEY NOT NULL UNIQUE,
+	secret BYTEA NOT NULL);
+
+CREATE INDEX IF NOT EXISTS api_token_secret_idx ON api_token (secret);
+
 -- utility funcs --
 
 CREATE OR REPLACE FUNCTION str_contains(text, text) RETURNS bool AS $$

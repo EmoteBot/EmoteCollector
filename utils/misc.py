@@ -5,6 +5,7 @@ import asyncio
 import collections
 from datetime import datetime
 import functools
+import math
 import re
 from typing import Sequence, Union
 import urllib.parse
@@ -103,6 +104,13 @@ def typing(func):
 			await asyncio.sleep(0.1)
 			await func(*args, **kwargs)
 	return wrapped
+
+def bytes_to_int(x):
+	return int.from_bytes(x, byteorder='big')
+
+def int_to_bytes(n):
+	num_bytes = int(math.ceil(n.bit_length() / 8))
+	return n.to_bytes(num_bytes, byteorder='big')
 
 async def codeblock(message, *, lang=''):
 	cleaned = message.replace('```', '\N{zero width space}'.join('```'))
