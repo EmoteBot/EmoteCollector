@@ -113,6 +113,7 @@ class EmojiConnoisseur(commands.AutoShardedBot):
 				'extensions.logging',
 				'extensions.db',
 				'extensions.emote',
+				'extensions.api',
 				'extensions.meta',
 				'jishaku',
 				'extensions.stats',
