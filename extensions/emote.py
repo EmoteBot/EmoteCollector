@@ -21,7 +21,7 @@ import utils
 import utils.image
 from utils import checks
 from utils import errors
-from utils.paginator import ListPaginator
+from utils.paginator import Pages
 
 
 class Emotes:
@@ -54,7 +54,7 @@ class Emotes:
 		# i think it shouldn't be, since it never awaits
 		self.bot.loop.create_task(self.http.close())
 		for paginator in self.paginators:
-			self.bot.loop.create_task(paginator.stop())
+			self.bot.loop.create_task(paginator.stop(delete=False))
 
 	## COMMANDS
 
@@ -405,7 +405,9 @@ class Emotes:
 		if not processed:
 			return await context.send('No emotes have been created yet. Be the first!')
 
-		paginator = ListPaginator(context, processed)
+		paginator = Pages(context, entries=processed)
+		self.paginators.add(paginator)
+
 		if self.bot.config['website']:
 			end_path = f'/{user.id}' if user else ''
 			paginator.text_message = f'Also check out the list website at {self.bot.config["website"]}/list{end_path}.'
@@ -424,7 +426,7 @@ class Emotes:
 		if not processed:
 			return await context.send('No results matched your query.')
 
-		paginator = ListPaginator(context, processed)
+		paginator = Pages(context, entries=processed)
 		self.paginators.add(paginator)
 		await paginator.begin()
 
@@ -453,7 +455,7 @@ class Emotes:
 		if not processed:
 			return await context.send('No emotes have been created yet. Be the first!')
 
-		paginator = ListPaginator(context, processed)
+		paginator = Pages(context, entries=processed)
 		self.paginators.add(paginator)
 		await paginator.begin()
 
