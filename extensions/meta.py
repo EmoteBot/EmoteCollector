@@ -30,30 +30,21 @@ class Meta:
 		# https://github.com/Rapptz/RoboDanny/blob/8919ec0a455f957848ef77b479fe3494e76f0aa7/cogs/meta.py
 		# MIT Licensed, Copyright © 2015 Rapptz
 
-		# an object we can store in a weak set
-		class DummyPaginator:
-			pass
+		if command is None:
+			paginator = await HelpPaginator.from_bot(context)
+		else:
+			entity = self.bot.get_cog(command) or self.bot.get_command(command)
 
-		paginator = DummyPaginator()  # allows us to discard the paginator even if it's not in the set
-		try:
-			if command is None:
-				paginator = await HelpPaginator.from_bot(context)
+			if entity is None:
+				clean = command.replace('@', '@\N{zero width non-joiner}')
+				return await context.send(f'Command or category "{clean}" not found.')
+			elif isinstance(entity, commands.Command):
+				paginator = await HelpPaginator.from_command(context, entity)
 			else:
-				entity = self.bot.get_cog(command) or self.bot.get_command(command)
+				paginator = await HelpPaginator.from_cog(context, entity)
 
-				if entity is None:
-					clean = command.replace('@', '@\N{zero width non-joiner}')
-					return await context.send(f'Command or category "{clean}" not found.')
-				elif isinstance(entity, commands.Command):
-					paginator = await HelpPaginator.from_command(context, entity)
-				else:
-					paginator = await HelpPaginator.from_cog(context, entity)
-
-			self.paginators.add(paginator)
-			await paginator.begin()
-		except Exception as e:
-			self.paginators.discard(paginator)
-			await context.send(e)
+		self.paginators.add(paginator)
+		await paginator.begin()
 
 	@commands.command()
 	async def about(self, context):
