@@ -1,7 +1,3 @@
-<style>
-img.emote { max-width: 32px; max-height: 32px; -o-object-fit: contain; object-fit: contain; vertical-align: text-bottom;};
-</style>
-
 # Emoji Connoisseur
 
 Emoji Connoisseur lets you use emotes you don't have, even without Nitro.
@@ -20,7 +16,7 @@ Note that this bot is still in <em>beta</em> status, and is subject to change at
 <p>
 To add an emote:
 <ul>
-<li><code>ec/add <img class="emote" src="https://cdn.discordapp.com/emojis/407347328606011413.png?v=1" alt=":thonkang:" title=":thonkang:"></code> (if you already have that emote)</li>
+<li><code>ec/add <img class="emote" src="https://cdn.discordapp.com/emojis/407347328606011413.png?v=1&size=32" alt=":thonkang:" title=":thonkang:"></code> (if you already have that emote)</li>
 <li><code>ec/add rollsafe https://image.noelshack.com/fichiers/2017/06/1486495269-rollsafe.png</code></li>
 <li><code>ec/add speedtest https://cdn.discordapp.com/emojis/379127000398430219.png</code></li>
 </ul>
@@ -38,11 +34,11 @@ Running <code>ec/big :some_emote:</code> will enlarge the emote.
 <p>
 There's a few ways to react to a message with an emote you don't have:
 <ul>
-	<li><code>ec/react speedtest</code> will react with <img src="https://cdn.discordapp.com/emojis/410183865701892106.png?v=1" class="emote" alt=":speedtest:" title=":speedtest:"> to the last message.
-	<li><code>ec/react :speedtest: hello there</code> will react with <img src="https://cdn.discordapp.com/emojis/410183865701892106.png?v=1" class="emote" alt=":speedtest:" title=":speedtest:"> to the most recent message containing "hello there".
-	<li><code>ec/react speedtest @Someone</code> will react with <img src="https://cdn.discordapp.com/emojis/410183865701892106.png?v=1" class="emote" alt=":speedtest:" title=":speedtest:"> to the last message by Someone.
-	<li><code>ec/react ;speedtest; -2</code> will react with <img src="https://cdn.discordapp.com/emojis/410183865701892106.png?v=1" class="emote" alt=":speedtest:" title=":speedtest:"> to the second-to-last message.
-	<li><code>ec/react speedtest 462092903540457473</code> will react with <img src="https://cdn.discordapp.com/emojis/410183865701892106.png?v=1" class="emote" alt=":speedtest:" title=":speedtest:"> to message ID 462092903540457473.
+	<li><code>ec/react speedtest</code> will react with <img src="https://cdn.discordapp.com/emojis/410183865701892106.png?v=1&size=32" class="emote" alt=":speedtest:" title=":speedtest:"> to the last message.
+	<li><code>ec/react :speedtest: hello there</code> will react with <img src="https://cdn.discordapp.com/emojis/410183865701892106.png?v=1&size=32" class="emote" alt=":speedtest:" title=":speedtest:"> to the most recent message containing "hello there".
+	<li><code>ec/react speedtest @Someone</code> will react with <img src="https://cdn.discordapp.com/emojis/410183865701892106.png?v=1&size=32" class="emote" alt=":speedtest:" title=":speedtest:"> to the last message by Someone.
+	<li><code>ec/react ;speedtest; -2</code> will react with <img src="https://cdn.discordapp.com/emojis/410183865701892106.png?v=1&size=32" class="emote" alt=":speedtest:" title=":speedtest:"> to the second-to-last message.
+	<li><code>ec/react speedtest 462092903540457473</code> will react with <img src="https://cdn.discordapp.com/emojis/410183865701892106.png?v=1&size=32" class="emote" alt=":speedtest:" title=":speedtest:"> to message ID 462092903540457473.
 </ul>
 After running this command, the bot will wait for you to also react. Once you react, or after 30s, the bot will remove its reaction. Confused? It works like this:<br>
 <img src="https://discord.coffee/829b79.gif" alt="demonstration of how the ec/react command works">
