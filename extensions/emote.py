@@ -189,6 +189,10 @@ class Emotes:
 		"""Try to add an emote. Returns a string that should be sent to the user."""
 		try:
 			emote = await self.add_from_url(name, url, author_id)
+		except errors.ConnoisseurError as ex:
+			# yes, on_command_error will handle these, but other commands depend on this
+			# function returning a string on error (such as steal_these)
+			return str(ex)
 		except discord.HTTPException as ex:
 			logger.error(traceback.format_exc())
 			return (
@@ -470,7 +474,7 @@ class Emotes:
 		messages = []
 		for match in utils.emote.RE_CUSTOM_EMOTE.finditer(''.join(emotes)):
 			animated, name, id = match.groups()
-			image_url = utils.emote.url(id)
+			image_url = utils.emote.url(id, animated=animated)
 			messages.append(await self.add_safe(name, image_url, context.author.id))
 
 		if not messages:
