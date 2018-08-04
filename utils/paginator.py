@@ -47,7 +47,7 @@ class Pages:
 	permissions: discord.Permissions
 		Our permissions for the channel.
 	"""
-	def __init__(self, ctx, *, entries, per_page=12, show_entry_count=True, timeout=120.0,
+	def __init__(self, ctx, *, entries, per_page=12, show_entry_count=True, timeout=5.0,
 		delete_message=True, delete_message_on_timeout=False,
 	):
 		self.bot = ctx.bot
@@ -227,7 +227,7 @@ class Pages:
 			await self.message.clear_reactions()
 		except discord.Forbidden:
 			for emoji, action in self.reaction_emojis:
-				await self.message.remove_reaction(emoji, self.author)
+				await self.message.remove_reaction(emoji, self.message.author)
 
 	def react_check(self, reaction, user):
 		if user is None or user.id != self.author.id:
@@ -467,7 +467,7 @@ class HelpPaginator(Pages):
 			self.embed.add_field(name=signature(entry), value=entry.short_doc or "No help given", inline=False)
 
 		if self.maximum_pages:
-			self.embed.set_author(name=f'Page {page}/{self.maximum_pages} ({self.total} commands)')
+			self.embed.set_footer(text=f'Page {page}/{self.maximum_pages} ({self.total} commands)')
 
 		if not self.paginating:
 			return await self.channel.send(embed=self.embed)
