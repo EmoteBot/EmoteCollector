@@ -47,7 +47,7 @@ class Pages:
 	permissions: discord.Permissions
 		Our permissions for the channel.
 	"""
-	def __init__(self, ctx, *, entries, per_page=12, show_entry_count=True, timeout=5.0,
+	def __init__(self, ctx, *, entries, per_page=12, show_entry_count=True, timeout=120.0,
 		delete_message=True, delete_message_on_timeout=False,
 	):
 		self.bot = ctx.bot
