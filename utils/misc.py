@@ -203,6 +203,8 @@ def load_json_compat(data: str):
 	# Well I would use another configuration language, but they all suck.
 	# To really answer your question, the config file is 100% trusted data.
 	# NOTHING the user ever sends, ends up in there.
+	# Also, consider another common approach: `import config`.
+	# Which is arbitrary code execution anyway.
 	# Furthermore, the if the user ever does get a hold of the config.py file,
 	# then they already have the bot token and have totally compromised the bot.
 	globals = dict(true=True, false=False, null=None)

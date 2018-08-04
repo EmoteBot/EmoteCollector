@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # encoding: utf-8
 
+import shlex
 import os
 import weakref
 
@@ -9,12 +10,15 @@ import psutil
 import discord
 from discord.ext import commands
 
+import utils.argparse
 from utils.paginator import HelpPaginator
 
 class Meta:
 	def __init__(self, bot):
 		self.bot = bot
-		self.bot.remove_command('help')
+		# setting a Command as an attribute of a cog causes it to be added to the bot
+		# prevent this by wrapping it in a tuple
+		self.old_help = (self.bot.remove_command('help'),)
 		self.paginators = weakref.WeakSet()
 		self.process = psutil.Process()
 
@@ -23,25 +27,49 @@ class Meta:
 			self.bot.loop.create_task(paginator.stop(delete=False))
 
 	@commands.command()
-	async def help(self, context, *, command: str = None):
-		"""Shows help about a command, category, or the bot"""
+	async def help(self, context, *, args: str=None):
+		if args is None:
+			paginator = await HelpPaginator.from_bot(context)
+			self.paginators.add(paginator)
+			return await paginator.begin()
+
+		parser = utils.argparse.ArgumentParser(
+			prog=context.command.name,
+			add_help=True,
+			description='Shows help about a command, category, or the bot.')
+
+		parser.add_argument('--embed', dest='embed', action='store_true', help='display output with an embed')
+		parser.add_argument('--no-embed', dest='embed', action='store_false', help='display output without an embed')
+		parser.set_defaults(embed=True)
+		parser.add_argument('command or category', nargs='*')
+
+		try:
+			parsed_args = parser.parse_args(shlex.split(args))
+		except utils.argparse.ArgumentParserError as e:
+			return await context.send(e)
+
+		command = getattr(parsed_args, 'command or category') or ()
+
+		if not parsed_args.embed:
+			return await context.invoke(self.old_help[0], *command)
 
 		# derived from R.Danny's help command
 		# https://github.com/Rapptz/RoboDanny/blob/8919ec0a455f957848ef77b479fe3494e76f0aa7/cogs/meta.py
 		# MIT Licensed, Copyright © 2015 Rapptz
 
-		if command is None:
-			paginator = await HelpPaginator.from_bot(context)
-		else:
-			entity = self.bot.get_cog(command) or self.bot.get_command(command)
+		# it came from argparser so it's still a bunch of args
+		command = ' '.join(command)
+		entity = self.bot.get_cog(command) or self.bot.get_command(command)
 
-			if entity is None:
-				clean = command.replace('@', '@\N{zero width non-joiner}')
-				return await context.send(f'Command or category "{clean}" not found.')
-			elif isinstance(entity, commands.Command):
-				paginator = await HelpPaginator.from_command(context, entity)
-			else:
-				paginator = await HelpPaginator.from_cog(context, entity)
+		if entity is self.help:
+			return await context.send(f'```{parser.format_help()}```')
+		if entity is None:
+			clean = command.replace('@', '@\N{zero width non-joiner}')
+			return await context.send(f'Command or category "{clean}" not found.')
+		elif isinstance(entity, commands.Command):
+			paginator = await HelpPaginator.from_command(context, entity)
+		else:
+			paginator = await HelpPaginator.from_cog(context, entity)
 
 		self.paginators.add(paginator)
 		await paginator.begin()
