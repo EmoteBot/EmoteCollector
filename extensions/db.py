@@ -111,7 +111,7 @@ class Database:
 		start = time.monotonic()
 		# XXX properly strip codeblocks
 		try:
-			results = await self._pool.fetch(query.replace('`', ''))
+			results = await self._pool.fetch(query.strip('`'))
 		except asyncpg.PostgresError as exception:
 			return await context.send(exception)
 		elapsed = time.monotonic() - start
