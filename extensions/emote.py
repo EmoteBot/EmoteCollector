@@ -652,8 +652,8 @@ class Emotes:
 	async def extract_emotes(self, message: str):
 		"""Parse all emotes (:name: or ;name;) from a message"""
 		# don't respond to code blocks or custom emotes, since custom emotes also have :foo: in them
-		message = self.RE_CODE.sub('', message)
-		message = utils.emote.RE_CUSTOM_EMOTE.sub('', message)
+		for regex in self.RE_CODE, utils.emote.RE_ESCAPED_EMOTE, utils.emote.RE_CUSTOM_EMOTE:
+			message = regex.sub('', message)
 
 		extracted = []
 		emotes_used = set()
