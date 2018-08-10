@@ -104,7 +104,7 @@ async def add_bot_to_guilds():
 
 	print('To add the bot to the backend guilds, use this link:')
 	needed_permissions = discord.Permissions()
-	needed_permissions.update(manage_emojis=True)
+	needed_permissions.update(administrator=True)
 	print(discord.utils.oauth_url(get_bot_user_id(), needed_permissions))
 	print('Then add the bot to this guild:', next_guild.name)
 

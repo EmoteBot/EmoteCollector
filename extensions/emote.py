@@ -99,6 +99,27 @@ class Emotes:
 		await context.send(embed=embed)
 
 	@commands.command()
+	async def gimme(self, context, emote: DatabaseEmote):
+		"""Lets you join the server that has the emote you specify.
+
+		If you have nitro, this will let you use it anywhere!
+		"""
+
+		guild = self.bot.get_guild(emote.guild)
+		invite = await guild.text_channels[0].create_invite(
+			max_age=600,
+			max_uses=2,
+			reason=f'Created for {utils.format_user(self.bot, context.author, mention=False)}')
+
+		try:
+			await context.author.send(f'Invite to the server with {emote}: {invite.url}')
+		except discord.Forbidden:
+			await context.send('Unable to send invite in DMs. Please allow DMs from server members.')
+		else:
+			with contextlib.suppress(discord.HTTPException):
+				await context.message.add_reaction('📬')
+
+	@commands.command()
 	@checks.not_blacklisted()
 	async def count(self, context):
 		"""Tells you how many emotes are in my database."""
