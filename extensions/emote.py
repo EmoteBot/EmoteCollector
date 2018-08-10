@@ -194,7 +194,6 @@ class Emotes:
 			# function returning a string on error (such as steal_these)
 			return str(ex)
 		except discord.HTTPException as ex:
-			logger.error(traceback.format_exc())
 			return (
 				'An error occurred while creating the emote:\n'
 				+ utils.format_http_exception(ex))
