@@ -60,6 +60,7 @@ class Database:
 		self.tasks = []
 		# without backend guild enumeration, the bot will report all guilds being full
 		self.tasks.append(self.bot.loop.create_task(self.find_backend_guilds()))
+		self.tasks.append(self.bot.loop.create_task(self.update_emote_guilds()))
 		self.tasks.append(self.bot.loop.create_task(self.decay_loop()))
 		self.logger = self.bot.get_cog('Logger')
 
@@ -82,11 +83,38 @@ class Database:
 		for guild in self.bot.guilds:
 			if guild.name.startswith('EmojiBackend') and await self.bot.is_owner(guild.owner):
 				guilds.append(guild)
+
+		await self._pool.executemany("""
+			INSERT INTO _guilds
+			VALUES ($1)
+			ON CONFLICT (id) DO NOTHING
+		""", map(lambda x: (x.id,), guilds))
+
 		self.guilds = guilds
 		logger.info('In %s backend guilds.', len(guilds))
 
 		# allow other cogs that depend on the list of backend guilds to know when they've been found
 		self.bot.dispatch('backend_guild_enumeration', self.guilds)
+
+	async def update_emote_guilds(self):
+		"""update the guild column in the emotes table
+
+		it's null in a former installation without the guild column
+		"""
+
+		emotes = []
+		async for db_emote in self.all_emotes():
+			discord_emote = self.bot.get_emoji(db_emote.id)
+			if discord_emote is None:
+				continue
+			emotes.append((db_emote.id, discord_emote.guild_id))
+
+		await self._pool.executemany('UPDATE emote SET guild = $2 WHERE id = $1', emotes)
+		# normally, this would be in the data/schema.sql file
+		# however, we can't put it there because it would immediately fail if there's any
+		# null values in the guild column.
+		# now that we've ensured there aren't, we can create a constraint
+		await self._pool.execute('ALTER TABLE emote ADD CONSTRAINT emote_guild_not_null_constraint NOT NULL')
 
 	async def decay_loop(self):
 		while True:
@@ -119,22 +147,32 @@ class Database:
 		message = await utils.codeblock(str(utils.PrettyTable(results)))
 		return await context.send(f'{message}*{len(results)} rows retrieved in {elapsed:.2f} seconds.*')
 
-	def free_guild(self, animated=False):
+	async def free_guild(self, animated=False):
 		"""Find a guild in the backend guilds suitable for storing an emote.
 
 		As the number of emotes stored by the bot increases, the probability of finding a rate-limited
 		guild approaches 1, but until then, this should work pretty well.
 		"""
-		free_guilds = []
-		for guild in self.guilds:
-			if sum(animated == emote.animated for emote in guild.emojis) < 50:
-				free_guilds.append(guild)
 
-		if not free_guilds:
+		# random() hopefully lets us bypass emote rate limits
+		# otherwise if we always pick the first available gulid,
+		# we might reuse it often and get rate limited.
+		guild_id = await self._pool.fetchval(f"""
+			SELECT id
+			FROM guilds
+			WHERE {'animated' if animated else 'static'}_usage < 50
+			ORDER BY random()
+			LIMIT 1
+		""")
+
+		if guild_id is None:
 			raise errors.NoMoreSlotsError
 
-		# hopefully this lets us bypass the rate limit more often, since emote rates are per-guild
-		return random.choice(free_guilds)
+		guild = self.bot.get_guild(guild_id)
+		if guild is None:
+			raise errors.DiscordError('free backend guild retrieved from database but not in client cache')
+
+		return guild
 
 	## Informational
 
@@ -285,13 +323,13 @@ class Database:
 		await self.ensure_emote_does_not_exist(name)
 
 		# checks passed
-		guild = self.free_guild(animated)
+		guild = await self.free_guild(animated)
 
 		emote = await guild.create_custom_emoji(name=name, image=image_data)
 		db_emote = await self._pool.fetchrow("""
-			INSERT INTO emote(name, id, author, animated)
-			VALUES ($1, $2, $3, $4)
-			RETURNING *""", name, emote.id, author_id, animated)
+			INSERT INTO emote(name, id, author, animated, guild)
+			VALUES ($1, $2, $3, $4, $5)
+			RETURNING *""", name, emote.id, author_id, animated, guild.id)
 		return DatabaseEmote(db_emote)
 
 	async def remove_emote(self, emote, user_id):

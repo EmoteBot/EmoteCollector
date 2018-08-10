@@ -8,10 +8,31 @@ CREATE TABLE IF NOT EXISTS emote(
 	description VARCHAR(280),
 	created TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
 	modified TIMESTAMP WITH TIME ZONE,
-	preserve BOOLEAN DEFAULT FALSE);
+	preserve BOOLEAN DEFAULT FALSE,
+	guild BIGINT NOT NULL);
 
 CREATE UNIQUE INDEX IF NOT EXISTS emote_lower_idx ON emote (LOWER(name));
 CREATE INDEX IF NOT EXISTS emote_author_idx ON emote (author);
+
+CREATE TABLE IF NOT EXISTS _guilds(
+	id BIGINT NOT NULL UNIQUE PRIMARY KEY);
+
+ALTER TABLE emote
+	DROP CONSTRAINT IF EXISTS emote_guild_fkey,
+	ADD CONSTRAINT emote_guild_fkey FOREIGN KEY (guild)
+		REFERENCES _guilds (id) ON DELETE CASCADE;
+
+CREATE OR REPLACE VIEW guilds AS
+	-- thanks to ysch on freenode/#postgresql for helping me with this query
+	SELECT g.id,
+	COUNT(e.guild) AS usage,
+	COUNT(e.guild) FILTER (WHERE NOT e.animated) AS static_usage,
+	COUNT(e.guild) FILTER (WHERE e.animated) AS animated_usage
+	FROM _guilds AS g
+	LEFT JOIN
+		emote AS e
+		ON e.guild = g.id
+	GROUP BY g.id;
 
 -- https://stackoverflow.com/a/26284695/1378440
 CREATE OR REPLACE FUNCTION update_modified_column()
