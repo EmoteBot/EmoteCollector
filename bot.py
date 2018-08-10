@@ -105,13 +105,15 @@ class EmojiConnoisseur(commands.AutoShardedBot):
 			await context.send(error)
 		elif isinstance(error, commands.NotOwner):
 			logger.error('%s tried to run %s but is not the owner', context.author, context.command.name)
+			with contextlib.suppress(discord.HTTPException):
+				await context.message.add_reaction('❌')
 		elif isinstance(error, commands.CommandInvokeError):
-			await context.send('An internal error occured while trying to run that command.')
-
 			logger.error('"%s" caused an exception', context.message.content)
 			logger.error(''.join(traceback.format_tb(error.original.__traceback__)))
 			# pylint: disable=logging-format-interpolation
 			logger.error('{0.__class__.__name__}: {0}'.format(error.original))
+
+			await context.send('An internal error occured while trying to run that command.')
 
 	async def logout(self):
 		await self.pool.close()
