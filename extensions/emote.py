@@ -598,8 +598,6 @@ class Emotes:
 		if not self.bot.should_reply(message):
 			return
 
-		await self.db.ready.wait()
-
 		context = await self.bot.get_context(message)
 		if context.valid:
 			# user invoked a command, rather than the emote auto response
@@ -613,6 +611,8 @@ class Emotes:
 			guild = message.guild.id
 		else:
 			guild = None
+
+		await self.bot.db_ready.wait()
 
 		if not await self.db.get_state(guild, message.author.id):
 			return

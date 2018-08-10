@@ -16,12 +16,7 @@ class API:
 
 	def __init__(self, bot):
 		self.bot = bot
-		self.bot.loop.create_task(self._init())
-
-	async def _init(self):
-		db_cog = self.bot.get_cog('Database')
-		await db_cog.ready.wait()
-		self._pool = db_cog._pool
+		self._pool = self.bot.pool
 
 	@staticmethod
 	def any_parent_command_is(command, parent_command):

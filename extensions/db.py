@@ -56,9 +56,8 @@ class DatabaseEmote(utils.AttrDict):
 class Database:
 	def __init__(self, bot):
 		self.bot = bot
-		self.ready = asyncio.Event()
+		self._pool = self.bot.pool
 		self.tasks = []
-		self.tasks.append(self.bot.loop.create_task(self._get_db()))
 		# without backend guild enumeration, the bot will report all guilds being full
 		self.tasks.append(self.bot.loop.create_task(self.find_backend_guilds()))
 		self.tasks.append(self.bot.loop.create_task(self.decay_loop()))
@@ -471,18 +470,6 @@ class Database:
 			INSERT INTO user_opt (id, blacklist_reason) VALUES ($1, $2)
 			ON CONFLICT (id) DO UPDATE SET blacklist_reason = EXCLUDED.blacklist_reason""",
 		user_id, reason)
-
-	##
-
-	async def _get_db(self):
-		credentials = self.bot.config['database']
-		pool = await asyncpg.create_pool(**credentials)  # pylint: disable=invalid-name
-
-		async with aiofiles.open('data/schema.sql') as f:
-			await pool.execute(await f.read())
-
-		self._pool = pool
-		self.ready.set()
 
 def setup(bot):
 	bot.add_cog(Database(bot))

@@ -2,16 +2,19 @@
 # encoding: utf-8
 
 import asyncio
+import contextlib
 import logging
 import re
 import traceback
 
+import aiofiles
+import asyncpg
 import discord
 from discord.ext import commands
 try:
 	import uvloop
 except ImportError:
-	pass
+	pass  # Windows
 else:
 	asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
@@ -30,8 +33,9 @@ class EmojiConnoisseur(commands.AutoShardedBot):
 			if self.config.get('primary_owner'):
 				self.owners.add(self.config['primary_owner'])
 
+		self.db_ready = asyncio.Event()
+
 		super().__init__(
-			#command_prefix=commands.when_mentioned_or(self.config['prefix']),
 			command_prefix=self.get_prefix_,
 			description=self.config['description'],
 			activity=discord.Game(name=self.config['prefix'] + 'help'),  # "Playing ec/help"
@@ -109,7 +113,27 @@ class EmojiConnoisseur(commands.AutoShardedBot):
 			# pylint: disable=logging-format-interpolation
 			logger.error('{0.__class__.__name__}: {0}'.format(error.original))
 
-	def run(self, *args, **kwargs):
+	async def logout(self):
+		await self.pool.close()
+		await super().logout()
+
+	async def start(self):
+		await self._init_db()
+		self._load_extensions()
+
+		await super().start(self.config['tokens'].pop('discord'))
+
+	async def _init_db(self):
+		credentials = self.config.pop('database')
+		pool = await asyncpg.create_pool(**credentials)
+
+		async with aiofiles.open('data/schema.sql') as f:
+			await pool.execute(await f.read())
+
+		self.pool = pool
+		self.db_ready.set()
+
+	def _load_extensions(self):
 		for extension in (
 				'extensions.logging',
 				'extensions.db',
@@ -125,11 +149,16 @@ class EmojiConnoisseur(commands.AutoShardedBot):
 			self.load_extension(extension)
 			logger.info('Successfully loaded %s', extension)
 
-		super().run(self.config['tokens'].pop('discord'), *args, **kwargs)
-
 # defined in a function so it can be run from a REPL if need be
 def run():
-	EmojiConnoisseur().run()
+	loop = asyncio.get_event_loop()
+	bot = EmojiConnoisseur(loop=loop)
+
+	with contextlib.closing(loop):
+		try:
+			loop.run_until_complete(bot.start())
+		finally:
+			loop.run_until_complete(bot.logout())
 
 if __name__ == '__main__':
 	run()
