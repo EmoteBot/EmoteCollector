@@ -71,7 +71,7 @@ class Database:
 	async def find_backend_guilds(self):
 		"""Find all the guilds used to store emotes"""
 
-		if hasattr(self, 'guilds') and self.guilds:  # pylint: disable=access-member-before-definition
+		if getattr(self, 'guilds', None):
 			return
 
 		await self.bot.wait_until_ready()
