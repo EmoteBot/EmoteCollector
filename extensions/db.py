@@ -110,11 +110,6 @@ class Database:
 			emotes.append((db_emote.id, discord_emote.guild_id))
 
 		await self._pool.executemany('UPDATE emote SET guild = $2 WHERE id = $1', emotes)
-		# normally, this would be in the data/schema.sql file
-		# however, we can't put it there because it would immediately fail if there's any
-		# null values in the guild column.
-		# now that we've ensured there aren't, we can create a constraint
-		await self._pool.execute('ALTER TABLE emote ADD CONSTRAINT emote_guild_not_null_constraint NOT NULL')
 
 	async def decay_loop(self):
 		while True:

@@ -11,6 +11,15 @@ CREATE TABLE IF NOT EXISTS emote(
 	preserve BOOLEAN DEFAULT FALSE,
 	guild BIGINT NOT NULL);
 
+
+-- adding a new NOT NULL column is a breaking change unless a default is set
+BEGIN;
+	LOCK emote;
+	ALTER TABLE emote ALTER COLUMN guild SET DEFAULT 0;
+	ALTER TABLE emote ALTER COLUMN guild SET NOT NULL;
+	COMMIT;
+END;
+
 CREATE UNIQUE INDEX IF NOT EXISTS emote_lower_idx ON emote (LOWER(name));
 CREATE INDEX IF NOT EXISTS emote_author_idx ON emote (author);
 
