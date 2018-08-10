@@ -46,8 +46,10 @@ class Pages:
 		and footer fields are internally modified.
 	permissions: discord.Permissions
 		Our permissions for the channel.
+	text_message: Optional[str]
+		What to display above the embed.
 	"""
-	def __init__(self, ctx, *, entries, per_page=12, show_entry_count=True, timeout=120.0,
+	def __init__(self, ctx, *, entries, per_page=10, show_entry_count=True, timeout=120.0,
 		delete_message=True, delete_message_on_timeout=False,
 	):
 		self.bot = ctx.bot
@@ -66,6 +68,7 @@ class Pages:
 		self.timeout = timeout
 		self.delete_message = delete_message
 		self.delete_message_on_timeout = delete_message_on_timeout
+		self.text_message = None
 		self.reaction_emojis = [
 			('\N{BLACK LEFT-POINTING DOUBLE TRIANGLE WITH VERTICAL BAR}', self.first_page),
 			('\N{BLACK LEFT-POINTING TRIANGLE}', self.previous_page),
@@ -114,19 +117,23 @@ class Pages:
 
 			self.embed.set_footer(text=text)
 
+		args = []
+		if self.text_message:
+			args.append(self.text_message)
+
 		if not self.paginating:
 			self.embed.description = '\n'.join(p)
-			return await self.channel.send(embed=self.embed)
+			return await self.channel.send(*args, embed=self.embed)
 
 		if not first:
 			self.embed.description = '\n'.join(p)
-			await self.message.edit(embed=self.embed)
+			await self.message.edit(*args, embed=self.embed)
 			return
 
 		p.append('')
 		p.append('Confused? React with \N{INFORMATION SOURCE} for more info.')
 		self.embed.description = '\n'.join(p)
-		self.message = await self.channel.send(embed=self.embed)
+		self.message = await self.channel.send(*args, embed=self.embed)
 		for (reaction, _) in self.reaction_emojis:
 			if self.maximum_pages == 2 and reaction in ('\u23ed', '\u23ee'):
 				# no |<< or >>| buttons if we only have two pages
