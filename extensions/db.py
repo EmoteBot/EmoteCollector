@@ -97,7 +97,7 @@ class Database:
 			logger.debug('decay enabled')
 
 			await self.bot.wait_until_ready()
-			await self.ready.wait()
+			await self.bot.db_ready.wait()
 			logger.debug('decaying')
 
 			await self.decay()
