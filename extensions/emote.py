@@ -278,6 +278,9 @@ class Emotes:
 		Renames :a: to :b:
 		"""
 
+		if not args:
+			return await context.send('You must specify an old name and a new name.')
+
 		# allow e.g. foo{bar,baz} -> rename foobar to foobaz
 		if len(args) == 1:
 			old_name, new_name = utils.expand_cartesian_product(args[0])
