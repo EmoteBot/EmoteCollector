@@ -141,7 +141,7 @@ class Emotes:
 			return await context.send(exception)
 
 		async with context.typing():
-			message = await self.add_safe(name, url, context.message.author.id)
+			message = await self.add_safe(name.strip(':;'), url, context.message.author.id)
 		await context.send(message)
 
 	def parse_add_command_args(self, context, args):
@@ -286,6 +286,8 @@ class Emotes:
 				return await context.send('Error: you must provide a new name for the emote.')
 		else:
 			old_name, new_name, *_ = args
+
+		old_name, new_name = map(lambda c: c.strip(':;'), (old_name, new_name))
 
 		try:
 			await self.db.rename_emote(old_name, new_name, context.author.id)
