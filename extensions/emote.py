@@ -275,7 +275,7 @@ class Emotes:
 
 		Example:
 		ec/rename a b
-		Renames :a: to :b:
+		Renames \:a: to \:b:
 		"""
 
 		if not args:
