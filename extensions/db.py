@@ -68,9 +68,6 @@ class Database:
 		for task in self.tasks:
 			task.cancel()
 
-		with contextlib.suppress(AttributeError):  # in case db has not been set yet
-			self.bot.loop.create_task(self._pool.close())
-
 	async def find_backend_guilds(self):
 		"""Find all the guilds used to store emotes"""
 
