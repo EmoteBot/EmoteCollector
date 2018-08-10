@@ -108,7 +108,7 @@ class EmojiConnoisseur(commands.AutoShardedBot):
 		elif isinstance(error, commands.CommandInvokeError):
 			await context.send('An internal error occured while trying to run that command.')
 
-			logger.error('In %s:', context.command.qualified_name)
+			logger.error('"%s" caused an exception', context.message.content)
 			logger.error(''.join(traceback.format_tb(error.original.__traceback__)))
 			# pylint: disable=logging-format-interpolation
 			logger.error('{0.__class__.__name__}: {0}'.format(error.original))
