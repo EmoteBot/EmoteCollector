@@ -126,7 +126,7 @@ class EmojiConnoisseur(commands.AutoShardedBot):
 		await super().start(self.config['tokens'].pop('discord'))
 
 	async def _init_db(self):
-		credentials = self.config.pop('database')
+		credentials = self.config['database']
 		pool = await asyncpg.create_pool(**credentials)
 
 		async with aiofiles.open('data/schema.sql') as f:
