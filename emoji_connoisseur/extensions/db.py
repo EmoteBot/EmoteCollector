@@ -358,12 +358,14 @@ class Database:
 		emote = await self.get_emote(old_name)
 		await self.owner_check(emote, user_id)
 
-
 		await self.bot.http.edit_custom_emoji(emote.guild, emote.id, name=new_name)
-		await self._pool.execute('UPDATE emote SET name = $2 where id = $1', emote.id, new_name)
-		return await self.get_emote(new_name)
+		return await self._pool.fetchrow("""
+			UPDATE emote
+			SET name = $2
+			WHERE id = $1
+			RETURNING *""", emote.id, new_name)
 
-	async def set_emote_description(self, name, user_id, description=None):
+	async def set_emote_description(self, name, user_id=None, description=None):
 		"""Set an emote's description.
 
 		If you leave out the description, it will be removed.
@@ -377,10 +379,11 @@ class Database:
 		await self.owner_check(emote, user_id)
 
 		try:
-			await self._pool.execute(
-				'UPDATE emote SET DESCRIPTION = $2 WHERE id = $1',
-				emote.id,
-				description)
+			return DatabaseEmote(await self._pool.fetchrow("""
+				UPDATE emote
+				SET DESCRIPTION = $2
+				WHERE id = $1
+				RETURNING *""",emote.id, description))
 		# wowee that's a verbose exception name
 		# like why not just call it "StringTooLongError"?
 		except asyncpg.StringDataRightTruncationError as exception:
