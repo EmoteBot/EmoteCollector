@@ -160,6 +160,8 @@ class Database:
 		if guild_id is None:
 			raise errors.NoMoreSlotsError
 
+		return guild_id
+
 		guild = self.bot.get_guild(guild_id)
 		if guild is None:
 			raise errors.DiscordError('free backend guild retrieved from database but not in client cache')
@@ -314,14 +316,13 @@ class Database:
 	async def create_emote(self, name, author_id, animated, image_data: bytes):
 		await self.ensure_emote_does_not_exist(name)
 
-		# checks passed
-		guild = await self.free_guild(animated)
+		guild_id = await self.free_guild(animated)
 
-		emote = await guild.create_custom_emoji(name=name, image=image_data)
+		emote_data = await self.bot.http.create_custom_emoji(guild_id=guild_id, name=name, image=image_data)
 		db_emote = await self._pool.fetchrow("""
 			INSERT INTO emote(name, id, author, animated, guild)
 			VALUES ($1, $2, $3, $4, $5)
-			RETURNING *""", name, emote.id, author_id, animated, guild.id)
+			RETURNING *""", name, int(emote_data['id']), author_id, animated, guild.id)
 		return DatabaseEmote(db_emote)
 
 	async def remove_emote(self, emote, user_id):
@@ -332,17 +333,12 @@ class Database:
 
 		returns the emote that was deleted
 		"""
-		db_emote = emote
 		if user_id is not None:
-			await self.owner_check(db_emote, user_id)
+			await self.owner_check(emote, user_id)
 
-		discord_emote = self.bot.get_emoji(emote.id)
-		if discord_emote is None:
-			raise errors.DiscordError
-
-		await discord_emote.delete()
-		await self._pool.execute('DELETE FROM emote WHERE id = $1', db_emote.id)
-		return db_emote
+		await self.bot.http.delete_custom_emoji(emote.guild, emote.id)
+		await self._pool.execute('DELETE FROM emote WHERE id = $1', emote.id)
+		return emote
 
 	async def rename_emote(self, old_name, new_name, user_id):
 		"""rename an emote from old_name to new_name. user_id must be authorized."""
@@ -351,13 +347,13 @@ class Database:
 		if old_name.lower() != new_name.lower():
 			await self.ensure_emote_does_not_exist(new_name)
 
-		db_emote = await self.get_emote(old_name)
-		await self.owner_check(db_emote, user_id)
+		emote = await self.get_emote(old_name)
+		await self.owner_check(emote, user_id)
 
-		discord_emote = self.bot.get_emoji(db_emote.id)
 
-		await discord_emote.edit(name=new_name)
-		await self._pool.execute('UPDATE emote SET name = $2 where id = $1', discord_emote.id, new_name)
+		await self.bot.http.edit_custom_emoji(emote.guild, emote.id, name=new_name)
+		await self._pool.execute('UPDATE emote SET name = $2 where id = $1', emote.id, new_name)
+		return await self.get_emote(new_name)
 
 	async def set_emote_description(self, name, user_id, description=None):
 		"""Set an emote's description.
