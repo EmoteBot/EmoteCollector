@@ -64,10 +64,7 @@ class API:
 			await context.author.send(
 				f'Your {"new " if new else ""}API token is:\n'
 				f'`{token.decode()}`\n'
-				'Do **not** share it with anyone!\n'
-				'\n'
-				'Note: there are currently no endpoints which require this token. '
-				'There may never be.')
+				'Do **not** share it with anyone!')
 		except discord.Forbidden:
 			await context.send('Error: I could not send you your token via DMs.')
 		else:
