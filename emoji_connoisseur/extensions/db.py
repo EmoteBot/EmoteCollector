@@ -339,8 +339,10 @@ class Database:
 
 		returns the emote that was deleted
 		"""
-		if user_id is not None:
-			await self.owner_check(emote, user_id)
+		if isinstance(emote, str):
+			emote = await self.get_emote(name=emote)
+
+		await self.owner_check(emote, user_id)
 
 		await self.bot.http.delete_custom_emoji(emote.guild, emote.id)
 		await self._pool.execute('DELETE FROM emote WHERE id = $1', emote.id)
