@@ -6,6 +6,7 @@ import contextlib
 import datetime
 import logging
 import random
+import re
 import time
 
 import aiofiles
@@ -376,7 +377,9 @@ class Database:
 		# wowee that's a verbose exception name
 		# like why not just call it "StringTooLongError"?
 		except asyncpg.StringDataRightTruncationError as exception:
-			raise errors.EmoteDescriptionTooLong
+			# XXX dumb way to do it but it's the only way i've got
+			limit = int(re.search(r'character varying\((\d+)\)', exception.message).group(1))
+			raise errors.EmoteDescriptionTooLongError(emote.name, limit)
 
 	async def set_emote_preservation(self, name, should_preserve: bool):
 		"""change the preservation status of an emote.
