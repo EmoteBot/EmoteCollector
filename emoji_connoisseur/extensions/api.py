@@ -99,22 +99,30 @@ class API:
 		await self._pool.execute('DELETE FROM api_token WHERE id = $1', user_id)
 		return await self.new_token(user_id)
 
-	async def validate_token(self, user_id, token):
+	async def validate_token(self, token, user_id=None):
 		try:
 			token_user_id, secret = self.decode_token(token)
 		except:
 			return False
 
+		if user_id is None:
+			# allow auth with just a token...
+			user_id = token_user_id
+
+		# ...but if a user id is provided, verify it
 		if token_user_id != user_id:
 			return False
 
-		return await self._pool.fetchval("""
+		if await self._pool.fetchval("""
 			SELECT COALESCE((
 				SELECT true
 				FROM api_token
 				WHERE id = $1 AND secret = $2),
 			false)
-		""", user_id, secret)
+		""", user_id, secret):
+			return user_id, secret
+		else:
+			return False, False
 
 	def generate_token(self, user_id):
 		secret = base64.b64encode(secrets.token_bytes())
