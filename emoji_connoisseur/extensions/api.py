@@ -120,9 +120,9 @@ class API:
 				WHERE id = $1 AND secret = $2),
 			false)
 		""", user_id, secret):
-			return user_id, secret
+			return user_id
 		else:
-			return False, False
+			return False
 
 	def generate_token(self, user_id):
 		secret = base64.b64encode(secrets.token_bytes())
