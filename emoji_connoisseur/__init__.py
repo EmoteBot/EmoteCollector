@@ -4,6 +4,7 @@
 import asyncio
 import contextlib
 import logging
+import os.path
 import re
 import traceback
 
@@ -25,13 +26,14 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('bot')
 
 class EmojiConnoisseur(commands.AutoShardedBot):
-	def __init__(self, *args, **kwargs):
-		with open('data/config.py') as conf:
-			self.config = utils.load_json_compat(conf.read())
+	base_dir = os.path.dirname(__file__)
 
-			self.owners = set(self.config['extra_owners'])
-			if self.config.get('primary_owner'):
-				self.owners.add(self.config['primary_owner'])
+	def __init__(self, *args, **kwargs):
+		self.config = kwargs.pop('config')
+
+		self.owners = set(self.config.get('extra_owners', ()))
+		if self.config.get('primary_owner'):
+			self.owners.add(self.config['primary_owner'])
 
 		self.db_ready = asyncio.Event()
 
@@ -129,7 +131,7 @@ class EmojiConnoisseur(commands.AutoShardedBot):
 		credentials = self.config['database']
 		pool = await asyncpg.create_pool(**credentials)
 
-		async with aiofiles.open('data/schema.sql') as f:
+		async with aiofiles.open(os.path.join(self.base_dir, '..', 'data', 'schema.sql')) as f:
 			await pool.execute(await f.read())
 
 		self.pool = pool
