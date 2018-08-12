@@ -10,8 +10,8 @@ import psutil
 import discord
 from discord.ext import commands
 
-import utils.argparse
-from utils.paginator import HelpPaginator
+from ..utils import argparse
+from ..utils.paginator import HelpPaginator
 
 class Meta:
 	def __init__(self, bot):
@@ -33,7 +33,7 @@ class Meta:
 			self.paginators.add(paginator)
 			return await paginator.begin()
 
-		parser = utils.argparse.ArgumentParser(
+		parser = argparse.ArgumentParser(
 			prog=context.command.name,
 			add_help=True,
 			description='Shows help about a command, category, or the bot.')
@@ -45,7 +45,7 @@ class Meta:
 
 		try:
 			parsed_args = parser.parse_args(shlex.split(args))
-		except utils.argparse.ArgumentParserError as e:
+		except argparse.ArgumentParserError as e:
 			return await context.send(e)
 
 		command = getattr(parsed_args, 'command or category') or ()

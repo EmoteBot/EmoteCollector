@@ -13,8 +13,8 @@ import asyncpg
 import discord
 from discord.ext import commands
 
-import utils
-from utils import errors
+from .. import utils
+from ..utils import errors
 
 
 logger = logging.getLogger(__name__)

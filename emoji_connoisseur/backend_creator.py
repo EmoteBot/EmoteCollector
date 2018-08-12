@@ -14,7 +14,7 @@ import contextlib
 
 import discord
 
-import utils
+from . utils
 
 
 bot = discord.Client(self_bot=True)

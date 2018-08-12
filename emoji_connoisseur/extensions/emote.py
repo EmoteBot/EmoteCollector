@@ -16,12 +16,12 @@ import asyncpg
 import discord
 from discord.ext import commands
 
-from extensions.db import DatabaseEmote
-import utils
-import utils.image
-from utils import checks
-from utils import errors
-from utils.paginator import Pages
+from .db import DatabaseEmote
+from .. import utils
+from ..utils import image as image_utils
+from ..utils import checks
+from ..utils import errors
+from ..utils.paginator import Pages
 
 
 class Emotes:
@@ -253,8 +253,8 @@ class Emotes:
 		# resize_until_small is normally blocking, because wand is.
 		# run_in_executor is magic that makes it non blocking somehow.
 		# also, None as the executor arg means "use the loop's default executor"
-		image_data = await self.bot.loop.run_in_executor(None, utils.image.resize_until_small, image_data)
-		animated = utils.image.is_animated(image_data.getvalue())
+		image_data = await self.bot.loop.run_in_executor(None, image_utils.resize_until_small, image_data)
+		animated = image_utils.is_animated(image_data.getvalue())
 		emote = await self.db.create_emote(name, author_id, animated, image_data.read())
 		self.bot.dispatch('emote_add', emote)
 		return emote

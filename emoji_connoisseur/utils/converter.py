@@ -5,7 +5,7 @@ import typing
 
 from discord.ext import commands
 
-import utils
+from .. import utils
 
 
 class OffsetMessage(commands.Converter):

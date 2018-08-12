@@ -4,7 +4,7 @@
 import aiofiles
 from discord.ext import commands
 
-import utils
+from .. import utils
 
 class Meme:
 	def __init__(self, bot):

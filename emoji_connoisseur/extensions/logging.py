@@ -4,7 +4,7 @@ import logging
 
 import discord
 
-import utils
+from .. import utils
 
 
 logger = logging.getLogger(__name__)

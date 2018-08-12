@@ -9,7 +9,7 @@ import secrets
 import discord
 from discord.ext import commands
 
-import utils
+from .. import utils
 
 class API:
 	TOKEN_DELIMITER = b';'

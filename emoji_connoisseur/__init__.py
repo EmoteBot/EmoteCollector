@@ -18,7 +18,7 @@ except ImportError:
 else:
 	asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
-import utils
+from . import utils
 
 
 logging.basicConfig(level=logging.INFO)
@@ -137,30 +137,16 @@ class EmojiConnoisseur(commands.AutoShardedBot):
 
 	def _load_extensions(self):
 		for extension in (
-				'extensions.logging',
-				'extensions.db',
-				'extensions.emote',
-				'extensions.api',
-				'extensions.meta',
+				'emoji_connoisseur.extensions.logging',
+				'emoji_connoisseur.extensions.db',
+				'emoji_connoisseur.extensions.emote',
+				'emoji_connoisseur.extensions.api',
+				'emoji_connoisseur.extensions.meta',
 				'jishaku',
-				'extensions.stats',
+				'emoji_connoisseur.extensions.stats',
 				'ben_cogs.misc',
-				'extensions.meme',
+				'emoji_connoisseur.extensions.meme',
 				'ben_cogs.debug',
 		):
 			self.load_extension(extension)
 			logger.info('Successfully loaded %s', extension)
-
-# defined in a function so it can be run from a REPL if need be
-def run():
-	loop = asyncio.get_event_loop()
-	bot = EmojiConnoisseur(loop=loop)
-
-	with contextlib.closing(loop):
-		try:
-			loop.run_until_complete(bot.start())
-		finally:
-			loop.run_until_complete(bot.logout())
-
-if __name__ == '__main__':
-	run()
