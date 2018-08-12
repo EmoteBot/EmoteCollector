@@ -323,11 +323,12 @@ class Database:
 
 		guild_id = await self.free_guild(animated)
 
-		emote_data = await self.bot.http.create_custom_emoji(guild_id=guild_id, name=name, image=image_data)
+		image = discord.utils._bytes_to_base64_data(image_data)
+		emote_data = await self.bot.http.create_custom_emoji(guild_id=guild_id, name=name, image=image)
 		emote = await self._pool.fetchrow("""
 			INSERT INTO emote(name, id, author, animated, guild)
 			VALUES ($1, $2, $3, $4, $5)
-			RETURNING *""", name, int(emote_data['id']), author_id, animated, guild.id)
+			RETURNING *""", name, int(emote_data['id']), author_id, animated, guild_id)
 		return DatabaseEmote(emote)
 
 	async def remove_emote(self, emote, user_id):
