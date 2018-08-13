@@ -11,5 +11,3 @@ geckodriver.log
 
 /data/config.py
 
-# compiled language files
-*.mo
