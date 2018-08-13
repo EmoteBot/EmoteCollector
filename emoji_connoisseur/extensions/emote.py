@@ -138,6 +138,15 @@ class Emotes:
 	async def quote(self, context, *, message):
 		"""Quotes your message, with :foo: and ;foo; replaced with their emote forms"""
 		message, _ = await self.quote_emotes(context.message, message)
+
+		if context.guild.me.permissions_in(context.channel).manage_messages:
+			# no space because rest_is_raw preserves the space after "ec/quote"
+			message = f'{context.author.mention} said:' + message
+
+			# it doesn't matter if they deleted their message before we sent our reply
+			with contextlib.suppress(discord.NotFound):
+				await context.message.delete()
+
 		await context.send(message)
 
 	@commands.command(aliases=['create'])
