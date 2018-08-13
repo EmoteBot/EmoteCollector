@@ -26,7 +26,7 @@ class EmoteError(ConnoisseurError):
 	"""Abstract error while trying to modify an emote"""
 	def __init__(self, message, name):
 		self.name = name
-		super().__init__(_(message).format(self.name))
+		super().__init__(_(message).format(name=self.name))
 
 class EmoteExistsError(EmoteError):
 	"""An emote with that name already exists"""

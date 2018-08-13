@@ -444,7 +444,7 @@ class Emotes:
 		async for emote in self.db.all_emotes(*args):
 			author = utils.format_user(self.bot, emote.author, mention=True)
 
-			if emote.preserved:
+			if emote.preserve:
 				first_bit = _('{emote} (Preserved)').format(emote=emote.with_name())
 			else:
 				first_bit = emote.with_name()

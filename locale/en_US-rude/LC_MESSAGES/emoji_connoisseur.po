@@ -8,10 +8,10 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-08-13 16:16-0500\n"
-"PO-Revision-Date: 2018-08-13 17:05-0500\n"
+"PO-Revision-Date: 2018-08-13 16:27-0500\n"
 "Last-Translator: Benjamin <bmintz@protonmail.com>\n"
 "Language-Team: English\n"
-"Language: en_US\n"
+"Language: en_US-rude\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -34,11 +34,11 @@ msgstr "Your API token is:\n"
 
 #: emoji_connoisseur/extensions/api.py:71
 msgid "Do **not** share it with anyone!"
-msgstr "Do **not** share it with anyone!"
+msgstr "Don't you fucking dare share it with anyone."
 
 #: emoji_connoisseur/extensions/api.py:76
 msgid "Error: I could not send you your token via DMs."
-msgstr "Error: I could not send you your token via DMs."
+msgstr "Hey dumbass! Allow DMs from server members!"
 
 #: emoji_connoisseur/extensions/emote.py:68
 #: emoji_connoisseur/extensions/emote.py:448
@@ -62,11 +62,13 @@ msgstr "Created for {user}"
 #: emoji_connoisseur/extensions/emote.py:115
 #, python-brace-format
 msgid "Invite to the server that has {emote}: {invite.url}"
-msgstr "Invite to the server that has {emote}: {invite.url}"
+msgstr ""
+"Invite to the server that has {emote}: {invite.url}.\n"
+"Don't you dare fuck it up."
 
 #: emoji_connoisseur/extensions/emote.py:117
 msgid "Unable to send invite in DMs. Please allow DMs from server members."
-msgstr "Unable to send invite in DMs. Please allow DMs from server members."
+msgstr "Hey dumbass! Allow DMs from server members!"
 
 #: emoji_connoisseur/extensions/emote.py:129
 #, python-brace-format
@@ -89,8 +91,7 @@ msgid ""
 "Sorry, webhooks and bots may not add emotes. Go find a human to do it for "
 "you."
 msgstr ""
-"Sorry, webhooks and bots may not add emotes. Go find a human to do it for "
-"you."
+"Webhooks and bots may not add emotes. Go find a human to do it for you."
 
 #: emoji_connoisseur/extensions/emote.py:192
 msgid ""
@@ -114,7 +115,9 @@ msgstr "An error occurred while creating the emote:\n"
 
 #: emoji_connoisseur/extensions/emote.py:238
 msgid "Error: retrieving the image took too long."
-msgstr "Error: retrieving the image took too long."
+msgstr ""
+"Error: Couldn't retrieve that URL in time. How much fucking time do you "
+"think I have?"
 
 #: emoji_connoisseur/extensions/emote.py:240
 msgid "Error: Invalid URL."
@@ -127,7 +130,7 @@ msgstr "Emote {emote} successfully created."
 
 #: emoji_connoisseur/extensions/emote.py:282
 msgid "Error: you must provide the name of at least one emote to remove"
-msgstr "Error: you must provide the name of at least one emote to remove"
+msgstr "fuck off you need to give me an emote"
 
 #: emoji_connoisseur/extensions/emote.py:304
 msgid "{emote.escaped_name()} was successfully deleted."
@@ -151,23 +154,26 @@ msgstr "You can already react to that message with that emote."
 
 #: emoji_connoisseur/extensions/emote.py:383
 msgid "Unable to react: permission denied."
-msgstr "Unable to react: permission denied."
+msgstr "Who the fuck denied me permissions to react to that message?"
 
 #: emoji_connoisseur/extensions/emote.py:385
 msgid "Unable to react. Discord must be acting up."
-msgstr "Unable to react. Discord must be acting up."
+msgstr "Unable to react. Discord a fuck."
 
 #: emoji_connoisseur/extensions/emote.py:388
 msgid "OK! I've reacted to that message. Please add your reaction now."
-msgstr "OK! I've reacted to that message. Please add your reaction now."
+msgstr ""
+"OK! I've reacted to that message. Please add your reaction soon before I run "
+"out of patience."
 
 #: emoji_connoisseur/extensions/emote.py:425
 msgid "Unable to react: no permission to read message history."
-msgstr "Unable to react: no permission to read message history."
+msgstr ""
+"Who the fuck denied me permissions to read message history in that channel?"
 
 #: emoji_connoisseur/extensions/emote.py:428
 msgid "Unable to react: no permission to add reactions."
-msgstr "Unable to react: no permission to add reactions."
+msgstr "Who the fuck denied me permissions to react to that message?"
 
 #: emoji_connoisseur/extensions/emote.py:452
 #, python-brace-format
@@ -177,7 +183,7 @@ msgstr "{first_bit} — owned by **{author}**"
 #: emoji_connoisseur/extensions/emote.py:455
 #: emoji_connoisseur/extensions/emote.py:506
 msgid "No emotes have been created yet. Be the first!"
-msgstr "No emotes have been created yet. Be the first!"
+msgstr "This bot is so fucking dumb that nobody even created an emote yet."
 
 #: emoji_connoisseur/extensions/emote.py:462
 #, python-brace-format
@@ -186,7 +192,7 @@ msgstr "Also check out the list website at {website}."
 
 #: emoji_connoisseur/extensions/emote.py:477
 msgid "No results matched your query."
-msgstr "No results matched your query."
+msgstr "Your query a fuck. No emotes found."
 
 #: emoji_connoisseur/extensions/emote.py:518
 msgid "You need to provide one or more custom emotes."
@@ -233,7 +239,7 @@ msgstr "User blacklisted with reason `{reason}`."
 #: emoji_connoisseur/utils/converter.py:17
 #: emoji_connoisseur/utils/converter.py:28
 msgid "Not a valid integer."
-msgstr "Not a valid integer."
+msgstr "That's… not even a number."
 
 #: emoji_connoisseur/utils/converter.py:22
 msgid "Not a message offset."
@@ -259,8 +265,9 @@ msgid ""
 "Sorry, you have been blacklisted with the reason `{reason}`. To appeal, "
 "please join the support server with `{prefix}support`."
 msgstr ""
-"Sorry, you have been blacklisted with the reason `{reason}`. To appeal, "
-"please join the support server with `{prefix}support`."
+"You're such a little shit that a moderator decided to blacklist you from "
+"using this bot. To try and appeal, join the support server with `{prefix}"
+"support`."
 
 #: emoji_connoisseur/utils/errors.py:18
 #, python-brace-format
@@ -269,20 +276,34 @@ msgstr "URL error: server returned error code {status}"
 
 #: emoji_connoisseur/utils/errors.py:23
 msgid "The image supplied was not a GIF, PNG, or JPG."
-msgstr "The image supplied was not a GIF, PNG, or JPG."
+msgstr ""
+"Do I look like I know what a JPG is? I just want a picture of a god-dang hot "
+"dog!"
+
+#, python-brace-format
+msgid "An emote called `{name}` already exists in my database."
+msgstr "Somebody beat you to it. An emote called `{name}` already exists."
+
+#, python-brace-format
+msgid "An emote called `{name}` does not exist in my database."
+msgstr "Do I look like I know which emote `:{name}:` is??"
+
+#, python-brace-format
+msgid "You're not authorized to modify `{name}`."
+msgstr "The emote called `{name}` isn't yours, dumbass."
 
 #: emoji_connoisseur/utils/errors.py:52
 #, python-brace-format
 msgid "That description is too long. The limit is {limit}"
-msgstr "That description is too long. The limit is {limit}"
+msgstr "That description is too fucking long. The limit is {limit}"
 
 #: emoji_connoisseur/utils/errors.py:60
 msgid "No more room to store emotes."
-msgstr "No more room to store emotes."
+msgstr "No more room to store emotes, and the owner is too lazy to add more 😂"
 
 #: emoji_connoisseur/utils/errors.py:65
 msgid "Discord seems to be having issues right now, please try again later."
-msgstr "Discord seems to be having issues right now, please try again later."
+msgstr "Discord a fuck. Don't try again later."
 
 #: emoji_connoisseur/utils/paginator.py:88
 msgid "Bot does not have embed links permission."
@@ -322,7 +343,7 @@ msgstr "What page do you want to go to?"
 
 #: emoji_connoisseur/utils/paginator.py:185
 msgid "You took too long."
-msgstr "You took too long."
+msgstr "You took too long, dumbass."
 
 #: emoji_connoisseur/utils/paginator.py:194
 #, python-brace-format

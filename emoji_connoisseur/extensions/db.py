@@ -495,7 +495,7 @@ class Database:
 		return state
 
 	async def language(self, guild, channel, message):
-		return 'en_US'  # TODO
+		return 'en_US-rude'  # TODO
 
 	## Blacklists
 

@@ -3,11 +3,14 @@
 
 import asyncio
 import contextlib
+import gettext
+from glob import glob
 import logging
 import os.path
 import re
 import traceback
 
+import aiocontextvars
 import aiofiles
 import asyncpg
 import discord
@@ -25,8 +28,23 @@ from . import utils
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('bot')
 
+
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+
 class EmojiConnoisseur(commands.AutoShardedBot):
-	base_dir = os.path.dirname(__file__)
+	default_language = 'en_US'
+	locale_dir = 'locale'
+	languages = tuple(
+		map(os.path.basename,
+		filter(
+			os.path.isdir,
+			glob(os.path.join(BASE_DIR, locale_dir, '*')))))
+
+	# this abomination is to work around a language bug where
+	# you can't reference nonlocal vars mid-way through a comprehension
+	gettext_translations = (lambda languages, locale_dir:  {
+		language: gettext.translation('emoji_connoisseur', languages=(language,), localedir=locale_dir)
+		for language in languages})(languages, locale_dir)
 
 	def __init__(self, *args, **kwargs):
 		self.config = kwargs.pop('config')
@@ -42,6 +60,26 @@ class EmojiConnoisseur(commands.AutoShardedBot):
 			description=self.config['description'],
 			activity=discord.Game(name=self.config['prefix'] + 'help'),  # "Playing ec/help"
 			*args, **kwargs)
+
+		self.i18n_setup()
+
+	def use_current_gettext(self, *args, **kwargs):
+		language = self.current_language.get()
+		return (
+			self.gettext_translations.get(
+				language,
+				self.gettext_translations[self.default_language])
+			.gettext(*args, **kwargs))
+
+	def i18n_setup(self):
+		import builtins
+
+		self.current_language = aiocontextvars.ContextVar('i18n')
+		builtins._ = self.use_current_gettext
+
+		aiocontextvars.enable_inherit(self.loop)
+
+		self.current_language.set(self.default_language)
 
 	async def get_prefix_(self, bot, message):
 		prefix = self.config['prefix']
@@ -65,8 +103,14 @@ class EmojiConnoisseur(commands.AutoShardedBot):
 
 	async def on_message(self, message):
 		if self.should_reply(message):
-			await self.get_cog('Internationalization').set_language(message)
+			await self.set_language(message)
 			await self.process_commands(message)
+
+	async def set_language(self, message):
+		language = (
+			await self.get_cog('Database')
+			.language(message.guild.id, message.channel.id, message.author.id))
+		self.current_language.set(language)
 
 	def should_reply(self, message):
 		"""return whether the bot should reply to a given message"""
@@ -132,7 +176,7 @@ class EmojiConnoisseur(commands.AutoShardedBot):
 		credentials = self.config['database']
 		pool = await asyncpg.create_pool(**credentials)
 
-		async with aiofiles.open(os.path.join(self.base_dir, '..', 'data', 'schema.sql')) as f:
+		async with aiofiles.open(os.path.join(BASE_DIR, 'data', 'schema.sql')) as f:
 			await pool.execute(await f.read())
 
 		self.pool = pool
@@ -141,7 +185,6 @@ class EmojiConnoisseur(commands.AutoShardedBot):
 	def _load_extensions(self):
 		for extension in (
 			'emoji_connoisseur.extensions.db',
-			'emoji_connoisseur.extensions.i18n',
 			'emoji_connoisseur.extensions.logging',
 			'emoji_connoisseur.extensions.emote',
 			'emoji_connoisseur.extensions.api',
