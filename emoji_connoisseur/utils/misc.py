@@ -45,7 +45,7 @@ class PrettyTable(PrettyTable):
 		else:
 			super().__init__()
 		# PrettyTable's constructor does not set this property for some reason
-		self.align = options.get('align', 'l')  # left align
+		self.align = options.get('align', 'l')	# left align
 
 		for row in rows:
 			self.add_row(row)
@@ -174,7 +174,7 @@ def expand_cartesian_product(str) -> (str, str):
 	>>> expand_cartesian_product('uninteresting')
 	('uninteresting', '')
 	>>> expand_cartesian_product('{foo,bar,baz}')
-	('foo,bar', 'baz')  # edge case that i don't need to fix
+	('foo,bar', 'baz')	# edge case that i don't need to fix
 
 	"""
 
@@ -194,11 +194,11 @@ def load_json_compat(data: str):
 	"""evaluate a python dictionary/list/thing, while maintaining some compatibility with JSON"""
 	# >HOLD UP! Why the heck are you using eval in production??
 	# Short answer: JSON sucks for a configuration format:
-	# 	It can be hard to read
-	# 	Only one type of quote is allowed
-	# 	No trailing commas are allowed
-	# 	No multi-line strings
-	# 	But most importantly, NO COMMENTS!
+	#	It can be hard to read
+	#	Only one type of quote is allowed
+	#	No trailing commas are allowed
+	#	No multi-line strings
+	#	But most importantly, NO COMMENTS!
 	# >OK but you didn't answer my question
 	# Well I would use another configuration language, but they all suck.
 	# To really answer your question, the config file is 100% trusted data.
@@ -215,3 +215,64 @@ async def async_enumerate(async_iterator, start=0):
 	async for x in async_iterator:
 		yield i, x
 		i += 1
+
+def clean_content(bot, message, content, *, fix_channel_mentions=False, use_nicknames=True, escape_markdown=False):
+	transformations = {}
+
+	if fix_channel_mentions and message.guild:
+		def resolve_channel(id, *, _get=message.guild.get_channel):
+			ch = _get(id)
+			return ('<#%s>' % id), ('#' + ch.name if ch else '#deleted-channel')
+
+		transformations.update(resolve_channel(channel) for channel in message.raw_channel_mentions)
+
+	if use_nicknames and message.guild:
+		def resolve_member(id, *, _get=message.guild.get_member):
+			m = _get(id)
+			return '@' + m.display_name if m else '@deleted-user'
+	else:
+		def resolve_member(id, *, _get=bot.get_user):
+			m = _get(id)
+			return '@' + m.name if m else '@deleted-user'
+
+
+	transformations.update(
+		('<@%s>' % member_id, resolve_member(member_id))
+		for member_id in message.raw_mentions
+	)
+
+	transformations.update(
+		('<@!%s>' % member_id, resolve_member(member_id))
+		for member_id in message.raw_mentions
+	)
+
+	if message.guild:
+		def resolve_role(id, *, _find=discord.utils.find, _roles=message.guild.roles):
+			r = _find(lambda x: x.id == id, _roles)
+			return '@' + r.name if r else '@deleted-role'
+
+		transformations.update(
+			('<@&%s>' % role_id, resolve_role(role_id))
+			for role_id in message.raw_role_mentions
+		)
+
+	def repl(obj):
+		return transformations.get(obj.group(0), '')
+
+	pattern = re.compile('|'.join(transformations.keys()))
+	result = pattern.sub(repl, content)
+
+	if escape_markdown:
+		transformations = {
+			re.escape(c): '\\' + c
+			for c in ('*', '`', '_', '~', '\\')
+		}
+
+		def replace(obj):
+			return transformations.get(re.escape(obj.group(0)), '')
+
+		pattern = re.compile('|'.join(transformations.keys()))
+		result = pattern.sub(replace, result)
+
+	# Completely ensure no mentions escape:
+	return re.sub(r'@(everyone|here|[!&]?[0-9]{17,21})', '@\u200b\\1', result)

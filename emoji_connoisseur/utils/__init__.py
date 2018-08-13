@@ -9,4 +9,5 @@ from . import context
 from . import converter
 from . import emote
 from . import errors
+from .lexer import lexer
 from . import paginator

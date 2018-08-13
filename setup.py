@@ -19,6 +19,7 @@ setuptools.setup(
 		'ben_cogs>=0.0.15',
 		'discord.py',
 		'jishaku>0.1.1',
+		'ply',
 		'prettytable',
 		'wand',
 	],

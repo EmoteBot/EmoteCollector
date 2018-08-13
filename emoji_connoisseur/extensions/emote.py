@@ -27,9 +27,6 @@ from ..utils.paginator import Pages
 class Emotes:
 	"""Commands related to the main functionality of the bot"""
 
-	"""Matches code blocks, which should be ignored."""
-	RE_CODE = re.compile(r'(`{1,3}).+?\1', re.DOTALL)
-
 	def __init__(self, bot):
 		self.bot = bot
 		self.db = self.bot.get_cog('Database')
@@ -135,6 +132,13 @@ class Emotes:
 	async def big(self, context, emote: DatabaseEmote):
 		"""Shows the original image for the given emote."""
 		await context.send(f'{emote.name}: {emote.url}')
+
+	@commands.command(rest_is_raw=True)
+	@checks.not_blacklisted()
+	async def quote(self, context, *, message):
+		"""Quotes your message, with :foo: and ;foo; replaced with their emote forms"""
+		message, _ = await self.quote_emotes(context.message, message)
+		await context.send(message)
 
 	@commands.command(aliases=['create'])
 	@checks.not_blacklisted()
@@ -649,13 +653,11 @@ class Emotes:
 					f'You have been blacklisted from using emotes with the reason `{blacklist_reason}`. '
 					'To appeal, please join the support server using the support command.')
 
-		reply, emotes_used = await self.extract_emotes(message.content)
-		if reply is None:  # don't send empty whitespace
+		reply, has_emotes = await self.extract_emotes(message, log_usage=True)
+		if not has_emotes:
 			return
 
 		self.replies[message.id] = await message.channel.send(reply)
-		for emote in emotes_used:
-			await self.db.log_emote_use(emote, message.author.id)
 
 	async def on_raw_message_edit(self, payload):
 		"""Ensure that when a message containing emotes is edited, the corresponding emote reply is, too."""
@@ -663,9 +665,14 @@ class Emotes:
 		if payload.message_id not in self.replies or 'content' not in payload.data:
 			return
 
-		emotes, _ = await self.extract_emotes(payload.data['content'])
+		message = discord.Message(
+			state=self.bot._connection,
+			channel=self.bot.get_channel(int(payload.data['channel_id'])),
+			data=payload.data)
+
+		emotes, message_has_emotes = await self.extract_emotes(message, log_usage=False)
 		reply = self.replies[payload.message_id]
-		if emotes is None:
+		if not message_has_emotes:
 			del self.replies[payload.message_id]
 			return await reply.delete()
 		elif emotes == reply.content:
@@ -674,40 +681,79 @@ class Emotes:
 
 		await reply.edit(content=emotes)
 
-	async def extract_emotes(self, message: str):
-		"""Parse all emotes (:name: or ;name;) from a message"""
-		# don't respond to code blocks or custom emotes, since custom emotes also have :foo: in them
-		for regex in self.RE_CODE, utils.emote.RE_ESCAPED_EMOTE, utils.emote.RE_CUSTOM_EMOTE:
-			message = regex.sub('', message)
+	async def _extract_emotes(self,
+		message: discord.Message,
+		content: str = None,
+		*,
+		predicate,
+		log_usage=False
+	):
+		"""Extract emotes according to predicate.
+		Predicate is a function taking three arguments: token, and out: StringIO,
+		and returning a boolean. Out can be written to to affect the output of this function.
 
-		extracted = []
+		If not predicate(...), skip that token.
+
+		Returns extracted_message: str, has_emotes: bool.
+		"""
+
+		out = io.StringIO()
 		emotes_used = set()
-		for match in utils.emote.RE_EMOTE.finditer(message):
-			name, newline = match.groups()[1:]  # the first group matches : or ;
-			if name:
-				try:
-					db_emote = await self.db.get_emote(name)
-				except errors.EmoteNotFoundError:
-					continue
-				else:
-					extracted.append(str(db_emote))
-					emotes_used.add(db_emote.id)
-			if newline:
-				extracted.append(newline)
 
-		# remove leading and trailing newlines
-		# e.g. if someone sends
-		# foo
-		# bar
-		# :cruz:
-		# :cruz:
-		#
-		# quux, we should only send :cruz:\n:cruz:
-		extracted = ''.join(extracted).strip()
-		if extracted:
-			return utils.fix_first_line(extracted), emotes_used
-		else:
-			return None, emotes_used
+		if content is None:
+			content = message.content
+
+		# we make a new one each time otherwise two tasks might use the same lexer at the same time
+		lexer = utils.lexer()
+
+		lexer.input(content)
+		for toke1 in iter(lexer.token, None):
+			if not predicate(toke1, out):
+				continue
+
+			try:
+				emote = await self.db.get_emote(toke1.value.strip(':;'))
+			except errors.EmoteNotFoundError:
+				out.write(toke1.value)
+			else:
+				out.write(str(emote))
+				emotes_used.add(emote.id)
+
+		result = out.getvalue() if emotes_used else content
+
+		if log_usage:
+			for emote in emotes_used:
+				await self.db.log_emote_use(emote, message.author.id)
+
+		return utils.clean_content(self.bot, message, result), bool(emotes_used)
+
+	async def extract_emotes(self, message: discord.Message, content: str = None, *, log_usage=False):
+		"""Parse all emotes (:name: or ;name;) from a message"""
+		def predicate(toke1, out):
+			if toke1.type == 'TEXT' and toke1.value == '\n':
+				out.write(toke1.value)
+				return False
+
+			return True
+
+		extracted, has_emotes = await self._extract_emotes(
+			message,
+			content,
+			predicate=predicate,
+			log_usage=log_usage)
+
+		return utils.fix_first_line(extracted), has_emotes
+
+	async def quote_emotes(self, message: discord.Message, content: str = None, *, log_usage=False):
+		"""Parse all emotes (:name: or ;name;) from a message, preserving non-emote text"""
+		def predicate(toke1, out):
+			if toke1.type != 'EMOTE':
+				out.write(toke1.value)
+				return False
+
+			return True
+
+		return await self._extract_emotes(message, content, predicate=predicate, log_usage=log_usage)
 
 	async def delete_reply(self, message_id):
 		"""Delete our reply to a message containing emotes."""
