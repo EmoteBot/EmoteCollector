@@ -743,7 +743,7 @@ class Emotes:
 				out.write(toke1.value)
 				return False
 
-			return True
+			return toke1.type == 'EMOTE'
 
 		extracted, has_emotes = await self._extract_emotes(
 			message,
