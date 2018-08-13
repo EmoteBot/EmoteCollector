@@ -19,8 +19,8 @@ except ImportError:
 else:
 	asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
-from .utils import context
-
+from . import extensions
+from . import utils
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('bot')
@@ -61,7 +61,7 @@ class EmojiConnoisseur(commands.AutoShardedBot):
 		logger.info(separator)
 
 	async def get_context(self, message, **kwargs):
-		return await super().get_context(message, cls=context.CustomContext, **kwargs)
+		return await super().get_context(message, cls=utils.context.CustomContext, **kwargs)
 
 	async def on_message(self, message):
 		if self.should_reply(message):
