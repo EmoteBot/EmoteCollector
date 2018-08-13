@@ -14,21 +14,21 @@ class OffsetMessage(commands.Converter):
 		try:
 			offset = int(offset, base=0) - 1  # skip the invoking message
 		except ValueError:
-			raise commands.BadArgument('Not a valid integer.')
+			raise commands.BadArgument(_('Not a valid integer.'))
 
 		if offset < 0:
 			return await utils.get_message_by_offset(context.channel, offset)
 
-		raise commands.BadArgument('Not a message offset.')
+		raise commands.BadArgument(_('Not a message offset.'))
 
 def _validate_snowflake(argument: str):
 	try:
 		id = int(argument)
 	except ValueError:
-		raise commands.BadArgument('Not a valid integer.')
+		raise commands.BadArgument(_('Not a valid integer.'))
 
 	if id < utils.SMALLEST_SNOWFLAKE:
-		raise commands.BadArgument('Not a valid message ID.')
+		raise commands.BadArgument(_('Not a valid message ID.'))
 
 	return id
 
@@ -40,18 +40,18 @@ class IDMessage(commands.Converter):
 		try:
 			return await context.channel.get_message(id)
 		except discord.NotFound:
-			raise commands.BadArgument(
-				'Message not found! Make sure your message ID is correct.') from None
+			raise commands.BadArgument(_(
+				'Message not found! Make sure your message ID is correct.')) from None
 		except discord.Forbidden:
-			raise commands.BadArgument(
-				'Permission denied! Make sure the bot has permission to read that message.') from None
+			raise commands.BadArgument(_(
+				'Permission denied! Make sure the bot has permission to read that message.')) from None
 
 async def _search_for_message(target, predicate):
 	async for message in target.history():
 		if predicate(message):
 			return message
 
-	raise commands.BadArgument('Message not found.')
+	raise commands.BadArgument(_('Message not found.'))
 
 class MemberMessage(commands.Converter):
 	_member_converter = commands.converter.MemberConverter()

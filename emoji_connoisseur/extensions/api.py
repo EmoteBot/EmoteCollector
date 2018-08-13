@@ -43,9 +43,9 @@ class API:
 		This command on its own will tell you a bit about the API.
 		"""
 		if context.invoked_subcommand is None:
-			await context.send(
+			await context.send(_(
 				'I have a RESTful API available. The docs for it are located at '
-				f'{self.bot.config["api"]["docs_url"]}')
+				'{docs_url}').format(self.bot.config['api']['docs_url']))
 
 	@api.group(name='token', invoke_without_command=True)
 	async def token_command(self, context):
@@ -60,13 +60,20 @@ class API:
 		await self.send_token(context, token, new=True)
 
 	async def send_token(self, context, token, *, new=False):
+		if new:
+			first_line = _('Your new API token is:\n')
+		else:
+			first_line = _('Your API token is:\n')
+
+		message = (
+			first_line
+			+ '`{token}`\n'
+			+ _('Do **not** share it with anyone!'))
+
 		try:
-			await context.author.send(
-				f'Your {"new " if new else ""}API token is:\n'
-				f'`{token.decode()}`\n'
-				'Do **not** share it with anyone!')
+			await context.author.send(message)
 		except discord.Forbidden:
-			await context.send('Error: I could not send you your token via DMs.')
+			await context.send(_('Error: I could not send you your token via DMs.'))
 		else:
 			with contextlib.suppress(discord.HTTPException):
 				await context.message.add_reaction('📬')

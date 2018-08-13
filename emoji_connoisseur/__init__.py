@@ -65,6 +65,7 @@ class EmojiConnoisseur(commands.AutoShardedBot):
 
 	async def on_message(self, message):
 		if self.should_reply(message):
+			await self.get_cog('Internationalization').set_language(message)
 			await self.process_commands(message)
 
 	def should_reply(self, message):
@@ -139,16 +140,17 @@ class EmojiConnoisseur(commands.AutoShardedBot):
 
 	def _load_extensions(self):
 		for extension in (
-				'emoji_connoisseur.extensions.logging',
-				'emoji_connoisseur.extensions.db',
-				'emoji_connoisseur.extensions.emote',
-				'emoji_connoisseur.extensions.api',
-				'emoji_connoisseur.extensions.meta',
-				'jishaku',
-				'emoji_connoisseur.extensions.stats',
-				'ben_cogs.misc',
-				'emoji_connoisseur.extensions.meme',
-				'ben_cogs.debug',
+			'emoji_connoisseur.extensions.db',
+			'emoji_connoisseur.extensions.i18n',
+			'emoji_connoisseur.extensions.logging',
+			'emoji_connoisseur.extensions.emote',
+			'emoji_connoisseur.extensions.api',
+			'emoji_connoisseur.extensions.meta',
+			'jishaku',
+			'emoji_connoisseur.extensions.stats',
+			'ben_cogs.misc',
+			'emoji_connoisseur.extensions.meme',
+			'ben_cogs.debug',
 		):
 			self.load_extension(extension)
 			logger.info('Successfully loaded %s', extension)

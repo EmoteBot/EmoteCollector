@@ -18,4 +18,4 @@ class CustomContext(commands.Context):
 		try:
 			await message.add_reaction(strip_angle_brackets(emoji))
 		except discord.Forbidden:
-			await self.send(f'{emoji} {message}')
+			await self.send(f'{emoji} {_(fallback_message)}')
