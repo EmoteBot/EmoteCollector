@@ -21,6 +21,7 @@ from .. import utils
 from ..utils import image as image_utils
 from ..utils import checks
 from ..utils import errors
+from ..utils.lexer import t_CUSTOM_EMOTE
 from ..utils.paginator import Pages
 
 
@@ -694,14 +695,14 @@ class Emotes:
 		message: discord.Message,
 		content: str = None,
 		*,
-		predicate,
+		callback,
 		log_usage=False
 	):
 		"""Extract emotes according to predicate.
-		Predicate is a function taking three arguments: token, and out: StringIO,
-		and returning a boolean. Out can be written to to affect the output of this function.
-
-		If not predicate(...), skip that token.
+		Predicate is a function taking three arguments: token, out: StringIO, and emotes_usd: set
+		For each token, callback will be called with these arguments.
+		out is the StringIO that holds the extracted string to return, and emotes_used is a set
+		containing the IDs of all emotes that were used, for logging purposes.
 
 		Returns extracted_message: str, has_emotes: bool.
 		"""
@@ -717,16 +718,7 @@ class Emotes:
 
 		lexer.input(content)
 		for toke1 in iter(lexer.token, None):
-			if not predicate(toke1, out):
-				continue
-
-			try:
-				emote = await self.db.get_emote(toke1.value.strip(':;'))
-			except errors.EmoteNotFoundError:
-				out.write(toke1.value)
-			else:
-				out.write(str(emote))
-				emotes_used.add(emote.id)
+			await callback(toke1, out, emotes_used)
 
 		result = out.getvalue() if emotes_used else content
 
@@ -738,31 +730,45 @@ class Emotes:
 
 	async def extract_emotes(self, message: discord.Message, content: str = None, *, log_usage=False):
 		"""Parse all emotes (:name: or ;name;) from a message"""
-		def predicate(toke1, out):
-			if toke1.type == 'TEXT' and toke1.value == '\n':
-				out.write(toke1.value)
-				return False
 
-			return toke1.type == 'EMOTE'
+		async def callback(toke1, out, emotes_used):
+			if toke1.type == 'TEXT' and toke1.value == '\n':
+				return out.write(toke1.value)
+
+			try:
+				emote = await self.db.get_emote(toke1.value.strip(':;'))
+			except errors.EmoteNotFoundError:
+				pass
+			else:
+				out.write(str(emote))
+				emotes_used.add(emote.id)
 
 		extracted, has_emotes = await self._extract_emotes(
 			message,
 			content,
-			predicate=predicate,
+			callback=callback,
 			log_usage=log_usage)
 
 		return utils.fix_first_line(extracted), has_emotes
 
 	async def quote_emotes(self, message: discord.Message, content: str = None, *, log_usage=False):
 		"""Parse all emotes (:name: or ;name;) from a message, preserving non-emote text"""
-		def predicate(toke1, out):
+
+		async def callback(toke1, out, emotes_used):
+			if toke1.type == 'CUSTOM_EMOTE':
+				return out.write(':'+re.match(t_CUSTOM_EMOTE, toke1.value).group('name')+':')
 			if toke1.type != 'EMOTE':
-				out.write(toke1.value)
-				return False
+				return out.write(toke1.value)
 
-			return True
+			try:
+				emote = await self.db.get_emote(toke1.value.strip(':;'))
+			except errors.EmoteNotFoundError:
+				pass
+			else:
+				out.write(str(emote))
+				emotes_used.add(emote.id)
 
-		return await self._extract_emotes(message, content, predicate=predicate, log_usage=log_usage)
+		return await self._extract_emotes(message, content, callback=callback, log_usage=log_usage)
 
 	async def delete_reply(self, message_id):
 		"""Delete our reply to a message containing emotes."""
