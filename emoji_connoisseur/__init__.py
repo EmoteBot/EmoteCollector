@@ -5,6 +5,8 @@ import asyncio
 import contextlib
 import gettext
 from glob import glob
+import inspect
+import itertools
 import logging
 import os.path
 import re
@@ -63,6 +65,14 @@ class EmojiConnoisseur(commands.AutoShardedBot):
 
 		self.i18n_setup()
 
+	def i18n_setup(self):
+		import builtins
+
+		self.current_language = aiocontextvars.ContextVar('i18n')
+		builtins._ = self.use_current_gettext
+		aiocontextvars.enable_inherit(self.loop)
+		self.current_language.set(self.default_language)
+
 	def use_current_gettext(self, *args, **kwargs):
 		language = self.current_language.get()
 		return (
@@ -70,16 +80,6 @@ class EmojiConnoisseur(commands.AutoShardedBot):
 				language,
 				self.gettext_translations[self.default_language])
 			.gettext(*args, **kwargs))
-
-	def i18n_setup(self):
-		import builtins
-
-		self.current_language = aiocontextvars.ContextVar('i18n')
-		builtins._ = self.use_current_gettext
-
-		aiocontextvars.enable_inherit(self.loop)
-
-		self.current_language.set(self.default_language)
 
 	async def get_prefix_(self, bot, message):
 		prefix = self.config['prefix']
@@ -163,7 +163,8 @@ class EmojiConnoisseur(commands.AutoShardedBot):
 			await context.send('An internal error occured while trying to run that command.')
 
 	async def logout(self):
-		await self.pool.close()
+		with contextlib.suppress(AttributeError):
+			await self.pool.close()
 		await super().logout()
 
 	async def start(self):
