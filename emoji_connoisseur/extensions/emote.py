@@ -144,7 +144,7 @@ class Emotes:
 
 		if context.guild.me.permissions_in(context.channel).manage_messages:
 			# no space because rest_is_raw preserves the space after "ec/quote"
-			message = _('{context.author.mention} said:').format(context) + message
+			message = _('{context.author.mention} said:').format(**locals()) + message
 
 			# it doesn't matter if they deleted their message before we sent our reply
 			with contextlib.suppress(discord.NotFound):
