@@ -140,7 +140,7 @@ class Emotes:
 	@checks.not_blacklisted()
 	async def quote(self, context, *, message):
 		"""Quotes your message, with :foo: and ;foo; replaced with their emote forms"""
-		message, _ = await self.quote_emotes(context.message, message)
+		message, has_emotes = await self.quote_emotes(context.message, message)
 
 		if context.guild.me.permissions_in(context.channel).manage_messages:
 			# no space because rest_is_raw preserves the space after "ec/quote"
@@ -325,7 +325,7 @@ class Emotes:
 			if not new_name:
 				return await context.send(_('Error: you must provide a new name for the emote.'))
 		else:
-			old_name, new_name, *_ = args
+			old_name, new_name, *rest = args
 
 		old_name, new_name = map(lambda c: c.strip(':;'), (old_name, new_name))
 
