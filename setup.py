@@ -14,7 +14,6 @@ setuptools.setup(
 	packages=['emoji_connoisseur'],
 
 	install_requires=[
-		'aiocontextvars',
 		'aiofiles',
 		'asyncpg',
 		'ben_cogs>=0.0.15',

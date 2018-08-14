@@ -64,17 +64,16 @@ class Emotes:
 		"""
 		embed = discord.Embed()
 
-		if emote.preserve:
-			embed.title = _('{emote} (Preserved)').format(emote=emote.with_name())
-		else:
-			embed.title = emote.with_name()
+		title = emote.with_name()
+		if emote.preserve: title += ' (Preserved)'
+		embed.title = title
 
 		if emote.description is not None:
 			embed.description = emote.description
 
 		if emote.created is not None:
 			embed.timestamp = emote.created
-			embed.set_footer(text=_('Created'))
+			embed.set_footer(text='Created')
 
 		avatar = None
 		with contextlib.suppress(AttributeError):
@@ -88,7 +87,7 @@ class Emotes:
 
 		if emote.modified is not None:
 			embed.add_field(
-				name=_('Last modified'),
+				name='Last modified',
 				# hangul filler prevents the embed fields from jamming next to each other
 				value=utils.format_time(emote.modified) + '\N{hangul filler}')
 
@@ -107,14 +106,12 @@ class Emotes:
 		invite = await guild.text_channels[0].create_invite(
 			max_age=600,
 			max_uses=2,
-			reason=_('Created for {user}').format(
-				user=utils.format_user(self.bot, context.author, mention=False)))
+			reason=f'Created for {utils.format_user(self.bot, context.author, mention=False)}')
 
 		try:
-			await context.author.send(_(
-				'Invite to the server that has {emote}: {invite.url}').format(**locals()))
+			await context.author.send(f'Invite to the server with {emote}: {invite.url}')
 		except discord.Forbidden:
-			await context.send(_('Unable to send invite in DMs. Please allow DMs from server members.'))
+			await context.send('Unable to send invite in DMs. Please allow DMs from server members.')
 		else:
 			with contextlib.suppress(discord.HTTPException):
 				await context.message.add_reaction('📬')
@@ -125,10 +122,10 @@ class Emotes:
 		"""Tells you how many emotes are in my database."""
 		static, animated, total = await self.db.count()
 		static_cap, animated_cap, total_cap = self.db.capacity()
-		await context.send(_(
-			'Static emotes: **{static} ⁄ {static_cap}**\n'
-			'Animated emotes: **{animated} ⁄ {animated_cap}**\n'
-			'**Total: {total} ⁄ {total_cap}**').format(**locals()))
+		await context.send(
+			f'Static emotes: **{static} ⁄ {static_cap}**\n'
+			f'Animated emotes: **{animated} ⁄ {animated_cap}**\n'
+			f'**Total: {total} ⁄ {total_cap}**')
 
 	@commands.command()
 	@checks.not_blacklisted()
@@ -140,11 +137,11 @@ class Emotes:
 	@checks.not_blacklisted()
 	async def quote(self, context, *, message):
 		"""Quotes your message, with :foo: and ;foo; replaced with their emote forms"""
-		message, has_emotes = await self.quote_emotes(context.message, message)
+		message, _ = await self.quote_emotes(context.message, message)
 
 		if context.guild.me.permissions_in(context.channel).manage_messages:
 			# no space because rest_is_raw preserves the space after "ec/quote"
-			message = _('{context.author.mention} said:').format(**locals()) + message
+			message = f'{context.author.mention} said:' + message
 
 			# it doesn't matter if they deleted their message before we sent our reply
 			with contextlib.suppress(discord.NotFound):
@@ -168,9 +165,9 @@ class Emotes:
 		and its filename as the name
 		"""
 		if context.message.webhook_id or context.author.bot:
-			return await context.send(_(
+			return await context.send(
 				'Sorry, webhooks and bots may not add emotes. '
-				'Go find a human to do it for you.'))
+				'Go find a human to do it for you.')
 
 		try:
 			name, url = self.parse_add_command_args(context, args)
@@ -188,12 +185,12 @@ class Emotes:
 		elif len(args) == 1:
 			match = utils.emote.RE_CUSTOM_EMOTE.match(args[0])
 			if match is None:
-				raise commands.BadArgument(_(
+				raise commands.BadArgument(
 					'Error: I expected a custom emote as the first argument, '
 					'but I got something else. '
 					"If you're trying to add an emote using an image URL, "
 					'you need to provide a name as the first argument, like this:\n'
-					'`{}add NAME_HERE URL_HERE`').format(context.prefix))
+					'`{}add NAME_HERE URL_HERE`'.format(context.prefix))
 			else:
 				animated, name, id = match.groups()
 				url = utils.emote.url(id, animated=animated)
@@ -211,7 +208,7 @@ class Emotes:
 			return name, url
 
 		elif not args:
-			raise commands.BadArgument(_('Your message had no emotes and no name!'))
+			raise commands.BadArgument('Your message had no emotes and no name!')
 
 	@staticmethod
 	def parse_add_command_attachment(context, args):
@@ -232,14 +229,14 @@ class Emotes:
 			return str(ex)
 		except discord.HTTPException as ex:
 			return (
-				_('An error occurred while creating the emote:\n')
+				'An error occurred while creating the emote:\n'
 				+ utils.format_http_exception(ex))
 		except asyncio.TimeoutError:
-			return _('Error: retrieving the image took too long.')
+			return 'Error: retrieving the image took too long.'
 		except ValueError:
-			return _('Error: Invalid URL.')
+			return 'Error: Invalid URL.'
 		else:
-			return _('Emote {emote} successfully created.').format(emote=emote)
+			return f'Emote {emote} successfully created.'
 
 	async def add_from_url(self, name, url, author_id):
 		# db.create_emote already does this, but do it again here so that we can fail early
@@ -279,7 +276,7 @@ class Emotes:
 	async def remove(self, context, *names):
 		"""Removes one or more emotes from the bot. You must own all of them."""
 		if not names:
-			return await context.send(_('Error: you must provide the name of at least one emote to remove'))
+			return await context.send('Error: you must provide the name of at least one emote to remove')
 		messages = []
 
 		async with context.typing():
@@ -301,8 +298,7 @@ class Emotes:
 					with contextlib.suppress(AttributeError):
 						await removal_message.delete()
 				else:
-					messages.append(_('{emote.escaped_name()} was successfully deleted.').format(
-						escaped_emote_name=emote.escaped_name()))
+					messages.append(f'{emote.escaped_name()} was successfully deleted.')
 
 		message = '\n'.join(messages)
 		await context.send(utils.fix_first_line(message))
@@ -317,15 +313,15 @@ class Emotes:
 		"""
 
 		if not args:
-			return await context.send(_('You must specify an old name and a new name.'))
+			return await context.send('You must specify an old name and a new name.')
 
 		# allow e.g. foo{bar,baz} -> rename foobar to foobaz
 		if len(args) == 1:
 			old_name, new_name = utils.expand_cartesian_product(args[0])
 			if not new_name:
-				return await context.send(_('Error: you must provide a new name for the emote.'))
+				return await context.send('Error: you must provide a new name for the emote.')
 		else:
-			old_name, new_name, *rest = args
+			old_name, new_name, *_ = args
 
 		old_name, new_name = map(lambda c: c.strip(':;'), (old_name, new_name))
 
@@ -334,7 +330,7 @@ class Emotes:
 		except discord.HTTPException as ex:
 			await context.send(utils.format_http_exception(ex))
 		else:
-			await context.send(_('Emote successfully renamed.'))
+			await context.send('Emote successfully renamed.')
 
 	@commands.command()
 	async def describe(self, context, name, *, description=None):
@@ -373,20 +369,20 @@ class Emotes:
 			return getattr(reaction.emoji, 'id', None) == emote.id
 
 		if discord.utils.find(same_emote, message.reactions):
-			return await context.send(_(
-				'You can already react to that message with that emote.'),
+			return await context.send(
+				'You can already react to that message with that emote.',
 				delete_after=5)
 
 		try:
 			await message.add_reaction(emote.as_reaction())
 		except discord.Forbidden:
-			return await context.send(_('Unable to react: permission denied.'))
+			return await context.send('Unable to react: permission denied.')
 		except discord.HTTPException:
-			return await context.send(_('Unable to react. Discord must be acting up.'))
+			return await context.send('Unable to react. Discord must be acting up.')
 
-		instruction_message = await context.send(_(
+		instruction_message = await context.send(
 			"OK! I've reacted to that message. "
-			"Please add your reaction now."))
+			"Please add your reaction now.")
 
 		def check(payload):
 			return (
@@ -422,10 +418,10 @@ class Emotes:
 		permissions = context.channel.permissions_for(context.guild.me)
 
 		if not sender_permissions.read_message_history or not permissions.read_message_history:
-		    await context.send(_('Unable to react: no permission to read message history.'))
+		    await context.send('Unable to react: no permission to read message history.')
 		    return False
 		if not sender_permissions.add_reactions or not permissions.add_reactions:
-		    await context.send(_('Unable to react: no permission to add reactions.'))
+		    await context.send('Unable to react: no permission to add reactions.')
 		    return False
 
 		return True
@@ -444,23 +440,19 @@ class Emotes:
 		async for emote in self.db.all_emotes(*args):
 			author = utils.format_user(self.bot, emote.author, mention=True)
 
-			if emote.preserve:
-				first_bit = _('{emote} (Preserved)').format(emote=emote.with_name())
-			else:
-				first_bit = emote.with_name()
-
-			processed.append(_('{first_bit} — owned by **{author}**').format(**locals()))
+			processed.append(
+				f'{emote.with_name()} {" (Preserved)" if emote.preserve else ""} '
+				f'— owned by **{author}**')
 
 		if not processed:
-			return await context.send(_('No emotes have been created yet. Be the first!'))
+			return await context.send('No emotes have been created yet. Be the first!')
 
 		paginator = Pages(context, entries=processed)
 		self.paginators.add(paginator)
 
 		if self.bot.config['website']:
 			end_path = f'/{user.id}' if user else ''
-			paginator.text_message = _('Also check out the list website at {website}.').format(
-				website='%s/%s' % (self.bot.config["website"], end_path))
+			paginator.text_message = f'Also check out the list website at {self.bot.config["website"]}/list{end_path}.'
 
 		await paginator.begin()
 
@@ -474,7 +466,7 @@ class Emotes:
 			processed.append(emote.with_name())
 
 		if not processed:
-			return await context.send(_('No results matched your query.'))
+			return await context.send('No results matched your query.')
 
 		paginator = Pages(context, entries=processed)
 		self.paginators.add(paginator)
@@ -503,7 +495,7 @@ class Emotes:
 				f'— owned by **{author}**')  # note: these are em dashes, not hyphens!
 
 		if not processed:
-			return await context.send(_('No emotes have been created yet. Be the first!'))
+			return await context.send('No emotes have been created yet. Be the first!')
 
 		paginator = Pages(context, entries=processed)
 		self.paginators.add(paginator)
@@ -515,7 +507,7 @@ class Emotes:
 	async def steal_these(self, context, *emotes):
 		"""Steal a bunch of custom emotes."""
 		if not emotes:
-			return await context.send(_('You need to provide one or more custom emotes.'))
+			return await context.send('You need to provide one or more custom emotes.')
 
 		messages = []
 		for match in utils.emote.RE_CUSTOM_EMOTE.finditer(''.join(emotes)):
@@ -524,7 +516,7 @@ class Emotes:
 			messages.append(await self.add_safe(name, image_url, context.author.id))
 
 		if not messages:
-			return await context.send(_('Error: no existing custom emotes were provided.'))
+			return await context.send('Error: no existing custom emotes were provided.')
 
 		message = '\n'.join(messages)
 		await context.send(utils.fix_first_line(message))
@@ -540,33 +532,33 @@ class Emotes:
 		try:
 			channel = self.bot.get_cog('Logger').channel
 		except AttributeError:
-			return await context.send(_('Logger cog not loaded.'))
+			return await context.send('Logger cog not loaded.')
 
 		try:
 			message = await channel.get_message(message_id)
 		except discord.NotFound:
-			return await context.send(_('Message not found.'))
+			return await context.send('Message not found.')
 
 		try:
 			description = message.embeds[0].description
 		except IndexError:
-			return await context.send(_('No embeds were found in that message.'))
+			return await context.send('No embeds in that message.')
 
 		try:
 			emote = utils.emote.RE_CUSTOM_EMOTE.match(description)
 		except TypeError:
-			return await context.send(_('No description was found in that embed.'))
+			return await context.send('No description in that embed.')
 		name = emote.group('name')
 
 		try:
 			url = utils.emote.url(emote.group('id'), animated=emote.group('animated'))
 		except AttributeError:
-			return await context.send(_("No custom emotes were found in that embed's description."))
+			return await context.send("No custom emotes in that embed's description.")
 
 		try:
 			author = int((re.search(r'<@!?(\d{17,})>', description) or re.search('Unknown user with ID (\d{17,})', description)).group(1))
 		except AttributeError:
-			return await context.send(_('No author IDs were found in that embed.'))
+			return await context.send('No author IDs found in that embed.')
 
 		message = await self.add_safe(name, url, author)
 		await context.send(message)
@@ -614,9 +606,9 @@ class Emotes:
 		If you don't provide a reason, the user will be un-blacklisted."""
 		await self.db.set_user_blacklist(user.id, reason)
 		if reason is None:
-			await context.send(_('User un-blacklisted.'))
+			await context.send('User un-blacklisted.')
 		else:
-			await context.send(_('User blacklisted with reason `{reason}`.').format(**locals()))
+			await context.send(f'User blacklisted with reason `{reason}`.')
 
 	@commands.command(hidden=True)
 	@commands.is_owner()
@@ -640,9 +632,7 @@ class Emotes:
 
 	async def on_message(self, message):
 		"""Reply to messages containing :name: or ;name; with the corresponding emotes.
-		This is like half the functionality of the bot
-		"""
-
+		This is like half the functionality of the bot"""
 		if not self.bot.should_reply(message):
 			return
 
@@ -667,7 +657,10 @@ class Emotes:
 
 		blacklist_reason = await self.db.get_user_blacklist(message.author.id)
 		if blacklist_reason is not None:
-			return
+			with contextlib.suppress(discord.HTTPException):
+				return await message.author.send(
+					f'You have been blacklisted from using emotes with the reason `{blacklist_reason}`. '
+					'To appeal, please join the support server using the support command.')
 
 		reply, has_emotes = await self.extract_emotes(message, log_usage=True)
 		if not has_emotes:

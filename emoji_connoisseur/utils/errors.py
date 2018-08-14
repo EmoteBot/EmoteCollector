@@ -5,51 +5,42 @@ class ConnoisseurError(CommandError):
 	"""Generic error with the bot. This can be used to catch all bot errors."""
 	pass
 
-class BlacklistedError(ConnoisseurError):
-	"""The user tried to use a command but they were blacklisted."""
-	def __init__(self, prefix, reason):
-		super().__init__(_(
-			'Sorry, you have been blacklisted with the reason `{reason}`. '
-			'To appeal, please join the support server with `{prefix}support`.').format(**locals))
-
 class HTTPException(ConnoisseurError):
 	"""The server did not respond with an OK status code."""
 	def __init__(self, status):
-		super().__init__(_('URL error: server returned error code {status}').format(**locals))
+		super().__init__(f'URL error: server returned error code {status}')
 
 class InvalidImageError(ConnoisseurError):
 	"""The image is not a GIF, PNG, or JPG"""
 	def __init__(self):
-		super().__init__(_('The image supplied was not a GIF, PNG, or JPG.'))
+		super().__init__('The image supplied was not a GIF, PNG, or JPG.')
 
 class EmoteError(ConnoisseurError):
 	"""Abstract error while trying to modify an emote"""
 	def __init__(self, message, name):
 		self.name = name
-		super().__init__(_(message).format(name=self.name))
+		super().__init__(message)
 
 class EmoteExistsError(EmoteError):
 	"""An emote with that name already exists"""
 	def __init__(self, name):
-		super().__init__('An emote called `{name}` already exists in my database.', name)
+		super().__init__(f'An emote called `{name}` already exists in my database.', name)
 
 class EmoteNotFoundError(EmoteError):
 	"""An emote with that name was not found"""
 	def __init__(self, name):
-		super().__init__('An emote called `{name}` does not exist in my database.', name)
+		super().__init__(f'An emote called `{name}` does not exist in my database.', name)
 
 class PermissionDeniedError(EmoteError):
 	"""Raised when a user tries to modify an emote they don't own"""
 	def __init__(self, name):
-		super().__init__("You're not authorized to modify `{name}`.", name)
+		super().__init__(f"You're not authorized to modify `{name}`.", name)
 
 class EmoteDescriptionTooLongError(EmoteError):
 	"""Raised when a user tries to set a description that's too long"""
 	def __init__(self, name, limit):
 		self.limit = limit
-		# EmoteError already tries to translate the message, skip that by using its super
-		super(EmoteError, self).__init__(_(
-			'That description is too long. The limit is {limit}').format(**locals()))
+		super().__init__(f'That description is too long.', name)
 
 class NoMoreSlotsError(ConnoisseurError):
 	"""Raised in the rare case that all slots of a particular type (static/animated) are full
@@ -57,9 +48,9 @@ class NoMoreSlotsError(ConnoisseurError):
 	to all of these guilds.
 	"""
 	def __init__(self):
-		super().__init__(_('No more room to store emotes.'))
+		super().__init__('No more backend slots available.')
 
 class DiscordError(Exception):
 	"""Usually raised when the client cache is being baka"""
 	def __init__(self):
-		super().__init__(_('Discord seems to be having issues right now, please try again later.'))
+		super().__init__('Discord seems to be having issues right now, please try again later.')
