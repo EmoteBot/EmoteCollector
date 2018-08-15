@@ -48,20 +48,17 @@ class Gimme:
 		self.guilds = guilds
 		await self.delete_all_backend_guild_messages()
 
-	async def delete_all_backend_guild_messages(self):
+	async def delete_backend_guild_messages(self):
 		# ensure there's no messages left over from last run
 		for guild in self.guilds:
 			permissions = guild.default_role.permissions
 			permissions.send_messages = True
 			await guild.default_role.edit(permissions=permissions)
 
-			channel = guild.text_channels[0]
-			name = channel.name
-
 			for channel in guild.text_channels:
 				await channel.delete()
 
-			await guild.create_text_channel(name=name)
+			await guild.create_text_channel(name='just-created-so-i-can-invite-you')
 
 		logger.info('all backend guilds cleared')
 
