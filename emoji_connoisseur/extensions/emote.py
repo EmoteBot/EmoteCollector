@@ -610,7 +610,13 @@ class Emotes:
 
 	@commands.command()
 	@commands.is_owner()
-	async def blacklist(self, context, user: discord.Member, *, reason=None):
+	async def blacklist(self, context, user: discord.Member, *,
+		reason: commands.clean_content(
+			fix_channel_mentions=True,
+			escape_markdown=True,
+			use_nicknames=False
+		) = None
+	):
 		"""Prevent a user from using commands and the emote auto response.
 		If you don't provide a reason, the user will be un-blacklisted."""
 		await self.db.set_user_blacklist(user.id, reason)
