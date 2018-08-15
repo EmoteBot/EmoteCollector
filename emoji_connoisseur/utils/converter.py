@@ -6,7 +6,6 @@ import typing
 from discord.ext import commands
 
 from .. import utils
-from .i18n import _
 
 class OffsetMessage(commands.Converter):
 	@staticmethod

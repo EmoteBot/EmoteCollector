@@ -1,3 +1,4 @@
+import builtins
 import gettext
 from glob import glob
 import os.path
@@ -27,7 +28,7 @@ def use_current_gettext(*args, **kwargs):
 		.gettext(*args, **kwargs))
 
 current_language = aiocontextvars.ContextVar('i18n')
-_ = use_current_gettext
+builtins._ = use_current_gettext
 
 current_language.set(default_language)
 

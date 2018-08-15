@@ -5,7 +5,6 @@ import logging
 import discord
 
 from .. import utils
-from ..utils.i18n import _
 
 logger = logging.getLogger(__name__)
 

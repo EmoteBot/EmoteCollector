@@ -3,8 +3,6 @@ import contextlib
 
 import discord
 
-from .i18n import _
-
 # Derived mainly from R.Danny but also from Liara:
 # Copyright © 2015 Rapptz
 

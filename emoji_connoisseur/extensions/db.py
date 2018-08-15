@@ -16,7 +16,6 @@ from discord.ext import commands
 
 from .. import utils
 from ..utils import errors
-from ..utils.i18n import _
 
 logger = logging.getLogger(__name__)
 

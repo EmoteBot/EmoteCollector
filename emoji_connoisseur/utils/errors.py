@@ -1,7 +1,5 @@
 from discord.ext.commands import CommandError
 
-from .i18n import _
-
 class ConnoisseurError(CommandError):
 	"""Generic error with the bot. This can be used to catch all bot errors."""
 	pass

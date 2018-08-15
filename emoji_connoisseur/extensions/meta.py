@@ -11,7 +11,6 @@ import discord
 from discord.ext import commands
 
 from ..utils import argparse
-from ..utils.i18n import _
 from ..utils.paginator import HelpPaginator
 
 class Meta:

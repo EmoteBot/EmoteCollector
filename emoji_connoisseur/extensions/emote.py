@@ -21,7 +21,6 @@ from .. import utils
 from ..utils import image as image_utils
 from ..utils import checks
 from ..utils import errors
-from ..utils.i18n import _
 from ..utils.lexer import t_CUSTOM_EMOTE
 from ..utils.paginator import Pages
 
