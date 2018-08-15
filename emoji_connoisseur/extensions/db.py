@@ -324,11 +324,10 @@ class Database:
 
 		image = discord.utils._bytes_to_base64_data(image_data)
 		emote_data = await self.bot.http.create_custom_emoji(guild_id=guild_id, name=name, image=image)
-		emote = await self._pool.fetchrow("""
+		return DatabaseEmote(await self._pool.fetchrow("""
 			INSERT INTO emote(name, id, author, animated, guild)
 			VALUES ($1, $2, $3, $4, $5)
-			RETURNING *""", name, int(emote_data['id']), author_id, animated, guild_id)
-		return DatabaseEmote(emote)
+			RETURNING *""", name, int(emote_data['id']), author_id, animated, guild_id))
 
 	async def remove_emote(self, emote, user_id):
 		"""Remove an emote given by name.
@@ -358,11 +357,11 @@ class Database:
 		await self.owner_check(emote, user_id)
 
 		await self.bot.http.edit_custom_emoji(emote.guild, emote.id, name=new_name)
-		return await self._pool.fetchrow("""
+		return DatabaseEmote(await self._pool.fetchrow("""
 			UPDATE emote
 			SET name = $2
 			WHERE id = $1
-			RETURNING *""", emote.id, new_name)
+			RETURNING *""", emote.id, new_name))
 
 	async def set_emote_description(self, name, user_id=None, description=None):
 		"""Set an emote's description.
@@ -406,7 +405,7 @@ class Database:
 		if not emote:
 			raise errors.EmoteNotFoundError(name)
 		else:
-			return DatabaseEmote(emote) # allow the caller to reuse the emote to reduce database queries
+			return DatabaseEmote(emote)
 
 	async def log_emote_use(self, emote_id, user_id=None):
 		await self._pool.execute("""
