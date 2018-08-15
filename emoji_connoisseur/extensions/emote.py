@@ -302,7 +302,7 @@ class Emotes:
 					with contextlib.suppress(AttributeError):
 						await removal_message.delete()
 				else:
-					messages.append(_('{emote.escaped_name()} was successfully deleted.').format(
+					messages.append(_('{escaped_emote_name} was successfully deleted.').format(
 						escaped_emote_name=emote.escaped_name()))
 
 		message = '\n'.join(messages)

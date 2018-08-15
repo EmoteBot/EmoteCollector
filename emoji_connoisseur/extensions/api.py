@@ -45,7 +45,7 @@ class API:
 		if context.invoked_subcommand is None:
 			await context.send(_(
 				'I have a RESTful API available. The docs for it are located at '
-				'{docs_url}').format(self.bot.config['api']['docs_url']))
+				'{docs_url}.').format(docs_url=self.bot.config['api']['docs_url']))
 
 	@api.group(name='token', aliases=('toke1', 'toke', 'tok'), invoke_without_command=True)
 	async def token_command(self, context):
