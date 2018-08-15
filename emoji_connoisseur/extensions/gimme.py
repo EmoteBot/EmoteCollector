@@ -58,7 +58,9 @@ class Gimme:
 			channel = guild.text_channels[0]
 			name = channel.name
 			await guild.create_text_channel(name=name)
-			await channel.delete()
+
+			for channel in guild.text_channels:
+				await channel.delete()
 
 		logger.info('all backend guilds cleared')
 
