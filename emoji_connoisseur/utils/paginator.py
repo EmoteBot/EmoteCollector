@@ -54,6 +54,8 @@ class Pages:
 	def __init__(self, ctx, *, entries, per_page=10, show_entry_count=True, timeout=120.0,
 		delete_message=True, delete_message_on_timeout=False,
 	):
+		global _
+
 		self.bot = ctx.bot
 		self.entries = entries
 		self.message = ctx.message
@@ -76,7 +78,7 @@ class Pages:
 			('\N{BLACK LEFT-POINTING TRIANGLE}', self.previous_page),
 			('\N{BLACK RIGHT-POINTING TRIANGLE}', self.next_page),
 			('\N{BLACK RIGHT-POINTING DOUBLE TRIANGLE WITH VERTICAL BAR}', self.last_page),
-			('\N{INPUT SYMBOL FOR NUMBERS}', self.numbered_page ),
+			('\N{INPUT SYMBOL FOR NUMBERS}', self.numbered_page),
 			('\N{BLACK SQUARE FOR STOP}', self.stop),
 			('\N{INFORMATION SOURCE}', self.show_help),
 		]
@@ -140,7 +142,7 @@ class Pages:
 		p.append(_('Confused? React with \N{INFORMATION SOURCE} for more info.'))
 		self.embed.description = '\n'.join(p)
 		self.message = await self.channel.send(**kwargs, embed=self.embed)
-		for (reaction, _) in self.reaction_emojis:
+		for reaction, emoji in self.reaction_emojis:
 			if self.maximum_pages == 2 and reaction in ('\u23ed', '\u23ee'):
 				# no |<< or >>| buttons if we only have two pages
 				# we can't forbid it if someone ends up using it but remove
@@ -207,6 +209,8 @@ class Pages:
 
 	async def show_help(self):
 		"""shows this message"""
+		global _
+
 		messages = [_('Welcome to the interactive paginator!\n')]
 		messages.append(_('This interactively allows you to see pages of text by navigating with '
 		                  'reactions. They are as follows:\n'))
@@ -289,6 +293,8 @@ class FieldPages(Pages):
 	tuples having (key, value) to show as embed fields instead.
 	"""
 	async def show_page(self, page, *, first=False):
+		global _
+
 		self.current_page = page
 		entries = self.get_page(page)
 
@@ -316,7 +322,7 @@ class FieldPages(Pages):
 			return
 
 		self.message = await self.channel.send(embed=self.embed)
-		for (reaction, _) in self.reaction_emojis:
+		for reaction, emoji in self.reaction_emojis:
 			if self.maximum_pages == 2 and reaction in ('\u23ed', '\u23ee'):
 				# no |<< or >>| buttons if we only have two pages
 				# we can't forbid it if someone ends up using it but remove
@@ -461,7 +467,7 @@ class HelpPaginator(Pages):
 		self._is_bot = True
 
 		# replace the actual total
-		self.total = sum(len(o) for _, _, o in nested_pages)
+		self.total = sum(len(o) for __, __, o in nested_pages)
 		return self
 
 	def get_bot_page(self, page):
@@ -510,7 +516,7 @@ class HelpPaginator(Pages):
 			return
 
 		self.message = await self.channel.send(embed=self.embed)
-		for (reaction, _) in self.reaction_emojis:
+		for reaction, emoji in self.reaction_emojis:
 			if self.maximum_pages == 2 and reaction in ('\u23ed', '\u23ee'):
 				# no |<< or >>| buttons if we only have two pages
 				# we can't forbid it if someone ends up using it but remove
