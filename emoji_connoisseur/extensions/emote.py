@@ -437,7 +437,7 @@ class Emotes:
 		if self.bot.config['website']:
 			end_path = f'/{user.id}' if user else ''
 			paginator.text_message = _('Also check out the list website at {website}.').format(
-				website='%s/%s' % (self.bot.config["website"], end_path))
+				website=f'{self.bot.config["website"]}/list{end_path}')
 
 		await paginator.begin()
 
