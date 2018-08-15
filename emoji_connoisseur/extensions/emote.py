@@ -658,7 +658,11 @@ class Emotes:
 			# so don't respond a second time
 			return
 
-		if message.guild and not message.guild.me.permissions_in(message.channel).external_emojis:
+		if (
+			message.guild
+			and message.guild.me
+			and not message.guild.me.permissions_in(message.channel).external_emojis
+		):
 			return
 
 		if message.guild:
