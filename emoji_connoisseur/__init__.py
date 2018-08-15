@@ -159,6 +159,7 @@ class EmojiConnoisseur(commands.AutoShardedBot):
 			'emoji_connoisseur.extensions.logging',
 			'emoji_connoisseur.extensions.emote',
 			'emoji_connoisseur.extensions.api',
+			'emoji_connoisseur.extensions.gimme',
 			'emoji_connoisseur.extensions.meta',
 			'jishaku',
 			'emoji_connoisseur.extensions.stats',
