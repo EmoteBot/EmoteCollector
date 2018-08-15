@@ -16,7 +16,10 @@ languages = tuple(
 		glob(os.path.join(BASE_DIR, locale_dir, '*')))))
 
 gettext_translations = {
-	language: gettext.translation('emoji_connoisseur', languages=(language,), localedir=locale_dir)
+	language: gettext.translation(
+		'emoji_connoisseur',
+		languages=(language,),
+		localedir=os.path.join(BASE_DIR, locale_dir))
 	for language in languages}
 
 def use_current_gettext(*args, **kwargs):
