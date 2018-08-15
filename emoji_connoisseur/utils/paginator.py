@@ -1,4 +1,5 @@
 import asyncio
+import collections
 import contextlib
 
 import discord
@@ -52,8 +53,6 @@ class Pages:
 	def __init__(self, ctx, *, entries, per_page=10, show_entry_count=True, timeout=120.0,
 		delete_message=True, delete_message_on_timeout=False,
 	):
-		global _
-
 		self.bot = ctx.bot
 		self.entries = entries
 		self.message = ctx.message
@@ -71,7 +70,7 @@ class Pages:
 		self.delete_message = delete_message
 		self.delete_message_on_timeout = delete_message_on_timeout
 		self.text_message = None
-		self.reaction_emojis = [
+		self.reaction_emojis = collections.OrderedDict((
 			('\N{BLACK LEFT-POINTING DOUBLE TRIANGLE WITH VERTICAL BAR}', self.first_page),
 			('\N{BLACK LEFT-POINTING TRIANGLE}', self.previous_page),
 			('\N{BLACK RIGHT-POINTING TRIANGLE}', self.next_page),
@@ -79,7 +78,7 @@ class Pages:
 			('\N{INPUT SYMBOL FOR NUMBERS}', self.numbered_page),
 			('\N{BLACK SQUARE FOR STOP}', self.stop),
 			('\N{INFORMATION SOURCE}', self.show_help),
-		]
+		))
 
 		if ctx.guild is not None:
 			self.permissions = self.channel.permissions_for(ctx.guild.me)
@@ -105,8 +104,6 @@ class Pages:
 		return self.entries[base:base + self.per_page]
 
 	async def show_page(self, page, *, first=False):
-		global _
-
 		self.current_page = page
 		entries = self.get_page(page)
 		p = []
@@ -140,7 +137,7 @@ class Pages:
 		p.append(_('Confused? React with \N{INFORMATION SOURCE} for more info.'))
 		self.embed.description = '\n'.join(p)
 		self.message = await self.channel.send(**kwargs, embed=self.embed)
-		for reaction, emoji in self.reaction_emojis:
+		for reaction in self.reaction_emojis:
 			if self.maximum_pages == 2 and reaction in ('\u23ed', '\u23ee'):
 				# no |<< or >>| buttons if we only have two pages
 				# we can't forbid it if someone ends up using it but remove
@@ -175,7 +172,6 @@ class Pages:
 
 	async def numbered_page(self):
 		"""lets you type a page number to go to"""
-		global _
 
 		to_delete = []
 		to_delete.append(await self.channel.send(_('What page do you want to go to?')))
@@ -207,13 +203,12 @@ class Pages:
 
 	async def show_help(self):
 		"""shows this message"""
-		global _
 
 		messages = [_('Welcome to the interactive paginator!\n')]
 		messages.append(_('This interactively allows you to see pages of text by navigating with '
 		                  'reactions. They are as follows:\n'))
 
-		for (emoji, func) in self.reaction_emojis:
+		for emoji, func in self.reaction_emojis.items():
 			messages.append(f'{emoji} {func.__doc__}')
 
 		self.embed.description = '\n'.join(messages)
@@ -245,7 +240,7 @@ class Pages:
 		try:
 			await self.message.clear_reactions()
 		except discord.Forbidden:
-			for emoji, action in self.reaction_emojis:
+			for emoji in self.reaction_emojis:
 				await self.message.remove_reaction(emoji, self.message.author)
 
 	def react_check(self, reaction, user):
@@ -255,14 +250,15 @@ class Pages:
 		if reaction.message.id != self.message.id:
 			return False
 
-		for (emoji, func) in self.reaction_emojis:
-			if reaction.emoji == emoji:
-				self.match = func
-				return True
-		return False
+		try:
+			self.match = self.reaction_emojis[reaction.emoji]
+		except KeyError:
+			return False
+		return True
 
 	async def begin(self):
 		"""Actually paginate the entries and run the interactive loop if necessary."""
+
 		first_page = self.show_page(1, first=True)
 		if not self.paginating:
 			await first_page
@@ -287,12 +283,12 @@ class Pages:
 			await self.match()
 
 class FieldPages(Pages):
-	"""Similar to Pages except entries should be a list of
+	"""
+	Similar to Pages except entries should be a list of
 	tuples having (key, value) to show as embed fields instead.
 	"""
-	async def show_page(self, page, *, first=False):
-		global _
 
+	async def show_page(self, page, *, first=False):
 		self.current_page = page
 		entries = self.get_page(page)
 
@@ -320,7 +316,7 @@ class FieldPages(Pages):
 			return
 
 		self.message = await self.channel.send(embed=self.embed)
-		for reaction, emoji in self.reaction_emojis:
+		for reaction in self.reaction_emojis:
 			if self.maximum_pages == 2 and reaction in ('\u23ed', '\u23ee'):
 				# no |<< or >>| buttons if we only have two pages
 				# we can't forbid it if someone ends up using it but remove
@@ -386,12 +382,11 @@ def _command_signature(cmd):
 class HelpPaginator(Pages):
 	def __init__(self, ctx, entries, *, per_page=4):
 		super().__init__(ctx, entries=entries, per_page=per_page)
-		self.reaction_emojis.append(('\N{WHITE QUESTION MARK ORNAMENT}', self.show_bot_help))
+		self.reaction_emojis['\N{WHITE QUESTION MARK ORNAMENT}'] = self.show_bot_help
 		self.total = len(entries)
 
 	@classmethod
 	async def from_cog(cls, ctx, cog):
-		global _
 		cog_name = cog.__class__.__name__
 
 		# get the commands
@@ -409,8 +404,6 @@ class HelpPaginator(Pages):
 
 	@classmethod
 	async def from_command(cls, ctx, command):
-		global _
-
 		try:
 			entries = sorted(command.commands, key=lambda c: c.name)
 		except AttributeError:
@@ -431,8 +424,6 @@ class HelpPaginator(Pages):
 
 	@classmethod
 	async def from_bot(cls, ctx):
-		global _
-
 		def key(c):
 			return c.cog_name or '\u200b' + _('Misc')
 
@@ -469,16 +460,12 @@ class HelpPaginator(Pages):
 		return self
 
 	def get_bot_page(self, page):
-		global _
-
 		cog, description, commands = self.entries[page - 1]
 		self.title = _('{cog} Commands').format(**locals())
 		self.description = description
 		return commands
 
 	async def show_page(self, page, *, first=False):
-		global _
-
 		self.current_page = page
 		entries = self.get_page(page)
 
@@ -514,7 +501,7 @@ class HelpPaginator(Pages):
 			return
 
 		self.message = await self.channel.send(embed=self.embed)
-		for reaction, emoji in self.reaction_emojis:
+		for reaction in self.reaction_emojis:
 			if self.maximum_pages == 2 and reaction in ('\u23ed', '\u23ee'):
 				# no |<< or >>| buttons if we only have two pages
 				# we can't forbid it if someone ends up using it but remove
@@ -525,12 +512,11 @@ class HelpPaginator(Pages):
 
 	async def show_help(self):
 		"""shows this message"""
-		global _
 
 		self.embed.title = _('Paginator help')
 		self.embed.description = _('Hello! Welcome to the help page.')
 
-		messages = [f'{emoji} {func.__doc__}' for emoji, func in self.reaction_emojis]
+		messages = [f'{emoji} {func.__doc__}' for emoji, func in self.reaction_emojis.items()]
 		self.embed.clear_fields()
 		self.embed.add_field(name=_('What are these reactions for?'), value='\n'.join(messages), inline=False)
 
@@ -546,7 +532,6 @@ class HelpPaginator(Pages):
 
 	async def show_bot_help(self):
 		"""shows how to use the bot"""
-		global _
 
 		self.embed.title = 'Using the bot'
 		self.embed.description = 'Hello! Welcome to the help page.'
