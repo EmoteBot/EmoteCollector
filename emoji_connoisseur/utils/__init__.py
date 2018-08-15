@@ -10,5 +10,5 @@ from . import converter
 from . import emote
 from . import errors
 from . import i18n
-from .lexer import lexer
+from . import lexer
 from . import paginator

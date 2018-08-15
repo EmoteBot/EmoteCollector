@@ -727,7 +727,7 @@ class Emotes:
 			content = message.content
 
 		# we make a new one each time otherwise two tasks might use the same lexer at the same time
-		lexer = utils.lexer()
+		lexer = utils.lexer.new()
 
 		lexer.input(content)
 		for toke1 in iter(lexer.token, None):

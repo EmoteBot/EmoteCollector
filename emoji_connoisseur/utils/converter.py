@@ -69,14 +69,11 @@ class MemberMessage(commands.Converter):
 class KeywordMessage(commands.Converter):
 	@staticmethod
 	async def convert(context, argument):
-		def emote_to_name(match):
-			return match.group('name')
-
 		def normalize(message):
-			return utils.emote.RE_CUSTOM_EMOTE.sub(emote_to_name, message).casefold()
+			return re.sub(utils.lexer.t_CUSTOM_EMOTE, lambda match: match.group('name'), message).lower()
 
 		def predicate(message):
-			return message.id != context.message.id and argument.casefold() in normalize(message.content)
+			return message.id != context.message.id and argument.lower() in normalize(message.content)
 
 		return await _search_for_message(context, predicate)
 

@@ -32,7 +32,7 @@ def t_error(t):
 # it is required that ply.lex.lex be run in the context of this module
 # so we can't just say "lexer = ply.lex.lex" cause that'll run lex()
 # in the context of the caller's module
-lexer = lambda: ply.lex.lex()
+new = lambda: ply.lex.lex()
 
 def main():
 	import textwrap
