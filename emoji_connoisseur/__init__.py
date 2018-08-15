@@ -3,6 +3,8 @@
 
 import asyncio
 import contextlib
+import inspect
+import itertools
 import logging
 import os.path
 import re
@@ -19,14 +21,17 @@ except ImportError:
 else:
 	asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
-from . import extensions
+# set BASE_DIR before importing utils because utils.i18n depends on it
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+
 from . import utils
+from . import extensions
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('bot')
 
+
 class EmojiConnoisseur(commands.AutoShardedBot):
-	base_dir = os.path.dirname(__file__)
 
 	def __init__(self, *args, **kwargs):
 		self.config = kwargs.pop('config')
@@ -42,6 +47,8 @@ class EmojiConnoisseur(commands.AutoShardedBot):
 			description=self.config['description'],
 			activity=discord.Game(name=self.config['prefix'] + 'help'),  # "Playing ec/help"
 			*args, **kwargs)
+
+		utils.i18n.setup(self.loop)
 
 	async def get_prefix_(self, bot, message):
 		prefix = self.config['prefix']
@@ -65,7 +72,14 @@ class EmojiConnoisseur(commands.AutoShardedBot):
 
 	async def on_message(self, message):
 		if self.should_reply(message):
+			await self.set_language(message)
 			await self.process_commands(message)
+
+	async def set_language(self, message):
+		language = (
+			await self.get_cog('Database')
+			.language(message.guild.id, message.channel.id, message.author.id))
+		utils.i18n.current_language.set(language)
 
 	def should_reply(self, message):
 		"""return whether the bot should reply to a given message"""
@@ -118,7 +132,8 @@ class EmojiConnoisseur(commands.AutoShardedBot):
 			await context.send('An internal error occured while trying to run that command.')
 
 	async def logout(self):
-		await self.pool.close()
+		with contextlib.suppress(AttributeError):
+			await self.pool.close()
 		await super().logout()
 
 	async def start(self):
@@ -131,7 +146,7 @@ class EmojiConnoisseur(commands.AutoShardedBot):
 		credentials = self.config['database']
 		pool = await asyncpg.create_pool(**credentials)
 
-		async with aiofiles.open(os.path.join(self.base_dir, '..', 'data', 'schema.sql')) as f:
+		async with aiofiles.open(os.path.join(BASE_DIR, 'data', 'schema.sql')) as f:
 			await pool.execute(await f.read())
 
 		self.pool = pool
@@ -139,16 +154,16 @@ class EmojiConnoisseur(commands.AutoShardedBot):
 
 	def _load_extensions(self):
 		for extension in (
-				'emoji_connoisseur.extensions.logging',
-				'emoji_connoisseur.extensions.db',
-				'emoji_connoisseur.extensions.emote',
-				'emoji_connoisseur.extensions.api',
-				'emoji_connoisseur.extensions.meta',
-				'jishaku',
-				'emoji_connoisseur.extensions.stats',
-				'ben_cogs.misc',
-				'emoji_connoisseur.extensions.meme',
-				'ben_cogs.debug',
+			'emoji_connoisseur.extensions.db',
+			'emoji_connoisseur.extensions.logging',
+			'emoji_connoisseur.extensions.emote',
+			'emoji_connoisseur.extensions.api',
+			'emoji_connoisseur.extensions.meta',
+			'jishaku',
+			'emoji_connoisseur.extensions.stats',
+			'ben_cogs.misc',
+			'emoji_connoisseur.extensions.meme',
+			'ben_cogs.debug',
 		):
 			self.load_extension(extension)
 			logger.info('Successfully loaded %s', extension)

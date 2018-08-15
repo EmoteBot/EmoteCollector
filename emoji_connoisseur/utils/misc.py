@@ -131,7 +131,7 @@ def format_user(bot, id, *, mention=False):
 	"""Format a user ID for human readable display."""
 	user = bot.get_user(id)
 	if user is None:
-		return f'Unknown user with ID {id}'
+		return _('Unknown user with ID {id}').format(**locals())
 	# not mention: @null byte#8191 (140516693242937345)
 	# mention: <@140516693242937345> (null byte#8191)
 	# this allows people to still see the username and discrim

@@ -16,7 +16,7 @@ from discord.ext import commands
 
 from .. import utils
 from ..utils import errors
-
+from ..utils.i18n import _
 
 logger = logging.getLogger(__name__)
 
@@ -493,6 +493,9 @@ class Database:
 			state = user_state  # user state overrides guild state
 
 		return state
+
+	async def language(self, guild, channel, message):
+		return 'en_US'  # TODO
 
 	## Blacklists
 
