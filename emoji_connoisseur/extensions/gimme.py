@@ -46,7 +46,7 @@ class Gimme:
 
 	async def on_backend_guild_enumeration(self, guilds):
 		self.guilds = guilds
-		await self.delete_all_backend_guild_messages()
+		await self.delete_backend_guild_messages()
 
 	async def delete_backend_guild_messages(self):
 		# ensure there's no messages left over from last run
