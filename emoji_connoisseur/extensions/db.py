@@ -76,10 +76,10 @@ class Database:
 
 		await self.bot.wait_until_ready()
 
-		guilds = []
+		guilds = set()
 		for guild in self.bot.guilds:
 			if guild.name.startswith('EmojiBackend') and await self.bot.is_owner(guild.owner):
-				guilds.append(guild)
+				guilds.add(guild)
 
 		await self._pool.executemany("""
 			INSERT INTO _guilds
@@ -87,8 +87,8 @@ class Database:
 			ON CONFLICT (id) DO NOTHING
 		""", map(lambda x: (x.id,), guilds))
 
-		self.guilds = guilds
-		logger.info('In %s backend guilds.', len(guilds))
+		self.guilds = frozenset(guilds)
+		logger.info('In %s backend guilds.', len(self.guilds))
 
 		# allow other cogs that depend on the list of backend guilds to know when they've been found
 		self.bot.dispatch('backend_guild_enumeration', self.guilds)
