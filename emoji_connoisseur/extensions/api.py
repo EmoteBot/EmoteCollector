@@ -67,7 +67,7 @@ class API:
 
 		message = (
 			first_line
-			+ '`{token}`\n'
+			+ f'`{token.decode()}`\n'
 			+ _('Do **not** share it with anyone!'))
 
 		try:
