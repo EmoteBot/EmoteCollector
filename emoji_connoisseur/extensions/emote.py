@@ -163,7 +163,7 @@ class Emotes:
 			return self.parse_add_command_attachment(context, args)
 
 		elif len(args) == 1:
-			match = utils.emote.RE_CUSTOM_EMOTE.match(args[0])
+			match = re.match(utils.lexer.t_CUSTOM_EMOTE, args[0])
 			if match is None:
 				raise commands.BadArgument(_(
 					'Error: I expected a custom emote as the first argument, '
@@ -179,7 +179,7 @@ class Emotes:
 
 		elif len(args) >= 2:
 			name = args[0]
-			match = utils.emote.RE_CUSTOM_EMOTE.match(args[1])
+			match = re.match(utils.lexer.t_CUSTOM_EMOTE, args[1])
 			if match is None:
 				url = utils.strip_angle_brackets(args[1])
 			else:
