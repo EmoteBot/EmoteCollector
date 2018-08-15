@@ -21,7 +21,6 @@ from .. import utils
 from ..utils import image as image_utils
 from ..utils import checks
 from ..utils import errors
-from ..utils.lexer import t_CUSTOM_EMOTE
 from ..utils.paginator import Pages
 
 
@@ -519,7 +518,7 @@ class Emotes:
 			return await context.send(_('You need to provide one or more custom emotes.'))
 
 		messages = []
-		for match in utils.emote.RE_CUSTOM_EMOTE.finditer(''.join(emotes)):
+		for match in re.finditer(utils.lexer.t_CUSTOM_EMOTE, ''.join(emotes)):
 			animated, name, id = match.groups()
 			image_url = utils.emote.url(id, animated=animated)
 			messages.append(await self.add_safe(name, image_url, context.author.id))
@@ -769,7 +768,7 @@ class Emotes:
 
 		async def callback(toke1, out, emotes_used):
 			if toke1.type == 'CUSTOM_EMOTE':
-				return out.write(':'+re.match(t_CUSTOM_EMOTE, toke1.value).group('name')+':')
+				return out.write(':'+re.match(utils.lexer.t_CUSTOM_EMOTE, toke1.value).group('name')+':')
 			if toke1.type != 'EMOTE':
 				return out.write(toke1.value)
 
