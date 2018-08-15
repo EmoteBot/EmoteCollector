@@ -97,9 +97,6 @@ async def update_permissions():
 	for guild in client.guilds:
 		ec_role = discord.utils.get(guild.roles, name='Emoji Connoisseur')
 		await ec_role.edit(permissions=administrator)
-		permissions = guild.default_role.permissions
-		permissions.send_messages = False
-		await guild.default_role.edit(permisions=permissions)
 
 async def add_bot_to_guilds():
 	try:
