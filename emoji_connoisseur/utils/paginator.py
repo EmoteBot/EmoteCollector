@@ -120,31 +120,35 @@ class Pages:
 
 			self.embed.set_footer(text=text)
 
-		kwargs = {}
+		kwargs = {'embed': self.embed}
 		if self.text_message:
 			kwargs['content'] = self.text_message
 
 		if not self.paginating:
 			self.embed.description = '\n'.join(p)
-			return await self.channel.send(**kwargs, embed=self.embed)
+			return await self.channel.send(**kwargs)
 
 		if not first:
 			self.embed.description = '\n'.join(p)
-			await self.message.edit(**kwargs, embed=self.embed)
+			await self.message.edit(**kwargs)
 			return
 
 		p.append('')
 		p.append(_('Confused? React with \N{INFORMATION SOURCE} for more info.'))
 		self.embed.description = '\n'.join(p)
-		self.message = await self.channel.send(**kwargs, embed=self.embed)
+		self.message = await self.channel.send(**kwargs)
+		await self.add_reactions()
+
+	async def add_reactions(self):
 		for reaction in self.reaction_emojis:
-			if self.maximum_pages == 2 and reaction in ('\u23ed', '\u23ee'):
+			if self.maximum_pages == 2 and reaction in {'⏮', '⏭'}:
 				# no |<< or >>| buttons if we only have two pages
 				# we can't forbid it if someone ends up using it but remove
 				# it from the default set
 				continue
 
-			await self.message.add_reaction(reaction)
+			with contextlib.suppress(discord.HTTPException):
+				await self.message.add_reaction(reaction)
 
 	async def checked_show_page(self, page):
 		if page != 0 and page <= self.maximum_pages:
@@ -196,10 +200,11 @@ class Pages:
 					'Invalid page given. ({page}/{self.maximum_pages})').format(**locals())))
 				await asyncio.sleep(5)
 
-		try:
-			await self.channel.delete_messages(to_delete)
-		except Exception:
-			pass
+		for message in to_delete:
+			# we could use self.channel.delete_messages, but doing so would stop as soon as one of them fails
+			# doing it this way ensures all of them are deleted
+			with contextlib.suppress(discord.HTTPException):
+				await message.delete()
 
 	async def show_help(self):
 		"""shows this message"""
@@ -230,7 +235,8 @@ class Pages:
 			delete = self.delete_message
 
 		if delete:
-			await self.message.delete()
+			with contextlib.suppress(discord.HTTPException):
+				await self.message.delete()
 		else:
 			await self._clear_reactions()
 
@@ -241,7 +247,10 @@ class Pages:
 			await self.message.clear_reactions()
 		except discord.Forbidden:
 			for emoji in self.reaction_emojis:
-				await self.message.remove_reaction(emoji, self.message.author)
+				with contextlib.suppress(discord.HTTPException):
+					await self.message.remove_reaction(emoji, self.message.author)
+		except discord.HTTPException:
+			pass
 
 	def react_check(self, reaction, user):
 		if user is None or user.id != self.author.id:
@@ -308,22 +317,19 @@ class FieldPages(Pages):
 
 			self.embed.set_footer(text=text)
 
+		kwargs = {'embed': self.embed}
+		if self.text_message:
+			kwargs['content'] = self.text_message
+
 		if not self.paginating:
-			return await self.channel.send(embed=self.embed)
+			return await self.channel.send(**kwargs)
 
 		if not first:
-			await self.message.edit(embed=self.embed)
+			await self.message.edit(**kwargs)
 			return
 
-		self.message = await self.channel.send(embed=self.embed)
-		for reaction in self.reaction_emojis:
-			if self.maximum_pages == 2 and reaction in ('\u23ed', '\u23ee'):
-				# no |<< or >>| buttons if we only have two pages
-				# we can't forbid it if someone ends up using it but remove
-				# it from the default set
-				continue
-
-			await self.message.add_reaction(reaction)
+		self.message = await self.channel.send(**kwargs)
+		await self.add_reactions()
 
 import itertools
 import inspect
@@ -501,14 +507,7 @@ class HelpPaginator(Pages):
 			return
 
 		self.message = await self.channel.send(embed=self.embed)
-		for reaction in self.reaction_emojis:
-			if self.maximum_pages == 2 and reaction in ('\u23ed', '\u23ee'):
-				# no |<< or >>| buttons if we only have two pages
-				# we can't forbid it if someone ends up using it but remove
-				# it from the default set
-				continue
-
-			await self.message.add_reaction(reaction)
+		await self.add_reactions()
 
 	async def show_help(self):
 		"""shows this message"""
