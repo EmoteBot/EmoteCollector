@@ -46,21 +46,23 @@ async def on_ready():
 	await wipe_guilds()
 	await create_guilds(prefix='EmoteBackend ', limit=100)
 	await clear_guilds()
-	await rename_guilds()
+	await create_channels()
 
-	global needed_guilds
 	bot.needed_guilds = {guild for guild in bot.guilds if len(guild.members) < 2}
-
 	await add_bot_to_guilds()
 
-	return
-
+	return await bot.logout()
 
 @print_status('Wiping guilds')
 async def wipe_guilds():
 	for guild in bot.guilds:
 		await guild.delete()
 
+def format_guild_name(prefix='EmoteBackend', n, max_n):
+	pad_length = len(str(max_n)) - 1
+	# space out the number so that the icon for each guild in the sidebar shows the full number
+	# e.g. 3 -> '0 3' if the limit is 100
+	return prefix + ' '.join(str(n).zfill(pad_length))
 
 @print_status('Creating guilds')
 async def create_guilds(prefix, start=0, limit=100):
@@ -69,9 +71,7 @@ async def create_guilds(prefix, start=0, limit=100):
 	pad_length = len(str(limit)) - 1
 
 	for i in range(start, limit):
-		# space out the number so that the icon for each guild in the sidebar shows the full number
-		# e.g. 3 -> '0 3' if the limit is 100
-		await bot.create_guild(prefix + ' '.join(str(i).zfill(pad_length)))
+		await bot.create_guild(format_guild_name(prefix, i, limit)
 
 
 @print_status('Clearing default channels')
@@ -84,12 +84,22 @@ async def clear_guilds():
 		for channel in guild.channels:
 			await channel.delete()
 
+administrator = discord.Permissions()
+administrator.administrator = True
 
-@print_status('Renaming guilds')
-async def rename_guilds():
-	for i, guild in enumerate(bot.guilds, 100):
-		await guild.edit(name='EmojiBackend %s' % ' '.join(str(i)))
+@print_status('Creating channels')
+async def create_channels():
+	for guild in client.guilds:
+		await guild.create_text_channel('just-created-so-i-can-invite-you')
 
+@print_status('Updating permissions')
+async def update_permissions():
+	for guild in client.guilds:
+		ec_role = discord.utils.get(guild.roles, name='Emoji Connoisseur')
+		await ec_role.edit(permissions=administrator)
+		permissions = guild.default_role.permissions
+		permissions.send_messages = False
+		await guild.default_role.edit(permisions=permissions)
 
 async def add_bot_to_guilds():
 	try:
@@ -104,7 +114,7 @@ async def add_bot_to_guilds():
 
 	print('To add the bot to the backend guilds, use this link:')
 	needed_permissions = discord.Permissions()
-	needed_permissions.update(administrator=True)
+	needed_permissions.administrator = True
 	print(discord.utils.oauth_url(get_bot_user_id(), needed_permissions))
 	print('Then add the bot to this guild:', next_guild.name)
 
