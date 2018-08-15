@@ -47,13 +47,13 @@ class API:
 				'I have a RESTful API available. The docs for it are located at '
 				'{docs_url}').format(self.bot.config['api']['docs_url']))
 
-	@api.group(name='token', invoke_without_command=True)
+	@api.group(name='token', aliases=('toke1', 'toke', 'tok'), invoke_without_command=True)
 	async def token_command(self, context):
 		"""Sends you your token to use the API."""
 		token = await self.token(context.author.id)
 		await self.send_token(context, token)
 
-	@token_command.command(name='regenerate')
+	@token_command.command(name='regenerate', aliases=('regen',))
 	async def regenerate_command(self, context):
 		"""Regenerates your user token. Use this if your token is compromised."""
 		token = await self.regenerate_token(context.author.id)
