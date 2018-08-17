@@ -409,7 +409,7 @@ class Emotes:
 
 		return True
 
-	@commands.command()
+	@commands.command(aliases=('ls', 'dir'))
 	async def list(self, context, *, user: discord.User = None):
 		"""List all emotes the bot knows about.
 		If a user is provided, the list will only contain emotes created by that user.
