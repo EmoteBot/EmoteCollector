@@ -53,7 +53,7 @@ class Locales:
 		if location != context.author and not context.author.guild_permissions.manage_messages:
 			return await context.send(_('You can only get your own locale.'))
 		user_locale = await self.locale(context.message)
-		return await context.send(_('The current locale for that user  	is: {user_locale}').format(**locals()))
+		return await context.send(_('The current locale for that user is: {user_locale}').format(**locals()))
 
 	@locale_command.command(name='set')
 	async def set_locale_command(self, context, locale, location: Location = None):
