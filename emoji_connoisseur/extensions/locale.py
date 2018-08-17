@@ -17,6 +17,11 @@ class Locales:
 		self.bot = bot
 		self.pool = self.bot.pool
 
+	@commands.command()
+	async def locales(self, context):
+		"""Lists the valid locales you can use."""
+		await context.send(', '.join(i18n.locales))
+
 	@commands.group(name='locale')
 	async def locale_command(self, context):
 		""""Commands relating to modifying the locale.
