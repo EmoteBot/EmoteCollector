@@ -224,7 +224,7 @@ class Emotes:
 		await self.db.ensure_emote_does_not_exist(name)
 
 		image_data = await self.fetch_emote(url)
-		emote = await self.create_emote_from_bytes(name, author_id, image_data)
+		emote = await self.create_emote_from_bytes(name, author_id, image_data, verify=False)
 
 		return emote
 
@@ -242,7 +242,9 @@ class Emotes:
 				raise errors.HTTPException(response.status)
 			return io.BytesIO(await response.read())
 
-	async def create_emote_from_bytes(self, name, author_id, image_data: io.BytesIO):
+	async def create_emote_from_bytes(self, name, author_id, image_data: io.BytesIO, *, verify=True):
+		if verify:
+			await self.db.ensure_emote_does_not_exist(name)
 		# resize_until_small is normally blocking, because wand is.
 		# run_in_executor is magic that makes it non blocking somehow.
 		# also, None as the executor arg means "use the loop's default executor"
