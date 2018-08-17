@@ -7,32 +7,32 @@ import aiocontextvars
 
 from .. import BASE_DIR
 
-default_language = 'en_US'
+default_locale = 'en_US'
 locale_dir = 'locale'
-languages = tuple(
+locales = frozenset(
 	map(os.path.basename,
 	filter(
 		os.path.isdir,
 		glob(os.path.join(BASE_DIR, locale_dir, '*')))))
 
 gettext_translations = {
-	language: gettext.translation(
+	locale: gettext.translation(
 		'emoji_connoisseur',
-		languages=(language,),
+		languages=(locale,),
 		localedir=os.path.join(BASE_DIR, locale_dir))
-	for language in languages}
+	for locale in locales}
 
 def use_current_gettext(*args, **kwargs):
-	language = current_language.get()
+	locale = current_locale.get()
 	return (
 		gettext_translations.get(
-			language,
-			gettext_translations[default_language])
+			locale,
+			gettext_translations[default_locale])
 		.gettext(*args, **kwargs))
 
-current_language = aiocontextvars.ContextVar('i18n')
+current_locale = aiocontextvars.ContextVar('i18n')
 builtins._ = use_current_gettext
 
-current_language.set(default_language)
+current_locale.set(default_locale)
 
 setup = aiocontextvars.enable_inherit

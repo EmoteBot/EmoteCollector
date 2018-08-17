@@ -1,7 +1,9 @@
 emoji_connoisseur/extensions/api.py
 emoji_connoisseur/extensions/db.py
 emoji_connoisseur/extensions/emote.py
+emoji_connoisseur/extensions/gimme.py
 emoji_connoisseur/extensions/logging.py
+emoji_connoisseur/extensions/locale.py
 emoji_connoisseur/extensions/meme.py
 emoji_connoisseur/extensions/meta.py
 emoji_connoisseur/utils/converter.py

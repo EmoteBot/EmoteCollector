@@ -72,15 +72,12 @@ class EmojiConnoisseur(commands.AutoShardedBot):
 
 	async def on_message(self, message):
 		if self.should_reply(message):
-			await self.set_language(message)
+			await self.set_locale(message)
 			await self.process_commands(message)
 
-	async def set_language(self, message):
-		language = (await self.get_cog('Database').language(
-			message.guild.id if message.guild is not None else None,
-			message.channel.id,
-			message.author.id))
-		utils.i18n.current_language.set(language)
+	async def set_locale(self, message):
+		locale = await self.get_cog('Locales').locale(message)
+		utils.i18n.current_locale.set(locale)
 
 	def should_reply(self, message):
 		"""return whether the bot should reply to a given message"""
@@ -155,6 +152,7 @@ class EmojiConnoisseur(commands.AutoShardedBot):
 
 	def _load_extensions(self):
 		for extension in (
+			'emoji_connoisseur.extensions.locale',
 			'emoji_connoisseur.extensions.privatebin_hook',
 			'emoji_connoisseur.extensions.db',
 			'emoji_connoisseur.extensions.logging',
