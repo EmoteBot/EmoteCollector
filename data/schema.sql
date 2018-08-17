@@ -92,9 +92,13 @@ CREATE INDEX IF NOT EXISTS locales_guild_idx ON locales (guild);
 CREATE INDEX IF NOT EXISTS locales_guild_idx ON locales (channel);
 CREATE INDEX IF NOT EXISTS locales_guild_idx ON locales ("user");
 
+ALTER TABLE locales ADD UNIQUE (guild, channel);
+ALTER TABLE locales ADD UNIQUE ("user");
+
 ALTER TABLE locales ADD CHECK (
 	guild IS NOT NULL
 	OR guild IS NOT NULL AND channel IS NOT NULL
+	OR channel IS NOT NULL
 	OR "user" IS NOT NULL);
 
 -- utility funcs --

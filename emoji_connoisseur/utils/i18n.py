@@ -9,7 +9,7 @@ from .. import BASE_DIR
 
 default_language = 'en_US'
 locale_dir = 'locale'
-languages = tuple(
+languages = frozenset(
 	map(os.path.basename,
 	filter(
 		os.path.isdir,

@@ -76,10 +76,7 @@ class EmojiConnoisseur(commands.AutoShardedBot):
 			await self.process_commands(message)
 
 	async def set_language(self, message):
-		language = (await self.get_cog('Database').language(
-			message.guild.id if message.guild is not None else None,
-			message.channel.id,
-			message.author.id))
+		language = await self.get_cog('Locales').locale(message)
 		utils.i18n.current_language.set(language)
 
 	def should_reply(self, message):
@@ -155,6 +152,7 @@ class EmojiConnoisseur(commands.AutoShardedBot):
 
 	def _load_extensions(self):
 		for extension in (
+			'emoji_connoisseur.extensions.locale',
 			'emoji_connoisseur.extensions.db',
 			'emoji_connoisseur.extensions.logging',
 			'emoji_connoisseur.extensions.emote',
