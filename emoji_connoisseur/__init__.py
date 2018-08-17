@@ -155,6 +155,7 @@ class EmojiConnoisseur(commands.AutoShardedBot):
 
 	def _load_extensions(self):
 		for extension in (
+			'emoji_connoisseur.extensions.privatebin_hook',
 			'emoji_connoisseur.extensions.db',
 			'emoji_connoisseur.extensions.logging',
 			'emoji_connoisseur.extensions.emote',

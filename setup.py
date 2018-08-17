@@ -22,6 +22,7 @@ setuptools.setup(
 		'jishaku>0.1.1',
 		'ply',
 		'prettytable',
+		'sjcl',
 		'wand',
 	],
 
