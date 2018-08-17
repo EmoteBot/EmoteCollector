@@ -22,6 +22,6 @@ if [ x$1 = "compile" ]; then
 	for locale in */; do
 		msgfmt \
 			"${locale}LC_MESSAGES/emoji_connoisseur.po" \
-			"${locale}LC_MESSAGES/emoji_connoisseur.mo"
+			--output-file "${locale}LC_MESSAGES/emoji_connoisseur.mo"
 	done
 fi
