@@ -530,7 +530,7 @@ class Emotes:
 			return await context.send(_('No embeds were found in that message.'))
 
 		try:
-			emote = utils.emote.RE_CUSTOM_EMOTE.match(description)
+			emote = re.match(utils.lexer.t_CUSTOM_EMOTE, description)
 		except TypeError:
 			return await context.send(_('No description was found in that embed.'))
 		name = emote.group('name')
