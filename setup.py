@@ -14,6 +14,7 @@ setuptools.setup(
 	packages=['emoji_connoisseur'],
 
 	install_requires=[
+		'aiocache',
 		'aiocontextvars',
 		'aiofiles',
 		'asyncpg',
@@ -22,6 +23,7 @@ setuptools.setup(
 		'jishaku>0.1.1',
 		'ply',
 		'prettytable',
+		'sjcl',
 		'wand',
 	],
 

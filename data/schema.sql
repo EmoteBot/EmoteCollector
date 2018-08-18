@@ -82,6 +82,25 @@ CREATE TABLE IF NOT EXISTS api_token(
 
 CREATE INDEX IF NOT EXISTS api_token_secret_idx ON api_token (secret);
 
+CREATE TABLE IF NOT EXISTS locales(
+	guild BIGINT,
+	channel BIGINT,
+	"user" BIGINT UNIQUE,
+	locale VARCHAR(32) NOT NULL);
+
+CREATE INDEX IF NOT EXISTS locales_guild_idx ON locales (guild);
+CREATE INDEX IF NOT EXISTS locales_guild_idx ON locales (channel);
+CREATE INDEX IF NOT EXISTS locales_guild_idx ON locales ("user");
+
+ALTER TABLE locales ADD UNIQUE (guild, channel);
+ALTER TABLE locales ADD UNIQUE ("user");
+
+ALTER TABLE locales ADD CHECK (
+	guild IS NOT NULL
+	OR guild IS NOT NULL AND channel IS NOT NULL
+	OR channel IS NOT NULL
+	OR "user" IS NOT NULL);
+
 -- utility funcs --
 
 CREATE OR REPLACE FUNCTION str_contains(text, text) RETURNS bool AS $$

@@ -7,6 +7,7 @@ from .misc import *
 from . import checks
 from . import context
 from . import converter
+from . import custom_send
 from . import emote
 from . import errors
 from . import i18n
