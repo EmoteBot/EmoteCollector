@@ -78,7 +78,9 @@ class Locales:
 
 		if (
 			not isinstance(location, discord.Member)
-			and not context.author.guild_permissions.manage_messages
+			and (
+				not context.author.guild_permissions.manage_messages
+				or not await self.bot.is_owner(context.author))
 		):
 			raise commands.MissingPermissions(('manage_messages',))
 
