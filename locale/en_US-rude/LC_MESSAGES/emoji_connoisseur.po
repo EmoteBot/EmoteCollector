@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-08-17 22:30+0000\n"
+"POT-Creation-Date: 2018-08-19 02:09+0000\n"
 "PO-Revision-Date: 2018-08-13 16:27-0500\n"
 "Last-Translator: Benjamin <bmintz@protonmail.com>\n"
 "Language-Team: English\n"
@@ -270,15 +270,15 @@ msgstr ""
 msgid "Cannot set the server or channel locale in DMs."
 msgstr ""
 
-#: emoji_connoisseur/extensions/locale.py:87
+#: emoji_connoisseur/extensions/locale.py:89
 msgid "Cannot set the server locale in DMs."
 msgstr ""
 
-#: emoji_connoisseur/extensions/locale.py:95
+#: emoji_connoisseur/extensions/locale.py:97
 msgid "You cannot set the locale of another user."
 msgstr ""
 
-#: emoji_connoisseur/extensions/locale.py:99
+#: emoji_connoisseur/extensions/locale.py:101
 msgid ""
 "✅ Locale set. Note that it may take up to 20 seconds for your changes to "
 "take effect."
