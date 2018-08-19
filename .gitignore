@@ -10,4 +10,4 @@ __pycache__/
 geckodriver.log
 
 /data/config.py
-
+/data/memes.py

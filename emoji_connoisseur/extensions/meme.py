@@ -6,6 +6,8 @@ from discord.ext import commands
 
 from .. import utils
 
+MEMES_FILE = 'data/memes.py'
+
 class Meme:
 	def __init__(self, bot):
 		self.bot = bot
@@ -15,7 +17,7 @@ class Meme:
 		self.read_memes_task.cancel()
 
 	async def read_memes(self):
-		async with aiofiles.open('data/memes.py') as f:
+		async with aiofiles.open(MEMES_FILE) as f:
 			self.memes = utils.load_json_compat(await f.read())
 
 	@commands.command(hidden=True)
@@ -26,4 +28,7 @@ class Meme:
 
 
 def setup(bot):
-	bot.add_cog(Meme(bot))
+	import os.path
+
+	if os.path.isfile(MEMES_FILE):
+		bot.add_cog(Meme(bot))
