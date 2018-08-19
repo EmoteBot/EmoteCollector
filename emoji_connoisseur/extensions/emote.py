@@ -743,7 +743,7 @@ class Emotes:
 			callback=callback,
 			log_usage=log_usage)
 
-		return utils.fix_first_line(extracted), has_emotes
+		return utils.fix_first_line(extracted.strip()), has_emotes
 
 	async def quote_emotes(self, message: discord.Message, content: str = None, *, log_usage=False):
 		"""Parse all emotes (:name: or ;name;) from a message, preserving non-emote text"""
