@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 # encoding: utf-8
 
-import asyncio
 import collections
+import contextlib
 from datetime import datetime
-import functools
+import io
 import math
 import re
+import typing
 from typing import Sequence, Union
 import urllib.parse
 
@@ -17,7 +18,6 @@ from prettytable import PrettyTable
 
 
 """miscellaneous utility functions and constants"""
-
 
 """Stanislav#0001's user ID
 This is useful to test whether a number is a snowflake:
@@ -215,6 +215,20 @@ async def async_enumerate(async_iterator, start=0):
 	async for x in async_iterator:
 		yield i, x
 		i += 1
+
+def size(data: typing.IO):
+	"""return the size, in bytes, of the data a BytesIO object represents"""
+	with preserve_position(data):
+		data.seek(0, io.SEEK_END)
+		return data.tell()
+
+class preserve_position(contextlib.AbstractContextManager):
+	def __init__(self, fp):
+		self.fp = fp
+		self.old_pos = fp.tell()
+
+	def __exit__(self, *excinfo):
+		self.fp.seek(self.old_pos)
 
 def clean_content(bot, message, content, *, fix_channel_mentions=False, use_nicknames=True, escape_markdown=False):
 	transformations = {}

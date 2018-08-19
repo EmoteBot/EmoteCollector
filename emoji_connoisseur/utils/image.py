@@ -28,12 +28,6 @@ def resize_until_small(image_data: io.BytesIO):
 		max_resolution //= 2
 	return image_data
 
-def size(data: io.BytesIO):
-	"""return the size, in bytes, of the data a BytesIO object represents"""
-	with preserve_position(data):
-		data.seek(0, io.SEEK_END)
-		return data.tell()
-
 def thumbnail(image_data: io.BytesIO, max_size=(128, 128)):
 	"""Resize an image in place to no more than max_size pixels, preserving aspect ratio."""
 	# Credit to @Liara#0001 (ID 136900814408122368)
@@ -58,14 +52,6 @@ def scale_resolution(old_res, new_res):
 	if new_ratio > old_ratio:
 		return (old_width * new_height//old_height, new_height)
 	return new_width, old_height * new_width//old_width
-
-class preserve_position(contextlib.AbstractContextManager):
-	def __init__(self, fp):
-		self.fp = fp
-		self.old_pos = fp.tell()
-
-	def __exit__(self, *excinfo):
-		self.fp.seek(self.old_pos)
 
 def is_animated(image_data: bytes):
 	"""Return whether the image data is animated, or raise InvalidImageError if it's not an image."""
