@@ -7,16 +7,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-08-17 22:33+0000\n"
+"POT-Creation-Date: 2018-08-19 02:27+0000\n"
 "PO-Revision-Date: 2018-08-18 18:53-0500\n"
+"Last-Translator: \n"
 "Language-Team: \n"
+"Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Poedit 2.0.6\n"
-"Last-Translator: \n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"Language: de\n"
 
 #: emoji_connoisseur/extensions/api.py:47
 #, python-brace-format
@@ -40,8 +40,7 @@ msgstr "Teilen Sie es **nicht** mit irgendjemandem!"
 
 #: emoji_connoisseur/extensions/api.py:76
 msgid "Error: I could not send you your token via DMs."
-msgstr ""
-"Fehler: Ich konnte dir deinen Token nicht über Direct Messages senden."
+msgstr "Fehler: Ich konnte dir deinen Token nicht über Direct Messages senden."
 
 #: emoji_connoisseur/extensions/emote.py:68
 #: emoji_connoisseur/extensions/emote.py:427
@@ -260,8 +259,7 @@ msgstr "Das aktuelle Gebietsschema für diesen Server lautet: {guild_locale}"
 #, python-brace-format
 msgid "The current locale for that channel is: {channel_or_guild_locale}"
 msgstr ""
-"Das aktuelle Gebietsschema für diesen Kanal lautet: "
-"{channel_or_guild_locale}"
+"Das aktuelle Gebietsschema für diesen Kanal lautet: {channel_or_guild_locale}"
 
 #: emoji_connoisseur/extensions/locale.py:59
 msgid "You can only get your own locale."
@@ -281,15 +279,15 @@ msgstr "Ungültiges Gebietsschema Die gültigen Gebietsschemas sind: {locales}"
 msgid "Cannot set the server or channel locale in DMs."
 msgstr ""
 
-#: emoji_connoisseur/extensions/locale.py:87
+#: emoji_connoisseur/extensions/locale.py:89
 msgid "Cannot set the server locale in DMs."
 msgstr ""
 
-#: emoji_connoisseur/extensions/locale.py:95
+#: emoji_connoisseur/extensions/locale.py:97
 msgid "You cannot set the locale of another user."
 msgstr ""
 
-#: emoji_connoisseur/extensions/locale.py:99
+#: emoji_connoisseur/extensions/locale.py:101
 msgid ""
 "✅ Locale set. Note that it may take up to 20 seconds for your changes to "
 "take effect."
