@@ -168,20 +168,10 @@ def _expand_one_cartesian_product(str, match, group):
 def load_json_compat(data: str):
 	"""evaluate a python dictionary/list/thing, while maintaining some compatibility with JSON"""
 	# >HOLD UP! Why the heck are you using eval in production??
-	# Short answer: JSON sucks for a configuration format:
-	#	It can be hard to read
-	#	Only one type of quote is allowed
-	#	No trailing commas are allowed
-	#	No multi-line strings
-	#	But most importantly, NO COMMENTS!
-	# >OK but you didn't answer my question
-	# Well I would use another configuration language, but they all suck.
-	# To really answer your question, the config file is 100% trusted data.
+	# The config file is 100% trusted data.
 	# NOTHING the user ever sends, ends up in there.
 	# Also, consider another common approach: `import config`.
 	# Which is arbitrary code execution anyway.
-	# Furthermore, the if the user ever does get a hold of the config.py file,
-	# then they already have the bot token and have totally compromised the bot.
 	globals = dict(true=True, false=False, null=None)
 	return eval(data, globals)
 
