@@ -80,31 +80,6 @@ AttrDict = type('AttrDict', (dict,), {
 	'__delattr__': dict.__delitem__,
 })
 
-def typing(func):
-	"""Makes a command function run with the context.typing() context manager.
-	This will make the bot appear to be typing until the command returns.
-	While you can just wrap your entire code in `async with context.typing()`,
-	this isn't ideal if you already have a lot of indents or a long function.
-	Also, context.trigger_typing() works but only for 10 seconds.
-	"""
-	@functools.wraps(func)
-	# TODO investigate whether wraps really works on asyncs (probably not).
-	# Either way, `wrapt` provides a better @wraps, maybe that would work
-	async def wrapped(*args, **kwargs):	 # pylint: disable=missing-docstring
-		# if func is a method, args starts with (self, context, ...)
-		# otherwise args starts with (context, ...)
-		context = args[0] if isinstance(args[0], commands.Context) else args[1]
-		async with context.typing():
-			# XXX Currently there is a bug in context.typing, or maybe in the official Discord client
-			# receiving a message *immediately* after a typing indicator
-			# does not cancel the typing indicator.
-			# By sleeping, we can work around that bug in case a command fails early.
-			# This is also why this decorator should probably not be used
-			# if you do not anticipate a command taking more than 10s.
-			await asyncio.sleep(0.1)
-			await func(*args, **kwargs)
-	return wrapped
-
 def bytes_to_int(x):
 	return int.from_bytes(x, byteorder='big')
 

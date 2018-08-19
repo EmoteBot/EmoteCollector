@@ -490,7 +490,6 @@ class Emotes:
 
 	@commands.command(name='steal-these', hidden=True)
 	@checks.not_blacklisted()
-	@utils.typing
 	async def steal_these(self, context, *emotes):
 		"""Steal a bunch of custom emotes."""
 		if not emotes:
@@ -500,7 +499,8 @@ class Emotes:
 		for match in re.finditer(utils.lexer.t_CUSTOM_EMOTE, ''.join(emotes)):
 			animated, name, id = match.groups()
 			image_url = utils.emote.url(id, animated=animated)
-			messages.append(await self.add_safe(name, image_url, context.author.id))
+			async with context.typing():
+				messages.append(await self.add_safe(name, image_url, context.author.id))
 
 		if not messages:
 			return await context.send(_('Error: no existing custom emotes were provided.'))
