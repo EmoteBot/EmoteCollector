@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-08-19 02:28+0000\n"
+"POT-Creation-Date: 2018-08-19 09:36+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -148,7 +148,7 @@ msgstr ""
 
 #: emoji_connoisseur/extensions/emote.py:431
 #, python-brace-format
-msgid "{first_bit} — owned by **{author}**"
+msgid "{emote_with_preservation} — owned by **{author}**"
 msgstr ""
 
 #: emoji_connoisseur/extensions/emote.py:434
@@ -165,7 +165,7 @@ msgstr ""
 msgid "No results matched your query."
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:497
+#: emoji_connoisseur/extensions/emote.py:496
 msgid "You need to provide one or more custom emotes."
 msgstr ""
 
@@ -198,11 +198,19 @@ msgstr ""
 msgid "No author IDs were found in that embed."
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:602
+#: emoji_connoisseur/extensions/emote.py:564
+msgid "Opted in to the emote auto response."
+msgstr ""
+
+#: emoji_connoisseur/extensions/emote.py:566
+msgid "Opted out of the emote auto response."
+msgstr ""
+
+#: emoji_connoisseur/extensions/emote.py:601
 msgid "User un-blacklisted."
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:604
+#: emoji_connoisseur/extensions/emote.py:603
 #, python-brace-format
 msgid "User blacklisted with reason `{reason}`."
 msgstr ""

@@ -424,11 +424,11 @@ class Emotes:
 			author = utils.format_user(self.bot, emote.author, mention=True)
 
 			if emote.preserve:
-				first_bit = _('{emote} (Preserved)').format(emote=emote.with_name())
+				emote_with_preservation = _('{emote} (Preserved)').format(emote=emote.with_name())
 			else:
-				first_bit = emote.with_name()
+				emote_with_preservation = emote.with_name()
 
-			processed.append(_('{first_bit} — owned by **{author}**').format(**locals()))
+			processed.append(_('{emote_with_preservation} — owned by **{author}**').format(**locals()))
 
 		if not processed:
 			return await context.send(_('No emotes have been created yet. Be the first!'))
@@ -561,10 +561,9 @@ class Emotes:
 		if context.guild is not None:
 			guild = context.guild.id
 		if await self.db.toggle_user_state(context.author.id, guild):
-			action = 'in to'
+			await context.send(_('Opted in to the emote auto response.'))
 		else:
-			action = 'out of'
-		await context.send(f'Opted {action} the emote auto response.')
+			await context.send(_('Opted out of the emote auto response.'))
 
 	@commands.command(name='toggleserver')
 	@checks.owner_or_permissions(manage_emojis=True)
