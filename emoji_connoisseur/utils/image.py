@@ -11,6 +11,7 @@ except ImportError:
 	logger.warn('Failed to import wand.image. Image manipulation functions will be unavailable.')
 
 from . import errors
+from .misc import size
 
 def resize_until_small(image_data: io.BytesIO):
 	"""If the image_data is bigger than 256KB, resize it until it's not"""
