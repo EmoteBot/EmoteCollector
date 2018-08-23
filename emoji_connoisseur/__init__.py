@@ -154,8 +154,8 @@ class EmojiConnoisseur(commands.AutoShardedBot):
 		for extension in (
 			'emoji_connoisseur.extensions.locale',
 			'emoji_connoisseur.extensions.file_upload_hook',
-			'emoji_connoisseur.extensions.db',
 			'emoji_connoisseur.extensions.logging',
+			'emoji_connoisseur.extensions.db',
 			'emoji_connoisseur.extensions.emote',
 			'emoji_connoisseur.extensions.api',
 			'emoji_connoisseur.extensions.gimme',
