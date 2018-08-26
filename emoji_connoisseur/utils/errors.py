@@ -9,12 +9,12 @@ class BlacklistedError(ConnoisseurError):
 	def __init__(self, prefix, reason):
 		super().__init__(_(
 			'Sorry, you have been blacklisted with the reason `{reason}`. '
-			'To appeal, please join the support server with `{prefix}support`.').format(**locals))
+			'To appeal, please join the support server with `{prefix}support`.').format(**locals()))
 
 class HTTPException(ConnoisseurError):
 	"""The server did not respond with an OK status code."""
 	def __init__(self, status):
-		super().__init__(_('URL error: server returned error code {status}').format(**locals))
+		super().__init__(_('URL error: server returned error code {status}').format(**locals()))
 
 class InvalidImageError(ConnoisseurError):
 	"""The image is not a GIF, PNG, or JPG"""
