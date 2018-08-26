@@ -42,7 +42,8 @@ class Gimme:
 	async def on_message(self, message):
 		if message.guild in self.guilds:
 			await asyncio.sleep(5)
-			await message.delete()
+			with contextlib.suppress(discord.HTTPException):
+				await message.delete()
 
 	async def on_backend_guild_enumeration(self, guilds):
 		self.guilds = guilds
