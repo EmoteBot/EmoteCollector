@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-08-19 09:36+0000\n"
+"POT-Creation-Date: 2018-08-26 09:47+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -151,66 +151,74 @@ msgstr ""
 msgid "{emote_with_preservation} — owned by **{author}**"
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:434
-#: emoji_connoisseur/extensions/emote.py:485
+#: emoji_connoisseur/extensions/emote.py:435
+#: emoji_connoisseur/extensions/emote.py:491
 msgid "No emotes have been created yet. Be the first!"
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:441
+#: emoji_connoisseur/extensions/emote.py:438
+msgid "You have not created any emotes yet."
+msgstr ""
+
+#: emoji_connoisseur/extensions/emote.py:440
+msgid "That person has not created any emotes yet."
+msgstr ""
+
+#: emoji_connoisseur/extensions/emote.py:447
 #, python-brace-format
 msgid "Also check out the list website at {website}."
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:456
+#: emoji_connoisseur/extensions/emote.py:462
 msgid "No results matched your query."
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:496
+#: emoji_connoisseur/extensions/emote.py:502
 msgid "You need to provide one or more custom emotes."
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:506
+#: emoji_connoisseur/extensions/emote.py:513
 msgid "Error: no existing custom emotes were provided."
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:522
+#: emoji_connoisseur/extensions/emote.py:529
 msgid "Logger cog not loaded."
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:527
-#: emoji_connoisseur/utils/converter.py:53
+#: emoji_connoisseur/extensions/emote.py:534
+#: emoji_connoisseur/utils/converter.py:54
 msgid "Message not found."
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:532
+#: emoji_connoisseur/extensions/emote.py:539
 msgid "No embeds were found in that message."
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:537
+#: emoji_connoisseur/extensions/emote.py:544
 msgid "No description was found in that embed."
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:543
+#: emoji_connoisseur/extensions/emote.py:550
 msgid "No custom emotes were found in that embed's description."
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:548
+#: emoji_connoisseur/extensions/emote.py:555
 msgid "No author IDs were found in that embed."
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:564
+#: emoji_connoisseur/extensions/emote.py:571
 msgid "Opted in to the emote auto response."
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:566
+#: emoji_connoisseur/extensions/emote.py:573
 msgid "Opted out of the emote auto response."
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:601
+#: emoji_connoisseur/extensions/emote.py:608
 msgid "User un-blacklisted."
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:603
+#: emoji_connoisseur/extensions/emote.py:610
 #, python-brace-format
 msgid "User blacklisted with reason `{reason}`."
 msgstr ""
@@ -275,24 +283,24 @@ msgid ""
 "take effect."
 msgstr ""
 
-#: emoji_connoisseur/utils/converter.py:16
-#: emoji_connoisseur/utils/converter.py:27
+#: emoji_connoisseur/utils/converter.py:17
+#: emoji_connoisseur/utils/converter.py:28
 msgid "Not a valid integer."
 msgstr ""
 
-#: emoji_connoisseur/utils/converter.py:21
+#: emoji_connoisseur/utils/converter.py:22
 msgid "Not a message offset."
 msgstr ""
 
-#: emoji_connoisseur/utils/converter.py:30
+#: emoji_connoisseur/utils/converter.py:31
 msgid "Not a valid message ID."
 msgstr ""
 
-#: emoji_connoisseur/utils/converter.py:43
+#: emoji_connoisseur/utils/converter.py:44
 msgid "Message not found! Make sure your message ID is correct."
 msgstr ""
 
-#: emoji_connoisseur/utils/converter.py:46
+#: emoji_connoisseur/utils/converter.py:47
 msgid ""
 "Permission denied! Make sure the bot has permission to read that message."
 msgstr ""

@@ -431,7 +431,13 @@ class Emotes:
 			processed.append(_('{emote_with_preservation} — owned by **{author}**').format(**locals()))
 
 		if not processed:
-			return await context.send(_('No emotes have been created yet. Be the first!'))
+			if not user:
+				return await context.send(_('No emotes have been created yet. Be the first!'))
+
+			if user == context.author:
+				return await context.send(_('You have not created any emotes yet.'))
+
+			return await context.send(_('That person has not created any emotes yet.'))
 
 		paginator = Pages(context, entries=processed)
 		self.paginators.add(paginator)
@@ -496,6 +502,7 @@ class Emotes:
 			return await context.send(_('You need to provide one or more custom emotes.'))
 
 		messages = []
+		# we could use emotes: discord.PartialEmoji here but that would require spaces between each emote.
 		for match in re.finditer(utils.lexer.t_CUSTOM_EMOTE, ''.join(emotes)):
 			animated, name, id = match.groups()
 			image_url = utils.emote.url(id, animated=animated)
