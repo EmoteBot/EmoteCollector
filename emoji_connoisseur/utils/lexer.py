@@ -37,7 +37,7 @@ new = lambda: ply.lex.lex()
 def main():
 	import textwrap
 
-	lexer_ = lexer()
+	lexer = new()
 
 	test = textwrap.dedent("""
 		You're mom gay
@@ -52,12 +52,12 @@ def main():
 		`` baz ``
 		```
 	""")
-	lexer_.input(test)
+	lexer.input(test)
 
 	print(test)
 
-	for toke1 in iter(lexer_.token, None):
-		print(repr(toke1.type), repr(toke1.value))
+	for toke1 in iter(lexer.token, None):
+		print(f'{toke1.type}: {toke1.value!r}')
 
 	ply.lex.runmain()
 
