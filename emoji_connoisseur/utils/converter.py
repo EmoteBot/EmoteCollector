@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # encoding: utf-8
 
+import re
 import typing
 
 from discord.ext import commands
