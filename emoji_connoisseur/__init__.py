@@ -75,6 +75,11 @@ class EmojiConnoisseur(commands.AutoShardedBot):
 			await self.set_locale(message)
 			await self.process_commands(message)
 
+	async def process_commands(self, message):
+		# overridden because the default process_commands ignores bots now
+		context = await self.get_context(message)
+		await self.invoke(context)
+
 	async def set_locale(self, message):
 		locale = await self.get_cog('Locales').locale(message)
 		utils.i18n.current_locale.set(locale)
