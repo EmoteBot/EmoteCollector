@@ -104,11 +104,7 @@ class EmojiConnoisseur(commands.AutoShardedBot):
 		return should_reply
 
 	async def is_owner(self, user):
-		if self.owner_id is None:
-			app = await self.application_info()
-			self.owner_id = app.owner.id
-
-		return user.id == self.owner_id or user.id in self.owners
+		return await super().is_owner(user) or user.id in self.owners
 
 	# https://github.com/Rapptz/RoboDanny/blob/ca75fae7de132e55270e53d89bc19dd2958c2ae0/bot.py#L77-L85
 	async def on_command_error(self, context, error):
