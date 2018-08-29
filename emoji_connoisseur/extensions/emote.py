@@ -634,21 +634,29 @@ class Emotes:
 		This is like half the functionality of the bot
 		"""
 
-		if not self.bot.should_reply(message):
+		if not await self._should_auto_reply(message):
 			return
+
+		reply, has_emotes = await self.extract_emotes(message, log_usage=True)
+		if not has_emotes:
+			return
+
+		self.replies[message.id] = await message.channel.send(reply)
+
+	async def _should_auto_reply(self, message: discord.Message):
+		"""return whether the bot should send an emote auto response to message"""
+
+		if not self.bot.should_reply(message):
+			return False
 
 		context = await self.bot.get_context(message)
 		if context.valid:
 			# user invoked a command, rather than the emote auto response
 			# so don't respond a second time
-			return
+			return False
 
-		if (
-			message.guild
-			and message.guild.me
-			and not message.guild.me.permissions_in(message.channel).external_emojis
-		):
-			return
+		if not self._can_use_external_emojis(message):
+			return False
 
 		if message.guild:
 			guild = message.guild.id
@@ -658,17 +666,18 @@ class Emotes:
 		await self.bot.db_ready.wait()
 
 		if not await self.db.get_state(guild, message.author.id):
-			return
+			return False
 
-		blacklist_reason = await self.db.get_user_blacklist(message.author.id)
-		if blacklist_reason is not None:
-			return
+		if await self.db.get_user_blacklist(message.author.id):
+			return False
 
-		reply, has_emotes = await self.extract_emotes(message, log_usage=True)
-		if not has_emotes:
-			return
+		return True
 
-		self.replies[message.id] = await message.channel.send(reply)
+	def _can_use_external_emojis(self, message):
+		return (
+			message.guild
+			and message.guild.me
+			and message.guild.me.permissions_in(message.channel).external_emojis)
 
 	async def on_raw_message_edit(self, payload):
 		"""Ensure that when a message containing emotes is edited, the corresponding emote reply is, too."""
@@ -683,6 +692,8 @@ class Emotes:
 
 		emotes, message_has_emotes = await self.extract_emotes(message, log_usage=False)
 		reply = self.replies[payload.message_id]
+
+		# editing out emotes from a message deletes the reply
 		if not message_has_emotes:
 			del self.replies[payload.message_id]
 			return await reply.delete()
@@ -697,7 +708,7 @@ class Emotes:
 		content: str = None,
 		*,
 		callback,
-		log_usage=False
+		log_usage=False,
 	):
 		"""Extract emotes according to predicate.
 		Predicate is a function taking three arguments: token, out: StringIO, and emotes_usd: set
