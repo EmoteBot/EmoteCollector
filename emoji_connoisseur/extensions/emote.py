@@ -756,9 +756,7 @@ class Emotes:
 		"""Parse all emotes (:name: or ;name;) from a message, preserving non-emote text"""
 
 		async def callback(toke1, out, emotes_used):
-			if toke1.type == 'CUSTOM_EMOTE':
-				return out.write(':'+re.match(utils.lexer.t_CUSTOM_EMOTE, toke1.value).group('name')+':')
-			if toke1.type != 'EMOTE':
+			if toke1.type == 'CUSTOM_EMOTE' or toke1.type != 'EMOTE':
 				return out.write(toke1.value)
 
 			try:
