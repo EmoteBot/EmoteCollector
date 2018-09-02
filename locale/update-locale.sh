@@ -18,7 +18,7 @@ for locale in */; do
 		messages.pot
 done
 
-if [ x$1 = "compile" ]; then
+if [ x$1 = "xcompile" ]; then
 	for locale in */; do
 		msgfmt \
 			"${locale}LC_MESSAGES/emoji_connoisseur.po" \
