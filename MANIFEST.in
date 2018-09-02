@@ -3,5 +3,5 @@ LICENSE.md
 README.md
 data/avatar.png
 data/config.example.py
-data/memes.py
+data/memes.example.py
 data/schema.sql
