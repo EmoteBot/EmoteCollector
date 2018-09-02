@@ -16,7 +16,6 @@ setuptools.setup(
 	install_requires=[
 		'aiocache',
 		'aiocontextvars',
-		'aiofiles',
 		'asyncpg',
 		'ben_cogs>=0.0.15',
 		'discord.py',

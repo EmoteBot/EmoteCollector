@@ -9,7 +9,6 @@ import random
 import re
 import time
 
-import aiofiles
 import asyncpg
 import discord
 from discord.ext import commands

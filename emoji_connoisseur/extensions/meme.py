@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 # encoding: utf-8
 
-import aiofiles
+import os.path
+
 from discord.ext import commands
 
+from .. import BASE_DIR
 from .. import utils
 
-MEMES_FILE = 'data/memes.py'
+MEMES_FILE = os.path.join(BASE_DIR, 'data', 'memes.py')
 
 class Meme:
 	def __init__(self, bot):
@@ -17,8 +19,8 @@ class Meme:
 		self.read_memes_task.cancel()
 
 	async def read_memes(self):
-		async with aiofiles.open(MEMES_FILE) as f:
-			self.memes = utils.load_json_compat(await f.read())
+		with open(MEMES_FILE) as f:
+			self.memes = utils.load_json_compat(f.read())
 
 	@commands.command(hidden=True)
 	async def meme(self, context, *, name):

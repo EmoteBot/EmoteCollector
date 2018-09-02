@@ -10,7 +10,6 @@ import os.path
 import re
 import traceback
 
-import aiofiles
 import asyncpg
 import discord
 from discord.ext import commands
@@ -145,8 +144,8 @@ class EmojiConnoisseur(commands.AutoShardedBot):
 		credentials = self.config['database']
 		pool = await asyncpg.create_pool(**credentials)
 
-		async with aiofiles.open(os.path.join(BASE_DIR, 'data', 'schema.sql')) as f:
-			await pool.execute(await f.read())
+		with open(os.path.join(BASE_DIR, 'data', 'schema.sql')) as f:
+			await pool.execute(f.read())
 
 		self.pool = pool
 		self.db_ready.set()
