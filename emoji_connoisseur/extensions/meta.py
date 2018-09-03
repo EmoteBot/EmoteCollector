@@ -64,8 +64,8 @@ class Meta:
 		if entity is self.help:
 			return await context.send(f'```{parser.format_help()}```')
 		if entity is None:
-			clean = command.replace('@', '@\N{zero width non-joiner}')
-			return await context.send(f'Command or category "{clean}" not found.')
+			command_name = command.replace('@', '@\N{zero width non-joiner}')
+			return await context.send(_('Command or category "{command_name}" not found.').format(**locals()))
 		elif isinstance(entity, commands.Command):
 			paginator = await HelpPaginator.from_command(context, entity)
 		else:

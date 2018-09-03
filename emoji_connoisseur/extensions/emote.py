@@ -421,11 +421,13 @@ class Emotes:
 			author = utils.format_user(self.bot, emote.author, mention=True)
 
 			if emote.preserve:
-				emote_with_preservation = _('{emote} (Preserved)').format(emote=emote.with_name())
+				processed.append(
+					_('{emote} (Preserved) — owned by **{author}**').format(
+						emote=emote.with_name(),
+						**locals()))
 			else:
-				emote_with_preservation = emote.with_name()
-
-			processed.append(_('{emote_with_preservation} — owned by **{author}**').format(**locals()))
+				processed.append(
+					_('{emote} — owned by **{author}**').format(emote=emote.with_name(), **locals()))
 
 		if not processed:
 			if not user:
@@ -479,6 +481,7 @@ class Emotes:
 			c = emote.usage
 			multiple = '' if c == 1 else 's'
 
+			# TODO internationalize this (needs plural support)
 			processed.append(
 				f'{emote.with_name()} '
 				f'— used **{c}** time{multiple} '
