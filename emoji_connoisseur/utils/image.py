@@ -10,11 +10,15 @@ try:
 except ImportError:
 	logger.warn('Failed to import wand.image. Image manipulation functions will be unavailable.')
 
+from . import asyncexecutor
 from . import errors
-from .misc import size
+from . import size
 
-def resize_until_small(image_data: io.BytesIO):
-	"""If the image_data is bigger than 256KB, resize it until it's not"""
+@asyncexecutor(timeout=30)
+def resize_until_small(image_data: io.BytesIO) -> io.BytesIO:
+	"""If the image_data is bigger than 256KB, resize it until it's not.
+
+	If resizing takes more than 30 seconds, raise asyncio.TimeoutError."""
 	# It's important that we only attempt to resize the image when we have to,
 	# ie when it exceeds the Discord limit of 256KiB.
 	# Apparently some <256KiB images become larger when we attempt to resize them,

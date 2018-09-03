@@ -212,7 +212,7 @@ class Emotes:
 				_('An error occurred while creating the emote:\n')
 				+ utils.format_http_exception(ex))
 		except asyncio.TimeoutError:
-			return _('Error: retrieving the image took too long.')
+			return _('Error: retrieving the image or resizing the image took too long.')
 		except ValueError:
 			return _('Error: Invalid URL.')
 		else:
@@ -245,10 +245,7 @@ class Emotes:
 	async def create_emote_from_bytes(self, name, author_id, image_data: io.BytesIO, *, verify=True):
 		if verify:
 			await self.db.ensure_emote_does_not_exist(name)
-		# resize_until_small is normally blocking, because wand is.
-		# run_in_executor is magic that makes it non blocking somehow.
-		# also, None as the executor arg means "use the loop's default executor"
-		image_data = await self.bot.loop.run_in_executor(None, image_utils.resize_until_small, image_data)
+		image_data = await image_utils.resize_until_small(image_data)
 		animated = image_utils.is_animated(image_data.getvalue())
 		emote = await self.db.create_emote(name, author_id, animated, image_data.read())
 		self.bot.dispatch('emote_add', emote)
