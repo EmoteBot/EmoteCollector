@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-09-02 23:19+0000\n"
+"POT-Creation-Date: 2018-09-03 01:06+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -40,7 +40,7 @@ msgid "Error: I could not send you your token via DMs."
 msgstr ""
 
 #: emoji_connoisseur/extensions/emote.py:68
-#: emoji_connoisseur/extensions/emote.py:427
+#: emoji_connoisseur/extensions/emote.py:424
 #, python-brace-format
 msgid "{emote} (Preserved)"
 msgstr ""
@@ -89,7 +89,7 @@ msgid "An error occurred while creating the emote:\n"
 msgstr ""
 
 #: emoji_connoisseur/extensions/emote.py:215
-msgid "Error: retrieving the image took too long."
+msgid "Error: retrieving the image or resizing the image took too long."
 msgstr ""
 
 #: emoji_connoisseur/extensions/emote.py:217
@@ -101,124 +101,124 @@ msgstr ""
 msgid "Emote {emote} successfully created."
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:261
+#: emoji_connoisseur/extensions/emote.py:258
 msgid "Error: you must provide the name of at least one emote to remove"
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:283
+#: emoji_connoisseur/extensions/emote.py:280
 #, python-brace-format
 msgid "{escaped_emote_name} was successfully deleted."
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:299
+#: emoji_connoisseur/extensions/emote.py:296
 msgid "You must specify an old name and a new name."
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:305
+#: emoji_connoisseur/extensions/emote.py:302
 msgid "Error: you must provide a new name for the emote."
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:316
+#: emoji_connoisseur/extensions/emote.py:313
 msgid "Emote successfully renamed."
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:356
+#: emoji_connoisseur/extensions/emote.py:353
 msgid "You can already react to that message with that emote."
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:362
+#: emoji_connoisseur/extensions/emote.py:359
 msgid "Unable to react: permission denied."
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:364
+#: emoji_connoisseur/extensions/emote.py:361
 msgid "Unable to react. Discord must be acting up."
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:367
+#: emoji_connoisseur/extensions/emote.py:364
 msgid "OK! I've reacted to that message. Please add your reaction now."
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:404
+#: emoji_connoisseur/extensions/emote.py:401
 msgid "Unable to react: no permission to read message history."
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:407
+#: emoji_connoisseur/extensions/emote.py:404
 msgid "Unable to react: no permission to add reactions."
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:431
+#: emoji_connoisseur/extensions/emote.py:428
 #, python-brace-format
 msgid "{emote_with_preservation} — owned by **{author}**"
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:435
-#: emoji_connoisseur/extensions/emote.py:491
+#: emoji_connoisseur/extensions/emote.py:432
+#: emoji_connoisseur/extensions/emote.py:488
 msgid "No emotes have been created yet. Be the first!"
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:438
+#: emoji_connoisseur/extensions/emote.py:435
 msgid "You have not created any emotes yet."
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:440
+#: emoji_connoisseur/extensions/emote.py:437
 msgid "That person has not created any emotes yet."
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:447
+#: emoji_connoisseur/extensions/emote.py:444
 #, python-brace-format
 msgid "Also check out the list website at {website}."
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:462
+#: emoji_connoisseur/extensions/emote.py:459
 msgid "No results matched your query."
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:502
+#: emoji_connoisseur/extensions/emote.py:499
 msgid "You need to provide one or more custom emotes."
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:513
+#: emoji_connoisseur/extensions/emote.py:510
 msgid "Error: no existing custom emotes were provided."
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:529
+#: emoji_connoisseur/extensions/emote.py:526
 msgid "Logger cog not loaded."
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:534
+#: emoji_connoisseur/extensions/emote.py:531
 #: emoji_connoisseur/utils/converter.py:54
 msgid "Message not found."
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:539
+#: emoji_connoisseur/extensions/emote.py:536
 msgid "No embeds were found in that message."
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:544
+#: emoji_connoisseur/extensions/emote.py:541
 msgid "No description was found in that embed."
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:550
+#: emoji_connoisseur/extensions/emote.py:547
 msgid "No custom emotes were found in that embed's description."
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:555
+#: emoji_connoisseur/extensions/emote.py:552
 msgid "No author IDs were found in that embed."
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:571
+#: emoji_connoisseur/extensions/emote.py:568
 msgid "Opted in to the emote auto response."
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:573
+#: emoji_connoisseur/extensions/emote.py:570
 msgid "Opted out of the emote auto response."
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:608
+#: emoji_connoisseur/extensions/emote.py:605
 msgid "User un-blacklisted."
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:610
+#: emoji_connoisseur/extensions/emote.py:607
 #, python-brace-format
 msgid "User blacklisted with reason `{reason}`."
 msgstr ""

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-09-02 23:18+0000\n"
+"POT-Creation-Date: 2018-09-03 01:06+0000\n"
 "PO-Revision-Date: 2018-08-13 17:05-0500\n"
 "Last-Translator: diniboy <diniboy@protonmail.com>\n"
 "Language-Team: Hungarian\n"
@@ -42,7 +42,7 @@ msgid "Error: I could not send you your token via DMs."
 msgstr "Hiba: Nem tudtam elküldeni a kulcsod privát üzenetben."
 
 #: emoji_connoisseur/extensions/emote.py:68
-#: emoji_connoisseur/extensions/emote.py:427
+#: emoji_connoisseur/extensions/emote.py:424
 #, python-brace-format
 msgid "{emote} (Preserved)"
 msgstr "{emote} (Tartós)"
@@ -100,8 +100,8 @@ msgid "An error occurred while creating the emote:\n"
 msgstr "Hiba történt a hangulatjel létrehozása során:\n"
 
 #: emoji_connoisseur/extensions/emote.py:215
-msgid "Error: retrieving the image took too long."
-msgstr "Hiba: a kép letöltése túl sok időt vett igénybe."
+msgid "Error: retrieving the image or resizing the image took too long."
+msgstr ""
 
 #: emoji_connoisseur/extensions/emote.py:217
 msgid "Error: Invalid URL."
@@ -112,126 +112,126 @@ msgstr "Hiba: Helytelen URL."
 msgid "Emote {emote} successfully created."
 msgstr "A hangulatjel {emote} sikeresen létrehozva."
 
-#: emoji_connoisseur/extensions/emote.py:261
+#: emoji_connoisseur/extensions/emote.py:258
 msgid "Error: you must provide the name of at least one emote to remove"
 msgstr "HIba: Minimum egy hangulatjel nevét meg kell adnod a törléshez!"
 
-#: emoji_connoisseur/extensions/emote.py:283
+#: emoji_connoisseur/extensions/emote.py:280
 #, python-brace-format
 msgid "{escaped_emote_name} was successfully deleted."
 msgstr "{escaped_emote_name} sikeresen törölve!"
 
-#: emoji_connoisseur/extensions/emote.py:299
+#: emoji_connoisseur/extensions/emote.py:296
 msgid "You must specify an old name and a new name."
 msgstr "Mindenképpen adj meg egy régi, illetve egy új nevet is!"
 
-#: emoji_connoisseur/extensions/emote.py:305
+#: emoji_connoisseur/extensions/emote.py:302
 msgid "Error: you must provide a new name for the emote."
 msgstr "Hiba: meg kell adnod a hangulatjel nevét."
 
-#: emoji_connoisseur/extensions/emote.py:316
+#: emoji_connoisseur/extensions/emote.py:313
 msgid "Emote successfully renamed."
 msgstr "A hangulatjel sikeresen átnevezve!"
 
-#: emoji_connoisseur/extensions/emote.py:356
+#: emoji_connoisseur/extensions/emote.py:353
 msgid "You can already react to that message with that emote."
 msgstr "Már tudsz reagálni a hangulatjel segítségével az üzenetre."
 
-#: emoji_connoisseur/extensions/emote.py:362
+#: emoji_connoisseur/extensions/emote.py:359
 msgid "Unable to react: permission denied."
 msgstr "A reakció sikertelen: hozzáférés megtagadva."
 
-#: emoji_connoisseur/extensions/emote.py:364
+#: emoji_connoisseur/extensions/emote.py:361
 msgid "Unable to react. Discord must be acting up."
 msgstr "A reakció sikertelen. Valószínűsíthetően Discord probléma áll fenn."
 
-#: emoji_connoisseur/extensions/emote.py:367
+#: emoji_connoisseur/extensions/emote.py:364
 msgid "OK! I've reacted to that message. Please add your reaction now."
 msgstr "Ok! Ragáltam az üzenetre. Kérlek reagálj te is most!"
 
-#: emoji_connoisseur/extensions/emote.py:404
+#: emoji_connoisseur/extensions/emote.py:401
 msgid "Unable to react: no permission to read message history."
 msgstr "A reakció sikertelen: nincs hozzáférésem az üzenetelőzményekhez."
 
-#: emoji_connoisseur/extensions/emote.py:407
+#: emoji_connoisseur/extensions/emote.py:404
 msgid "Unable to react: no permission to add reactions."
 msgstr "A reakció sikertelen: nincs jogom reakciók hozzáadására."
 
-#: emoji_connoisseur/extensions/emote.py:431
+#: emoji_connoisseur/extensions/emote.py:428
 #, python-brace-format
 msgid "{emote_with_preservation} — owned by **{author}**"
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:435
-#: emoji_connoisseur/extensions/emote.py:491
+#: emoji_connoisseur/extensions/emote.py:432
+#: emoji_connoisseur/extensions/emote.py:488
 msgid "No emotes have been created yet. Be the first!"
 msgstr "Nincs egyetlen létrehozott hangulatjel sem. Légy te az első!"
 
-#: emoji_connoisseur/extensions/emote.py:438
+#: emoji_connoisseur/extensions/emote.py:435
 msgid "You have not created any emotes yet."
 msgstr "Még nem hoztál létre egyetlen hangulatjelet sem."
 
-#: emoji_connoisseur/extensions/emote.py:440
+#: emoji_connoisseur/extensions/emote.py:437
 msgid "That person has not created any emotes yet."
 msgstr "Ez a személy még nem hozott létre egyetlen hangulatjelet sem."
 
-#: emoji_connoisseur/extensions/emote.py:447
+#: emoji_connoisseur/extensions/emote.py:444
 #, python-brace-format
 msgid "Also check out the list website at {website}."
 msgstr "Ne felejtsd el megtekinteni a listázó weboldalt: {website}."
 
-#: emoji_connoisseur/extensions/emote.py:462
+#: emoji_connoisseur/extensions/emote.py:459
 msgid "No results matched your query."
 msgstr "Egyetlen találat sincs a keresésre."
 
-#: emoji_connoisseur/extensions/emote.py:502
+#: emoji_connoisseur/extensions/emote.py:499
 msgid "You need to provide one or more custom emotes."
 msgstr "Meg kell adnod egy, vagy több egyedi hangulatjelet."
 
-#: emoji_connoisseur/extensions/emote.py:513
+#: emoji_connoisseur/extensions/emote.py:510
 msgid "Error: no existing custom emotes were provided."
 msgstr "Hiba: egyetlen, már létező egyedi hangulatjel sem lett megadva."
 
-#: emoji_connoisseur/extensions/emote.py:529
+#: emoji_connoisseur/extensions/emote.py:526
 msgid "Logger cog not loaded."
 msgstr "A logolásért felelős cog nincs betöltve."
 
-#: emoji_connoisseur/extensions/emote.py:534
+#: emoji_connoisseur/extensions/emote.py:531
 #: emoji_connoisseur/utils/converter.py:54
 msgid "Message not found."
 msgstr "Az üzenet nem létezik."
 
-#: emoji_connoisseur/extensions/emote.py:539
+#: emoji_connoisseur/extensions/emote.py:536
 msgid "No embeds were found in that message."
 msgstr "Egyetlen beágyazott rész sincs ebben az üzenetben."
 
-#: emoji_connoisseur/extensions/emote.py:544
+#: emoji_connoisseur/extensions/emote.py:541
 msgid "No description was found in that embed."
 msgstr "Nincs leírása a beágyazott üzenetnek."
 
-#: emoji_connoisseur/extensions/emote.py:550
+#: emoji_connoisseur/extensions/emote.py:547
 msgid "No custom emotes were found in that embed's description."
 msgstr ""
 "Egyetlen egyedi hangulatjelet sem sikerült találni a beágyazott üzenet "
 "leírásában."
 
-#: emoji_connoisseur/extensions/emote.py:555
+#: emoji_connoisseur/extensions/emote.py:552
 msgid "No author IDs were found in that embed."
 msgstr "Egyetlen birtokos azonosítója sem szerepel a beágyazott üzenetben."
 
-#: emoji_connoisseur/extensions/emote.py:571
+#: emoji_connoisseur/extensions/emote.py:568
 msgid "Opted in to the emote auto response."
 msgstr "A hangulatjelekre automatikus válaszolás bekapcsolva."
 
-#: emoji_connoisseur/extensions/emote.py:573
+#: emoji_connoisseur/extensions/emote.py:570
 msgid "Opted out of the emote auto response."
 msgstr "A hangulatjelekre automatikus válaszolás kikapcsolva."
 
-#: emoji_connoisseur/extensions/emote.py:608
+#: emoji_connoisseur/extensions/emote.py:605
 msgid "User un-blacklisted."
 msgstr "Felhasználó felszabadítva a feketelistáról."
 
-#: emoji_connoisseur/extensions/emote.py:610
+#: emoji_connoisseur/extensions/emote.py:607
 #, python-brace-format
 msgid "User blacklisted with reason `{reason}`."
 msgstr "Felhasználó feketelistázva a következő indokkal: `{reason}`."
