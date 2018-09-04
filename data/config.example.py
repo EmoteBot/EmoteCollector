@@ -15,7 +15,6 @@
 	# related to your instance of https://github.com/EmojiConnoisseur/website
 	# if this dict is left empty, the API related commands will be disabled.
 	'api': {
-		'base_url': 'http://ec.localhost/api/v0',
 		'docs_url': 'https://emoji-connoisseur.python-for.life/api/v0/docs',
 	},
 
