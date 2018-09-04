@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-09-04 06:47+0000\n"
+"POT-Creation-Date: 2018-09-04 19:13+0000\n"
 "PO-Revision-Date: 2018-08-13 17:05-0500\n"
 "Last-Translator: diniboy <diniboy@protonmail.com>\n"
 "Language-Team: Hungarian\n"
@@ -355,6 +355,22 @@ msgstr "URL hiba: A szerver a következő hibakóddal válaszolt: {status}"
 msgid "The image supplied was not a GIF, PNG, or JPG."
 msgstr "A hozzáadni kívánt kép nem GIF, PNG vagy JPG."
 
+
+#: emoji_connoisseur/utils/errors.py:33
+#, python-brace-format
+msgid "An emote called `{name}` already exists in my database."
+msgstr "Egy hangulatjel `{name}` már létezik az adatbázisomban."
+
+#: emoji_connoisseur/utils/errors.py:38
+#, python-brace-format
+msgid "An emote called `{name}` does not exist in my database."
+msgstr "`{name}` névre hallgató hangulatjel még nem létezik az adatbázisomban."
+
+#: emoji_connoisseur/utils/errors.py:43
+#, python-brace-format
+msgid "You're not authorized to modify `{name}`."
+msgstr "Nincs engedélyed a `{name}` módosításához."
+
 #: emoji_connoisseur/utils/errors.py:51
 #, python-brace-format
 msgid "That description is too long. The limit is {limit}"
@@ -527,16 +543,3 @@ msgstr ""
 "Tehát ebben az esetben használhatsz több paramétert is.\n"
 "Most hogy tudod az alapokat, érdemes még megjegyezni...\n"
 "__**A zárójelek kirakása nem szükséges!**__"
-
-# these messages were undetected by xgettext and so must be catted to messages.pot manually
-#, python-brace-format
-msgid "An emote called `{name}` already exists in my database."
-msgstr "Egy hangulatjel `{name}` már létezik az adatbázisomban."
-
-#, python-brace-format
-msgid "An emote called `{name}` does not exist in my database."
-msgstr "`{name}` névre hallgató hangulatjel még nem létezik az adatbázisomban."
-
-#, python-brace-format
-msgid "You're not authorized to modify `{name}`."
-msgstr "Nincs engedélyed a `{name}` módosításához."

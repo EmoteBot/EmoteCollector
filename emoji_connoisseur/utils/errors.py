@@ -25,22 +25,22 @@ class EmoteError(ConnoisseurError):
 	"""Abstract error while trying to modify an emote"""
 	def __init__(self, message, name):
 		self.name = name
-		super().__init__(_(message).format(name=self.name))
+		super().__init__(message.format(name=self.name))
 
 class EmoteExistsError(EmoteError):
 	"""An emote with that name already exists"""
 	def __init__(self, name):
-		super().__init__('An emote called `{name}` already exists in my database.', name)
+		super().__init__(_('An emote called `{name}` already exists in my database.'), name)
 
 class EmoteNotFoundError(EmoteError):
 	"""An emote with that name was not found"""
 	def __init__(self, name):
-		super().__init__('An emote called `{name}` does not exist in my database.', name)
+		super().__init__(_('An emote called `{name}` does not exist in my database.'), name)
 
 class PermissionDeniedError(EmoteError):
 	"""Raised when a user tries to modify an emote they don't own"""
 	def __init__(self, name):
-		super().__init__("You're not authorized to modify `{name}`.", name)
+		super().__init__(_("You're not authorized to modify `{name}`."), name)
 
 class EmoteDescriptionTooLongError(EmoteError):
 	"""Raised when a user tries to set a description that's too long"""

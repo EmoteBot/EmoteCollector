@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-09-04 06:43+0000\n"
+"POT-Creation-Date: 2018-09-04 19:13+0000\n"
 "PO-Revision-Date: 2018-08-13 16:27-0500\n"
 "Last-Translator: Benjamin <bmintz@protonmail.com>\n"
 "Language-Team: English\n"
@@ -159,7 +159,7 @@ msgid "Unable to react: no permission to add reactions."
 msgstr "Who the fuck denied me permissions to react to that message?"
 
 #: emoji_connoisseur/extensions/emote.py:425
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "{emote} (Preserved) — owned by {author}"
 msgstr ""
 
@@ -351,6 +351,21 @@ msgstr ""
 "Do I look like I know what a JPG is? I just want a picture of a god-dang hot "
 "dog!"
 
+#: emoji_connoisseur/utils/errors.py:33
+#, python-brace-format
+msgid "An emote called `{name}` already exists in my database."
+msgstr "Somebody beat you to it. An emote called `{name}` already exists."
+
+#: emoji_connoisseur/utils/errors.py:38
+#, python-brace-format
+msgid "An emote called `{name}` does not exist in my database."
+msgstr "Do I look like I know which emote `:{name}:` is??"
+
+#: emoji_connoisseur/utils/errors.py:43
+#, python-brace-format
+msgid "You're not authorized to modify `{name}`."
+msgstr "The emote called `{name}` isn't yours, dumbass."
+
 #: emoji_connoisseur/utils/errors.py:51
 #, python-brace-format
 msgid "That description is too long. The limit is {limit}"
@@ -514,15 +529,3 @@ msgstr ""
 "This means you can have multiple arguments.\n"
 "Now that you know the basics, it should be noted that...\n"
 "__**You do not type in the brackets!**__"
-
-#, python-brace-format
-msgid "An emote called `{name}` already exists in my database."
-msgstr "Somebody beat you to it. An emote called `{name}` already exists."
-
-#, python-brace-format
-msgid "An emote called `{name}` does not exist in my database."
-msgstr "Do I look like I know which emote `:{name}:` is??"
-
-#, python-brace-format
-msgid "You're not authorized to modify `{name}`."
-msgstr "The emote called `{name}` isn't yours, dumbass."

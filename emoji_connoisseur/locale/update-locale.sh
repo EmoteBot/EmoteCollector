@@ -1,7 +1,6 @@
 #!/usr/bin/env sh
 
-xgettext --files-from POTFILES.in --directory .. --output messages.pot --from-code utf-8
-cat messages.pot undetected-messages.pot | sponge messages.pot
+xgettext --files-from POTFILES.in --directory ../../ --output messages.pot --from-code utf-8
 
 locale_dirs() {
 	for locale in */; do

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-09-04 06:43+0000\n"
+"POT-Creation-Date: 2018-09-04 19:13+0000\n"
 "PO-Revision-Date: 2018-08-13 17:05-0500\n"
 "Last-Translator: Benjamin <bmintz@protonmail.com>\n"
 "Language-Team: English\n"
@@ -155,7 +155,7 @@ msgid "Unable to react: no permission to add reactions."
 msgstr "Unable to react: no permission to add reactions."
 
 #: emoji_connoisseur/extensions/emote.py:425
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "{emote} (Preserved) — owned by {author}"
 msgstr ""
 
@@ -342,6 +342,22 @@ msgstr "URL error: server returned error code {status}"
 msgid "The image supplied was not a GIF, PNG, or JPG."
 msgstr "The image supplied was not a GIF, PNG, or JPG."
 
+
+#: emoji_connoisseur/utils/errors.py:33
+#, python-brace-format
+msgid "An emote called `{name}` already exists in my database."
+msgstr ""
+
+#: emoji_connoisseur/utils/errors.py:38
+#, python-brace-format
+msgid "An emote called `{name}` does not exist in my database."
+msgstr ""
+
+#: emoji_connoisseur/utils/errors.py:43
+#, python-brace-format
+msgid "You're not authorized to modify `{name}`."
+msgstr ""
+
 #: emoji_connoisseur/utils/errors.py:51
 #, python-brace-format
 msgid "That description is too long. The limit is {limit}"
@@ -505,16 +521,3 @@ msgstr ""
 "This means you can have multiple arguments.\n"
 "Now that you know the basics, it should be noted that...\n"
 "__**You do not type in the brackets!**__"
-
-# these messages were undetected by xgettext and so must be catted to messages.pot manually
-#, python-brace-format
-msgid "An emote called `{name}` already exists in my database."
-msgstr ""
-
-#, python-brace-format
-msgid "An emote called `{name}` does not exist in my database."
-msgstr ""
-
-#, python-brace-format
-msgid "You're not authorized to modify `{name}`."
-msgstr ""

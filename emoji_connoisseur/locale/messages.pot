@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-09-04 06:47+0000\n"
+"POT-Creation-Date: 2018-09-04 19:13+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -330,6 +330,21 @@ msgstr ""
 msgid "The image supplied was not a GIF, PNG, or JPG."
 msgstr ""
 
+#: emoji_connoisseur/utils/errors.py:33
+#, python-brace-format
+msgid "An emote called `{name}` already exists in my database."
+msgstr ""
+
+#: emoji_connoisseur/utils/errors.py:38
+#, python-brace-format
+msgid "An emote called `{name}` does not exist in my database."
+msgstr ""
+
+#: emoji_connoisseur/utils/errors.py:43
+#, python-brace-format
+msgid "You're not authorized to modify `{name}`."
+msgstr ""
+
 #: emoji_connoisseur/utils/errors.py:51
 #, python-brace-format
 msgid "That description is too long. The limit is {limit}"
@@ -487,18 +502,4 @@ msgid ""
 "This means you can have multiple arguments.\n"
 "Now that you know the basics, it should be noted that...\n"
 "__**You do not type in the brackets!**__"
-msgstr ""
-
-# these messages were undetected by xgettext and so must be catted to messages.pot manually
-
-#, python-brace-format
-msgid "An emote called `{name}` already exists in my database."
-msgstr ""
-
-#, python-brace-format
-msgid "An emote called `{name}` does not exist in my database."
-msgstr ""
-
-#, python-brace-format
-msgid "You're not authorized to modify `{name}`."
 msgstr ""
