@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-09-03 01:33+0000\n"
+"POT-Creation-Date: 2018-09-04 06:47+0000\n"
 "PO-Revision-Date: 2018-08-13 17:05-0500\n"
 "Last-Translator: diniboy <diniboy@protonmail.com>\n"
 "Language-Team: Hungarian\n"
@@ -158,13 +158,13 @@ msgstr "A reakció sikertelen: nincs jogom reakciók hozzáadására."
 
 #: emoji_connoisseur/extensions/emote.py:425
 #, python-brace-format
-msgid "{emote} (Preserved) — owned by **{author}**"
+msgid "{emote} (Preserved) — owned by {author}"
 msgstr ""
 
 #: emoji_connoisseur/extensions/emote.py:430
 #, python-brace-format
-msgid "{emote} — owned by **{author}**"
-msgstr ""
+msgid "{emote} — owned by {author}"
+msgstr "{emote} (Tartós)"
 
 #: emoji_connoisseur/extensions/emote.py:434
 #: emoji_connoisseur/extensions/emote.py:491
@@ -236,8 +236,8 @@ msgid "User un-blacklisted."
 msgstr "Felhasználó felszabadítva a feketelistáról."
 
 #: emoji_connoisseur/extensions/emote.py:610
-#, python-brace-format
-msgid "User blacklisted with reason `{reason}`."
+#, fuzzy, python-brace-format
+msgid "User blacklisted with reason \"{reason}\"."
 msgstr "Felhasználó feketelistázva a következő indokkal: `{reason}`."
 
 #: emoji_connoisseur/extensions/gimme.py:30

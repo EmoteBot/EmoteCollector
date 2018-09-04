@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-09-03 01:32+0000\n"
+"POT-Creation-Date: 2018-09-04 06:43+0000\n"
 "PO-Revision-Date: 2018-08-13 17:05-0500\n"
 "Last-Translator: Benjamin <bmintz@protonmail.com>\n"
 "Language-Team: English\n"
@@ -155,13 +155,13 @@ msgid "Unable to react: no permission to add reactions."
 msgstr "Unable to react: no permission to add reactions."
 
 #: emoji_connoisseur/extensions/emote.py:425
-#, python-brace-format
-msgid "{emote} (Preserved) — owned by **{author}**"
+#, fuzzy, python-brace-format
+msgid "{emote} (Preserved) — owned by {author}"
 msgstr ""
 
 #: emoji_connoisseur/extensions/emote.py:430
 #, python-brace-format
-msgid "{emote} — owned by **{author}**"
+msgid "{emote} — owned by {author}"
 msgstr ""
 
 #: emoji_connoisseur/extensions/emote.py:434
@@ -232,9 +232,9 @@ msgid "User un-blacklisted."
 msgstr "User un-blacklisted."
 
 #: emoji_connoisseur/extensions/emote.py:610
-#, python-brace-format
-msgid "User blacklisted with reason `{reason}`."
-msgstr "User blacklisted with reason `{reason}`."
+#, fuzzy, python-brace-format
+msgid "User blacklisted with reason \"{reason}\"."
+msgstr "User blacklisted with reason \"{reason}\"."
 
 #: emoji_connoisseur/extensions/gimme.py:30
 #, python-brace-format
@@ -507,7 +507,6 @@ msgstr ""
 "__**You do not type in the brackets!**__"
 
 # these messages were undetected by xgettext and so must be catted to messages.pot manually
-
 #, python-brace-format
 msgid "An emote called `{name}` already exists in my database."
 msgstr ""

@@ -422,12 +422,12 @@ class Emotes:
 
 			if emote.preserve:
 				processed.append(
-					_('{emote} (Preserved) — owned by **{author}**').format(
+					_('{emote} (Preserved) — owned by {author}').format(
 						emote=emote.with_name(),
 						author=author))
 			else:
 				processed.append(
-					_('{emote} — owned by **{author}**').format(emote=emote.with_name(), author=author))
+					_('{emote} — owned by {author}').format(emote=emote.with_name(), author=author))
 
 		if not processed:
 			if not user:
@@ -484,8 +484,8 @@ class Emotes:
 			# TODO internationalize this (needs plural support)
 			processed.append(
 				f'{emote.with_name()} '
-				f'— used **{c}** time{multiple} '
-				f'— owned by **{author}**')  # note: these are em dashes, not hyphens!
+				f'— used {c} time{multiple} '
+				f'— owned by {author}')  # note: these are em dashes, not hyphens!
 
 		if not processed:
 			return await context.send(_('No emotes have been created yet. Be the first!'))
@@ -607,7 +607,7 @@ class Emotes:
 		if reason is None:
 			await context.send(_('User un-blacklisted.'))
 		else:
-			await context.send(_('User blacklisted with reason `{reason}`.').format(**locals()))
+			await context.send(_('User blacklisted with reason "{reason}".').format(**locals()))
 
 	@commands.command(hidden=True)
 	@commands.is_owner()

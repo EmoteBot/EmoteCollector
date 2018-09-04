@@ -12,7 +12,6 @@ locale_dirs() {
 for locale in */; do
 	msgmerge \
 		--update \
-		--no-fuzzy-matching \
 		--backup off \
 		"${locale}LC_MESSAGES/emoji_connoisseur.po" \
 		messages.pot

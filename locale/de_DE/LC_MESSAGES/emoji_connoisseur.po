@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-09-03 01:32+0000\n"
+"POT-Creation-Date: 2018-09-04 06:43+0000\n"
 "PO-Revision-Date: 2018-08-18 18:53-0500\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -162,14 +162,14 @@ msgid "Unable to react: no permission to add reactions."
 msgstr "Unfähig zu reagieren: keine Erlaubnis, Reaktionen hinzuzufügen."
 
 #: emoji_connoisseur/extensions/emote.py:425
-#, python-brace-format
-msgid "{emote} (Preserved) — owned by **{author}**"
-msgstr ""
+#, fuzzy, python-brace-format
+msgid "{emote} (Preserved) — owned by {author}"
+msgstr "{emote} — gehört zu {author}"
 
 #: emoji_connoisseur/extensions/emote.py:430
-#, python-brace-format
-msgid "{emote} — owned by **{author}**"
-msgstr "{emote} — gehört zu **{author}**"
+#, fuzzy, python-brace-format
+msgid "{emote} — owned by {author}"
+msgstr "{emote} — gehört zu {author}"
 
 #: emoji_connoisseur/extensions/emote.py:434
 #: emoji_connoisseur/extensions/emote.py:491
@@ -243,10 +243,10 @@ msgid "User un-blacklisted."
 msgstr "Benutzer wurde von der Blacklist entfernt."
 
 #: emoji_connoisseur/extensions/emote.py:610
-#, python-brace-format
-msgid "User blacklisted with reason `{reason}`."
+#, fuzzy, python-brace-format
+msgid "User blacklisted with reason \"{reason}\"."
 msgstr ""
-"Der Nutzer wurde mit der Begründung `{reason}` auf die schwarze Liste "
+"Der Nutzer wurde mit der Begründung \"{reason}\" auf die schwarze Liste "
 "gesetzt."
 
 #: emoji_connoisseur/extensions/gimme.py:30
@@ -516,7 +516,6 @@ msgid ""
 msgstr ""
 
 # these messages were undetected by xgettext and so must be catted to messages.pot manually
-
 #, python-brace-format
 msgid "An emote called `{name}` already exists in my database."
 msgstr ""
