@@ -50,7 +50,7 @@ class Pages:
 	text_message: Optional[str]
 		What to display above the embed.
 	"""
-	def __init__(self, ctx, *, entries, per_page=10, show_entry_count=True, timeout=120.0,
+	def __init__(self, ctx, *, entries, per_page=7, show_entry_count=True, timeout=120.0,
 		delete_message=True, delete_message_on_timeout=False,
 	):
 		self.bot = ctx.bot
