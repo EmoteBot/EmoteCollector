@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-from ben_cogs.stats import Stats
+from ben_cogs.stats import Stats, setup
 
 
 class Stats(Stats):
@@ -13,7 +13,3 @@ class Stats(Stats):
 
 	async def guild_count(self):
 		return await super().guild_count() - self.backend_guilds
-
-
-def setup(bot):
-	bot.add_cog(Stats(bot))
