@@ -39,6 +39,8 @@ class EmojiConnoisseur(commands.AutoShardedBot):
 		if self.config.get('primary_owner'):
 			self.owners.add(self.config['primary_owner'])
 
+		self.config['copyright_license_file'] = os.path.join(BASE_DIR, self.config['copyright_license_file'])
+
 		self.db_ready = asyncio.Event()
 
 		super().__init__(
