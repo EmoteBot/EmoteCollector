@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # encoding: utf-8
 
+import os.path
+
 import setuptools
 import subprocess
 
@@ -11,7 +13,15 @@ setuptools.setup(
 	name='emoji_connoisseur',
 	version='0.0.1',
 
-	packages=['emoji_connoisseur'],
+	packages=[
+		'emoji_connoisseur',
+		'emoji_connoisseur.utils',
+		'emoji_connoisseur.extensions',
+	],
+
+
+	# include stuff in MANIFEST.in (i think)
+	include_package_data=True,
 
 	install_requires=[
 		'aiocache',

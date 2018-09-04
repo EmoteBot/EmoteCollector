@@ -21,7 +21,7 @@ else:
 	asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
 # set BASE_DIR before importing utils because utils.i18n depends on it
-BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+BASE_DIR = os.path.dirname(__file__)
 
 from . import utils
 from . import extensions

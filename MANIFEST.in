@@ -1,8 +1,13 @@
-INSTALLATION.md
-LICENSE.md
-README.md
-data/avatar.png
-data/config.example.py
-data/memes.example.py
-data/schema.sql
-locale/
+prune *.egg-info
+
+include requirements.txt
+
+include emoji_connoisseur/data/avatar.png
+include emoji_connoisseur/data/memes.example.py
+include emoji_connoisseur/data/config.example.py
+include emoji_connoisseur/data/schema.sql
+include emoji_connoisseur/data/short-license.txt
+include emoji_connoisseur/locale/*
+
+
+
