@@ -176,7 +176,7 @@ class Database:
 				COUNT(*) FILTER (WHERE NOT animated) AS static,
 				COUNT(*) FILTER (WHERE animated) AS animated,
 				COUNT(*) AS total
-			FROM emote;""")
+			FROM emotes;""")
 
 	def capacity(self):
 		"""return a three-tuple of static capacity, animated, total"""
@@ -188,7 +188,7 @@ class Database:
 		# that we don't want
 		# probably LOWER(name) = $1, name.lower() would also work, but this looks cleaner
 		# and keeps the lowercasing behavior consistent
-		result = await self._pool.fetchrow('SELECT * FROM emote WHERE LOWER(name) = LOWER($1)', name)
+		result = await self._pool.fetchrow('SELECT * FROM emotes WHERE LOWER(name) = LOWER($1)', name)
 		if result:
 			return DatabaseEmote(result)
 		else:
@@ -205,7 +205,7 @@ class Database:
 	def all_emotes(self, author_id=None):
 		"""return an async iterator that gets emotes from the database.
 		If author id is provided, get only emotes from them."""
-		query = 'SELECT * FROM emote '
+		query = 'SELECT * FROM emotes '
 		args = []
 		if author_id is not None:
 			query += 'WHERE author = $1 '
@@ -220,10 +220,10 @@ class Database:
 			SELECT *, (
 				SELECT COUNT(*)
 				FROM emote_usage_history
-				WHERE id = emote.id
+				WHERE id = emotes.id
 				AND time > (CURRENT_TIMESTAMP - INTERVAL '4 weeks')
 			) AS usage
-			FROM emote
+			FROM emotes
 			ORDER BY usage DESC, LOWER("name")
 		"""
 		return self._database_emote_cursor(query)
@@ -233,7 +233,7 @@ class Database:
 
 		query = """
 			SELECT *
-			FROM emote
+			FROM emotes
 			WHERE str_contains(LOWER($1), LOWER(name))
 			ORDER BY LOWER(name) ASC
 		"""
@@ -254,12 +254,12 @@ class Database:
 
 		return self._database_emote_cursor("""
 			SELECT *
-			FROM emote
+			FROM emotes
 			WHERE (
 				SELECT COUNT(*)
 				FROM emote_usage_history
 				WHERE
-					id = emote.id
+					id = emotes.id
 					AND time > $1
 			) < $2
 			AND NOT preserve
@@ -324,7 +324,7 @@ class Database:
 		image = discord.utils._bytes_to_base64_data(image_data)
 		emote_data = await self.bot.http.create_custom_emoji(guild_id=guild_id, name=name, image=image)
 		return DatabaseEmote(await self._pool.fetchrow("""
-			INSERT INTO emote(name, id, author, animated, guild)
+			INSERT INTO emotes(name, id, author, animated, guild)
 			VALUES ($1, $2, $3, $4, $5)
 			RETURNING *""", name, int(emote_data['id']), author_id, animated, guild_id))
 
@@ -342,7 +342,7 @@ class Database:
 		await self.owner_check(emote, user_id)
 
 		await self.bot.http.delete_custom_emoji(emote.guild, emote.id)
-		await self._pool.execute('DELETE FROM emote WHERE id = $1', emote.id)
+		await self._pool.execute('DELETE FROM emotes WHERE id = $1', emote.id)
 		return emote
 
 	async def rename_emote(self, old_name, new_name, user_id):
@@ -357,7 +357,7 @@ class Database:
 
 		await self.bot.http.edit_custom_emoji(emote.guild, emote.id, name=new_name)
 		return DatabaseEmote(await self._pool.fetchrow("""
-			UPDATE emote
+			UPDATE emotes
 			SET name = $2
 			WHERE id = $1
 			RETURNING *""", emote.id, new_name))
@@ -415,7 +415,7 @@ class Database:
 			WHERE NOT EXISTS (
 				-- restrict emote logging to non-owners
 				-- this should reduce some spam and stats-inflation
-				SELECT * FROM emote WHERE id = $1 AND author = $2)""",
+				SELECT * FROM emotes WHERE id = $1 AND author = $2)""",
 			emote_id, user_id)
 
 	async def decay(self, cutoff=None, usage_threshold=2):

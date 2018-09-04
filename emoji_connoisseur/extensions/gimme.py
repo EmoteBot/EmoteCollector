@@ -61,7 +61,7 @@ class Gimme:
 
 			await guild.create_text_channel(name='just-created-so-i-can-invite-you')
 
-		logger.info('all backend guilds cleared')
+		logger.info('all backend guild text channels have been cleared')
 
 def setup(bot):
 	bot.add_cog(Gimme(bot))

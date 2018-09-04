@@ -85,7 +85,7 @@ class API:
 	async def existing_token(self, user_id):
 		secret = await self._pool.fetchval("""
 			SELECT secret
-			FROM api_token
+			FROM api_tokens
 			WHERE id = $1
 		""", user_id)
 		if secret:
@@ -94,13 +94,13 @@ class API:
 	async def new_token(self, user_id):
 		secret = secrets.token_bytes()
 		await self._pool.execute("""
-			INSERT INTO api_token (id, secret)
+			INSERT INTO api_tokens (id, secret)
 			VALUES ($1, $2)
 		""", user_id, secret)
 		return self.encode_token(user_id, secret)
 
 	async def regenerate_token(self, user_id):
-		await self._pool.execute('DELETE FROM api_token WHERE id = $1', user_id)
+		await self._pool.execute('DELETE FROM api_tokens WHERE id = $1', user_id)
 		return await self.new_token(user_id)
 
 	async def validate_token(self, token, user_id=None):
@@ -116,7 +116,7 @@ class API:
 
 		db_secret = await self._pool.fetchval("""
 			SELECT secret
-			FROM api_token
+			FROM api_tokens
 			WHERE id = $1
 		""", user_id)
 		if db_secret is None:

@@ -1,6 +1,8 @@
 SET TIME ZONE UTC;
 
-CREATE TABLE IF NOT EXISTS emote(
+ALTER TABLE IF EXISTS emote RENAME TO emotes;
+
+CREATE TABLE IF NOT EXISTS emotes(
 	name VARCHAR(32) NOT NULL,
 	id BIGINT NOT NULL UNIQUE,
 	author BIGINT NOT NULL,
@@ -11,15 +13,15 @@ CREATE TABLE IF NOT EXISTS emote(
 	preserve BOOLEAN DEFAULT FALSE,
 	guild BIGINT NOT NULL);
 
-CREATE UNIQUE INDEX IF NOT EXISTS emote_lower_idx ON emote (LOWER(name));
-CREATE INDEX IF NOT EXISTS emote_author_idx ON emote (author);
+CREATE UNIQUE INDEX IF NOT EXISTS emotes_lower_idx ON emotes (LOWER(name));
+CREATE INDEX IF NOT EXISTS emote_author_idx ON emotes (author);
 
 CREATE TABLE IF NOT EXISTS _guilds(
 	id BIGINT NOT NULL UNIQUE PRIMARY KEY);
 
-ALTER TABLE emote
-	DROP CONSTRAINT IF EXISTS emote_guild_fkey,
-	ADD CONSTRAINT emote_guild_fkey FOREIGN KEY (guild)
+ALTER TABLE emotes
+	DROP CONSTRAINT IF EXISTS emotes_guild_fkey,
+	ADD CONSTRAINT emotes_guild_fkey FOREIGN KEY (guild)
 		REFERENCES _guilds (id) ON DELETE CASCADE;
 
 CREATE OR REPLACE VIEW guilds AS
@@ -30,7 +32,7 @@ CREATE OR REPLACE VIEW guilds AS
 	COUNT(e.guild) FILTER (WHERE e.animated) AS animated_usage
 	FROM _guilds AS g
 	LEFT JOIN
-		emote AS e
+		emotes AS e
 		ON e.guild = g.id
 	GROUP BY g.id;
 
@@ -45,10 +47,10 @@ BEGIN
 		RETURN OLD; END IF; END;
 $$ LANGUAGE plpgsql;
 
-DROP TRIGGER IF EXISTS update_emote_modtime ON emote;
+DROP TRIGGER IF EXISTS update_emote_modtime ON emotes;
 
 CREATE TRIGGER update_emote_modtime
-BEFORE UPDATE ON emote
+BEFORE UPDATE ON emotes
 FOR EACH ROW EXECUTE PROCEDURE update_modified_column();
 
 DROP TABLE IF EXISTS blacklists;
@@ -72,15 +74,17 @@ CREATE INDEX IF NOT EXISTS emote_usage_history_id_idx ON emote_usage_history (id
 ALTER TABLE emote_usage_history
 	DROP CONSTRAINT IF EXISTS emote_usage_history_id_fkey,
 	ADD CONSTRAINT emote_usage_history_id_fkey FOREIGN KEY (id)
-		REFERENCES emote (id) ON DELETE CASCADE;
+		REFERENCES emotes (id) ON DELETE CASCADE;
 
 CREATE INDEX IF NOT EXISTS emote_usage_history_time_idx ON emote_usage_history (time);
 
-CREATE TABLE IF NOT EXISTS api_token(
+ALTER TABLE IF EXISTS api_token RENAME TO api_tokens;
+
+CREATE TABLE IF NOT EXISTS api_tokens(
 	id BIGINT PRIMARY KEY NOT NULL UNIQUE,
 	secret BYTEA NOT NULL);
 
-CREATE INDEX IF NOT EXISTS api_token_secret_idx ON api_token (secret);
+CREATE INDEX IF NOT EXISTS api_token_secret_idx ON api_tokens (secret);
 
 CREATE TABLE IF NOT EXISTS locales(
 	guild BIGINT,
