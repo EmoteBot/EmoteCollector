@@ -107,26 +107,24 @@ class API:
 		try:
 			token_user_id, secret = self.decode_token(token)
 		except:
+			secrets.compare_digest(token, token)
 			return False
 
 		if user_id is None:
-			# allow auth with just a token...
+			# allow auth with just a secret
 			user_id = token_user_id
 
-		# ...but if a user id is provided, verify it
-		if token_user_id != user_id:
+		db_secret = await self._pool.fetchval("""
+			SELECT secret
+			FROM api_token
+			WHERE id = $1
+		""", user_id)
+		if db_secret is None:
+			secrets.compare_digest(token, token)
 			return False
 
-		if await self._pool.fetchval("""
-			SELECT COALESCE((
-				SELECT true
-				FROM api_token
-				WHERE id = $1 AND secret = $2),
-			false)
-		""", user_id, secret):
-			return user_id
-		else:
-			return False
+		db_token = self.encode_token(user_id, db_secret)
+		return secrets.compare_digest(token, db_token) and user_id
 
 	def generate_token(self, user_id):
 		secret = base64.b64encode(secrets.token_bytes())
