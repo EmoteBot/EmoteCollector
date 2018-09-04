@@ -472,10 +472,7 @@ class Emotes:
 		# https://gitlab.com/Pandentia/element-zero/blob/ca7d7f97e068e89334e66692922d9a8744e3e9be/element_zero/cogs/emoji.py#L364-399
 		processed = []
 
-		async for i, emote in utils.async_enumerate(self.db.popular_emotes()):
-			if i == 200:
-				break
-
+		async for i, emote in utils.async_enumerate(self.db.popular_emotes(limit=200)):
 			author = utils.format_user(self.bot, emote.author, mention=True)
 
 			c = emote.usage

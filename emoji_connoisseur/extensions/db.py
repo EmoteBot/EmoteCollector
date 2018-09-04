@@ -214,7 +214,7 @@ class Database:
 
 		return self._database_emote_cursor(query, *args)
 
-	def popular_emotes(self):
+	def popular_emotes(self, *, limit=200):
 		"""return an async iterator that gets emotes from the db sorted by popularity"""
 		query = """
 			SELECT *, (
@@ -225,8 +225,9 @@ class Database:
 			) AS usage
 			FROM emotes
 			ORDER BY usage DESC, LOWER("name")
+			LIMIT $1
 		"""
-		return self._database_emote_cursor(query)
+		return self._database_emote_cursor(query, limit)
 
 	def search(self, substring):
 		"""return an async iterator that gets emotes from the db whose name contains `substring`."""
