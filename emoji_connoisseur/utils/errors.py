@@ -14,6 +14,7 @@ class BlacklistedError(ConnoisseurError):
 class HTTPException(ConnoisseurError):
 	"""The server did not respond with an OK status code."""
 	def __init__(self, status):
+		self.status = status
 		super().__init__(_('URL error: server returned error code {status}').format(**locals()))
 
 class InvalidImageError(ConnoisseurError):

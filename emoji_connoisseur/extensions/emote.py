@@ -2,6 +2,7 @@
 # encoding: utf-8
 
 import asyncio
+import collections
 import contextlib
 import io
 import logging
@@ -256,14 +257,16 @@ class Emotes:
 		"""Removes one or more emotes from the bot. You must own all of them."""
 		if not names:
 			return await context.send(_('Error: you must provide the name of at least one emote to remove'))
-		messages = []
+		messages = {}
 
 		async with context.typing():
 			for name in names:
+				arg = f'\\:{name}:'
+
 				try:
 					emote = await self.db.get_emote(name)
-				except errors.EmoteNotFoundError as ex:
-					messages.append(str(ex))
+				except BaseException as error:
+					messages.setdefault(self._humanize_errors(error), []).append(arg)
 					continue
 
 				# log the emote removal *first* because if we were to do it afterwards,
@@ -271,17 +274,18 @@ class Emotes:
 				removal_message = await self.logger.on_emote_remove(emote)
 				try:
 					await self.db.remove_emote(emote, context.author.id)
-				except (errors.ConnoisseurError, errors.DiscordError) as ex:
-					messages.append(str(ex))
+				except (errors.ConnoisseurError, errors.DiscordError) as error:
+					messages.setdefault(self._humanize_errors(error), []).append(arg)
 					# undo the log
 					with contextlib.suppress(AttributeError):
 						await removal_message.delete()
 				else:
-					messages.append(_('{escaped_emote_name} was successfully deleted.').format(
-						escaped_emote_name=emote.escaped_name()))
+					message = _('{emote_list} were successfully deleted.')
+					messages.setdefault((0, message), []).append(emote.escaped_name())
 
-		message = '\n'.join(messages)
-		await context.send(utils.fix_first_line(message))
+		messages = self._sort_errors(messages)
+		message = self._format_errors(messages)
+		await context.send(message)
 
 	@commands.command(aliases=['mv'])
 	async def rename(self, context, *args):
@@ -495,22 +499,65 @@ class Emotes:
 	@checks.not_blacklisted()
 	async def steal_these(self, context, *emotes):
 		"""Steal a bunch of custom emotes."""
-		if not emotes:
-			return await context.send(_('You need to provide one or more custom emotes.'))
 
-		messages = []
-		# we could use emotes: discord.PartialEmoji here but that would require spaces between each emote.
+		# format is: {(order, error_message_format_string): emotes_that_had_that_error}
+		# no error: key=None
+		# HTTP error: key=HTTP status code
+		messages = {}
+		# we could use *emotes: discord.PartialEmoji here but that would require spaces between each emote.
+		# and would fail if any arguments were not valid emotes
 		for match in re.finditer(utils.lexer.t_CUSTOM_EMOTE, ''.join(emotes)):
 			animated, name, id = match.groups()
 			image_url = utils.emote.url(id, animated=animated)
 			async with context.typing():
-				messages.append(await self.add_safe(name, image_url, context.author.id))
+				arg = f'\\:{name}:'
+
+				try:
+					emote = await self.add_from_url(name, image_url, context.author.id)
+				except BaseException as error:
+					messages.setdefault(self._humanize_errors(error), []).append(arg)
+				else:
+					messages.setdefault((0, _('{emote_list} were successfully created.')), []).append(str(emote))
 
 		if not messages:
 			return await context.send(_('Error: no existing custom emotes were provided.'))
 
-		message = '\n'.join(messages)
-		await context.send(utils.fix_first_line(message))
+		messages = self._sort_errors(messages)
+		message = self._format_errors(messages)
+		await context.send(message)
+
+	@staticmethod
+	def _humanize_errors(error=None):
+		if isinstance(error, errors.EmoteExistsError):
+			return 1, _('{emote_list} already exist.')
+		if isinstance(error, errors.EmoteNotFoundError):
+			return 1, _('Emotes named {emote_list} were not found in my database.')
+		if isinstance(error, (discord.HTTPException, errors.HTTPException)):
+			return 2, _('For {{emote_list}}, the server returned error code {error.status}.').format(error=error)
+		if isinstance(error, asyncio.TimeoutError):
+			return 3, _('{emote_list} took too long to retrieve or resize.')
+		if isinstance(error, errors.NoMoreSlotsError):
+			return 4, _('{emote_list} failed because I ran out of backend servers!')
+
+		# unhandled errors are still errors
+		raise error
+
+	@staticmethod
+	def _sort_errors(errors: collections.abc.Mapping):
+		# order by success first then errors
+		def sort_key(pair):
+			(sort_order, message), arguments = pair
+			return sort_order
+
+		return sorted(errors.items(), key=sort_key)
+
+	@staticmethod
+	def _format_errors(messages):
+		message = io.StringIO()
+		for (sort_order, message_type), arguments in messages:
+			arguments = ' '.join(arguments)
+			message.write(message_type.format(emote_list=arguments) + '\n')
+		return utils.fix_first_line(message.getvalue())
 
 	@commands.command(hidden=True)
 	@commands.is_owner()
