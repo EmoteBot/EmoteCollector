@@ -280,7 +280,7 @@ class Emotes:
 					with contextlib.suppress(AttributeError):
 						await removal_message.delete()
 				else:
-					message = _('**Successfully deleted.**')
+					message = _('**Successfully deleted:**')
 					messages.setdefault((0, message), []).append(emote.escaped_name())
 
 		messages = self._sort_errors(messages)

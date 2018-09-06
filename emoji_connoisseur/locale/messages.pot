@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-09-04 19:13+0000\n"
+"POT-Creation-Date: 2018-09-06 17:57+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -39,20 +39,20 @@ msgstr ""
 msgid "Error: I could not send you your token via DMs."
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:68
+#: emoji_connoisseur/extensions/emote.py:69
 #, python-brace-format
 msgid "{emote} (Preserved)"
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:77
+#: emoji_connoisseur/extensions/emote.py:78
 msgid "Created"
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:91
+#: emoji_connoisseur/extensions/emote.py:92
 msgid "Last modified"
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:106
+#: emoji_connoisseur/extensions/emote.py:107
 #, python-brace-format
 msgid ""
 "Static emotes: **{static} ⁄ {static_cap}**\n"
@@ -60,18 +60,18 @@ msgid ""
 "**Total: {total} ⁄ {total_cap}**"
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:124
+#: emoji_connoisseur/extensions/emote.py:125
 #, python-brace-format
 msgid "{context.author.mention} said:"
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:149
+#: emoji_connoisseur/extensions/emote.py:150
 msgid ""
 "Sorry, webhooks and bots may not add emotes. Go find a human to do it for "
 "you."
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:169
+#: emoji_connoisseur/extensions/emote.py:170
 msgid ""
 "Error: I expected a custom emote as the first argument, but I got something "
 "else. If you're trying to add an emote using an image URL, you need to "
@@ -79,152 +79,180 @@ msgid ""
 "`{}add NAME_HERE URL_HERE`"
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:191
+#: emoji_connoisseur/extensions/emote.py:192
 msgid "Your message had no emotes and no name!"
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:212
+#: emoji_connoisseur/extensions/emote.py:213
 msgid "An error occurred while creating the emote:\n"
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:215
+#: emoji_connoisseur/extensions/emote.py:216
 msgid "Error: retrieving the image or resizing the image took too long."
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:217
+#: emoji_connoisseur/extensions/emote.py:218
 msgid "Error: Invalid URL."
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:219
+#: emoji_connoisseur/extensions/emote.py:220
 #, python-brace-format
 msgid "Emote {emote} successfully created."
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:258
+#: emoji_connoisseur/extensions/emote.py:259
 msgid "Error: you must provide the name of at least one emote to remove"
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:280
-#, python-brace-format
-msgid "{escaped_emote_name} was successfully deleted."
+#: emoji_connoisseur/extensions/emote.py:283
+msgid "**Successfully deleted:**"
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:296
+#: emoji_connoisseur/extensions/emote.py:314
+msgid "**Successfully created:**"
+msgstr ""
+
+#: emoji_connoisseur/extensions/emote.py:317
+msgid "Error: no existing custom emotes were provided."
+msgstr ""
+
+#: emoji_connoisseur/extensions/emote.py:326
+msgid "**Already exists:**"
+msgstr ""
+
+#: emoji_connoisseur/extensions/emote.py:329
+msgid "**Not found:**"
+msgstr ""
+
+#: emoji_connoisseur/extensions/emote.py:331
+#, python-brace-format
+msgid "**Server returned error code {error.status}:**"
+msgstr ""
+
+#: emoji_connoisseur/extensions/emote.py:333
+msgid "**Took too long to retrieve or resize:**"
+msgstr ""
+
+#: emoji_connoisseur/extensions/emote.py:335
+msgid "**Failed because I ran out of backend servers:**"
+msgstr ""
+
+#: emoji_connoisseur/extensions/emote.py:368
 msgid "You must specify an old name and a new name."
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:302
+#: emoji_connoisseur/extensions/emote.py:374
 msgid "Error: you must provide a new name for the emote."
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:313
+#: emoji_connoisseur/extensions/emote.py:385
 msgid "Emote successfully renamed."
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:353
+#: emoji_connoisseur/extensions/emote.py:425
 msgid "You can already react to that message with that emote."
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:359
+#: emoji_connoisseur/extensions/emote.py:431
 msgid "Unable to react: permission denied."
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:361
+#: emoji_connoisseur/extensions/emote.py:433
 msgid "Unable to react. Discord must be acting up."
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:364
+#: emoji_connoisseur/extensions/emote.py:436
 msgid "OK! I've reacted to that message. Please add your reaction now."
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:401
+#: emoji_connoisseur/extensions/emote.py:473
 msgid "Unable to react: no permission to read message history."
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:404
+#: emoji_connoisseur/extensions/emote.py:476
 msgid "Unable to react: no permission to add reactions."
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:425
+#: emoji_connoisseur/extensions/emote.py:497
 #, python-brace-format
 msgid "{emote} (Preserved) — owned by {author}"
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:430
+#: emoji_connoisseur/extensions/emote.py:502
 #, python-brace-format
 msgid "{emote} — owned by {author}"
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:434
-#: emoji_connoisseur/extensions/emote.py:491
+#: emoji_connoisseur/extensions/emote.py:506
+#: emoji_connoisseur/extensions/emote.py:560
 msgid "No emotes have been created yet. Be the first!"
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:437
+#: emoji_connoisseur/extensions/emote.py:509
 msgid "You have not created any emotes yet."
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:439
+#: emoji_connoisseur/extensions/emote.py:511
 msgid "That person has not created any emotes yet."
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:446
+#: emoji_connoisseur/extensions/emote.py:518
 #, python-brace-format
 msgid "Also check out the list website at {website}."
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:461
+#: emoji_connoisseur/extensions/emote.py:533
 msgid "No results matched your query."
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:502
-msgid "You need to provide one or more custom emotes."
-msgstr ""
-
-#: emoji_connoisseur/extensions/emote.py:513
-msgid "Error: no existing custom emotes were provided."
-msgstr ""
-
-#: emoji_connoisseur/extensions/emote.py:529
+#: emoji_connoisseur/extensions/emote.py:577
 msgid "Logger cog not loaded."
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:534
+#: emoji_connoisseur/extensions/emote.py:582
 #: emoji_connoisseur/utils/converter.py:54
 msgid "Message not found."
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:539
+#: emoji_connoisseur/extensions/emote.py:587
 msgid "No embeds were found in that message."
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:544
+#: emoji_connoisseur/extensions/emote.py:592
 msgid "No description was found in that embed."
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:550
+#: emoji_connoisseur/extensions/emote.py:598
 msgid "No custom emotes were found in that embed's description."
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:555
+#: emoji_connoisseur/extensions/emote.py:603
 msgid "No author IDs were found in that embed."
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:571
+#: emoji_connoisseur/extensions/emote.py:619
 msgid "Opted in to the emote auto response."
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:573
+#: emoji_connoisseur/extensions/emote.py:621
 msgid "Opted out of the emote auto response."
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:608
+#: emoji_connoisseur/extensions/emote.py:656
 msgid "User un-blacklisted."
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:610
+#: emoji_connoisseur/extensions/emote.py:658
 #, python-brace-format
 msgid "User blacklisted with reason \"{reason}\"."
+msgstr ""
+
+#: emoji_connoisseur/extensions/emote.py:667
+msgid "**Succesfully preserved:**"
+msgstr ""
+
+#: emoji_connoisseur/extensions/emote.py:669
+msgid "**Succesfully un-preserved:**"
 msgstr ""
 
 #: emoji_connoisseur/extensions/gimme.py:30
@@ -241,50 +269,44 @@ msgstr ""
 msgid "Unable to send invite in DMs. Please allow DMs from server members."
 msgstr ""
 
-#: emoji_connoisseur/extensions/locale.py:43
+#: emoji_connoisseur/extensions/locale.py:41
 msgid "You can't get the server locale in DMs."
 msgstr ""
 
-#: emoji_connoisseur/extensions/locale.py:48
+#: emoji_connoisseur/extensions/locale.py:46
 #, python-brace-format
 msgid "The current locale for this server is: {guild_locale}"
 msgstr ""
 
-#: emoji_connoisseur/extensions/locale.py:56
+#: emoji_connoisseur/extensions/locale.py:54
 #, python-brace-format
 msgid "The current locale for that channel is: {channel_or_guild_locale}"
 msgstr ""
 
-#: emoji_connoisseur/extensions/locale.py:59
+#: emoji_connoisseur/extensions/locale.py:57
 msgid "You can only get your own locale."
 msgstr ""
 
-#: emoji_connoisseur/extensions/locale.py:61
+#: emoji_connoisseur/extensions/locale.py:59
 #, python-brace-format
 msgid "The current locale for that user is: {user_locale}"
 msgstr ""
 
-#: emoji_connoisseur/extensions/locale.py:73
+#: emoji_connoisseur/extensions/locale.py:71
 #, python-brace-format
 msgid "Invalid locale. The valid locales are: {locales}"
 msgstr ""
 
-#: emoji_connoisseur/extensions/locale.py:77
+#: emoji_connoisseur/extensions/locale.py:75
 msgid "Cannot set the server or channel locale in DMs."
 msgstr ""
 
-#: emoji_connoisseur/extensions/locale.py:89
+#: emoji_connoisseur/extensions/locale.py:87
 msgid "Cannot set the server locale in DMs."
 msgstr ""
 
-#: emoji_connoisseur/extensions/locale.py:97
+#: emoji_connoisseur/extensions/locale.py:95
 msgid "You cannot set the locale of another user."
-msgstr ""
-
-#: emoji_connoisseur/extensions/locale.py:101
-msgid ""
-"✅ Locale set. Note that it may take up to 20 seconds for your changes to "
-"take effect."
 msgstr ""
 
 #: emoji_connoisseur/extensions/meta.py:68
@@ -321,40 +343,40 @@ msgid ""
 "please join the support server with `{prefix}support`."
 msgstr ""
 
-#: emoji_connoisseur/utils/errors.py:17
+#: emoji_connoisseur/utils/errors.py:18
 #, python-brace-format
 msgid "URL error: server returned error code {status}"
 msgstr ""
 
-#: emoji_connoisseur/utils/errors.py:22
+#: emoji_connoisseur/utils/errors.py:23
 msgid "The image supplied was not a GIF, PNG, or JPG."
 msgstr ""
 
-#: emoji_connoisseur/utils/errors.py:33
+#: emoji_connoisseur/utils/errors.py:35
 #, python-brace-format
 msgid "An emote called `{name}` already exists in my database."
 msgstr ""
 
-#: emoji_connoisseur/utils/errors.py:38
+#: emoji_connoisseur/utils/errors.py:40
 #, python-brace-format
 msgid "An emote called `{name}` does not exist in my database."
 msgstr ""
 
-#: emoji_connoisseur/utils/errors.py:43
+#: emoji_connoisseur/utils/errors.py:45
 #, python-brace-format
 msgid "You're not authorized to modify `{name}`."
 msgstr ""
 
-#: emoji_connoisseur/utils/errors.py:51
+#: emoji_connoisseur/utils/errors.py:53
 #, python-brace-format
 msgid "That description is too long. The limit is {limit}"
 msgstr ""
 
-#: emoji_connoisseur/utils/errors.py:59
+#: emoji_connoisseur/utils/errors.py:61
 msgid "No more room to store emotes."
 msgstr ""
 
-#: emoji_connoisseur/utils/errors.py:64
+#: emoji_connoisseur/utils/errors.py:66
 msgid "Discord seems to be having issues right now, please try again later."
 msgstr ""
 
