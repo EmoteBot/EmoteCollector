@@ -397,7 +397,7 @@ class Emotes:
 		Currently, there's a limit of 500 characters.
 		"""
 		await self.db.set_emote_description(name, context.author.id, description)
-		await context.try_add_reaction(utils.SUCCESS_EMOTES[True])
+		await context.try_add_reaction(utils.SUCCESS_EMOJIS[True])
 
 	@commands.command()
 	@checks.not_blacklisted()

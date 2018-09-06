@@ -26,11 +26,6 @@ This is useful to test whether a number is a snowflake:
 if it's greater than this number, it probably is"""
 SMALLEST_SNOWFLAKE = 21154535154122752
 
-"""Emotes used to indicate success/failure. You can obtain these from the discordbots.org guild,
-but I uploaded them to my test server
-so that both the staging and the stable versions of the bot can use them"""
-SUCCESS_EMOTES = ('<:error:478164511879069707>', '<:success:478164452261363712>')
-
 class PrettyTable(PrettyTable):
 	"""an extension of PrettyTable that works with asyncpg's Records and looks better"""
 	def __init__(self, rows: Sequence[Union[asyncpg.Record, collections.OrderedDict]], **options):

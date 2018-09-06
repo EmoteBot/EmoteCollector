@@ -48,6 +48,10 @@ class EmojiConnoisseur(commands.AutoShardedBot):
 			*args, **kwargs)
 
 		utils.i18n.setup(self.loop)
+		self._setup_success_emojis()
+
+	def _setup_success_emojis(self):
+		utils.SUCCESS_EMOJIS = utils.misc.SUCCESS_EMOJIS = self.config.get('success_emojis', ('❌', '✅'))
 
 	async def get_prefix_(self, bot, message):
 		prefix = self.config['prefix']
@@ -118,7 +122,7 @@ class EmojiConnoisseur(commands.AutoShardedBot):
 		elif isinstance(error, commands.NotOwner):
 			logger.error('%s tried to run %s but is not the owner', context.author, context.command.name)
 			with contextlib.suppress(discord.HTTPException):
-				await context.message.add_reaction('❌')
+				await context.try_add_reaction(utils.SUCCESS_EMOJIS[False])
 		elif isinstance(error, (commands.UserInputError, commands.CheckFailure)):
 			await context.send(error)
 		elif isinstance(error, commands.CommandInvokeError):

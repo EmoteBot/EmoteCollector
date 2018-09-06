@@ -6,6 +6,7 @@ import typing
 import discord
 from discord.ext import commands
 
+from .. import utils
 from ..utils import i18n
 
 Location = typing.Union[discord.TextChannel, discord.Member]
@@ -95,7 +96,7 @@ class Locales:
 				return await context.send(_('You cannot set the locale of another user.'))
 			await self.set_user_locale(location.id, locale)
 
-		await context.try_add_reaction('✅')
+		await context.try_add_reaction(utils.SUCCESS_EMOJIS[True])
 
 	async def locale(self, message):
 		user = message.webhook_id or message.author.id

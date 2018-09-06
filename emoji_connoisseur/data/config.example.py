@@ -68,4 +68,7 @@
 		'stats': {  # keep these set to None unless your bot is listed on any of these sites
 			'bots.discord.pw': None,
 			'discordbots.org': None,
-			'botsfordiscord.com': None}}}
+			'botsfordiscord.com': None}}
+
+
+	'success_or_failure_emotes': {False: '❌', True: '✅'}}
