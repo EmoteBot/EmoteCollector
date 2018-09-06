@@ -105,7 +105,7 @@ class Database:
 				continue
 			emotes.append((db_emote.id, discord_emote.guild_id))
 
-		await self._pool.executemany('UPDATE emote SET guild = $2 WHERE id = $1', emotes)
+		await self._pool.executemany('UPDATE emotes SET guild = $2 WHERE id = $1', emotes)
 
 	async def decay_loop(self):
 		while True:
@@ -378,7 +378,7 @@ class Database:
 
 		try:
 			return DatabaseEmote(await self._pool.fetchrow("""
-				UPDATE emote
+				UPDATE emotes
 				SET DESCRIPTION = $2
 				WHERE id = $1
 				RETURNING *""",emote.id, description))
@@ -394,7 +394,7 @@ class Database:
 		if an emote is preserved, it should not be decayed due to lack of use
 		"""
 		emote = await self._pool.fetchrow("""
-			UPDATE emote
+			UPDATE emotes
 			SET preserve = $1
 			WHERE LOWER(name) = LOWER($2)
 			RETURNING *""", should_preserve, name)

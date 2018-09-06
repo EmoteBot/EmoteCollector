@@ -669,7 +669,8 @@ class Emotes:
 
 	## Events
 
-	async def on_command_error(self, context, error):
+	@staticmethod
+	async def on_command_error(context, error):
 		if isinstance(error, errors.ConnoisseurError):
 			await context.send(error)
 
@@ -717,7 +718,8 @@ class Emotes:
 
 		return True
 
-	def _can_use_external_emojis(self, message):
+	@staticmethod
+	def _can_use_external_emojis(message):
 		return (
 			message.guild
 			and message.guild.me
