@@ -659,7 +659,7 @@ class Emotes:
 
 	@commands.command(hidden=True)
 	@commands.is_owner()
-	async def preserve(self, context, should_preserve: bool, *names):
+	async def preserve(self, context, should_preserve: bool, *names: commands.clean_content):
 		"""Sets preservation status of emotes."""
 		names = set(names)
 		messages = {}
