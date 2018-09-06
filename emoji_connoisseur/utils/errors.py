@@ -30,8 +30,9 @@ class EmoteError(ConnoisseurError):
 
 class EmoteExistsError(EmoteError):
 	"""An emote with that name already exists"""
-	def __init__(self, name):
-		super().__init__(_('An emote called `{name}` already exists in my database.'), name)
+	def __init__(self, emote):
+		self.emote = emote
+		super().__init__(_('An emote called `{name}` already exists in my database.'), self.emote.name)
 
 class EmoteNotFoundError(EmoteError):
 	"""An emote with that name was not found"""

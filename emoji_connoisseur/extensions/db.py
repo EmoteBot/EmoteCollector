@@ -295,8 +295,7 @@ class Database:
 		except errors.EmoteNotFoundError:
 			pass
 		else:
-			# use the original capitalization of the name
-			raise errors.EmoteExistsError(emote.name)
+			raise errors.EmoteExistsError(emote)
 
 	async def is_owner(self, emote, user_id):
 		"""return whether the user has permissions to modify this emote"""
