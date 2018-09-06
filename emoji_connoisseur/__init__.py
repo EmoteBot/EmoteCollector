@@ -51,7 +51,8 @@ class EmojiConnoisseur(commands.AutoShardedBot):
 		self._setup_success_emojis()
 
 	def _setup_success_emojis(self):
-		utils.SUCCESS_EMOJIS = utils.misc.SUCCESS_EMOJIS = self.config.get('success_emojis', ('❌', '✅'))
+		utils.SUCCESS_EMOJIS = utils.misc.SUCCESS_EMOJIS = (
+			self.config.get('success_or_failure_emojis', ('❌', '✅')))
 
 	async def get_prefix_(self, bot, message):
 		prefix = self.config['prefix']

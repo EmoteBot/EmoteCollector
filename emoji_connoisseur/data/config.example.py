@@ -71,4 +71,4 @@
 			'botsfordiscord.com': None}}
 
 
-	'success_or_failure_emotes': {False: '❌', True: '✅'}}
+	'success_or_failure_emojis': {False: '❌', True: '✅'}}
