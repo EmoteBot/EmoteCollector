@@ -713,9 +713,6 @@ class Emotes:
 		if not await self.db.get_state(guild, message.author.id):
 			return False
 
-		if await self.db.get_user_blacklist(message.author.id):
-			return False
-
 		return True
 
 	@staticmethod

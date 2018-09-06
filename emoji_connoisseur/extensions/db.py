@@ -480,17 +480,18 @@ class Database:
 		return await self._get_state('guild_opt', guild_id)
 
 	async def get_state(self, guild_id, user_id):
-		state = True
-
-		guild_state = await self.get_guild_state(guild_id)
-		if guild_state is not None:
-			state = guild_state
-
-		user_state = await self.get_user_state(user_id)
-		if user_state is not None:
-			state = user_state  # user state overrides guild state
-
-		return state
+		# TODO investigate whether this obviates get_guild_state and get_user_state (probably does)
+		return await self._pool.fetchval("""
+			SELECT COALESCE(
+				CASE WHEN (SELECT blacklist_reason FROM user_opt WHERE id = $2)
+					IS NULL THEN NULL
+					ELSE FALSE
+				END,
+				(SELECT state FROM user_opt  WHERE id = $2),
+				(SELECT state FROM guild_opt WHERE id = $1),
+				true
+			)""",
+		guild_id, user_id)
 
 	## Blacklists
 
