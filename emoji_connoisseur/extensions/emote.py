@@ -253,7 +253,7 @@ class Emotes:
 		return emote
 
 	@commands.command(aliases=['delete', 'delet', 'del', 'rm'])
-	async def remove(self, context, *names):
+	async def remove(self, context, *names: commands.clean_content):
 		"""Removes one or more emotes from the bot. You must own all of them."""
 		if not names:
 			return await context.send(_('Error: you must provide the name of at least one emote to remove'))
