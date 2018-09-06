@@ -767,7 +767,7 @@ class Emotes:
 		log_usage=False,
 	):
 		"""Extract emotes according to predicate.
-		Predicate is a function taking three arguments: token, out: StringIO, and emotes_usd: set
+		Callback is a coroutine function taking three arguments: token, out: StringIO, and emotes_used: set
 		For each token, callback will be called with these arguments.
 		out is the StringIO that holds the extracted string to return, and emotes_used is a set
 		containing the IDs of all emotes that were used, for logging purposes.
@@ -851,6 +851,7 @@ class Emotes:
 		await self.delete_reply(payload.message_id)
 
 	async def on_raw_bulk_message_delete(self, payload):
+		# TODO use bot.delete_messages
 		for message_id in payload.message_ids:
 			await self.delete_reply(message_id)
 

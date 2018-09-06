@@ -3,13 +3,11 @@
 
 import typing
 
-import aiocache
 import discord
 from discord.ext import commands
 
 from ..utils import i18n
 
-cached = aiocache.cached(ttl=20)
 Location = typing.Union[discord.TextChannel, discord.Member]
 
 class Locales:
@@ -97,43 +95,56 @@ class Locales:
 				return await context.send(_('You cannot set the locale of another user.'))
 			await self.set_user_locale(location.id, locale)
 
-		await context.send(_(
-			'✅ Locale set. Note that it may take up to 20 seconds for your changes to take effect.'))
+		await context.try_add_reaction('✅')
 
-	@cached
 	async def locale(self, message):
+		user = message.webhook_id or message.author.id
+
 		if not message.guild:
-			return await self.user_locale(message.author.id)
+			channel = None
+			guild = None
+		else:
+			channel = message.channel.id
+			guild = message.guild.id
 
-		# can't wait for :=
-		user_locale = await self.user_locale(message.webhook_id or message.author.id)
-		if user_locale:
-			return user_locale
+		return await self.user_channel_or_guild_locale(user, channel, guild) or i18n.default_locale
 
-		channel_or_guild_locale = await self.channel_or_guild_locale(message)
-		if channel_or_guild_locale:
-			return channel_or_guild_locale
+	async def user_channel_or_guild_locale(self, user, channel, guild=None):
+		return await self.pool.fetchval("""
+			SELECT COALESCE(
+				(
+					SELECT locale
+					FROM   locales
+					WHERE  "user" = $1),
+				(
+					SELECT locale
+					FROM   locales
+					WHERE  channel = $2),
+				(
+					SELECT locale
+					FROM   locales
+					WHERE      guild = $3
+					       AND channel IS NULL
+					       AND "user" IS NULL)
+			)
+		""", user, channel, guild)
 
-		return i18n.default_locale
+	async def channel_or_guild_locale(self, channel):
+		return await self.pool.fetchval("""
+			SELECT COALESCE(
+				(
+					SELECT locale
+					FROM   locales
+					WHERE  channel = $1),
+				(
+					SELECT locale
+					FROM   locales
+					WHERE      guild = $2
+					       AND channel IS NULL
+					       AND "user" IS NULL)
+			)
+		""", channel.id, channel.guild.id)
 
-	async def channel_or_guild_locale(self, location_or_message: typing.Union[Location, discord.Message]):
-		if isinstance(location_or_message, discord.TextChannel):
-			return await self._channel_locale(channel=location_or_message)
-
-		message = location_or_message
-		if not message.guild:
-			return i18n.default_locale
-
-	async def _channel_locale(self, channel):
-		channel_locale = await self.channel_locale(channel.id)
-		if channel_locale:
-			return channel_locale
-
-		guild_locale = await self.guild_locale(channel.guild.id)
-		if guild_locale:
-			return guild_locale
-
-	@cached
 	async def guild_locale(self, guild):
 		return await self.pool.fetchval("""
 			SELECT locale
@@ -143,7 +154,6 @@ class Locales:
 			       AND "user" IS NULL
 		""", guild)
 
-	@cached
 	async def channel_locale(self, channel):
 		return await self.pool.fetchval("""
 			SELECT locale
@@ -153,14 +163,11 @@ class Locales:
 			       AND "user" IS NULL
 		""", channel)
 
-	@cached
 	async def user_locale(self, user):
 		return await self.pool.fetchval("""
 			SELECT locale
 			FROM   locales
-			WHERE      "user" = $1
-			       AND guild IS NULL
-			       AND channel IS NULL
+			WHERE  "user" = $1
 		""", user)
 
 	async def set_guild_locale(self, guild, locale):
