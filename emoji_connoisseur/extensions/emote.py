@@ -10,8 +10,6 @@ import re
 import traceback
 import weakref
 
-logger = logging.getLogger(__name__)
-
 import aiohttp
 import asyncpg
 import discord
@@ -24,6 +22,7 @@ from ..utils import checks
 from ..utils import errors
 from ..utils.paginator import Pages
 
+logger = logging.getLogger(__name__)
 
 class Emotes:
 	"""Commands related to the main functionality of the bot"""
@@ -205,8 +204,6 @@ class Emotes:
 		try:
 			emote = await self.add_from_url(name, url, author_id)
 		except errors.ConnoisseurError as ex:
-			# yes, on_command_error will handle these, but other commands depend on this
-			# function returning a string on error (such as steal_these)
 			return str(ex)
 		except discord.HTTPException as ex:
 			return (
@@ -854,7 +851,6 @@ class Emotes:
 		# TODO use bot.delete_messages
 		for message_id in payload.message_ids:
 			await self.delete_reply(message_id)
-
 
 def setup(bot):
 	bot.add_cog(Emotes(bot))

@@ -96,9 +96,10 @@ CREATE INDEX IF NOT EXISTS locales_guild_idx ON locales (guild);
 CREATE INDEX IF NOT EXISTS locales_guild_idx ON locales (channel);
 CREATE INDEX IF NOT EXISTS locales_guild_idx ON locales ("user");
 
-ALTER TABLE locales ADD UNIQUE (guild, channel);
+CREATE UNIQUE INDEX IF NOT EXISTS locales_guild_channel_unique_index ON locales (guild, channel);
 
-ALTER TABLE locales ADD CHECK (
+ALTER TABLE locales DROP CONSTRAINT IF EXISTS locales_check;
+ALTER TABLE locales ADD CONSTRAINT locales_check CHECK (
 	   guild IS NOT NULL AND channel IS NULL AND "user" IS NULL
 	OR guild IS NOT NULL AND channel IS NOT NULL
 	OR channel IS NOT NULL
