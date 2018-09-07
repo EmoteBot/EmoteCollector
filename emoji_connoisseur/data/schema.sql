@@ -121,3 +121,10 @@ DROP INDEX IF EXISTS emojis_lower_idx;
 DROP INDEX IF EXISTS emojis_author_idx;
 
 DROP TRIGGER IF EXISTS update_emoji_modtime ON emote;
+
+
+ALTER TABLE emotes RENAME CONSTRAINT emojis_id_key TO emotes_id_key;
+
+ALTER INDEX IF EXISTS emote_author_idx RENAME TO emotes_author_idx;
+ALTER INDEX IF EXISTS emote_id_key RENAME TO emotes_id_key;
+ALTER INDEX IF EXISTS emote_lower_idx RENAME TO emotes_lower_idx;
