@@ -85,6 +85,7 @@ CREATE TABLE IF NOT EXISTS api_tokens(
 	secret BYTEA NOT NULL);
 
 CREATE INDEX IF NOT EXISTS api_token_secret_idx ON api_tokens (secret);
+CREATE INDEX IF NOT EXISTS api_token_id_secret_idx ON api_tokens (id, secret);
 
 CREATE TABLE IF NOT EXISTS locales(
 	guild BIGINT,
@@ -121,7 +122,6 @@ DROP INDEX IF EXISTS emojis_lower_idx;
 DROP INDEX IF EXISTS emojis_author_idx;
 
 DROP TRIGGER IF EXISTS update_emoji_modtime ON emote;
-
 
 ALTER TABLE emotes RENAME CONSTRAINT emojis_id_key TO emotes_id_key;
 
