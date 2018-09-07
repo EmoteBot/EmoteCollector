@@ -116,6 +116,7 @@ $$ LANGUAGE plpgsql;
 
 -- old stuff --
 
+DROP INDEX IF EXISTS emojis_id_key;
 DROP INDEX IF EXISTS emojis_lower_idx;
 DROP INDEX IF EXISTS emojis_author_idx;
 
