@@ -46,7 +46,6 @@ async def on_ready():
 	await wipe_guilds()
 	await create_guilds(prefix='EmoteBackend ', limit=100)
 	await clear_guilds()
-	await create_channels()
 
 	bot.needed_guilds = {guild for guild in bot.guilds if len(guild.members) < 2}
 	await add_bot_to_guilds()
@@ -86,11 +85,6 @@ async def clear_guilds():
 
 administrator = discord.Permissions()
 administrator.administrator = True
-
-@print_status('Creating channels')
-async def create_channels():
-	for guild in client.guilds:
-		await guild.create_text_channel('just-created-so-i-can-invite-you')
 
 @print_status('Updating permissions')
 async def update_permissions():
