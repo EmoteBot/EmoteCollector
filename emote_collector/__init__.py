@@ -30,8 +30,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('bot')
 
 
-class EmojiConnoisseur(commands.AutoShardedBot):
-
+class EmoteCollector(commands.AutoShardedBot):
 	def __init__(self, *args, **kwargs):
 		self.config = kwargs.pop('config')
 

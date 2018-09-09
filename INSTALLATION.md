@@ -32,7 +32,7 @@ Once you fill out one, the bot will tell you which backend guild to add next.
 6) Edit your timezone in postgresql.conf to UTC.
 On my system, postgresql.conf is located in `/etc/postgresql/9.6/main`.
 7) Run `./bot.py`.
-8) *Optional step*: run an instance of the [list website](https://github.com/EmojiConnoisseur/website)
+8) *Optional step*: run an instance of the [list website](https://github.com/EmoteCollector/website)
 and set up the link in config.py.
 
 If you need any help, DM @lambda#0987 or file a GitHub issue.

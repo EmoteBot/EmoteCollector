@@ -3,7 +3,7 @@
 	'decay': True,  # whether to enable the deletion of old emotes
 	'prefix': 'ec/',
 
-	# your instance of the website code located at https://github.com/EmojiConnoisseur/website
+	# your instance of the website code located at https://github.com/EmoteCollector/website
 	# if this is left blank, the ec/list command will not advertise the online version of the list.
 	'website': 'https://emoji-connoisseur.python-for.life',
 
@@ -12,7 +12,7 @@
 
 	'repo': 'https://github.com/EmoteCollector/bot',
 
-	# related to your instance of https://github.com/EmojiConnoisseur/website
+	# related to your instance of https://github.com/EmoteCollector/website
 	# if this dict is left empty, the API related commands will be disabled.
 	'api': {
 		'docs_url': 'https://emoji-connoisseur.python-for.life/api/v0/docs',
