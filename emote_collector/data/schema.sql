@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS emotes(
 	guild BIGINT NOT NULL);
 
 CREATE UNIQUE INDEX IF NOT EXISTS emotes_lower_idx ON emotes (LOWER(name));
-CREATE INDEX IF NOT EXISTS emote_author_idx ON emotes (author);
+CREATE INDEX IF NOT EXISTS emotes_author_idx ON emotes (author);
 
 CREATE TABLE IF NOT EXISTS _guilds(
 	id BIGINT NOT NULL UNIQUE PRIMARY KEY);
