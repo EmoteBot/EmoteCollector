@@ -13,14 +13,14 @@ for locale in */; do
 		--update \
 		--no-fuzzy-matching \
 		--backup off \
-		"${locale}LC_MESSAGES/emoji_connoisseur.po" \
+		"${locale}LC_MESSAGES/emote_collector.po" \
 		messages.pot
 done
 
 if [ x$1 = "xcompile" ]; then
 	for locale in */; do
 		msgfmt \
-			"${locale}LC_MESSAGES/emoji_connoisseur.po" \
-			--output-file "${locale}LC_MESSAGES/emoji_connoisseur.mo"
+			"${locale}LC_MESSAGES/emote_collector.po" \
+			--output-file "${locale}LC_MESSAGES/emote_collector.mo"
 	done
 fi

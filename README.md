@@ -1,6 +1,6 @@
-# Emoji Connoisseur
+# Emote Collector
 
-Emoji Connoisseur lets you use emotes you don't have, even without Nitro.
+Emote Collector lets you use emotes you don't have, even without Nitro.
 
 Once you've found an emoji you'd like to use, just send it as if you were sending a regular Discord emoji (e.g. :speedtest:).
 It will be detected and sent by the bot. Using semicolons (;thonkang;) is also supported.

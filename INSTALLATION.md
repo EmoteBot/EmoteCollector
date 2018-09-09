@@ -1,4 +1,4 @@
-## Installing Emoji Connoisseur
+## Installing Emote Collector
 
 I can think of two reasons you'd want to install this bot:
 1. You have to test some changes you made.

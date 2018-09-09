@@ -10,13 +10,13 @@ with open('requirements.txt') as f:
 	dependency_links = list(filter(lambda line: not line.startswith('#'), f))
 
 setuptools.setup(
-	name='emoji_connoisseur',
+	name='emote_collector',
 	version='0.0.1',
 
 	packages=[
-		'emoji_connoisseur',
-		'emoji_connoisseur.utils',
-		'emoji_connoisseur.extensions',
+		'emote_collector',
+		'emote_collector.utils',
+		'emote_collector.extensions',
 	],
 
 

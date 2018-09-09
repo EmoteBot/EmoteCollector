@@ -38,7 +38,7 @@ class API:
 
 	@commands.group(invoke_without_command=True)
 	async def api(self, context):
-		"""Commands related to the Emoji Connoisseur API.
+		"""Commands related to the Emote Collector API.
 
 		This command on its own will tell you a bit about the API.
 		"""

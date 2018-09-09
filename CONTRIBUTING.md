@@ -1,4 +1,4 @@
-# Contributing to Emoji Connoisseur
+# Contributing to Emote Collector
 
 For now, this is just a list of things to keep in mind when hacking on the bot.
 

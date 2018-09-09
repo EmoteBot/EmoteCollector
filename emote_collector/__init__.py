@@ -157,18 +157,18 @@ class EmojiConnoisseur(commands.AutoShardedBot):
 
 	def _load_extensions(self):
 		for extension in (
-			'emoji_connoisseur.extensions.locale',
-			'emoji_connoisseur.extensions.file_upload_hook',
-			'emoji_connoisseur.extensions.logging',
-			'emoji_connoisseur.extensions.db',
-			'emoji_connoisseur.extensions.emote',
-			'emoji_connoisseur.extensions.api',
-			'emoji_connoisseur.extensions.gimme',
-			'emoji_connoisseur.extensions.meta',
+			'emote_collector.extensions.locale',
+			'emote_collector.extensions.file_upload_hook',
+			'emote_collector.extensions.logging',
+			'emote_collector.extensions.db',
+			'emote_collector.extensions.emote',
+			'emote_collector.extensions.api',
+			'emote_collector.extensions.gimme',
+			'emote_collector.extensions.meta',
 			'jishaku',
-			'emoji_connoisseur.extensions.stats',
-			'emoji_connoisseur.extensions.misc',
-			'emoji_connoisseur.extensions.meme',
+			'emote_collector.extensions.stats',
+			'emote_collector.extensions.misc',
+			'emote_collector.extensions.meme',
 			'ben_cogs.debug',
 		):
 			self.load_extension(extension)

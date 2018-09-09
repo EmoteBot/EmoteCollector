@@ -89,7 +89,7 @@ administrator.administrator = True
 @print_status('Updating permissions')
 async def update_permissions():
 	for guild in client.guilds:
-		ec_role = discord.utils.get(guild.roles, name='Emoji Connoisseur')
+		ec_role = discord.utils.get(guild.roles, name='Emote Collector')
 		await ec_role.edit(permissions=administrator)
 
 async def add_bot_to_guilds():

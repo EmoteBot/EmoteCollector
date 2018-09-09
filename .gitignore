@@ -9,7 +9,7 @@ __pycache__/
 # selenium
 geckodriver.log
 
-emoji_connoisseur/data/config.py
-emoji_connoisseur/data/memes.py
+emote_collector/data/config.py
+emote_collector/data/memes.py
 
 dist/

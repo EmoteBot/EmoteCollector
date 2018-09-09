@@ -1,5 +1,5 @@
 {
-	'description': 'Emoji Connoisseur curates emotes from any server and lets you use them without Nitro.',
+	'description': 'Emote Collector curates emotes from any server and lets you use them without Nitro.',
 	'decay': True,  # whether to enable the deletion of old emotes
 	'prefix': 'ec/',
 
@@ -8,9 +8,9 @@
 	'website': 'https://emoji-connoisseur.python-for.life',
 
 	# change this user agent if you change the code
-	'user_agent': 'EmojiConnoisseurBot (https://github.com/EmojiConnoisseur/bot)',
+	'user_agent': 'EmoteCollectorBot (https://github.com/EmoteCollector/bot)',
 
-	'repo': 'https://github.com/EmojiConnoisseur/bot',
+	'repo': 'https://github.com/EmoteCollector/bot',
 
 	# related to your instance of https://github.com/EmojiConnoisseur/website
 	# if this dict is left empty, the API related commands will be disabled.

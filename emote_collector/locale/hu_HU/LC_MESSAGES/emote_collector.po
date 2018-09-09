@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-09-06 17:57+0000\n"
+"POT-Creation-Date: 2018-09-09 02:11+0000\n"
 "PO-Revision-Date: 2018-08-13 17:05-0500\n"
 "Last-Translator: diniboy <diniboy@protonmail.com>\n"
 "Language-Team: Hungarian\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: emoji_connoisseur/extensions/api.py:47
+#: emote_collector/extensions/api.py:47
 #, python-brace-format
 msgid ""
 "I have a RESTful API available. The docs for it are located at {docs_url}."
@@ -25,36 +25,36 @@ msgstr ""
 "A bot rendelkezik egy RESTful API-al. A hozzá csatolt dokumentáció "
 "megtalálható a {docs_url} címen."
 
-#: emoji_connoisseur/extensions/api.py:64
+#: emote_collector/extensions/api.py:64
 msgid "Your new API token is:\n"
 msgstr "Az új API kulcsod:\n"
 
-#: emoji_connoisseur/extensions/api.py:66
+#: emote_collector/extensions/api.py:66
 msgid "Your API token is:\n"
 msgstr "Az API kulcsod:\n"
 
-#: emoji_connoisseur/extensions/api.py:71
+#: emote_collector/extensions/api.py:71
 msgid "Do **not** share it with anyone!"
 msgstr "**Ne** oszd meg senkivel!"
 
-#: emoji_connoisseur/extensions/api.py:76
+#: emote_collector/extensions/api.py:76
 msgid "Error: I could not send you your token via DMs."
 msgstr "Hiba: Nem tudtam elküldeni a kulcsod privát üzenetben."
 
-#: emoji_connoisseur/extensions/emote.py:69
+#: emote_collector/extensions/emote.py:68
 #, python-brace-format
 msgid "{emote} (Preserved)"
 msgstr "{emote} (Tartós)"
 
-#: emoji_connoisseur/extensions/emote.py:78
+#: emote_collector/extensions/emote.py:77
 msgid "Created"
 msgstr "Létrehozva"
 
-#: emoji_connoisseur/extensions/emote.py:92
+#: emote_collector/extensions/emote.py:91
 msgid "Last modified"
 msgstr "Utoljára módosítva"
 
-#: emoji_connoisseur/extensions/emote.py:107
+#: emote_collector/extensions/emote.py:106
 #, python-brace-format
 msgid ""
 "Static emotes: **{static} ⁄ {static_cap}**\n"
@@ -65,12 +65,12 @@ msgstr ""
 "Animált hangulatjelek: **{animated} ⁄ {animated_cap}**\n"
 "**Összes: {total} ⁄ {total_cap}**"
 
-#: emoji_connoisseur/extensions/emote.py:125
+#: emote_collector/extensions/emote.py:124
 #, python-brace-format
 msgid "{context.author.mention} said:"
 msgstr "{context.author.mention} mondta:"
 
-#: emoji_connoisseur/extensions/emote.py:150
+#: emote_collector/extensions/emote.py:149
 msgid ""
 "Sorry, webhooks and bots may not add emotes. Go find a human to do it for "
 "you."
@@ -78,7 +78,7 @@ msgstr ""
 "Sajnálatos módon webhookok és botok nem hozhatnak létre hangulatjeleket. "
 "Keress egy embert erre a célra!"
 
-#: emoji_connoisseur/extensions/emote.py:170
+#: emote_collector/extensions/emote.py:169
 msgid ""
 "Error: I expected a custom emote as the first argument, but I got something "
 "else. If you're trying to add an emote using an image URL, you need to "
@@ -90,274 +90,273 @@ msgstr ""
 "hangulatjelet, meg kell adnod a nevét, mint első argumentum, így:\n"
 "`{}add NÉV_IDE URL_IDE`"
 
-#: emoji_connoisseur/extensions/emote.py:192
+#: emote_collector/extensions/emote.py:191
 msgid "Your message had no emotes and no name!"
 msgstr "Az üzeneted nem tartalmazott hangulatjeleket és neveket!"
 
-#: emoji_connoisseur/extensions/emote.py:213
+#: emote_collector/extensions/emote.py:210
 msgid "An error occurred while creating the emote:\n"
 msgstr "Hiba történt a hangulatjel létrehozása során:\n"
 
-#: emoji_connoisseur/extensions/emote.py:216
+#: emote_collector/extensions/emote.py:213
 msgid "Error: retrieving the image or resizing the image took too long."
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:218
+#: emote_collector/extensions/emote.py:215
 msgid "Error: Invalid URL."
 msgstr "Hiba: Helytelen URL."
 
-#: emoji_connoisseur/extensions/emote.py:220
+#: emote_collector/extensions/emote.py:217
 #, python-brace-format
 msgid "Emote {emote} successfully created."
 msgstr "A hangulatjel {emote} sikeresen létrehozva."
 
-#: emoji_connoisseur/extensions/emote.py:259
+#: emote_collector/extensions/emote.py:256
 msgid "Error: you must provide the name of at least one emote to remove"
 msgstr "HIba: Minimum egy hangulatjel nevét meg kell adnod a törléshez!"
 
-#: emoji_connoisseur/extensions/emote.py:283
+#: emote_collector/extensions/emote.py:280
 msgid "**Successfully deleted:**"
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:314
+#: emote_collector/extensions/emote.py:311
 msgid "**Successfully created:**"
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:317
+#: emote_collector/extensions/emote.py:314
 msgid "Error: no existing custom emotes were provided."
 msgstr "Hiba: egyetlen, már létező egyedi hangulatjel sem lett megadva."
 
-#: emoji_connoisseur/extensions/emote.py:326
+#: emote_collector/extensions/emote.py:323
 msgid "**Already exists:**"
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:329
+#: emote_collector/extensions/emote.py:326
 msgid "**Not found:**"
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:331
+#: emote_collector/extensions/emote.py:328
 #, python-brace-format
 msgid "**Server returned error code {error.status}:**"
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:333
+#: emote_collector/extensions/emote.py:330
 msgid "**Took too long to retrieve or resize:**"
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:335
+#: emote_collector/extensions/emote.py:332
 msgid "**Failed because I ran out of backend servers:**"
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:368
+#: emote_collector/extensions/emote.py:365
 msgid "You must specify an old name and a new name."
 msgstr "Mindenképpen adj meg egy régi, illetve egy új nevet is!"
 
-#: emoji_connoisseur/extensions/emote.py:374
+#: emote_collector/extensions/emote.py:371
 msgid "Error: you must provide a new name for the emote."
 msgstr "Hiba: meg kell adnod a hangulatjel nevét."
 
-#: emoji_connoisseur/extensions/emote.py:385
+#: emote_collector/extensions/emote.py:382
 msgid "Emote successfully renamed."
 msgstr "A hangulatjel sikeresen átnevezve!"
 
-#: emoji_connoisseur/extensions/emote.py:425
+#: emote_collector/extensions/emote.py:422
 msgid "You can already react to that message with that emote."
 msgstr "Már tudsz reagálni a hangulatjel segítségével az üzenetre."
 
-#: emoji_connoisseur/extensions/emote.py:431
+#: emote_collector/extensions/emote.py:428
 msgid "Unable to react: permission denied."
 msgstr "A reakció sikertelen: hozzáférés megtagadva."
 
-#: emoji_connoisseur/extensions/emote.py:433
+#: emote_collector/extensions/emote.py:430
 msgid "Unable to react. Discord must be acting up."
 msgstr "A reakció sikertelen. Valószínűsíthetően Discord probléma áll fenn."
 
-#: emoji_connoisseur/extensions/emote.py:436
+#: emote_collector/extensions/emote.py:433
 msgid "OK! I've reacted to that message. Please add your reaction now."
 msgstr "Ok! Ragáltam az üzenetre. Kérlek reagálj te is most!"
 
-#: emoji_connoisseur/extensions/emote.py:473
+#: emote_collector/extensions/emote.py:470
 msgid "Unable to react: no permission to read message history."
 msgstr "A reakció sikertelen: nincs hozzáférésem az üzenetelőzményekhez."
 
-#: emoji_connoisseur/extensions/emote.py:476
+#: emote_collector/extensions/emote.py:473
 msgid "Unable to react: no permission to add reactions."
 msgstr "A reakció sikertelen: nincs jogom reakciók hozzáadására."
 
-#: emoji_connoisseur/extensions/emote.py:497
+#: emote_collector/extensions/emote.py:494
 #, python-brace-format
 msgid "{emote} (Preserved) — owned by {author}"
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:502
+#: emote_collector/extensions/emote.py:499
 #, python-brace-format
 msgid "{emote} — owned by {author}"
 msgstr "{emote} (Tartós)"
 
-#: emoji_connoisseur/extensions/emote.py:506
-#: emoji_connoisseur/extensions/emote.py:560
+#: emote_collector/extensions/emote.py:503
+#: emote_collector/extensions/emote.py:557
 msgid "No emotes have been created yet. Be the first!"
 msgstr "Nincs egyetlen létrehozott hangulatjel sem. Légy te az első!"
 
-#: emoji_connoisseur/extensions/emote.py:509
+#: emote_collector/extensions/emote.py:506
 msgid "You have not created any emotes yet."
 msgstr "Még nem hoztál létre egyetlen hangulatjelet sem."
 
-#: emoji_connoisseur/extensions/emote.py:511
+#: emote_collector/extensions/emote.py:508
 msgid "That person has not created any emotes yet."
 msgstr "Ez a személy még nem hozott létre egyetlen hangulatjelet sem."
 
-#: emoji_connoisseur/extensions/emote.py:518
+#: emote_collector/extensions/emote.py:515
 #, python-brace-format
 msgid "Also check out the list website at {website}."
 msgstr "Ne felejtsd el megtekinteni a listázó weboldalt: {website}."
 
-#: emoji_connoisseur/extensions/emote.py:533
+#: emote_collector/extensions/emote.py:530
 msgid "No results matched your query."
 msgstr "Egyetlen találat sincs a keresésre."
 
-#: emoji_connoisseur/extensions/emote.py:577
+#: emote_collector/extensions/emote.py:574
 msgid "Logger cog not loaded."
 msgstr "A logolásért felelős cog nincs betöltve."
 
-#: emoji_connoisseur/extensions/emote.py:582
-#: emoji_connoisseur/utils/converter.py:54
+#: emote_collector/extensions/emote.py:579
+#: emote_collector/utils/converter.py:54
 msgid "Message not found."
 msgstr "Az üzenet nem létezik."
 
-#: emoji_connoisseur/extensions/emote.py:587
+#: emote_collector/extensions/emote.py:584
 msgid "No embeds were found in that message."
 msgstr "Egyetlen beágyazott rész sincs ebben az üzenetben."
 
-#: emoji_connoisseur/extensions/emote.py:592
+#: emote_collector/extensions/emote.py:589
 msgid "No description was found in that embed."
 msgstr "Nincs leírása a beágyazott üzenetnek."
 
-#: emoji_connoisseur/extensions/emote.py:598
+#: emote_collector/extensions/emote.py:595
 msgid "No custom emotes were found in that embed's description."
 msgstr ""
 "Egyetlen egyedi hangulatjelet sem sikerült találni a beágyazott üzenet "
 "leírásában."
 
-#: emoji_connoisseur/extensions/emote.py:603
+#: emote_collector/extensions/emote.py:600
 msgid "No author IDs were found in that embed."
 msgstr "Egyetlen birtokos azonosítója sem szerepel a beágyazott üzenetben."
 
-#: emoji_connoisseur/extensions/emote.py:619
+#: emote_collector/extensions/emote.py:616
 msgid "Opted in to the emote auto response."
 msgstr "A hangulatjelekre automatikus válaszolás bekapcsolva."
 
-#: emoji_connoisseur/extensions/emote.py:621
+#: emote_collector/extensions/emote.py:618
 msgid "Opted out of the emote auto response."
 msgstr "A hangulatjelekre automatikus válaszolás kikapcsolva."
 
-#: emoji_connoisseur/extensions/emote.py:656
+#: emote_collector/extensions/emote.py:653
 msgid "User un-blacklisted."
 msgstr "Felhasználó felszabadítva a feketelistáról."
 
-#: emoji_connoisseur/extensions/emote.py:658
+#: emote_collector/extensions/emote.py:655
 #, python-brace-format
 msgid "User blacklisted with reason \"{reason}\"."
 msgstr "Felhasználó feketelistázva a következő indokkal: `{reason}`."
 
-#: emoji_connoisseur/extensions/emote.py:667
+#: emote_collector/extensions/emote.py:664
 msgid "**Succesfully preserved:**"
 msgstr ""
 
-#: emoji_connoisseur/extensions/emote.py:669
+#: emote_collector/extensions/emote.py:666
 msgid "**Succesfully un-preserved:**"
 msgstr ""
 
-#: emoji_connoisseur/extensions/gimme.py:30
+#: emote_collector/extensions/gimme.py:30
 #, python-brace-format
 msgid "Created for {user}"
 msgstr "Létrehozva {user} számára"
 
-#: emoji_connoisseur/extensions/gimme.py:35
+#: emote_collector/extensions/gimme.py:35
 #, python-brace-format
 msgid "Invite to the server that has {emote}: {invite.url}"
 msgstr "Meghívó a szerverhez, ahol a {emote} megtalálható: {invite.url}"
 
-#: emoji_connoisseur/extensions/gimme.py:37
+#: emote_collector/extensions/gimme.py:37
 msgid "Unable to send invite in DMs. Please allow DMs from server members."
 msgstr ""
 "Sikertelen a meghívó elküldése privát üzenetben. Kérlek engedélyezd a "
 "beérkező privát üzeneteket a szerver tagjaitól."
 
-#: emoji_connoisseur/extensions/locale.py:41
+#: emote_collector/extensions/locale.py:42
 msgid "You can't get the server locale in DMs."
 msgstr "A szerver nyelvének lekérése nem lehetséges privát üzenetben."
 
-#: emoji_connoisseur/extensions/locale.py:46
+#: emote_collector/extensions/locale.py:47
 #, python-brace-format
 msgid "The current locale for this server is: {guild_locale}"
 msgstr "A jelenlegi beállított nyelv a szerver számára: {guild_locale}"
 
-#: emoji_connoisseur/extensions/locale.py:54
+#: emote_collector/extensions/locale.py:55
 #, python-brace-format
 msgid "The current locale for that channel is: {channel_or_guild_locale}"
 msgstr ""
 "A jelenleg beállított nyelv ezen csatorna számára: {channel_or_guild_locale}"
 
-#: emoji_connoisseur/extensions/locale.py:57
+#: emote_collector/extensions/locale.py:58
 msgid "You can only get your own locale."
 msgstr "Csak a saját nyelved lekérdezése lehetséges."
 
-#: emoji_connoisseur/extensions/locale.py:59
+#: emote_collector/extensions/locale.py:60
 #, python-brace-format
 msgid "The current locale for that user is: {user_locale}"
 msgstr "A jelenleg beállított nyelv a felhasználó számára: {user_locale}"
 
-#: emoji_connoisseur/extensions/locale.py:71
+#: emote_collector/extensions/locale.py:72
 #, python-brace-format
 msgid "Invalid locale. The valid locales are: {locales}"
 msgstr "Helytelen nyelv. A elérhetőek listája: {locales}"
 
-#: emoji_connoisseur/extensions/locale.py:75
+#: emote_collector/extensions/locale.py:76
 msgid "Cannot set the server or channel locale in DMs."
 msgstr ""
 "A szerver/csatorna nyelvének beállítása privát üzenetben nem lehetséges."
 
-#: emoji_connoisseur/extensions/locale.py:87
+#: emote_collector/extensions/locale.py:88
 msgid "Cannot set the server locale in DMs."
 msgstr "A szerver nyelvének beállítása nem lehetséges privát üzenetben."
 
-#: emoji_connoisseur/extensions/locale.py:95
+#: emote_collector/extensions/locale.py:96
 msgid "You cannot set the locale of another user."
 msgstr "Más felhasználó nyelvének átállítása nem lehetséges."
 
-#: emoji_connoisseur/extensions/meta.py:68
+#: emote_collector/extensions/meta.py:68
 #, python-brace-format
 msgid "Command or category \"{command_name}\" not found."
 msgstr ""
 
-#: emoji_connoisseur/utils/converter.py:17
-#: emoji_connoisseur/utils/converter.py:28
+#: emote_collector/utils/converter.py:17 emote_collector/utils/converter.py:28
 msgid "Not a valid integer."
 msgstr "Nem egy helyes egész szám."
 
-#: emoji_connoisseur/utils/converter.py:22
+#: emote_collector/utils/converter.py:22
 msgid "Not a message offset."
 msgstr "Helytelen az üzenet pozíciója."
 
-#: emoji_connoisseur/utils/converter.py:31
+#: emote_collector/utils/converter.py:31
 msgid "Not a valid message ID."
 msgstr "Nem egy helyes üzenet azonosító."
 
-#: emoji_connoisseur/utils/converter.py:44
+#: emote_collector/utils/converter.py:44
 msgid "Message not found! Make sure your message ID is correct."
 msgstr ""
 "Nincs ilyen üzenet! Győződj meg róla, hogy az üzenethez tartozó azonosító "
 "helyes!"
 
-#: emoji_connoisseur/utils/converter.py:47
+#: emote_collector/utils/converter.py:47
 msgid ""
 "Permission denied! Make sure the bot has permission to read that message."
 msgstr ""
 "Hozzáférés megtagadva! Győződj meg róla, hogy a bot látja-e (van-e "
 "hozzáférése) az adott üzenetet."
 
-#: emoji_connoisseur/utils/errors.py:11
+#: emote_collector/utils/errors.py:11
 #, python-brace-format
 msgid ""
 "Sorry, you have been blacklisted with the reason `{reason}`. To appeal, "
@@ -366,98 +365,98 @@ msgstr ""
 "Sajnálatos módon feketelistázva lettél a következő indokkal: `{reason}`. A "
 "fellebbezéshez csatlakozhatsz a támogatói szerverhez: `{prefix}support`."
 
-#: emoji_connoisseur/utils/errors.py:18
+#: emote_collector/utils/errors.py:18
 #, python-brace-format
 msgid "URL error: server returned error code {status}"
 msgstr "URL hiba: A szerver a következő hibakóddal válaszolt: {status}"
 
-#: emoji_connoisseur/utils/errors.py:23
+#: emote_collector/utils/errors.py:23
 msgid "The image supplied was not a GIF, PNG, or JPG."
 msgstr "A hozzáadni kívánt kép nem GIF, PNG vagy JPG."
 
-#: emoji_connoisseur/utils/errors.py:35
+#: emote_collector/utils/errors.py:35
 #, python-brace-format
 msgid "An emote called `{name}` already exists in my database."
 msgstr "Egy hangulatjel `{name}` már létezik az adatbázisomban."
 
-#: emoji_connoisseur/utils/errors.py:40
+#: emote_collector/utils/errors.py:40
 #, python-brace-format
 msgid "An emote called `{name}` does not exist in my database."
 msgstr "`{name}` névre hallgató hangulatjel még nem létezik az adatbázisomban."
 
-#: emoji_connoisseur/utils/errors.py:45
+#: emote_collector/utils/errors.py:45
 #, python-brace-format
 msgid "You're not authorized to modify `{name}`."
 msgstr "Nincs engedélyed a `{name}` módosításához."
 
-#: emoji_connoisseur/utils/errors.py:53
+#: emote_collector/utils/errors.py:53
 #, python-brace-format
 msgid "That description is too long. The limit is {limit}"
 msgstr "Ez a leírás túl hosszú. A limit {limit} karakter"
 
-#: emoji_connoisseur/utils/errors.py:61
+#: emote_collector/utils/errors.py:61
 msgid "No more room to store emotes."
 msgstr "Nincs több hely a további hangulatjelek tárolására."
 
-#: emoji_connoisseur/utils/errors.py:66
+#: emote_collector/utils/errors.py:66
 msgid "Discord seems to be having issues right now, please try again later."
 msgstr ""
 "Úgy tűnik, jelenleg problémák tapasztalhatóak Discord oldalon. Kérlek "
 "próbálkozz újra később!"
 
-#: emoji_connoisseur/utils/paginator.py:89
+#: emote_collector/utils/paginator.py:89
 msgid "Bot does not have embed links permission."
 msgstr "A bot nem rendelkezik link beillesztési joggal."
 
-#: emoji_connoisseur/utils/paginator.py:92
+#: emote_collector/utils/paginator.py:92
 msgid "Bot cannot send messages."
 msgstr "A bot nem tud üzeneteket küldeni."
 
-#: emoji_connoisseur/utils/paginator.py:97
+#: emote_collector/utils/paginator.py:97
 msgid "Bot does not have add reactions permission."
 msgstr "A bot nem rendelkezik a \"reakciók hozzáadása\" jogosultsággal."
 
-#: emoji_connoisseur/utils/paginator.py:100
+#: emote_collector/utils/paginator.py:100
 msgid "Bot does not have Read Message History permission."
 msgstr ""
 "A bot nem rendelkezik \"üzenet előzmények hozzáférése\" jogosultsággal."
 
-#: emoji_connoisseur/utils/paginator.py:115
-#: emoji_connoisseur/utils/paginator.py:312
+#: emote_collector/utils/paginator.py:115
+#: emote_collector/utils/paginator.py:312
 #, python-brace-format
 msgid "Page {page}⁄{self.maximum_pages} ({num_entries} entries)"
 msgstr "{page}⁄{self.maximum_pages} oldal, ({num_entries} példány)"
 
-#: emoji_connoisseur/utils/paginator.py:119
-#: emoji_connoisseur/utils/paginator.py:316
+#: emote_collector/utils/paginator.py:119
+#: emote_collector/utils/paginator.py:316
 #, python-brace-format
 msgid "Page {page}⁄{self.maximum_pages}"
 msgstr "{page}⁄{self.maximum_pages} oldal"
 
-#: emoji_connoisseur/utils/paginator.py:137
+#: emote_collector/utils/paginator.py:137
 msgid "Confused? React with \\N{INFORMATION SOURCE} for more info."
 msgstr ""
 "Össze vagy zavarodva? Használd a \\N{INFORMATION SOURCE} reakciót további "
 "infókért."
 
-#: emoji_connoisseur/utils/paginator.py:181
+#: emote_collector/utils/paginator.py:181
 msgid "What page do you want to go to?"
 msgstr "Melyik oldalra szeretnél váltani?"
 
-#: emoji_connoisseur/utils/paginator.py:191
+#: emote_collector/utils/paginator.py:191
 msgid "You took too long."
 msgstr "Túl sok ideig tartott a kiválasztás."
 
-#: emoji_connoisseur/utils/paginator.py:200
+#: emote_collector/utils/paginator.py:200
 #, python-brace-format
 msgid "Invalid page given. ({page}/{self.maximum_pages})"
 msgstr "Nem létező oldal megadva. ({page}/{self.maximum_pages})"
 
-#: emoji_connoisseur/utils/paginator.py:212
+#: emote_collector/utils/paginator.py:212
 msgid "Welcome to the interactive paginator!\n"
 msgstr "Üdvözöl az interaktív menü!\n"
 
-#: emoji_connoisseur/utils/paginator.py:213
+#: emote_collector/utils/paginator.py:213
 msgid ""
 "This interactively allows you to see pages of text by navigating with "
 "reactions. They are as follows:\n"
@@ -465,95 +464,95 @@ msgstr ""
 "A menü engedélyezi számodra az oldalak megtekintését reakció alapú navigáció "
 "segítségével.Ezek a következőek:\n"
 
-#: emoji_connoisseur/utils/paginator.py:222
-#: emoji_connoisseur/utils/paginator.py:523
-#: emoji_connoisseur/utils/paginator.py:557
+#: emote_collector/utils/paginator.py:222
+#: emote_collector/utils/paginator.py:523
+#: emote_collector/utils/paginator.py:557
 #, python-brace-format
 msgid "We were on page {self.current_page} before this message."
 msgstr "Ezen üzenet előtt a {self.current_page}. oldalon voltunk."
 
-#: emoji_connoisseur/utils/paginator.py:405
+#: emote_collector/utils/paginator.py:405
 #, python-brace-format
 msgid "{cog_name} Commands"
 msgstr "{cog_name} parancsok"
 
-#: emoji_connoisseur/utils/paginator.py:426
+#: emote_collector/utils/paginator.py:426
 msgid "No help given."
 msgstr "Nincs segítség megadva."
 
-#: emoji_connoisseur/utils/paginator.py:434
+#: emote_collector/utils/paginator.py:434
 msgid "Misc"
 msgstr "Egyéb"
 
-#: emoji_connoisseur/utils/paginator.py:470
+#: emote_collector/utils/paginator.py:470
 #, python-brace-format
 msgid "{cog} Commands"
 msgstr "{cog} parancsok"
 
-#: emoji_connoisseur/utils/paginator.py:484
+#: emote_collector/utils/paginator.py:484
 #, python-brace-format
 msgid "For more help, join the official bot support server: {invite}"
 msgstr ""
 "További segítségért csatlakozz a bot hivatalos támogatói szerveréhez: "
 "{invite}"
 
-#: emoji_connoisseur/utils/paginator.py:488
+#: emote_collector/utils/paginator.py:488
 #, python-brace-format
 msgid "Use \"{self.prefix}help command\" for more info on a command."
 msgstr ""
 "Használd a \"{self.prefix}help parancs\" parancsot további infókért egy "
 "paranccsal kapcsolatban!"
 
-#: emoji_connoisseur/utils/paginator.py:495
+#: emote_collector/utils/paginator.py:495
 msgid "No help given"
 msgstr "Nincs segítség megadva"
 
-#: emoji_connoisseur/utils/paginator.py:500
+#: emote_collector/utils/paginator.py:500
 #, python-brace-format
 msgid "Page {page}⁄{self.maximum_pages} ({self.total} commands)"
 msgstr "{page}⁄{self.maximum_pages} oldal, ({self.total} parancsok)"
 
-#: emoji_connoisseur/utils/paginator.py:515
+#: emote_collector/utils/paginator.py:515
 msgid "Paginator help"
 msgstr "Menü segítség"
 
-#: emoji_connoisseur/utils/paginator.py:516
+#: emote_collector/utils/paginator.py:516
 msgid "Hello! Welcome to the help page."
 msgstr "Üdv a segítségnyújtó oldalon!"
 
-#: emoji_connoisseur/utils/paginator.py:520
+#: emote_collector/utils/paginator.py:520
 msgid "What are these reactions for?"
 msgstr "Mire jók ezek a reakciók?"
 
-#: emoji_connoisseur/utils/paginator.py:539
+#: emote_collector/utils/paginator.py:539
 msgid "argument"
 msgstr "argumentum"
 
-#: emoji_connoisseur/utils/paginator.py:542
+#: emote_collector/utils/paginator.py:542
 msgid "How do I use this bot?"
 msgstr "Hogyan tudom használni ezt a botot?"
 
-#: emoji_connoisseur/utils/paginator.py:542
+#: emote_collector/utils/paginator.py:542
 msgid "Reading the bot signature is pretty simple."
 msgstr "A bot parancs-paraméterezése igen egyszerű."
 
-#: emoji_connoisseur/utils/paginator.py:545
+#: emote_collector/utils/paginator.py:545
 msgid "This means the argument is __**required**__."
 msgstr "Tehát ez a paraméter __**kötelező**__."
 
-#: emoji_connoisseur/utils/paginator.py:546
+#: emote_collector/utils/paginator.py:546
 msgid "This means the argument is __**optional**__."
 msgstr "Tehát ez a paraméter __**opcionális**__."
 
-#: emoji_connoisseur/utils/paginator.py:547
+#: emote_collector/utils/paginator.py:547
 msgid "[A|B]"
 msgstr "[A|B]"
 
-#: emoji_connoisseur/utils/paginator.py:547
+#: emote_collector/utils/paginator.py:547
 msgid "This means that it can be __**either A or B**__."
 msgstr "Tehát ez a paraméter lehet __**A vagy B**__."
 
-#: emoji_connoisseur/utils/paginator.py:548
+#: emote_collector/utils/paginator.py:548
 msgid ""
 "This means you can have multiple arguments.\n"
 "Now that you know the basics, it should be noted that...\n"

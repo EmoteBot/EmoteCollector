@@ -17,7 +17,7 @@ locales = frozenset(
 
 gettext_translations = {
 	locale: gettext.translation(
-		'emoji_connoisseur',
+		'emote_collector',
 		languages=(locale,),
 		localedir=os.path.join(BASE_DIR, locale_dir))
 	for locale in locales}
