@@ -5,7 +5,7 @@
 
 	# your instance of the website code located at https://github.com/EmoteCollector/website
 	# if this is left blank, the ec/list command will not advertise the online version of the list.
-	'website': 'https://emoji-connoisseur.python-for.life',
+	'website': 'https://emote-collector.python-for.life',
 
 	# change this user agent if you change the code
 	'user_agent': 'EmoteCollectorBot (https://github.com/EmoteCollector/bot)',
@@ -15,7 +15,7 @@
 	# related to your instance of https://github.com/EmoteCollector/website
 	# if this dict is left empty, the API related commands will be disabled.
 	'api': {
-		'docs_url': 'https://emoji-connoisseur.python-for.life/api/v0/docs',
+		'docs_url': 'https://emote-collector.python-for.life/api/v0/docs',
 	},
 
 	# the contents of this file will be sent to the user when they run the "copyright" command
