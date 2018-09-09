@@ -2,7 +2,7 @@
 # Copyright (C) 2018 THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 # Benjamin <bmintz@protonmail.com>, 2018.
-# 
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
@@ -187,12 +187,12 @@ msgstr "A reakció sikertelen: nincs jogom reakciók hozzáadására."
 #: emote_collector/extensions/emote.py:494
 #, python-brace-format
 msgid "{emote} (Preserved) — owned by {author}"
-msgstr ""
+msgstr "{emote} (Tartós) — Birtokolja: {author}"
 
 #: emote_collector/extensions/emote.py:499
 #, python-brace-format
 msgid "{emote} — owned by {author}"
-msgstr "{emote} (Tartós)"
+msgstr "{emote} — Birtokolja: {author}"
 
 #: emote_collector/extensions/emote.py:503
 #: emote_collector/extensions/emote.py:557
