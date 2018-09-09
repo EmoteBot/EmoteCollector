@@ -77,7 +77,10 @@ class Database:
 
 		guilds = set()
 		for guild in self.bot.guilds:
-			if guild.name.startswith('EmojiBackend') and await self.bot.is_owner(guild.owner):
+			if (
+				guild.name.startswith(('EmojiBackend', 'EmoteBackend'))
+				and await self.bot.is_owner(guild.owner)
+			):
 				guilds.add(guild)
 
 		await self._pool.executemany("""
