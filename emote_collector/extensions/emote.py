@@ -799,6 +799,8 @@ class Emotes:
 		async def callback(toke1, out, emotes_used):
 			if toke1.type == 'TEXT' and toke1.value == '\n':
 				return out.write(toke1.value)
+			if toke1.type != 'EMOTE':
+				return
 
 			try:
 				emote = await self.db.get_emote(toke1.value.strip(':;'))
@@ -820,13 +822,13 @@ class Emotes:
 		"""Parse all emotes (:name: or ;name;) from a message, preserving non-emote text"""
 
 		async def callback(toke1, out, emotes_used):
-			if toke1.type == 'CUSTOM_EMOTE' or toke1.type != 'EMOTE':
+			if toke1.type != 'EMOTE':
 				return out.write(toke1.value)
 
 			try:
 				emote = await self.db.get_emote(toke1.value.strip(':;'))
 			except errors.EmoteNotFoundError:
-				pass
+				out.write('\\'+toke1.value)
 			else:
 				out.write(str(emote))
 				emotes_used.add(emote.id)
