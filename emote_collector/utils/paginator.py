@@ -345,7 +345,7 @@ _mention = re.compile(r'<@\!?([0-9]{1,19})>')
 def cleanup_prefix(bot, prefix):
 	m = _mention.match(prefix)
 	if m:
-		user = bot.get_user(int(m.group(1)))
+		user = bot.get_user(int(m[1]))
 		if user:
 			return f'@{user.name} '
 	return prefix

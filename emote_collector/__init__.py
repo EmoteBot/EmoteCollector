@@ -60,7 +60,7 @@ class EmoteCollector(commands.AutoShardedBot):
 		if match is None:
 			return commands.when_mentioned(bot, message)
 		else:
-			return commands.when_mentioned_or(match.group(0))(bot, message)
+			return commands.when_mentioned_or(match[0])(bot, message)
 
 	async def on_ready(self):
 		separator = '━' * 44

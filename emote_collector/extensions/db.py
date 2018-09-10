@@ -388,7 +388,7 @@ class Database:
 		# like why not just call it "StringTooLongError"?
 		except asyncpg.StringDataRightTruncationError as exception:
 			# XXX dumb way to do it but it's the only way i've got
-			limit = int(re.search(r'character varying\((\d+)\)', exception.message).group(1))
+			limit = int(re.search(r'character varying\((\d+)\)', exception.message)[1])
 			raise errors.EmoteDescriptionTooLongError(emote.name, limit)
 
 	async def set_emote_preservation(self, name, should_preserve: bool):

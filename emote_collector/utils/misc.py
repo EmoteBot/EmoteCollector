@@ -160,7 +160,7 @@ def expand_cartesian_product(str) -> (str, str):
 		return (str, '')
 
 def _expand_one_cartesian_product(str, match, group):
-	return str[:match.start()] + match.group(group) + str[match.end():]
+	return str[:match.start()] + match[group] + str[match.end():]
 
 def load_json_compat(data: str):
 	"""evaluate a python dictionary/list/thing, while maintaining some compatibility with JSON"""
@@ -232,8 +232,8 @@ def clean_content(bot, message, content, *, fix_channel_mentions=False, use_nick
 			for role_id in message.raw_role_mentions
 		)
 
-	def repl(obj):
-		return transformations.get(obj.group(0), '')
+	def repl(match):
+		return transformations.get(match[0], '')
 
 	pattern = re.compile('|'.join(transformations.keys()))
 	result = pattern.sub(repl, content)
@@ -244,8 +244,8 @@ def clean_content(bot, message, content, *, fix_channel_mentions=False, use_nick
 			for c in ('*', '`', '_', '~', '\\')
 		}
 
-		def replace(obj):
-			return transformations.get(re.escape(obj.group(0)), '')
+		def replace(match):
+			return transformations.get(re.escape(match[0]), '')
 
 		pattern = re.compile('|'.join(transformations.keys()))
 		result = pattern.sub(replace, result)

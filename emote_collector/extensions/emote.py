@@ -183,7 +183,7 @@ class Emotes:
 			if match is None:
 				url = utils.strip_angle_brackets(args[1])
 			else:
-				url = utils.emote.url(match.group('id'))
+				url = utils.emote.url(match['id'])
 
 			return name, url
 
@@ -587,15 +587,17 @@ class Emotes:
 			emote = re.match(utils.lexer.t_CUSTOM_EMOTE, description)
 		except TypeError:
 			return await context.send(_('No description was found in that embed.'))
-		name = emote.group('name')
+		name = emote['name']
 
 		try:
-			url = utils.emote.url(emote.group('id'), animated=emote.group('animated'))
+			url = utils.emote.url(emote['id'], animated=emote['animated'])
 		except AttributeError:
 			return await context.send(_("No custom emotes were found in that embed's description."))
 
 		try:
-			author = int((re.search(r'<@!?(\d{17,})>', description) or re.search('Unknown user with ID (\d{17,})', description)).group(1))
+			author = int((
+				re.search(r'<@!?(\d{17,})>', description)
+				or re.search('Unknown user with ID (\d{17,})', description))[1])
 		except AttributeError:
 			return await context.send(_('No author IDs were found in that embed.'))
 
