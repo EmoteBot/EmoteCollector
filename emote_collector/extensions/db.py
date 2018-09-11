@@ -114,7 +114,7 @@ class Database:
 		while True:
 			logger.debug('entering decay loop')
 			if not self.bot.config.get('decay', False):
-				logger.warning('decay disabled! make sure it\'s enabled in the config.')
+				logger.warning("decay disabled! make sure it's enabled in the config.")
 				return
 			logger.debug('decay enabled')
 

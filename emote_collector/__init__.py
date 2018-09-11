@@ -46,6 +46,7 @@ class EmoteCollector(commands.AutoShardedBot):
 			activity=discord.Game(name=self.config['prefix'] + 'help'),  # "Playing ec/help"
 			*args, **kwargs)
 
+		utils.i18n.setup(self.loop)
 		self._setup_success_emojis()
 
 	def _setup_success_emojis(self):

@@ -34,3 +34,5 @@ current_locale = aiocontextvars.ContextVar('i18n')
 builtins._ = use_current_gettext
 
 current_locale.set(default_locale)
+
+setup = aiocontextvars.enable_inherit
