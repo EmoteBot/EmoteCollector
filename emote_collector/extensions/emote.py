@@ -117,6 +117,9 @@ class Emotes:
 	@checks.not_blacklisted()
 	async def quote(self, context, *, message):
 		"""Quotes your message, with :foo: and ;foo; replaced with their emote forms"""
+		if not message:
+			return
+
 		message, has_emotes = await self.quote_emotes(context.message, message)
 
 		if context.guild.me.permissions_in(context.channel).manage_messages:
@@ -127,7 +130,8 @@ class Emotes:
 			with contextlib.suppress(discord.NotFound):
 				await context.message.delete()
 
-		await context.send(message)
+		reply = await context.send(message)
+		self.replies[context.message.id] = 1, reply
 
 	@commands.command(aliases=['create'])
 	@checks.not_blacklisted()
@@ -698,7 +702,7 @@ class Emotes:
 		if not has_emotes:
 			return
 
-		self.replies[message.id] = await message.channel.send(reply)
+		self.replies[message.id] = 0, await message.channel.send(reply)
 
 	async def _should_auto_reply(self, message: discord.Message):
 		"""return whether the bot should send an emote auto response to message"""
@@ -745,14 +749,39 @@ class Emotes:
 			channel=self.bot.get_channel(int(payload.data['channel_id'])),
 			data=payload.data)
 
+		type, reply = self.replies[payload.message_id]
+		if type == 0:  # extract_emotes
+			await self._handle_extracted_edit(message, reply)
+		else:
+			await self._handle_quoted_edit(message, reply)
+
+	async def _handle_extracted_edit(self, message, reply):
+		"""handle the case when a user edits a message that we auto-responded to"""
 		emotes, message_has_emotes = await self.extract_emotes(message, log_usage=False)
-		reply = self.replies[payload.message_id]
 
 		# editing out emotes from a message deletes the reply
 		if not message_has_emotes:
-			del self.replies[payload.message_id]
+			del self.replies[message.id]
 			return await reply.delete()
 		elif emotes == reply.content:
+			# don't edit a message if we don't need to
+			return
+
+		await reply.edit(content=emotes)
+
+	async def _handle_quoted_edit(self, message, reply):
+		"""handle the case when the user edits an ec/quote invocation"""
+		context = await self.bot.get_context(message)
+		content = context.view.read_rest()
+		if not context.command or not context.command is self.quote or not content:
+			del self.replies[message.id]
+			return await reply.delete()
+
+		emotes, message_has_emotes = await self.quote_emotes(
+			message,
+			content,
+			log_usage=False)
+		if emotes == reply.content:
 			# don't edit a message if we don't need to
 			return
 
@@ -840,7 +869,7 @@ class Emotes:
 	async def delete_reply(self, message_id):
 		"""Delete our reply to a message containing emotes."""
 		try:
-			message = self.replies.pop(message_id)
+			type, message = self.replies.pop(message_id)
 		except KeyError:
 			return
 
