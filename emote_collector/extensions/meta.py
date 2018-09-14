@@ -50,6 +50,11 @@ class Meta:
 
 		command = getattr(parsed_args, 'command or category') or ()
 
+		if not command:
+			paginator = await HelpPaginator.from_bot(context)
+			self.paginators.add(paginator)
+			return await paginator.begin()
+
 		if not parsed_args.embed:
 			return await context.invoke(self.old_help[0], *command)
 
@@ -59,6 +64,7 @@ class Meta:
 
 		# it came from argparser so it's still a bunch of args
 		command = ' '.join(command)
+
 		entity = self.bot.get_cog(command) or self.bot.get_command(command)
 
 		if entity is self.help:
