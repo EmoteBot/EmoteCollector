@@ -307,8 +307,6 @@ class Emotes:
 
 				try:
 					emote = await self.add_from_url(name, image_url, context.author.id)
-				except errors.EmoteExistsError as error:
-					messages.setdefault(self._humanize_errors(error), []).append(str(error.emote))
 				except BaseException as error:
 					messages.setdefault(self._humanize_errors(error), []).append(arg)
 				else:
