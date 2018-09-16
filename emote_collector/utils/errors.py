@@ -22,9 +22,19 @@ class InvalidImageError(ConnoisseurError):
 	def __init__(self):
 		super().__init__(_('The image supplied was not a GIF, PNG, or JPG.'))
 
+class URLTimeoutError(ConnoisseurError):
+	"""Retrieving the image took too long."""
+	def __init__(self):
+		super().__init__(_('Error: Retrieving the image took too long.'))
+
+class ImageResizeTimeoutError(ConnoisseurError):
+	"""Resizing the image took too long."""
+	def __init__(self):
+		super().__init__(_('Error: Resizing the image took too long.'))
+
 class EmoteError(ConnoisseurError):
 	"""Abstract error while trying to modify an emote"""
-	def __init__(self, message, name):
+	def __init__(self, message, name=None):
 		self.name = name
 		super().__init__(message.format(name=self.name))
 
@@ -48,9 +58,8 @@ class EmoteDescriptionTooLongError(EmoteError):
 	"""Raised when a user tries to set a description that's too long"""
 	def __init__(self, name, limit):
 		self.limit = limit
-		# EmoteError already tries to translate the message, skip that by using its super
-		super(EmoteError, self).__init__(_(
-			'That description is too long. The limit is {limit}').format(**locals()))
+		super().__init__(_(
+			'That description is too long. The limit is {limit}.').format(**locals()))
 
 class NoMoreSlotsError(ConnoisseurError):
 	"""Raised in the rare case that all slots of a particular type (static/animated) are full

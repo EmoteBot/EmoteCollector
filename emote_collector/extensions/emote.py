@@ -213,8 +213,6 @@ class Emotes:
 			return (
 				_('An error occurred while creating the emote:\n')
 				+ utils.format_http_exception(ex))
-		except asyncio.TimeoutError:
-			return _('Error: retrieving the image or resizing the image took too long.')
 		except ValueError:
 			return _('Error: Invalid URL.')
 		else:
@@ -225,7 +223,11 @@ class Emotes:
 		# in case resizing takes a long time.
 		await self.db.ensure_emote_does_not_exist(name)
 
-		image_data = await self.fetch_emote(url)
+		try:
+			image_data = await self.fetch_emote(url)
+		except asyncio.TimeoutError:
+			raise errors.URLTimeoutError
+
 		emote = await self.create_emote_from_bytes(name, author_id, image_data, verify=False)
 
 		return emote
@@ -247,7 +249,11 @@ class Emotes:
 	async def create_emote_from_bytes(self, name, author_id, image_data: io.BytesIO, *, verify=True):
 		if verify:
 			await self.db.ensure_emote_does_not_exist(name)
-		image_data = await image_utils.resize_until_small(image_data)
+		try:
+			image_data = await image_utils.resize_until_small(image_data)
+		except asyncio.TimeoutError:
+			raise errors.ImageResizeTimeoutError
+
 		animated = image_utils.is_animated(image_data.getvalue())
 		emote = await self.db.create_emote(name, author_id, animated, image_data.read())
 		self.bot.dispatch('emote_add', emote)
