@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # encoding: utf-8
 
+import inspect
 import shlex
 import os
 import weakref
@@ -16,9 +17,13 @@ from ..utils.paginator import HelpPaginator
 class Meta:
 	def __init__(self, bot):
 		self.bot = bot
+
 		# setting a Command as an attribute of a cog causes it to be added to the bot
 		# prevent this by wrapping it in a tuple
 		self.old_help = (self.bot.remove_command('help'),)
+		if not self.bot.config.get('repo'):
+			del self.source
+
 		self.paginators = weakref.WeakSet()
 		self.process = psutil.Process()
 
@@ -146,6 +151,48 @@ class Meta:
 		permissions.update(**dict.fromkeys(permission_names, True))
 		await context.send('<%s>' % discord.utils.oauth_url(self.bot.config['client_id'], permissions))
 
+	# heavily based on code provided by Rapptz, © 2015 Rapptz
+	# https://github.com/Rapptz/RoboDanny/blob/8919ec0a455f957848ef77b479fe3494e76f0aa7/cogs/meta.py#L162-L190
+	@commands.command()
+	async def source(self, context, *, command: str = None):
+		"""Displays my full source code or for a specific command.
+		To display the source code of a subcommand you can separate it by
+		periods, e.g. tag.create for the create subcommand of the tag command
+		or by spaces.
+		"""
+
+		source_url = self.bot.config.get('repo')
+		if command is None:
+			return await context.send(source_url)
+
+		obj = self.bot.get_command(command.replace('.', ' '))
+		if obj is None:
+			return await context.send('Could not find command.')
+
+		# since we found the command we're looking for, presumably anyway, let's
+		# try to access the code itself
+		src = obj.callback.__code__
+		lines, firstlineno = inspect.getsourcelines(src)
+		module = obj.callback.__module__
+		if module.startswith(self.__module__.split('.')[0]):  # XXX dunno if this branch works
+			# not a built-in command
+			location = os.path.relpath(src.co_filename).replace('\\', '/')
+			branch = 'master'
+		elif module.startswith('discord'):
+			source_url = 'https://github.com/Rapptz/discord.py'
+			branch = 'rewrite'
+		else:
+			if module.startswith('jishaku'):
+				source_url = 'https://github.com/Gorialis/jishaku'
+				branch = 'master'
+			elif module.startswith('ben_cogs'):
+				source_url = 'https://github.com/bmintz/cogs'
+				branch = 'master'
+
+			location = module.replace('.', '/') + '.py'
+
+		final_url = f'<{source_url}/blob/{branch}/{location}#L{firstlineno}-L{firstlineno + len(lines) - 1}>'
+		await context.send(final_url)
 
 def setup(bot):
 	bot.add_cog(Meta(bot))
