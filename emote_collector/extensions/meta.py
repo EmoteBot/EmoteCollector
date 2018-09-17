@@ -157,7 +157,7 @@ class Meta:
 	async def source(self, context, *, command: str = None):
 		"""Displays my full source code or for a specific command.
 		To display the source code of a subcommand you can separate it by
-		periods, e.g. tag.create for the create subcommand of the tag command
+		periods, e.g. locale.set for the set subcommand of the locale command
 		or by spaces.
 		"""
 
