@@ -19,7 +19,6 @@ from . utils
 
 bot = discord.Client(self_bot=True)
 
-
 def print_status(status_message):
 	def wrapper(func):
 		if inspect.iscoroutinefunction(func):
@@ -39,7 +38,6 @@ def print_status(status_message):
 		return wrapped
 	return wrapper
 
-
 @bot.event
 async def on_ready():
 	print('Ready.')
@@ -49,6 +47,8 @@ async def on_ready():
 
 	bot.needed_guilds = {guild for guild in bot.guilds if len(guild.members) < 2}
 	await add_bot_to_guilds()
+
+	await update_permissions()
 
 	return await bot.logout()
 
@@ -72,7 +72,6 @@ async def create_guilds(prefix, start=0, limit=100):
 	for i in range(start, limit):
 		await bot.create_guild(format_guild_name(prefix, i, limit)
 
-
 @print_status('Clearing default channels')
 async def clear_guilds():
 	for guild in bot.guilds:
@@ -88,9 +87,13 @@ administrator.administrator = True
 
 @print_status('Updating permissions')
 async def update_permissions():
-	for guild in client.guilds:
+	for guild in bot.guilds:
 		ec_role = discord.utils.get(guild.roles, name='Emote Collector')
 		await ec_role.edit(permissions=administrator)
+
+		default_role = guild.default_role
+		default_role.permssions.mention_everyone = False
+		await default_role.edit(permissions=default_role.permissions)
 
 async def add_bot_to_guilds():
 	try:
@@ -109,13 +112,11 @@ async def add_bot_to_guilds():
 	print(discord.utils.oauth_url(get_bot_user_id(), needed_permissions))
 	print('Then add the bot to this guild:', next_guild.name)
 
-
 def get_needed_guild():
 	try:
 		return next(iter(bot.needed_guilds))
 	except StopIteration:
 		raise ValueError('no more guilds') from None
-
 
 @bot.event
 async def on_member_join(member):
@@ -123,7 +124,6 @@ async def on_member_join(member):
 	print(len(bot.guilds) - len(bot.needed_guilds), 'down,', len(bot.needed_guilds), 'to go.', end=' ')
 	with contextlib.suppress(ValueError):
 		print('Now add', get_needed_guild().name, end='.\n')
-
 
 def get_bot_user_id():
 	return token_id(get_token_from_config())
@@ -136,12 +136,10 @@ def token_id(token) -> int:
 	"""decodes a token to retrieve the user ID"""
 	return int(base64.b64decode(token.split('.')[0]))
 
-
 def usage() -> typing.NoReturn:
 	print('Usage:', sys.argv[0], '<token>', file=sys.stderr)
 	print('You can also set $token.', file=sys.stderr)
 	sys.exit(1)
-
 
 def main():
 	if len(sys.argv) > 1:
@@ -154,7 +152,6 @@ def main():
 		usage()
 
 	bot.run(token, bot=False)
-
 
 if __name__ == '__main__':
 	main()

@@ -199,9 +199,7 @@ class Database:
 
 	async def get_emote_usage(self, emote) -> int:
 		"""return how many times this emote was used"""
-		return await self._pool.fetchval(
-			'SELECT COUNT(*) FROM emote_usage_history WHERE id = $1',
-			emote.id)
+		return await self._pool.fetchval('SELECT COUNT(*) FROM emote_usage_history WHERE id = $1', emote.id)
 
 	## Iterators
 
