@@ -28,8 +28,11 @@ class Meta:
 		self.process = psutil.Process()
 
 	def __unload(self):
-		for paginator in self.paginators:
-			self.bot.loop.create_task(paginator.stop(delete=False))
+		async def stop_all():
+			for paginator in self.paginators:
+				await paginator.stop(delete=False)
+
+		self.bot.loop.create_task(stop_all())
 
 	@commands.command()
 	async def help(self, context, *, args: str=None):

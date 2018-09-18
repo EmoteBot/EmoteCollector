@@ -47,11 +47,15 @@ class Emotes:
 		self.paginators = weakref.WeakSet()
 
 	def __unload(self):
-		# aiohttp can't decide if this should be a coroutine...
-		# i think it shouldn't be, since it never awaits
-		self.bot.loop.create_task(self.http.close())
-		for paginator in self.paginators:
-			self.bot.loop.create_task(paginator.stop(delete=False))
+		async def task():
+			# aiohttp can't decide if this should be a coroutine...
+			# i think it shouldn't be, since it never awaits
+			await self.http.close()
+
+			for paginator in self.paginators:
+				await paginator.stop(delete=False)
+
+		self.bot.loop.create_task(task())
 
 	## Commands
 
