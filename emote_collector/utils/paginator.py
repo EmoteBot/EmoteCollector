@@ -3,6 +3,7 @@ import collections
 import contextlib
 
 import discord
+from discord.ext.commands import CommandError
 
 # Derived mainly from R.Danny but also from Liara:
 # Copyright © 2015 Rapptz
@@ -10,7 +11,7 @@ import discord
 # Copyright © 2016-2017 Pandentia and contributors
 # https://github.com/Thessia/Liara/blob/75fa11948b8b2ea27842d8815a32e51ef280a999/cogs/utils/paginator.py
 
-class CannotPaginate(Exception):
+class CannotPaginate(CommandError):
 	pass
 
 class Pages:

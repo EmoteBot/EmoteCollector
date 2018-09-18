@@ -12,7 +12,7 @@ import discord
 from discord.ext import commands
 
 from ..utils import argparse
-from ..utils.paginator import HelpPaginator
+from ..utils.paginator import HelpPaginator, CannotPaginate
 
 class Meta:
 	def __init__(self, bot):
@@ -84,6 +84,11 @@ class Meta:
 
 		self.paginators.add(paginator)
 		await paginator.begin()
+
+	@help.error
+	async def help_error(self, context, error):
+		if isinstance(error, CannotPaginate):
+			await context.send(error)
 
 	@commands.command()
 	async def about(self, context):

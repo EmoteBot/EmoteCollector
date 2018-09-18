@@ -20,7 +20,7 @@ from .. import utils
 from ..utils import image as image_utils
 from ..utils import checks
 from ..utils import errors
-from ..utils.paginator import Pages
+from ..utils.paginator import CannotPaginate, Pages
 
 logger = logging.getLogger(__name__)
 
@@ -691,7 +691,7 @@ class Emotes:
 
 	@staticmethod
 	async def on_command_error(context, error):
-		if isinstance(error, errors.ConnoisseurError):
+		if isinstance(error, (errors.ConnoisseurError, CannotPaginate)):
 			await context.send(error)
 
 	async def on_message(self, message):
