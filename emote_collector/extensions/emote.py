@@ -253,12 +253,14 @@ class Emotes:
 	async def create_emote_from_bytes(self, name, author_id, image_data: io.BytesIO, *, verify=True):
 		if verify:
 			await self.db.ensure_emote_does_not_exist(name)
+
+		animated = image_utils.is_animated(image_data.getvalue())
+
 		try:
 			image_data = await image_utils.resize_until_small(image_data)
 		except asyncio.TimeoutError:
 			raise errors.ImageResizeTimeoutError
 
-		animated = image_utils.is_animated(image_data.getvalue())
 		emote = await self.db.create_emote(name, author_id, animated, image_data.read())
 		self.bot.dispatch('emote_add', emote)
 		return emote
