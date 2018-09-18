@@ -63,7 +63,7 @@ def is_animated(image_data: bytes):
 	type = imghdr.what(None, image_data)
 	if type == 'gif':
 		return True
-	elif type in ('png', 'jpeg'):
+	elif type in {'png', 'jpeg'}:
 		return False
 	else:
 		raise errors.InvalidImageError

@@ -1,3 +1,5 @@
+import asyncio
+
 from discord.ext.commands import CommandError
 
 class ConnoisseurError(CommandError):
@@ -22,12 +24,12 @@ class InvalidImageError(ConnoisseurError):
 	def __init__(self):
 		super().__init__(_('The image supplied was not a GIF, PNG, or JPG.'))
 
-class URLTimeoutError(ConnoisseurError):
+class URLTimeoutError(ConnoisseurError, asyncio.TimeoutError):
 	"""Retrieving the image took too long."""
 	def __init__(self):
 		super().__init__(_('Error: Retrieving the image took too long.'))
 
-class ImageResizeTimeoutError(ConnoisseurError):
+class ImageResizeTimeoutError(ConnoisseurError, asyncio.TimeoutError):
 	"""Resizing the image took too long."""
 	def __init__(self):
 		super().__init__(_('Error: Resizing the image took too long.'))
