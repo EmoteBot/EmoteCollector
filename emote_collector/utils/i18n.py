@@ -23,6 +23,9 @@ gettext_translations = {
 	for locale in locales}
 
 def use_current_gettext(*args, **kwargs):
+	if not gettext_translations:
+		return gettext.gettext(*args, **kwargs)
+
 	locale = current_locale.get()
 	return (
 		gettext_translations.get(
