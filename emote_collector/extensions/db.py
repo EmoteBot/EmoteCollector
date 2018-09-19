@@ -47,10 +47,10 @@ class DatabaseEmote(utils.AttrDict):
 		return utils.emote.url(self.id, animated=self.animated)
 
 	@classmethod
-	async def convert(cls, context, name: str):
+	def convert(cls, context, name: str):
 		name = name.strip().strip(':;')
 		cog = context.bot.get_cog('Database')
-		return await cog.get_emote(name)
+		return cog.get_emote(name)
 
 class Database:
 	def __init__(self, bot):
@@ -166,9 +166,9 @@ class Database:
 
 	## Informational
 
-	async def count(self) -> asyncpg.Record:
+	def count(self) -> asyncpg.Record:
 		"""Return (not animated count, animated count, total)"""
-		return await self._pool.fetchrow("""
+		return self._pool.fetchrow("""
 			SELECT
 				COUNT(*) FILTER (WHERE NOT animated) AS static,
 				COUNT(*) FILTER (WHERE animated) AS animated,
@@ -191,9 +191,9 @@ class Database:
 		else:
 			raise errors.EmoteNotFoundError(name)
 
-	async def get_emote_usage(self, emote) -> int:
+	def get_emote_usage(self, emote) -> int:
 		"""return how many times this emote was used"""
-		return await self._pool.fetchval('SELECT COUNT(*) FROM emote_usage_history WHERE id = $1', emote.id)
+		return self._pool.fetchval('SELECT COUNT(*) FROM emote_usage_history WHERE id = $1', emote.id)
 
 	## Iterators
 
@@ -211,7 +211,7 @@ class Database:
 
 	def popular_emotes(self, *, limit=200):
 		"""return an async iterator that gets emotes from the db sorted by popularity"""
-		query = """
+		return self._database_emote_cursor("""
 			SELECT e.*, COUNT(euh.id) AS usage
 			FROM emotes AS e
 			INNER JOIN emote_usage_history AS euh
@@ -221,19 +221,17 @@ class Database:
 			HAVING COUNT(euh.id) > 0
 			ORDER BY usage DESC, LOWER(e.name)
 			LIMIT $1
-		"""
-		return self._database_emote_cursor(query, limit)
+		""", limit)
 
 	def search(self, substring):
 		"""return an async iterator that gets emotes from the db whose name contains `substring`."""
 
-		query = """
+		return self._database_emote_cursor("""
 			SELECT *
 			FROM emotes
 			WHERE str_contains(LOWER($1), LOWER(name))
 			ORDER BY LOWER(name) ASC
-		"""
-		return self._database_emote_cursor(query, substring)
+		""", substring)
 
 	def decayable_emotes(self, cutoff: datetime = None, usage_threshold=2):
 		"""emotes that should be removed due to inactivity.
@@ -249,7 +247,7 @@ class Database:
 			cutoff = datetime.datetime.utcnow() - datetime.timedelta(weeks=4)
 
 		return self._database_emote_cursor("""
-			SELECT e.*, COUNT(euh.id)
+			SELECT e.*, COUNT(euh.id) AS usage
 			FROM emotes AS e
 			INNER JOIN emote_usage_history AS euh
 				ON euh.id = e.id
@@ -425,10 +423,10 @@ class Database:
 
 	## User / Guild Options
 
-	async def _toggle_state(self, table_name, id, default):
+	def _toggle_state(self, table_name, id, default):
 		"""toggle the state for a user or guild. If there's no entry already, new state = default."""
 		# see _get_state for why string formatting is OK here
-		return await self._pool.fetchval(f"""
+		return self._pool.fetchval(f"""
 			INSERT INTO {table_name} (id, state) VALUES ($1, $2)
 			ON CONFLICT (id) DO UPDATE SET state = NOT {table_name}.state
 			RETURNING state
@@ -447,31 +445,31 @@ class Database:
 			default = not guild_state
 		return await self._toggle_state('user_opt', user_id, default)
 
-	async def toggle_guild_state(self, guild_id):
+	def toggle_guild_state(self, guild_id):
 		"""Togle whether this guild is opt out.
 		If this guild is opt in, the emote auto response will be disabled
 		except for users that have opted in to it using `toggle_user_state`.
 		Otherwise, the response will be on for all users except those that have opted out.
 		"""
-		return await self._toggle_state('guild_opt', guild_id, False)
+		return self._toggle_state('guild_opt', guild_id, False)
 
-	async def _get_state(self, table_name, id):
+	def _get_state(self, table_name, id):
 		# unfortunately, using $1 for table_name is a syntax error
 		# however, since table name is always hardcoded input from other functions in this module,
 		# it's ok to use string formatting here
-		return await self._pool.fetchval(f'SELECT state FROM {table_name} WHERE id = $1', id)
+		return self._pool.fetchval(f'SELECT state FROM {table_name} WHERE id = $1', id)
 
-	async def get_user_state(self, user_id):
+	def get_user_state(self, user_id):
 		"""return this user's global preference for the emote auto response"""
-		return await self._get_state('user_opt', user_id)
+		return self._get_state('user_opt', user_id)
 
-	async def get_guild_state(self, guild_id):
+	def get_guild_state(self, guild_id):
 		"""return whether this guild is opt in"""
-		return await self._get_state('guild_opt', guild_id)
+		return self._get_state('guild_opt', guild_id)
 
-	async def get_state(self, guild_id, user_id):
+	def get_state(self, guild_id, user_id):
 		# TODO investigate whether this obviates get_guild_state and get_user_state (probably does)
-		return await self._pool.fetchval("""
+		return self._pool.fetchval("""
 			SELECT COALESCE(
 				CASE WHEN (SELECT blacklist_reason FROM user_opt WHERE id = $2)
 					IS NULL THEN NULL
@@ -485,9 +483,9 @@ class Database:
 
 	## Blacklists
 
-	async def get_user_blacklist(self, user_id):
+	def get_user_blacklist(self, user_id):
 		"""return a reason for the user's blacklist, or None if not blacklisted"""
-		return await self._pool.fetchval('SELECT blacklist_reason from user_opt WHERE id = $1', user_id)
+		return self._pool.fetchval('SELECT blacklist_reason from user_opt WHERE id = $1', user_id)
 
 	async def set_user_blacklist(self, user_id, reason=None):
 		"""make user_id blacklisted
