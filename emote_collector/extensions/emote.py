@@ -239,15 +239,22 @@ class Emotes:
 	async def fetch_emote(self, url):
 		# credits to @Liara#0001 (ID 136900814408122368) for most of this part
 		# https://gitlab.com/Pandentia/element-zero/blob/47bc8eeeecc7d353ec66e1ef5235adab98ca9635/element_zero/cogs/emoji.py#L217-228
-		async with self.http.head(url, timeout=5) as response:
+
+		def validate_headers(response):
 			if response.reason != 'OK':
 				raise errors.HTTPException(response.status)
-			if response.headers.get('Content-Type') not in ('image/png', 'image/jpeg', 'image/gif'):
+			content_type = response.headers.get('Content-Type')
+			if content_type and content_type not in {'image/png', 'image/jpeg', 'image/gif'}:
 				raise errors.InvalidImageError
 
+		try:
+			async with self.http.head(url, timeout=5) as response:
+				validate_headers(response)
+		except aiohttp.ServerDisconnectedError as exception:
+			validate_headers(exception.message)
+
 		async with self.http.get(url) as response:
-			if response.reason != 'OK':
-				raise errors.HTTPException(response.status)
+			validate_headers(response)
 			return io.BytesIO(await response.read())
 
 	async def create_emote_from_bytes(self, name, author_id, image_data: io.BytesIO, *, verify=True):

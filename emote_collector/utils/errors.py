@@ -58,8 +58,9 @@ class PermissionDeniedError(EmoteError):
 
 class EmoteDescriptionTooLongError(EmoteError):
 	"""Raised when a user tries to set a description that's too long"""
-	def __init__(self, name, limit):
-		self.limit = limit
+	def __init__(self, name, actual_length, max_length):
+		self.actual_length = actual_length
+		self.limit = limit = self.max_length = max_length
 		super().__init__(_(
 			'That description is too long. The limit is {limit}.').format(**locals()))
 
