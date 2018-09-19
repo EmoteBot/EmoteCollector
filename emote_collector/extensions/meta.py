@@ -21,8 +21,6 @@ class Meta:
 		# setting a Command as an attribute of a cog causes it to be added to the bot
 		# prevent this by wrapping it in a tuple
 		self.old_help = (self.bot.remove_command('help'),)
-		if not self.bot.config.get('repo'):
-			del self.source
 
 		self.paginators = weakref.WeakSet()
 		self.process = psutil.Process()
@@ -204,3 +202,5 @@ class Meta:
 
 def setup(bot):
 	bot.add_cog(Meta(bot))
+	if not bot.config.get('repo'):
+		bot.remove_command('source')
