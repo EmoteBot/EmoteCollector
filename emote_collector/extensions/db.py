@@ -214,11 +214,10 @@ class Database:
 		return self._database_emote_cursor("""
 			SELECT e.*, COUNT(euh.id) AS usage
 			FROM emotes AS e
-			INNER JOIN emote_usage_history AS euh
+			LEFT JOIN emote_usage_history AS euh
 				ON euh.id = e.id
 				   AND euh.time > (CURRENT_TIMESTAMP - INTERVAL '4 weeks')
 			GROUP BY e.id
-			HAVING COUNT(euh.id) > 0
 			ORDER BY usage DESC, LOWER(e.name)
 			LIMIT $1
 		""", limit)
