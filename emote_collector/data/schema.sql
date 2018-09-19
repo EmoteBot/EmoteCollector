@@ -4,7 +4,7 @@ ALTER TABLE IF EXISTS emote RENAME TO emotes;
 
 CREATE TABLE IF NOT EXISTS emotes(
 	name VARCHAR(32) NOT NULL,
-	id BIGINT NOT NULL UNIQUE,
+	id BIGINT PRIMARY KEY,
 	author BIGINT NOT NULL,
 	animated BOOLEAN DEFAULT FALSE,
 	description VARCHAR(280),
@@ -14,6 +14,19 @@ CREATE TABLE IF NOT EXISTS emotes(
 	guild BIGINT NOT NULL);
 
 CREATE UNIQUE INDEX IF NOT EXISTS emotes_lower_idx ON emotes (LOWER(name));
+
+-- all this nonsense for "ADD PRIMARY KEY IF NOT EXISTS" lol
+-- we're adding a PK so that JOINS will work btw
+DO $$ BEGIN
+	IF NOT EXISTS (
+		SELECT constraint_name
+		FROM information_schema.table_constraints
+		WHERE table_name = 'emotes'
+		      AND constraint_type = 'PRIMARY KEY'
+	) THEN
+		ALTER TABLE emotes
+			ADD PRIMARY KEY (id); END IF; END; $$;
+
 CREATE INDEX IF NOT EXISTS emotes_author_idx ON emotes (author);
 
 CREATE TABLE IF NOT EXISTS _guilds(
