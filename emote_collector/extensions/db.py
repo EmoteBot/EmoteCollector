@@ -164,12 +164,6 @@ class Database:
 
 		return guild_id
 
-		guild = self.bot.get_guild(guild_id)
-		if guild is None:
-			raise errors.DiscordError('free backend guild retrieved from database but not in client cache')
-
-		return guild
-
 	## Informational
 
 	async def count(self) -> asyncpg.Record:
@@ -183,7 +177,7 @@ class Database:
 
 	def capacity(self):
 		"""return a three-tuple of static capacity, animated, total"""
-		return (len(self.guilds)*50,)*2+(len(self.guilds)*50*2,)
+		return (len(self.guilds) * 50,) * 2 + (len(self.guilds) * 50 * 2,)
 
 	async def get_emote(self, name) -> DatabaseEmote:
 		"""get an emote object by name"""
@@ -218,14 +212,14 @@ class Database:
 	def popular_emotes(self, *, limit=200):
 		"""return an async iterator that gets emotes from the db sorted by popularity"""
 		query = """
-			SELECT *, (
-				SELECT COUNT(*)
-				FROM emote_usage_history
-				WHERE id = emotes.id
-				AND time > (CURRENT_TIMESTAMP - INTERVAL '4 weeks')
-			) AS usage
-			FROM emotes
-			ORDER BY usage DESC, LOWER("name")
+			SELECT e.*, COUNT(euh.id) AS usage
+			FROM emotes AS e
+			LEFT JOIN emote_usage_history AS euh
+				ON euh.id = e.id
+				   AND euh.time > (CURRENT_TIMESTAMP - INTERVAL '4 weeks')
+			GROUP BY e.id
+			HAVING COUNT(euh.id) > 0
+			ORDER BY usage DESC, LOWER(e.name)
 			LIMIT $1
 		"""
 		return self._database_emote_cursor(query, limit)
@@ -255,17 +249,15 @@ class Database:
 			cutoff = datetime.datetime.utcnow() - datetime.timedelta(weeks=4)
 
 		return self._database_emote_cursor("""
-			SELECT *
-			FROM emotes
-			WHERE (
-				SELECT COUNT(*)
-				FROM emote_usage_history
-				WHERE
-					id = emotes.id
-					AND time > $1
-			) < $2
-			AND NOT preserve
-			AND created < $1;
+			SELECT e.*, COUNT(euh.id)
+			FROM emotes AS e
+			LEFT JOIN emote_usage_history AS euh
+				ON euh.id = e.id
+				   AND time > $1
+				   AND NOT preserve
+				   AND created < $1
+			GROUP BY e.id
+			HAVING COUNT(euh.id) < $2
 		""", cutoff, usage_threshold)
 
 	async def _database_emote_cursor(self, query, *args):
@@ -414,7 +406,7 @@ class Database:
 			WHERE NOT EXISTS (
 				-- restrict emote logging to non-owners
 				-- this should reduce some spam and stats-inflation
-				SELECT * FROM emotes WHERE id = $1 AND author = $2)""",
+				SELECT 1 FROM emotes WHERE id = $1 AND author = $2)""",
 			emote_id, user_id)
 
 	async def decay(self, cutoff=None, usage_threshold=2):
