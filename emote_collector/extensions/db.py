@@ -214,7 +214,7 @@ class Database:
 		query = """
 			SELECT e.*, COUNT(euh.id) AS usage
 			FROM emotes AS e
-			LEFT JOIN emote_usage_history AS euh
+			INNER JOIN emote_usage_history AS euh
 				ON euh.id = e.id
 				   AND euh.time > (CURRENT_TIMESTAMP - INTERVAL '4 weeks')
 			GROUP BY e.id
@@ -251,7 +251,7 @@ class Database:
 		return self._database_emote_cursor("""
 			SELECT e.*, COUNT(euh.id)
 			FROM emotes AS e
-			LEFT JOIN emote_usage_history AS euh
+			INNER JOIN emote_usage_history AS euh
 				ON euh.id = e.id
 				   AND time > $1
 				   AND NOT preserve
