@@ -655,10 +655,9 @@ class Emotes:
 		would conflict with that of other bots.
 		"""
 		if await self.db.toggle_guild_state(context.guild.id):
-			new_state = 'opt-out'
+			await context.send(_('Emote auto response is now opt-out for this server.'))
 		else:
-			new_state = 'opt-in'
-		await context.send(f'Emote auto response is now {new_state} for this server.')
+			await context.send(_('Emote auto response is now opt-in for this server.'))
 
 	@commands.command()
 	@commands.is_owner()
