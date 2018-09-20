@@ -71,7 +71,7 @@ class KeywordMessage(commands.Converter):
 	@staticmethod
 	async def convert(context, argument):
 		def normalize(message):
-			return re.sub(utils.lexer.t_CUSTOM_EMOTE, lambda match: match['name'], message).lower()
+			return re.sub(utils.lexer.t_CUSTOM_EMOTE, lambda match: f':{match["name"]}:', message).lower()
 
 		def predicate(message):
 			return message.id != context.message.id and argument.lower() in normalize(message.content)
