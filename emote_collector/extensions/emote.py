@@ -137,7 +137,7 @@ class Emotes:
 		reply = await context.send(message)
 		self.replies[context.message.id] = 1, reply
 
-	@commands.command(aliases=['create'])
+	@commands.command(aliases=['create'], usage='[name] <image URL or custom emote>')
 	@checks.not_blacklisted()
 	async def add(self, context, *args):
 		"""Add a new emote to the bot.
