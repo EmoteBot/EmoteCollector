@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-09-20 05:43+0000\n"
+"POT-Creation-Date: 2018-10-03 19:54+0000\n"
 "PO-Revision-Date: 2018-08-13 17:05-0500\n"
 "Last-Translator: Benjamin <bmintz@protonmail.com>\n"
 "Language-Team: English\n"
@@ -171,100 +171,105 @@ msgid "OK! I've reacted to that message. Please add your reaction now."
 msgstr "OK! I've reacted to that message. Please add your reaction now."
 
 #: emote_collector/extensions/emote.py:491
-msgid "Unable to react: no permission to read message history."
-msgstr "Unable to react: no permission to read message history."
+msgid ""
+"Unable to react: you and I both need permission to read message history."
+msgstr ""
 
 #: emote_collector/extensions/emote.py:494
-msgid "Unable to react: no permission to add reactions."
-msgstr "Unable to react: no permission to add reactions."
+msgid "Unable to react: you and I both need permission to add reactions."
+msgstr ""
 
-#: emote_collector/extensions/emote.py:515
+#: emote_collector/extensions/emote.py:497
+msgid "Unable to react: you and I both need permission to use external emotes."
+msgstr ""
+
+#: emote_collector/extensions/emote.py:518
 #, python-brace-format
 msgid "{emote} (Preserved) — owned by {author}"
 msgstr ""
 
-#: emote_collector/extensions/emote.py:520
+#: emote_collector/extensions/emote.py:523
 #, python-brace-format
 msgid "{emote} — owned by {author}"
 msgstr ""
 
-#: emote_collector/extensions/emote.py:524
-#: emote_collector/extensions/emote.py:578
+#: emote_collector/extensions/emote.py:527
+#: emote_collector/extensions/emote.py:581
 msgid "No emotes have been created yet. Be the first!"
 msgstr "No emotes have been created yet. Be the first!"
 
-#: emote_collector/extensions/emote.py:527
+#: emote_collector/extensions/emote.py:530
 msgid "You have not created any emotes yet."
 msgstr ""
 
-#: emote_collector/extensions/emote.py:529
+#: emote_collector/extensions/emote.py:532
 msgid "That person has not created any emotes yet."
 msgstr ""
 
-#: emote_collector/extensions/emote.py:536
+#: emote_collector/extensions/emote.py:539
 #, python-brace-format
 msgid "Also check out the list website at {website}."
 msgstr "Also check out the list website at {website}."
 
-#: emote_collector/extensions/emote.py:551
+#: emote_collector/extensions/emote.py:554
 msgid "No results matched your query."
 msgstr "No results matched your query."
 
-#: emote_collector/extensions/emote.py:595
+#: emote_collector/extensions/emote.py:598
 msgid "Logger cog not loaded."
 msgstr "Logger cog not loaded."
 
-#: emote_collector/extensions/emote.py:600
-#: emote_collector/utils/converter.py:54
+#: emote_collector/extensions/emote.py:603
+#: emote_collector/utils/converter.py:57
 msgid "Message not found."
 msgstr "Message not found."
 
-#: emote_collector/extensions/emote.py:605
+#: emote_collector/extensions/emote.py:608
 msgid "No embeds were found in that message."
 msgstr "No embeds were found in that message."
 
-#: emote_collector/extensions/emote.py:610
+#: emote_collector/extensions/emote.py:613
 msgid "No description was found in that embed."
 msgstr "No description was found in that embed."
 
-#: emote_collector/extensions/emote.py:616
+#: emote_collector/extensions/emote.py:619
 msgid "No custom emotes were found in that embed's description."
 msgstr "No custom emotes were found in that embed's description."
 
-#: emote_collector/extensions/emote.py:623
+#: emote_collector/extensions/emote.py:626
 msgid "No author IDs were found in that embed."
 msgstr "No author IDs were found in that embed."
 
-#: emote_collector/extensions/emote.py:639
+#: emote_collector/extensions/emote.py:642
 msgid "Opted in to the emote auto response."
 msgstr ""
 
-#: emote_collector/extensions/emote.py:641
+#: emote_collector/extensions/emote.py:644
 msgid "Opted out of the emote auto response."
 msgstr ""
 
-#: emote_collector/extensions/emote.py:658
+#: emote_collector/extensions/emote.py:661
 msgid "Emote auto response is now opt-out for this server."
 msgstr ""
 
-#: emote_collector/extensions/emote.py:660
+#: emote_collector/extensions/emote.py:663
 msgid "Emote auto response is now opt-in for this server."
 msgstr ""
 
-#: emote_collector/extensions/emote.py:675
+#: emote_collector/extensions/emote.py:678
 msgid "User un-blacklisted."
 msgstr "User un-blacklisted."
 
-#: emote_collector/extensions/emote.py:677
+#: emote_collector/extensions/emote.py:680
 #, python-brace-format
 msgid "User blacklisted with reason \"{reason}\"."
 msgstr "User blacklisted with reason \"{reason}\"."
 
-#: emote_collector/extensions/emote.py:686
+#: emote_collector/extensions/emote.py:689
 msgid "**Succesfully preserved:**"
 msgstr ""
 
-#: emote_collector/extensions/emote.py:688
+#: emote_collector/extensions/emote.py:691
 msgid "**Succesfully un-preserved:**"
 msgstr ""
 
@@ -327,23 +332,23 @@ msgstr ""
 msgid "Command or category \"{command_name}\" not found."
 msgstr ""
 
-#: emote_collector/utils/converter.py:17 emote_collector/utils/converter.py:28
+#: emote_collector/utils/converter.py:17 emote_collector/utils/converter.py:31
 msgid "Not a valid integer."
 msgstr "Not a valid integer."
 
-#: emote_collector/utils/converter.py:22
+#: emote_collector/utils/converter.py:25
 msgid "Not a message offset."
 msgstr "Not a message offset."
 
-#: emote_collector/utils/converter.py:31
+#: emote_collector/utils/converter.py:34
 msgid "Not a valid message ID."
 msgstr "Not a valid message ID."
 
-#: emote_collector/utils/converter.py:44
+#: emote_collector/utils/converter.py:47
 msgid "Message not found! Make sure your message ID is correct."
 msgstr "Message not found! Make sure your message ID is correct."
 
-#: emote_collector/utils/converter.py:47
+#: emote_collector/utils/converter.py:50
 msgid ""
 "Permission denied! Make sure the bot has permission to read that message."
 msgstr ""
@@ -553,6 +558,12 @@ msgstr ""
 "This means you can have multiple arguments.\n"
 "Now that you know the basics, it should be noted that...\n"
 "__**You do not type in the brackets!**__"
+
+#~ msgid "Unable to react: no permission to read message history."
+#~ msgstr "Unable to react: no permission to read message history."
+
+#~ msgid "Unable to react: no permission to add reactions."
+#~ msgstr "Unable to react: no permission to add reactions."
 
 #~ msgid "That description is too long. The limit is {limit}"
 #~ msgstr "That description is too long. The limit is {limit}"
