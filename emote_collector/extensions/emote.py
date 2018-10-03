@@ -137,7 +137,7 @@ class Emotes:
 		reply = await context.send(message)
 		self.replies[context.message.id] = 1, reply
 
-	@commands.command(aliases=['create'])
+	@commands.command(aliases=['create'], usage='[name] <image URL or custom emote>')
 	@checks.not_blacklisted()
 	async def add(self, context, *args):
 		"""Add a new emote to the bot.
@@ -658,10 +658,9 @@ class Emotes:
 		would conflict with that of other bots.
 		"""
 		if await self.db.toggle_guild_state(context.guild.id):
-			new_state = 'opt-out'
+			await context.send(_('Emote auto response is now opt-out for this server.'))
 		else:
-			new_state = 'opt-in'
-		await context.send(f'Emote auto response is now {new_state} for this server.')
+			await context.send(_('Emote auto response is now opt-in for this server.'))
 
 	@commands.command()
 	@commands.is_owner()
