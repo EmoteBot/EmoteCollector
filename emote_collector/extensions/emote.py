@@ -180,8 +180,7 @@ class Emotes:
 					'you need to provide a name as the first argument, like this:\n'
 					'`{}add NAME_HERE URL_HERE`').format(context.prefix))
 			else:
-				animated, name, id = match.groups()
-				url = utils.emote.url(id, animated=animated)
+				url = utils.emote.url(match['id'], animated=match['animated'])
 
 			return name, url
 
@@ -191,7 +190,7 @@ class Emotes:
 			if match is None:
 				url = utils.strip_angle_brackets(args[1])
 			else:
-				url = utils.emote.url(match['id'])
+				url = utils.emote.url(match['id'], animated=match['animated'])
 
 			return name, url
 
