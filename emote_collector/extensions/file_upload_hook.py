@@ -31,4 +31,4 @@ def setup(bot):
 	custom_send.register(upload_to_privatebin_if_too_long)
 
 def teardown(bot):
-	custom_send.restore()
+	custom_send.unregister(upload_to_private_bin_if_too_long)
