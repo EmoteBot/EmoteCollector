@@ -487,11 +487,14 @@ class Emotes:
 		permissions = context.channel.permissions_for(context.guild.me)
 
 		if not sender_permissions.read_message_history or not permissions.read_message_history:
-		    await context.send(_('Unable to react: no permission to read message history.'))
+		    await context.send(_('Unable to react: you and I both need permission to read message history.'))
 		    return False
 		if not sender_permissions.add_reactions or not permissions.add_reactions:
-		    await context.send(_('Unable to react: no permission to add reactions.'))
-		    return False
+			await context.send(_('Unable to react: you and I both need permission to add reactions.'))
+			return False
+		if not sender_permissions.external_emojis or not permissions.external_emojis:
+			await context.send(_('Unable to react: you and I both need permission to use external emotes.'))
+			return False
 
 		return True
 

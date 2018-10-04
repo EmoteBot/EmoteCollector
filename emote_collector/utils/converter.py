@@ -16,6 +16,9 @@ class OffsetMessage(commands.Converter):
 		except ValueError:
 			raise commands.BadArgument(_('Not a valid integer.'))
 
+		if offset == 0:
+			# not sure why this should be allowed, but i see no reason to disallow it either.
+			return context.message
 		if offset < 0:
 			return await utils.get_message_by_offset(context.channel, offset)
 
