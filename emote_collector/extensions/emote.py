@@ -182,7 +182,7 @@ class Emotes:
 			else:
 				url = utils.emote.url(match['id'], animated=match['animated'])
 
-			return name, url
+			return match['name'], url
 
 		elif len(args) >= 2:
 			name = args[0]
