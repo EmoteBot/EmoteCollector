@@ -120,7 +120,7 @@ class Meta:
 		await context.send(embed=embed)
 
 	def _latest_changes(self):
-		cmd = fr'git show -s HEAD~3..HEAD --format="[{{}}]({self.bot.config["repo"]}/commit/%H) %s (%cr)"'
+		cmd = fr'git log -n 3 -s --format="[{{}}]({self.bot.config["repo"]}/commit/%H) %s (%cr)"'
 		if os.name == 'posix':
 			cmd = cmd.format(r'\`%h\`')
 		else:
