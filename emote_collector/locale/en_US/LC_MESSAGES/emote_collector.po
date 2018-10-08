@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-08 20:42+0000\n"
+"POT-Creation-Date: 2018-10-08 23:36+0000\n"
 "PO-Revision-Date: 2018-08-13 17:05-0500\n"
 "Last-Translator: Benjamin <bmintz@protonmail.com>\n"
 "Language-Team: English\n"
@@ -287,44 +287,24 @@ msgstr "Invite to the server that has {emote}: {invite.url}"
 msgid "Unable to send invite in DMs. Please allow DMs from server members."
 msgstr "Unable to send invite in DMs. Please allow DMs from server members."
 
-#: emote_collector/extensions/locale.py:42
-msgid "You can't get the server locale in DMs."
-msgstr ""
-
-#: emote_collector/extensions/locale.py:47
+#: emote_collector/extensions/locale.py:38
 #, python-brace-format
-msgid "The current locale for this server is: {guild_locale}"
+msgid "Your current locale is: {user_locale}"
 msgstr ""
 
-#: emote_collector/extensions/locale.py:55
+#: emote_collector/extensions/locale.py:43
 #, python-brace-format
 msgid "The current locale for that channel is: {channel_or_guild_locale}"
 msgstr ""
 
-#: emote_collector/extensions/locale.py:58
-msgid "You can only get your own locale."
-msgstr ""
-
-#: emote_collector/extensions/locale.py:60
-#, python-brace-format
-msgid "The current locale for that user is: {user_locale}"
-msgstr ""
-
-#: emote_collector/extensions/locale.py:72
+#: emote_collector/extensions/locale.py:54
 #, python-brace-format
 msgid "Invalid locale. The valid locales are: {locales}"
 msgstr ""
 
-#: emote_collector/extensions/locale.py:76
-msgid "Cannot set the server or channel locale in DMs."
-msgstr ""
-
-#: emote_collector/extensions/locale.py:88
-msgid "Cannot set the server locale in DMs."
-msgstr ""
-
-#: emote_collector/extensions/locale.py:96
-msgid "You cannot set the locale of another user."
+#: emote_collector/extensions/locale.py:82
+#, python-brace-format
+msgid "The current locale for this server is: {guild_locale}"
 msgstr ""
 
 #: emote_collector/extensions/meta.py:80
@@ -558,12 +538,3 @@ msgstr ""
 "This means you can have multiple arguments.\n"
 "Now that you know the basics, it should be noted that...\n"
 "__**You do not type in the brackets!**__"
-
-#~ msgid "Unable to react: no permission to read message history."
-#~ msgstr "Unable to react: no permission to read message history."
-
-#~ msgid "Unable to react: no permission to add reactions."
-#~ msgstr "Unable to react: no permission to add reactions."
-
-#~ msgid "That description is too long. The limit is {limit}"
-#~ msgstr "That description is too long. The limit is {limit}"

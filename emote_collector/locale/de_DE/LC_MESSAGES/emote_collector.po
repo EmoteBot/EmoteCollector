@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-08 21:54+0000\n"
+"POT-Creation-Date: 2018-10-08 23:36+0000\n"
 "PO-Revision-Date: 2018-08-18 18:53-0500\n"
 "Last-Translator: Adrian#1337\n"
 "Language-Team: \n"
@@ -87,9 +87,8 @@ msgid ""
 "`{}add NAME_HERE URL_HERE`"
 msgstr ""
 "Fehler: Ich erwartete ein benutzerdefiniertes Emote als erstes Argument, "
-"aber ich habe etwas anderes erhalten. Wenn Sie ein Emote mithilfe einer "
-"Bild-URL hinzufügen möchten, müssen Sie einen Namen als erstes Argument "
-"angeben:\n"
+"aber ich habe etwas anderes erhalten. Wenn Sie ein Emote mithilfe einer Bild-"
+"URL hinzufügen möchten, müssen Sie einen Namen als erstes Argument angeben:\n"
 "`{}add NAME_HIER URL_HIER`"
 
 #: emote_collector/extensions/emote.py:198
@@ -304,46 +303,26 @@ msgstr ""
 "Einladung konnte nicht in direkte Nachrichten gesendet werden. Bitte "
 "erlauben Sie direkte Nachrichten von Servermitgliedern."
 
-#: emote_collector/extensions/locale.py:42
-msgid "You can't get the server locale in DMs."
-msgstr "Sie können die Serversprache nicht in direkten Nachrichten abrufen."
-
-#: emote_collector/extensions/locale.py:47
+#: emote_collector/extensions/locale.py:38
 #, python-brace-format
-msgid "The current locale for this server is: {guild_locale}"
-msgstr "Die aktuelle Sprache für diesen Server lautet: {guild_locale}"
+msgid "Your current locale is: {user_locale}"
+msgstr ""
 
-#: emote_collector/extensions/locale.py:55
+#: emote_collector/extensions/locale.py:43
 #, python-brace-format
 msgid "The current locale for that channel is: {channel_or_guild_locale}"
 msgstr ""
 "Die aktuelle Sprache für diesen Channel lautet: {channel_or_guild_locale}"
 
-#: emote_collector/extensions/locale.py:58
-msgid "You can only get your own locale."
-msgstr "Sie können nur Ihre eigene Sprache erhalten."
-
-#: emote_collector/extensions/locale.py:60
-#, python-brace-format
-msgid "The current locale for that user is: {user_locale}"
-msgstr "Die aktuelle Sprache für diesen Benutzer lautet: {user_locale}"
-
-#: emote_collector/extensions/locale.py:72
+#: emote_collector/extensions/locale.py:54
 #, python-brace-format
 msgid "Invalid locale. The valid locales are: {locales}"
 msgstr "Ungültiges Sprache. Die gültigen sind: {locales}"
 
-#: emote_collector/extensions/locale.py:76
-msgid "Cannot set the server or channel locale in DMs."
-msgstr "Server- oder Channel-Sprache kann nicht in DMs geändert werden."
-
-#: emote_collector/extensions/locale.py:88
-msgid "Cannot set the server locale in DMs."
-msgstr "Server-Sprache kann nicht in DMs geändert werden."
-
-#: emote_collector/extensions/locale.py:96
-msgid "You cannot set the locale of another user."
-msgstr "Du kannst nicht für andere eine Sprache einstellen."
+#: emote_collector/extensions/locale.py:82
+#, python-brace-format
+msgid "The current locale for this server is: {guild_locale}"
+msgstr "Die aktuelle Sprache für diesen Server lautet: {guild_locale}"
 
 #: emote_collector/extensions/meta.py:80
 #, python-brace-format
