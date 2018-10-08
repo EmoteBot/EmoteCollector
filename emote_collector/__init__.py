@@ -112,9 +112,9 @@ class EmoteCollector(commands.AutoShardedBot):
 	# https://github.com/Rapptz/RoboDanny/blob/ca75fae7de132e55270e53d89bc19dd2958c2ae0/bot.py#L77-L85
 	async def on_command_error(self, context, error):
 		if isinstance(error, commands.NoPrivateMessage):
-			await context.author.send('This command cannot be used in private messages.')
+			await context.author.send(_('This command cannot be used in private messages.'))
 		elif isinstance(error, commands.DisabledCommand):
-			message = 'Sorry. This command is disabled and cannot be used.'
+			message = _('Sorry. This command is disabled and cannot be used.')
 			try:
 				await context.author.send(message)
 			except discord.Forbidden:
@@ -131,7 +131,7 @@ class EmoteCollector(commands.AutoShardedBot):
 			# pylint: disable=logging-format-interpolation
 			logger.error('{0.__class__.__name__}: {0}'.format(error.original))
 
-			await context.send('An internal error occured while trying to run that command.')
+			await context.send(_('An internal error occured while trying to run that command.'))
 
 	async def logout(self):
 		with contextlib.suppress(AttributeError):
