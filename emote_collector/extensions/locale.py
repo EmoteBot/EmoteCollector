@@ -143,22 +143,6 @@ class Locales:
 			       AND "user" IS NULL
 		""", guild)
 
-	async def channel_locale(self, channel):
-		return await self.pool.fetchval("""
-			SELECT locale
-			FROM   locales
-			WHERE      channel = $1
-			       -- guild may or may not be null
-			       AND "user" IS NULL
-		""", channel)
-
-	async def user_locale(self, user):
-		return await self.pool.fetchval("""
-			SELECT locale
-			FROM   locales
-			WHERE  "user" = $1
-		""", user)
-
 	async def set_guild_locale(self, guild, locale):
 		# connection/transaction probably isn't necessary for this, right?
 		await self.pool.execute("""
