@@ -69,6 +69,7 @@ class Locales:
 		await context.try_add_reaction(utils.SUCCESS_EMOJIS[True])
 
 	@commands.group(name='serverlocale')
+	@commands.guild_only()
 	async def guild_locale_command(self, context):
 		""""Commands relating to modifying the locale.
 		This command does nothing on its own; all functionality is in subcommands.
