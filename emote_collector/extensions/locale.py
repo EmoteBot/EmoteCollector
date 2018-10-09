@@ -21,6 +21,17 @@ SET_TRANSLATIONS = (
 	'állít',  # hu_HU
 )
 
+class InvalidLocaleError(commands.BadArgument):
+	def __init__(self):
+		super().__init__(
+			_('Invalid locale. The valid locales are: {locales}').format(
+				locales=', '.join(i18n.locales)))
+
+def Locale(argument):
+	if argument not in i18n.locales:
+		raise InvalidLocaleError
+	return argument
+
 class Locales:
 	def __init__(self, bot):
 		self.bot = bot
@@ -67,16 +78,12 @@ class Locales:
 				'The current locale for that channel is: {channel_or_guild_locale}').format(**locals()))
 
 	@locale_command.command(name='set', aliases=SET_TRANSLATIONS)
-	async def set_locale_command(self, context, channel: typing.Optional[discord.TextChannel], locale):
+	async def set_locale_command(self, context, channel: typing.Optional[discord.TextChannel], locale: Locale):
 		"""Set the locale for a channel or yourself.
 
 		Manage Messages is required to change the locale of a whole channel.
 		If the channel is left blank, this command sets your user locale.
 		"""
-
-		if locale not in i18n.locales:
-			return await context.send(_('Invalid locale. The valid locales are: {locales}').format(
-				locales=', '.join(i18n.locales)))
 
 		if channel is None:
 			await self.set_user_locale(context.author.id, locale)
@@ -102,7 +109,7 @@ class Locales:
 	))
 	@commands.guild_only()
 	async def guild_locale_command(self, context):
-		""""Commands relating to modifying the locale.
+		"""Commands relating to modifying the server locale.
 		This command does nothing on its own; all functionality is in subcommands.
 		"""
 		pass
@@ -114,7 +121,7 @@ class Locales:
 
 	@guild_locale_command.command(name='set', aliases=SET_TRANSLATIONS)
 	@commands.has_permissions(manage_messages=True)
-	async def set_guild_locale_command(self, context, locale):
+	async def set_guild_locale_command(self, context, locale: Locale):
 		await self.set_guild_locale(context.guild.id, locale)
 		await context.try_add_reaction(utils.SUCCESS_EMOJIS[True])
 
