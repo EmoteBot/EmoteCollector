@@ -9,24 +9,47 @@ from discord.ext import commands
 from .. import utils
 from ..utils import i18n
 
+GET_TRANSLATIONS = (
+	'zeigen',  # de_DE
+	'mutat',  # hu_HU
+)
+
+SET_TRANSLATIONS = (
+	'setzen',  # de_DE
+	'establecer',  # es_ES
+	'állít',  # hu_HU
+)
+
 class Locales:
 	def __init__(self, bot):
 		self.bot = bot
 		self.pool = self.bot.pool
 
-	@commands.command()
+	@commands.command(aliases=(
+		'languages',  # en_US (language)
+		'sprachen',  # de_DE
+		'idiomas',  # es_ES (languages)
+		'lugares',  # es_ES (places)
+		'nyelvek',  # hu_HU
+	))
 	async def locales(self, context):
 		"""Lists the valid locales you can use."""
 		await context.send(', '.join(i18n.locales))
 
-	@commands.group(name='locale')
+	@commands.group(name='locale', aliases=(
+		'language',  # en_US (language)
+		'sprache',  # de_DE
+		'idioma',  # es_ES (language)
+		'lugar',  # es_ES (place)
+		'nyelv',  # hu_HU
+	))
 	async def locale_command(self, context):
 		""""Commands relating to modifying the locale.
 		This command does nothing on its own; all functionality is in subcommands.
 		"""
 		pass
 
-	@locale_command.command(name='get')
+	@locale_command.command(name='get', aliases=GET_TRANSLATIONS)
 	async def get_locale_command(self, context, channel: typing.Optional[discord.TextChannel] = None):
 		"""Get the locale for a channel or yourself.
 
@@ -42,7 +65,7 @@ class Locales:
 			await context.send(_(
 				'The current locale for that channel is: {channel_or_guild_locale}').format(**locals()))
 
-	@locale_command.command(name='set')
+	@locale_command.command(name='set', aliases=SET_TRANSLATIONS)
 	async def set_locale_command(self, context, channel: typing.Optional[discord.TextChannel], locale):
 		"""Set the locale for a channel or yourself.
 
@@ -68,7 +91,10 @@ class Locales:
 
 		await context.try_add_reaction(utils.SUCCESS_EMOJIS[True])
 
-	@commands.group(name='serverlocale')
+	@commands.group(name='serverlocale', aliases=(
+		'serversprachen',  # de_DE
+		'szervernyelv',  # hu_HU
+	))
 	@commands.guild_only()
 	async def guild_locale_command(self, context):
 		""""Commands relating to modifying the locale.
@@ -76,12 +102,12 @@ class Locales:
 		"""
 		pass
 
-	@guild_locale_command.command(name='get')
+	@guild_locale_command.command(name='get', aliases=GET_TRANSLATIONS)
 	async def get_guild_locale_command(self, context):
 		guild_locale = await self.guild_locale(context.guild.id) or i18n.default_locale
 		await context.send(_('The current locale for this server is: {guild_locale}').format(**locals()))
 
-	@guild_locale_command.command(name='set')
+	@guild_locale_command.command(name='set', aliases=SET_TRANSLATIONS)
 	@commands.has_permissions(manage_messages=True)
 	async def set_guild_locale_command(self, context, locale):
 		await self.set_guild_locale(context.guild.id, locale)
