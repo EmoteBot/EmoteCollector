@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-08 23:36+0000\n"
+"POT-Creation-Date: 2018-10-08 23:59+0000\n"
 "PO-Revision-Date: 2018-08-18 18:53-0500\n"
 "Last-Translator: Adrian#1337\n"
 "Language-Team: \n"
@@ -17,6 +17,18 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Poedit 2.0.6\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: emote_collector/__init__.py:115
+msgid "This command cannot be used in private messages."
+msgstr ""
+
+#: emote_collector/__init__.py:117
+msgid "Sorry. This command is disabled and cannot be used."
+msgstr ""
+
+#: emote_collector/__init__.py:134
+msgid "An internal error occured while trying to run that command."
+msgstr ""
 
 #: emote_collector/extensions/api.py:47
 #, python-brace-format
