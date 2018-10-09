@@ -38,6 +38,9 @@ class EmoteCollector(commands.AutoShardedBot):
 		if self.config.get('primary_owner'):
 			self.owners.add(self.config['primary_owner'])
 
+		with contextlib.suppress(KeyError):
+			self.config['copyright_license_file'] = os.path.join(BASE_DIR, self.config['copyright_license_file'])
+
 		self.db_ready = asyncio.Event()
 
 		super().__init__(
@@ -166,8 +169,8 @@ class EmoteCollector(commands.AutoShardedBot):
 			'emote_collector.extensions.meta',
 			'jishaku',
 			'emote_collector.extensions.stats',
-			'emote_collector.extensions.misc',
 			'emote_collector.extensions.meme',
+			'ben_cogs.misc',
 			'ben_cogs.debug',
 		):
 			self.load_extension(extension)
