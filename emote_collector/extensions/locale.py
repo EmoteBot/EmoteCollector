@@ -11,6 +11,7 @@ from ..utils import i18n
 
 GET_TRANSLATIONS = (
 	'zeigen',  # de_DE
+	'obtener',  # es_ES
 	'mutat',  # hu_HU
 )
 
@@ -26,7 +27,7 @@ class Locales:
 		self.pool = self.bot.pool
 
 	@commands.command(aliases=(
-		'languages',  # en_US (language)
+		'languages',  # en_US
 		'sprachen',  # de_DE
 		'idiomas',  # es_ES (languages)
 		'lugares',  # es_ES (places)
@@ -37,7 +38,7 @@ class Locales:
 		await context.send(', '.join(i18n.locales))
 
 	@commands.group(name='locale', aliases=(
-		'language',  # en_US (language)
+		'language',  # en_US
 		'sprache',  # de_DE
 		'idioma',  # es_ES (language)
 		'lugar',  # es_ES (place)
@@ -93,6 +94,10 @@ class Locales:
 
 	@commands.group(name='serverlocale', aliases=(
 		'serversprachen',  # de_DE
+		'idioma-servidor',  # es_ES (server language)
+		'idioma-del-servidor',  # es_ES (server language)
+		'lugar-servidor',  # es_ES (server place)
+		'lugar-del-servidor',  # es_ES (server place)
 		'szervernyelv',  # hu_HU
 	))
 	@commands.guild_only()
