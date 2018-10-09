@@ -157,11 +157,7 @@ class Emotes:
 				'Sorry, webhooks and bots may not add emotes. '
 				'Go find a human to do it for you.'))
 
-		try:
-			name, url = self.parse_add_command_args(context, args)
-		except commands.BadArgument as exception:
-			return await context.send(exception)
-
+		name, url = self.parse_add_command_args(context, args)
 		async with context.typing():
 			message = await self.add_safe(name.strip(':;'), url, context.message.author.id)
 		await context.send(message)
