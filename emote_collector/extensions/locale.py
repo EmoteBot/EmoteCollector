@@ -45,7 +45,7 @@ class Locales:
 		'nyelv',  # hu_HU
 	))
 	async def locale_command(self, context):
-		""""Commands relating to modifying the locale.
+		"""Commands relating to modifying the locale.
 		This command does nothing on its own; all functionality is in subcommands.
 		"""
 		pass
