@@ -178,7 +178,7 @@ class Emotes:
 			else:
 				url = utils.emote.url(match['id'], animated=match['animated'])
 
-			return name, url
+			return match['name'], url
 
 		elif len(args) >= 2:
 			name = args[0]
@@ -844,7 +844,7 @@ class Emotes:
 		async def callback(toke1, out, emotes_used):
 			if toke1.type == 'TEXT' and toke1.value == '\n':
 				return out.write(toke1.value)
-			if toke1.type != 'EMOTE':
+			if not self._is_emote(toke1):
 				return
 
 			try:
@@ -867,7 +867,7 @@ class Emotes:
 		"""Parse all emotes (:name: or ;name;) from a message, preserving non-emote text"""
 
 		async def callback(toke1, out, emotes_used):
-			if toke1.type != 'EMOTE':
+			if not self._is_emote(toke1):
 				return out.write(toke1.value)
 
 			try:
@@ -879,6 +879,10 @@ class Emotes:
 				emotes_used.add(emote.id)
 
 		return await self._extract_emotes(message, content, callback=callback, log_usage=log_usage)
+
+	@classmethod
+	def _is_emote(cls, toke1):
+		return toke1.type == 'EMOTE' and toke1.value.strip(':') not in utils.emote.emoji_shortcodes
 
 	async def delete_reply(self, message_id):
 		"""Delete our reply to a message containing emotes."""

@@ -3,11 +3,9 @@ prune *.egg-info
 include requirements.txt
 
 include emote_collector/data/avatar.png
-include emote_collector/data/memes.example.py
+include emote_collector/data/discord-emoji-shortcodes.json
 include emote_collector/data/config.example.py
+include emote_collector/data/memes.example.py
 include emote_collector/data/schema.sql
 include emote_collector/data/short-license.txt
 include emote_collector/locale/*
-
-
-
