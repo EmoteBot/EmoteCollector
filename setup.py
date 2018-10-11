@@ -3,11 +3,17 @@
 
 import os.path
 
+import pkg_resources
 import setuptools
 import subprocess
 
-with open('requirements.txt') as f:
-	dependency_links = list(filter(lambda line: not line.startswith('#'), f))
+actual_pip_version = pkg_resources.get_distribution('pip').parsed_version
+# this class recently moved packages
+Version = type(actual_pip_version)
+required_pip_version = Version('18.1')
+
+if not actual_pip_version >= required_pip_version:
+	raise RuntimeError(f'pip >= {required_pip_version} required')
 
 setuptools.setup(
 	name='emote_collector',
@@ -19,20 +25,16 @@ setuptools.setup(
 		'emote_collector.extensions',
 	],
 
-
-	# include stuff in MANIFEST.in (i think)
 	include_package_data=True,
 
 	install_requires=[
 		'aiocontextvars==0.1.2',
 		'asyncpg',
 		'ben_cogs>=0.0.15',
-		'discord.py',
+		'discord.py @ git+https://github.com/Rapptz/discord.py@rewrite',
 		'jishaku>0.1.1',
 		'ply',
 		'prettytable',
 		'wand',
 	],
-
-	dependency_links=dependency_links,
 )
