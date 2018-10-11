@@ -561,16 +561,13 @@ class Emotes:
 		processed = []
 
 		async for i, emote in utils.async_enumerate(self.db.popular_emotes(limit=200)):
-			author = utils.format_user(self.bot, emote.author, mention=True)
-
 			c = emote.usage
 			multiple = '' if c == 1 else 's'
 
 			# TODO internationalize this (needs plural support)
 			processed.append(
 				f'{emote.with_name()} '
-				f'— used {c} time{multiple} '
-				f'— owned by {author}')  # note: these are em dashes, not hyphens!
+				f'— used {c} time{multiple}')
 
 		if not processed:
 			return await context.send(_('No emotes have been created yet. Be the first!'))
