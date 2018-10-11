@@ -162,7 +162,7 @@ def expand_cartesian_product(str) -> (str, str):
 def _expand_one_cartesian_product(str, match, group):
 	return str[:match.start()] + match[group] + str[match.end():]
 
-def load_json_compat(data: str):
+def load_json_compat(filename):
 	"""evaluate a python dictionary/list/thing, while maintaining some compatibility with JSON"""
 	# >HOLD UP! Why the heck are you using eval in production??
 	# The config file is 100% trusted data.
@@ -170,7 +170,11 @@ def load_json_compat(data: str):
 	# Also, consider another common approach: `import config`.
 	# Which is arbitrary code execution anyway.
 	globals = dict(true=True, false=False, null=None)
-	return eval(data, globals)
+	with open(filename) as f:
+		# we use compile so that tracebacks contain the filename
+		compiled = compile(f.read(), filename, 'eval')
+
+	return eval(compiled, globals)
 
 async def async_enumerate(async_iterator, start=0):
 	i = int(start)

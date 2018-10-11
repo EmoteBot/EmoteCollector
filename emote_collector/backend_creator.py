@@ -14,7 +14,7 @@ import contextlib
 
 import discord
 
-from . utils
+from . import BASE_DIR, utils
 
 
 bot = discord.Client(self_bot=True)
@@ -129,8 +129,8 @@ def get_bot_user_id():
 	return token_id(get_token_from_config())
 
 def get_token_from_config():
-	with open('data/config.py') as f:
-		return utils.load_json_compat(f.read())['tokens']['discord']
+	filename = os.path.join(BASE_DIR, 'data', 'config.py')
+	return utils.load_json_compat(filename)['tokens']['discord']
 
 def token_id(token) -> int:
 	"""decodes a token to retrieve the user ID"""
