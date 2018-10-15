@@ -130,13 +130,13 @@ class Database:
 	@commands.is_owner()
 	async def sql_command(self, context, *, query):
 		"""Gets the rows of a SQL query. Prepared statements are not supported."""
-		start = time.monotonic()
+		start = time.perf_counter()
 		# XXX properly strip codeblocks
 		try:
 			results = await self._pool.fetch(query.strip('`'))
 		except asyncpg.PostgresError as exception:
 			return await context.send(exception)
-		elapsed = time.monotonic() - start
+		elapsed = time.perf_counter() - start
 
 		message = await utils.codeblock(str(utils.PrettyTable(results)))
 		return await context.send(f'{message}*{len(results)} rows retrieved in {elapsed:.2f} seconds.*')
@@ -193,7 +193,12 @@ class Database:
 
 	def get_emote_usage(self, emote) -> int:
 		"""return how many times this emote was used"""
-		return self._pool.fetchval('SELECT COUNT(*) FROM emote_usage_history WHERE id = $1', emote.id)
+		return self._pool.fetchval("""
+			SELECT COUNT(*)
+			FROM emote_usage_history
+			WHERE id = $1
+			AND   time > (CURRENT_TIMESTAMP - INTERVAL '4 weeks')
+		""", emote.id)
 
 	## Iterators
 

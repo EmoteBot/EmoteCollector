@@ -166,9 +166,10 @@ class EmoteCollector(commands.AutoShardedBot):
 			'emote_collector.extensions.api',
 			'emote_collector.extensions.gimme',
 			'emote_collector.extensions.meta',
-			'ben_cogs.ie_jishaku',
 			'emote_collector.extensions.stats',
 			'emote_collector.extensions.meme',
+			'emote_collector.extensions.admin',
+			'ben_cogs.ie_jishaku',
 			'ben_cogs.misc',
 			'ben_cogs.debug',
 		):

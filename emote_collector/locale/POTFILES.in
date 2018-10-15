@@ -1,4 +1,5 @@
 emote_collector/__init__.py
+emote_collector/extensions/admin.py
 emote_collector/extensions/api.py
 emote_collector/extensions/db.py
 emote_collector/extensions/emote.py
