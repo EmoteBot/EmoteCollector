@@ -58,8 +58,7 @@ class EmoteCollector(commands.AutoShardedBot):
 
 	async def get_prefix_(self, bot, message):
 		prefix = self.config['prefix']
-		match = re.search(fr'^{prefix}', message.content, re.IGNORECASE)
-		# if there's no match then we want to pass no prefixes into when_mentioned_or
+		match = re.search(f'^\N{zero width space}?{prefix}', message.content, re.IGNORECASE)
 
 		if match is None:
 			return commands.when_mentioned(bot, message)
