@@ -453,7 +453,7 @@ class Emotes:
 			return (
 				payload.message_id == message.id
 				and payload.user_id == context.message.author.id
-				and emote.id == getattr(payload.emoji, 'id', None))  # unicode emoji have no id
+				and emote.id == getattr(payload.emoji, 'id', None))	 # unicode emoji have no id
 
 		try:
 			await self.bot.wait_for('raw_reaction_add', timeout=30, check=check)
@@ -483,8 +483,8 @@ class Emotes:
 		permissions = context.channel.permissions_for(context.guild.me)
 
 		if not sender_permissions.read_message_history or not permissions.read_message_history:
-		    await context.send(_('Unable to react: you and I both need permission to read message history.'))
-		    return False
+			await context.send(_('Unable to react: you and I both need permission to read message history.'))
+			return False
 		if not sender_permissions.add_reactions or not permissions.add_reactions:
 			await context.send(_('Unable to react: you and I both need permission to add reactions.'))
 			return False
