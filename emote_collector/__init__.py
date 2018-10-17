@@ -59,12 +59,13 @@ class EmoteCollector(commands.AutoShardedBot):
 	async def get_prefix_(self, bot, message):
 		prefix = self.config['prefix']
 		match = re.search(fr'^{prefix}', message.content, re.IGNORECASE)
-		# if there's no match then we want to pass no prefixes into when_mentioned_or
 
 		if match is None:
 			return commands.when_mentioned(bot, message)
 		else:
 			return commands.when_mentioned_or(match[0])(bot, message)
+
+	### Events
 
 	async def on_ready(self):
 		separator = '━' * 44
@@ -73,44 +74,19 @@ class EmoteCollector(commands.AutoShardedBot):
 		logger.info('ID: %s', self.user.id)
 		logger.info(separator)
 
-	async def get_context(self, message, **kwargs):
-		return await super().get_context(message, cls=utils.context.CustomContext, **kwargs)
-
 	async def on_message(self, message):
 		if self.should_reply(message):
 			await self.set_locale(message)
 			await self.process_commands(message)
 
-	async def process_commands(self, message):
-		# overridden because the default process_commands ignores bots now
-		context = await self.get_context(message)
-		await self.invoke(context)
-
 	async def set_locale(self, message):
 		locale = await self.get_cog('Locales').locale(message)
 		utils.i18n.current_locale.set(locale)
 
-	def should_reply(self, message):
-		"""return whether the bot should reply to a given message"""
-		return not (
-			message.author == self.user
-			or (message.author.bot and not self._should_reply_to_bot(message))
-			or not message.content)
-
-	def _should_reply_to_bot(self, message):
-		should_reply = not self.config['ignore_bots'].get('default')
-		overrides = self.config['ignore_bots']['overrides']
-
-		def check_override(location, overrides_key):
-			return location and location.id in overrides[overrides_key]
-
-		if check_override(message.guild, 'guilds') or check_override(message.channel, 'channels'):
-			should_reply = not should_reply
-
-		return should_reply
-
-	async def is_owner(self, user):
-		return await super().is_owner(user) or user.id in self.owners
+	async def process_commands(self, message):
+		# overridden because the default process_commands ignores bots now
+		context = await self.get_context(message)
+		await self.invoke(context)
 
 	# https://github.com/Rapptz/RoboDanny/blob/ca75fae7de132e55270e53d89bc19dd2958c2ae0/bot.py#L77-L85
 	async def on_command_error(self, context, error):
@@ -136,16 +112,57 @@ class EmoteCollector(commands.AutoShardedBot):
 
 			await context.send(_('An internal error occured while trying to run that command.'))
 
-	async def logout(self):
-		with contextlib.suppress(AttributeError):
-			await self.pool.close()
-		await super().logout()
+	### Utility functions
+
+	async def get_context(self, message, cls=None):
+		return await super().get_context(message, cls=cls or utils.context.CustomContext)
+
+	def should_reply(self, message):
+		"""return whether the bot should reply to a given message"""
+		return not (
+			message.author == self.user
+			or (message.author.bot and not self._should_reply_to_bot(message))
+			or not message.content)
+
+	async def is_owner(self, user):
+		return await super().is_owner(user) or user.id in self.owners
+
+	# https://github.com/Rapptz/discord.py/blob/814b03f5a8a6faa33d80495691f1e1cbdce40ce2/discord/ext/commands/core.py#L1338-L1346
+	def has_permissions(self, message, **perms):
+		guild = message.guild
+		me = guild.me if guild is not None else self.user
+		permissions = message.channel.permissions_for(me)
+
+		for perm, value in perms.items():
+			if getattr(permissions, perm, None) != value:
+				return False
+
+		return True
+
+	def _should_reply_to_bot(self, message):
+		should_reply = not self.config['ignore_bots'].get('default')
+		overrides = self.config['ignore_bots']['overrides']
+
+		def check_override(location, overrides_key):
+			return location and location.id in overrides[overrides_key]
+
+		if check_override(message.guild, 'guilds') or check_override(message.channel, 'channels'):
+			should_reply = not should_reply
+
+		return should_reply
+
+	### Init / Shutdown
 
 	async def start(self):
 		await self._init_db()
 		self._load_extensions()
 
 		await super().start(self.config['tokens'].pop('discord'))
+
+	async def logout(self):
+		with contextlib.suppress(AttributeError):
+			await self.pool.close()
+		await super().logout()
 
 	async def _init_db(self):
 		credentials = self.config['database']

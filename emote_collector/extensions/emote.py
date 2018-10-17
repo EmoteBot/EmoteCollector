@@ -126,7 +126,7 @@ class Emotes:
 
 		message, has_emotes = await self.quote_emotes(context.message, message)
 
-		if context.guild.me.permissions_in(context.channel).manage_messages:
+		if self.bot.has_permissions(context.message, manage_messages=True):
 			# no space because rest_is_raw preserves the space after "ec/quote"
 			message = _('{context.author.mention} said:').format(**locals()) + message
 
@@ -727,7 +727,7 @@ class Emotes:
 			# so don't respond a second time
 			return False
 
-		if not self._can_use_external_emojis(message):
+		if not self.bot.has_permissions(message, external_emojis=True):
 			return False
 
 		if message.guild:
@@ -741,13 +741,6 @@ class Emotes:
 			return False
 
 		return True
-
-	@staticmethod
-	def _can_use_external_emojis(message):
-		return (
-			message.guild
-			and message.guild.me
-			and message.guild.me.permissions_in(message.channel).external_emojis)
 
 	async def on_raw_message_edit(self, payload):
 		"""Ensure that when a message containing emotes is edited, the corresponding emote reply is, too."""
