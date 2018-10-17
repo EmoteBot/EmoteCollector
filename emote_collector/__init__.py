@@ -45,7 +45,7 @@ class EmoteCollector(commands.AutoShardedBot):
 
 		super().__init__(
 			command_prefix=self.get_prefix_,
-			description=self.config['description'],
+			description=self.config.get('description'),
 			activity=discord.Game(name=self.config['prefix'] + 'help'),  # "Playing ec/help"
 			*args, **kwargs)
 
