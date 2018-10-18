@@ -55,7 +55,6 @@ class DatabaseEmote(utils.AttrDict):
 class Database:
 	def __init__(self, bot):
 		self.bot = bot
-		self._pool = self.bot.pool
 		self.tasks = []
 		# without backend guild enumeration, the bot will report all guilds being full
 		self.tasks.append(self.bot.loop.create_task(self.find_backend_guilds()))
@@ -83,7 +82,7 @@ class Database:
 			):
 				guilds.add(guild)
 
-		await self._pool.executemany("""
+		await self.bot.pool.executemany("""
 			INSERT INTO _guilds
 			VALUES ($1)
 			ON CONFLICT (id) DO NOTHING
@@ -108,7 +107,7 @@ class Database:
 				continue
 			emotes.append((db_emote.id, discord_emote.guild_id))
 
-		await self._pool.executemany('UPDATE emotes SET guild = $2 WHERE id = $1', emotes)
+		await self.bot.pool.executemany('UPDATE emotes SET guild = $2 WHERE id = $1', emotes)
 
 	async def decay_loop(self):
 		while True:
@@ -133,7 +132,7 @@ class Database:
 		start = time.perf_counter()
 		# XXX properly strip codeblocks
 		try:
-			results = await self._pool.fetch(query.strip('`'))
+			results = await self.bot.pool.fetch(query.strip('`'))
 		except asyncpg.PostgresError as exception:
 			return await context.send(exception)
 		elapsed = time.perf_counter() - start
@@ -151,7 +150,7 @@ class Database:
 		# random() hopefully lets us bypass emote rate limits
 		# otherwise if we always pick the first available gulid,
 		# we might reuse it often and get rate limited.
-		guild_id = await self._pool.fetchval(f"""
+		guild_id = await self.bot.pool.fetchval(f"""
 			SELECT id
 			FROM guilds
 			WHERE {'animated' if animated else 'static'}_usage < 50
@@ -168,7 +167,7 @@ class Database:
 
 	def count(self) -> asyncpg.Record:
 		"""Return (not animated count, animated count, total)"""
-		return self._pool.fetchrow("""
+		return self.bot.pool.fetchrow("""
 			SELECT
 				COUNT(*) FILTER (WHERE NOT animated) AS static,
 				COUNT(*) FILTER (WHERE animated) AS animated,
@@ -185,7 +184,7 @@ class Database:
 		# that we don't want
 		# probably LOWER(name) = $1, name.lower() would also work, but this looks cleaner
 		# and keeps the lowercasing behavior consistent
-		result = await self._pool.fetchrow('SELECT * FROM emotes WHERE LOWER(name) = LOWER($1)', name)
+		result = await self.bot.pool.fetchrow('SELECT * FROM emotes WHERE LOWER(name) = LOWER($1)', name)
 		if result:
 			return DatabaseEmote(result)
 		else:
@@ -193,7 +192,7 @@ class Database:
 
 	def get_emote_usage(self, emote) -> int:
 		"""return how many times this emote was used"""
-		return self._pool.fetchval("""
+		return self.bot.pool.fetchval("""
 			SELECT COUNT(*)
 			FROM emote_usage_history
 			WHERE id = $1
@@ -272,7 +271,7 @@ class Database:
 	async def _cursor(self, query, *args):
 		"""return an Async Generator over all records selected by the query and its args"""
 
-		async with self._pool.acquire() as connection:
+		async with self.bot.pool.acquire() as connection:
 			async with connection.transaction():
 				async for row in connection.cursor(query, *args):
 					# we can't just return connection.cursor(...)
@@ -319,7 +318,7 @@ class Database:
 
 		image = discord.utils._bytes_to_base64_data(image_data)
 		emote_data = await self.bot.http.create_custom_emoji(guild_id=guild_id, name=name, image=image)
-		return DatabaseEmote(await self._pool.fetchrow("""
+		return DatabaseEmote(await self.bot.pool.fetchrow("""
 			INSERT INTO emotes(name, id, author, animated, guild)
 			VALUES ($1, $2, $3, $4, $5)
 			RETURNING *""", name, int(emote_data['id']), author_id, animated, guild_id))
@@ -338,7 +337,7 @@ class Database:
 		await self.owner_check(emote, user_id)
 
 		await self.bot.http.delete_custom_emoji(emote.guild, emote.id)
-		await self._pool.execute('DELETE FROM emotes WHERE id = $1', emote.id)
+		await self.bot.pool.execute('DELETE FROM emotes WHERE id = $1', emote.id)
 		return emote
 
 	async def rename_emote(self, old_name, new_name, user_id):
@@ -352,7 +351,7 @@ class Database:
 		await self.owner_check(emote, user_id)
 
 		await self.bot.http.edit_custom_emoji(emote.guild, emote.id, name=new_name)
-		return DatabaseEmote(await self._pool.fetchrow("""
+		return DatabaseEmote(await self.bot.pool.fetchrow("""
 			UPDATE emotes
 			SET name = $2
 			WHERE id = $1
@@ -372,7 +371,7 @@ class Database:
 		await self.owner_check(emote, user_id)
 
 		try:
-			return DatabaseEmote(await self._pool.fetchrow("""
+			return DatabaseEmote(await self.bot.pool.fetchrow("""
 				UPDATE emotes
 				SET DESCRIPTION = $2
 				WHERE id = $1
@@ -386,7 +385,7 @@ class Database:
 		"""change the preservation status of an emote.
 		if an emote is preserved, it should not be decayed due to lack of use
 		"""
-		emote = await self._pool.fetchrow("""
+		emote = await self.bot.pool.fetchrow("""
 			UPDATE emotes
 			SET preserve = $1
 			WHERE LOWER(name) = LOWER($2)
@@ -401,7 +400,7 @@ class Database:
 			return DatabaseEmote(emote)
 
 	async def log_emote_use(self, emote_id, user_id=None):
-		await self._pool.execute("""
+		await self.bot.pool.execute("""
 			INSERT INTO emote_usage_history (id)
 			-- this is SELECT ... WHERE NOT EXISTS, not INSERT INTO ... WHERE NOT EXISTS
 			-- https://stackoverflow.com/a/15710598
@@ -431,7 +430,7 @@ class Database:
 	def _toggle_state(self, table_name, id, default):
 		"""toggle the state for a user or guild. If there's no entry already, new state = default."""
 		# see _get_state for why string formatting is OK here
-		return self._pool.fetchval(f"""
+		return self.bot.pool.fetchval(f"""
 			INSERT INTO {table_name} (id, state) VALUES ($1, $2)
 			ON CONFLICT (id) DO UPDATE SET state = NOT {table_name}.state
 			RETURNING state
@@ -462,7 +461,7 @@ class Database:
 		# unfortunately, using $1 for table_name is a syntax error
 		# however, since table name is always hardcoded input from other functions in this module,
 		# it's ok to use string formatting here
-		return self._pool.fetchval(f'SELECT state FROM {table_name} WHERE id = $1', id)
+		return self.bot.pool.fetchval(f'SELECT state FROM {table_name} WHERE id = $1', id)
 
 	def get_user_state(self, user_id):
 		"""return this user's global preference for the emote auto response"""
@@ -474,7 +473,7 @@ class Database:
 
 	def get_state(self, guild_id, user_id):
 		# TODO investigate whether this obviates get_guild_state and get_user_state (probably does)
-		return self._pool.fetchval("""
+		return self.bot.pool.fetchval("""
 			SELECT COALESCE(
 				CASE WHEN (SELECT blacklist_reason FROM user_opt WHERE id = $2)
 					IS NULL THEN NULL
@@ -490,14 +489,14 @@ class Database:
 
 	def get_user_blacklist(self, user_id):
 		"""return a reason for the user's blacklist, or None if not blacklisted"""
-		return self._pool.fetchval('SELECT blacklist_reason from user_opt WHERE id = $1', user_id)
+		return self.bot.pool.fetchval('SELECT blacklist_reason from user_opt WHERE id = $1', user_id)
 
 	async def set_user_blacklist(self, user_id, reason=None):
 		"""make user_id blacklisted
 		setting reason to None removes the user's blacklist"""
 		# insert regardless of whether it exists
 		# and if it does exist, update
-		await self._pool.execute("""
+		await self.bot.pool.execute("""
 			INSERT INTO user_opt (id, blacklist_reason) VALUES ($1, $2)
 			ON CONFLICT (id) DO UPDATE SET blacklist_reason = EXCLUDED.blacklist_reason""",
 		user_id, reason)

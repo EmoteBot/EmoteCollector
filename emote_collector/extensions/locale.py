@@ -35,7 +35,6 @@ def Locale(argument):
 class Locales:
 	def __init__(self, bot):
 		self.bot = bot
-		self.pool = self.bot.pool
 
 	@commands.command(aliases=(
 		'languages',  # en_US
@@ -138,7 +137,7 @@ class Locales:
 		return await self.user_channel_or_guild_locale(user, channel, guild) or i18n.default_locale
 
 	async def user_channel_or_guild_locale(self, user, channel, guild=None):
-		return await self.pool.fetchval("""
+		return await self.bot.pool.fetchval("""
 			SELECT COALESCE(
 				(
 					SELECT locale
@@ -158,7 +157,7 @@ class Locales:
 		""", user, channel, guild)
 
 	async def channel_or_guild_locale(self, channel):
-		return await self.pool.fetchval("""
+		return await self.bot.pool.fetchval("""
 			SELECT COALESCE(
 				(
 					SELECT locale
@@ -174,7 +173,7 @@ class Locales:
 		""", channel.id, channel.guild.id)
 
 	async def guild_locale(self, guild):
-		return await self.pool.fetchval("""
+		return await self.bot.pool.fetchval("""
 			SELECT locale
 			FROM   locales
 			WHERE      guild = $1
@@ -184,20 +183,20 @@ class Locales:
 
 	async def set_guild_locale(self, guild, locale):
 		# connection/transaction probably isn't necessary for this, right?
-		await self.pool.execute("""
+		await self.bot.pool.execute("""
 			DELETE FROM
 			locales
 			WHERE     guild = $1
 			      AND channel IS NULL
 			      AND "user"  IS NULL;
 		""", guild)
-		await self.pool.execute("""
+		await self.bot.pool.execute("""
 			INSERT INTO locales (guild, locale)
 			VALUES ($1, $2);
 		""", guild, locale)
 
 	async def set_channel_locale(self, guild, channel, locale):
-		await self.pool.execute("""
+		await self.bot.pool.execute("""
 			INSERT INTO locales (guild, channel, locale)
 			VALUES ($1, $2, $3)
 			ON CONFLICT (guild, channel) DO UPDATE
@@ -205,7 +204,7 @@ class Locales:
 		""", guild, channel, locale)
 
 	async def set_user_locale(self, user, locale):
-		await self.pool.execute("""
+		await self.bot.pool.execute("""
 			INSERT INTO locales ("user", locale)
 			VALUES ($1, $2)
 			ON CONFLICT ("user") DO UPDATE
