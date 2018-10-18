@@ -10,18 +10,18 @@ With that out of the way, here's how to install the bot.
 0) `sudo apt install libmagickwand-dev`
 1)
 ```
-python -m venv .venv
+python3 -m venv .venv
 source .venv/bin/activate
 pip install --upgrade pip wheel
-pip install -e
+pip install -e .
 ```
 2) Make a new bot app at https://discordapp.com/developers/applications/me.
 3) Run these sql commands in `sudo -u postgres psql`:
 ```sql
-CREATE USER connoisseur;
-\password connoisseur
+CREATE USER ec;
+\password ec
 -- enter and confirm a password
-CREATE DATABASE connoisseur OWNER connoisseur;
+CREATE DATABASE ec OWNER ec;
 CREATE EXTENSION pg_trgm;
 ```
 4) Copy `emote_collector/data/config.example.py` to `emote_collector/data/config.py`,
@@ -35,7 +35,7 @@ and make sure it hasn't been used to verify any other Discord account.
 It'll create the guilds, and once it's finished, give you an invite link.
 Sign in to your new Discord backend account, and start filling out CAPTCHAs.
 Once you fill out one, the bot will tell you which backend guild to add next.
-7) Run `./bot.py`.
+7) Run `python -m emote_collector`.
 8) *Optional*: run an instance of the [list website](https://github.com/EmoteCollector/website)
 and set up the link in config.py.
 
