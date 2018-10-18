@@ -235,6 +235,7 @@ class Database:
 			FROM emotes
 			WHERE name % $1
 			ORDER BY similarity(name, $1) DESC, LOWER(name)
+			LIMIT 100
 		""", query)
 
 	def decayable_emotes(self, cutoff: datetime = None, usage_threshold=2):
