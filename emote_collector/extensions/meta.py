@@ -4,6 +4,7 @@
 import inspect
 import shlex
 import os
+import pkg_resources
 import weakref
 
 import psutil
@@ -11,7 +12,7 @@ import psutil
 import discord
 from discord.ext import commands
 
-from ..utils import argparse
+from ..utils import argparse, asyncexecutor
 from ..utils.paginator import HelpPaginator, CannotPaginate
 
 class Meta:
@@ -100,7 +101,7 @@ class Meta:
 
 		embed = discord.Embed(description=self.bot.config['description'])
 
-		embed.add_field(name='Latest changes', value=self._latest_changes(), inline=False)
+		embed.add_field(name='Latest changes', value=await self._latest_changes(), inline=False)
 
 		embed.title = 'Official Bot Support Invite'
 		embed.url = 'https://discord.gg/' + self.bot.config['support_server_invite_code']
@@ -119,6 +120,7 @@ class Meta:
 
 		await context.send(embed=embed)
 
+	@asyncexecutor()
 	def _latest_changes(self):
 		cmd = fr'git log -n 3 -s --format="[{{}}]({self.bot.config["repo"]}/commit/%H) %s (%cr)"'
 		if os.name == 'posix':
@@ -129,7 +131,7 @@ class Meta:
 		try:
 			return os.popen(cmd).read().strip()
 		except OSError:
-			return 'Could not fetch due to memory error. Sorry.'
+			return _('Could not fetch changes due to memory error. Sorry.')
 
 	@commands.command()
 	async def support(self, context):
@@ -166,8 +168,7 @@ class Meta:
 		periods, e.g. locale.set for the set subcommand of the locale command
 		or by spaces.
 		"""
-
-		source_url = self.bot.config.get('repo')
+		source_url = self.bot.config['repo']
 		if command is None:
 			return await context.send(source_url)
 
@@ -177,28 +178,60 @@ class Meta:
 
 		# since we found the command we're looking for, presumably anyway, let's
 		# try to access the code itself
-		src = obj.callback.__code__
+		src = obj.callback
 		lines, firstlineno = inspect.getsourcelines(src)
-		module = obj.callback.__module__
+		module = inspect.getmodule(src).__name__
 		if module.startswith(self.__module__.split('.')[0]):  # XXX dunno if this branch works
 			# not a built-in command
-			location = os.path.relpath(src.co_filename).replace('\\', '/')
-			branch = 'master'
+			location = os.path.relpath(inspect.getfile(src)).replace('\\', '/')
+			at = await self._current_revision()
 		elif module.startswith('discord'):
 			source_url = 'https://github.com/Rapptz/discord.py'
-			branch = 'rewrite'
+			at = self._discord_revision()
 		else:
 			if module.startswith('jishaku'):
 				source_url = 'https://github.com/Gorialis/jishaku'
-				branch = 'master'
+				at = self._pkg_version('jishaku')
 			elif module.startswith('ben_cogs'):
 				source_url = 'https://github.com/bmintz/cogs'
-				branch = 'master'
+				at = self._ben_cogs_revision()
 
 			location = module.replace('.', '/') + '.py'
 
-		final_url = f'<{source_url}/blob/{branch}/{location}#L{firstlineno}-L{firstlineno + len(lines) - 1}>'
+		final_url = f'<{source_url}/blob/{at}/{location}#L{firstlineno}-L{firstlineno + len(lines) - 1}>'
 		await context.send(final_url)
+
+	@staticmethod
+	@asyncexecutor()
+	def _current_revision(*, default='master'):
+		try:
+			return os.popen('git rev-parse HEAD').read().strip()
+		except OSError:
+			return default
+
+	@classmethod
+	def _discord_revision(cls, *, default='rewrite'):
+		ver = cls._pkg_version('discord', default=default)
+		if ver == default:
+			return default
+
+		version, sep, commit = ver.rpartition('+g')
+		return commit or default
+
+	@classmethod
+	def _ben_cogs_revision(cls, *, default='master'):
+		ver = cls._pkg_version('ben_cogs', default=default)
+		if ver == default:
+			return default
+
+		return 'v' + ver
+
+	@staticmethod
+	def _pkg_version(pkg, *, default='master'):
+		try:
+			return pkg_resources.get_distribution(pkg).version
+		except pkg_resources.DistributionNotFound:
+			return default
 
 def setup(bot):
 	bot.add_cog(Meta(bot))
