@@ -15,9 +15,6 @@ class Meme:
 		self.bot = bot
 		self.read_memes()
 
-	def __unload(self):
-		self.read_memes_task.cancel()
-
 	def read_memes(self):
 		self.memes = utils.load_json_compat(MEMES_FILE)
 
@@ -27,9 +24,6 @@ class Meme:
 		if response is not None:
 			await context.send(utils.fix_first_line(response))
 
-
 def setup(bot):
-	import os.path
-
 	if os.path.isfile(MEMES_FILE):
 		bot.add_cog(Meme(bot))
