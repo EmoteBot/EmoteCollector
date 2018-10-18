@@ -14,6 +14,8 @@ CREATE TABLE IF NOT EXISTS emotes(
 	guild BIGINT NOT NULL);
 
 CREATE UNIQUE INDEX IF NOT EXISTS emotes_lower_idx ON emotes (LOWER(name));
+CREATE INDEX IF NOT EXISTS emotes_name_trgm_idx ON emotes USING GIN (name gin_trgm_ops);
+CREATE INDEX IF NOT EXISTS emotes_author_idx ON emotes (author);
 
 -- all this nonsense for "ADD PRIMARY KEY IF NOT EXISTS" lol
 -- we're adding a PK so that JOINS will work btw
@@ -26,8 +28,6 @@ DO $$ BEGIN
 	) THEN
 		ALTER TABLE emotes
 			ADD PRIMARY KEY (id); END IF; END; $$;
-
-CREATE INDEX IF NOT EXISTS emotes_author_idx ON emotes (author);
 
 CREATE TABLE IF NOT EXISTS _guilds(
 	id BIGINT NOT NULL UNIQUE PRIMARY KEY);
@@ -119,15 +119,6 @@ ALTER TABLE locales ADD CONSTRAINT locales_check CHECK (
 	OR channel IS NOT NULL
 	OR "user" IS NOT NULL);
 
--- utility funcs --
-
-CREATE OR REPLACE FUNCTION str_contains(text, text) RETURNS bool AS $$
-BEGIN
-	-- strpos(haystack, needle)
-	-- we want str_contains(needle, haystack)
-	RETURN strpos($2, $1) > 0; END;
-$$ LANGUAGE plpgsql;
-
 -- old stuff --
 
 DROP INDEX IF EXISTS emojis_id_key;
@@ -139,3 +130,5 @@ DROP INDEX IF EXISTS emote_lower_idx;
 DROP INDEX IF EXISTS emote_author_idx;
 
 DROP TRIGGER IF EXISTS update_emoji_modtime ON emote;
+
+DROP FUNCTION IF EXISTS str_contains;

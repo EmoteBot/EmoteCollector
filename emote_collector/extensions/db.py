@@ -227,15 +227,15 @@ class Database:
 			LIMIT $1
 		""", limit)
 
-	def search(self, substring):
-		"""return an async iterator that gets emotes from the db whose name contains `substring`."""
+	def search(self, query):
+		"""return an async iterator that gets emotes from the db whose name is similar to `query`."""
 
 		return self._database_emote_cursor("""
 			SELECT *
 			FROM emotes
-			WHERE str_contains(LOWER($1), LOWER(name))
-			ORDER BY LOWER(name) ASC
-		""", substring)
+			WHERE name % $1
+			ORDER BY similarity(name, $1) DESC, LOWER(name)
+		""", query)
 
 	def decayable_emotes(self, cutoff: datetime = None, usage_threshold=2):
 		"""emotes that should be removed due to inactivity.
