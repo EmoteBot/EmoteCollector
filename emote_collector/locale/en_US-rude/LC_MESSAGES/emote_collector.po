@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-21 04:55+0000\n"
+"POT-Creation-Date: 2018-10-21 05:21+0000\n"
 "PO-Revision-Date: 2018-08-13 16:27-0500\n"
 "Last-Translator: Benjamin <bmintz@protonmail.com>\n"
 "Language-Team: English\n"
@@ -328,36 +328,36 @@ msgstr ""
 msgid "The current locale for this server is: {guild_locale}"
 msgstr ""
 
-#: emote_collector/extensions/meta.py:47
+#: emote_collector/extensions/meta.py:50
 msgid "Yes, delete my account."
 msgstr ""
 
-#: emote_collector/extensions/meta.py:49
+#: emote_collector/extensions/meta.py:52
 #, python-brace-format
 msgid ""
 "Are you sure you want to delete your account? To confirm, please say "
 "“{confirmation_phrase}” exactly."
 msgstr ""
 
-#: emote_collector/extensions/meta.py:56
+#: emote_collector/extensions/meta.py:59
 msgid "Deleting your account…"
 msgstr ""
 
-#: emote_collector/extensions/meta.py:63
+#: emote_collector/extensions/meta.py:66
 #, python-brace-format
-msgid "{context.author.mention}: I've deleted your account succesfully."
+msgid "{context.author.mention} I've deleted your account succesfully."
 msgstr ""
 
-#: emote_collector/extensions/meta.py:82
+#: emote_collector/extensions/meta.py:85
 msgid "Confirmation phrase not received in time. Please try again."
 msgstr ""
 
-#: emote_collector/extensions/meta.py:132
+#: emote_collector/extensions/meta.py:135
 #, python-brace-format
 msgid "Command or category \"{command_name}\" not found."
 msgstr ""
 
-#: emote_collector/extensions/meta.py:185
+#: emote_collector/extensions/meta.py:188
 msgid "Could not fetch changes due to memory error. Sorry."
 msgstr ""
 
