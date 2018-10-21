@@ -33,6 +33,60 @@ class Meta:
 
 		self.bot.loop.create_task(stop_all())
 
+	@commands.command(name='delete-my-account')
+	async def delete_my_account(self, context):
+		"""Permanently deletes all information I have on you.
+		This includes:
+			• Any emotes you have created
+			• Any settings you have made
+			• Your API token, if you have one
+
+		This does *not* include which emotes you have used, since I don't log *who* uses each emote,
+		only *when* each emote is used.
+
+		This command may take a while to run, especially if you've made a lot of emotes.
+		"""
+
+		confirmation_phrase = _('Yes, delete my account.')
+		prompt = _(
+			'Are you sure you want to delete your account? '
+			'To confirm, please say “{confirmation_phrase}” exactly.'
+		).format(**locals())
+
+		if not await self.confirm(context, prompt, confirmation_phrase):
+			return
+
+		status_message = await context.send(_('Deleting your account…'))
+
+		async with context.typing():
+			for cog_name in 'Database', 'Locales', 'API':
+				await self.delete_user_account_from_cog(cog_name, context.author.id)
+
+		await status_message.delete()
+		await context.send(_("{context.author.mention}: I've deleted your account succesfully.").format(**locals()))
+
+	async def delete_user_account_from_cog(self, cog_name, user_id):
+		cog = self.bot.get_cog(cog_name)
+		deleter = getattr(cog, 'delete_user_account')
+		await deleter(user_id)
+
+	async def confirm(self, context, prompt, required_phrase, *, timeout=30):
+		await context.send(prompt)
+
+		async def check(message):
+			return (
+				message.author == context.author
+				and message.channel == context.channel
+				and message.content == required_phrase)
+
+		try:
+			await self.bot.wait_for('message', check=check, timeout=timeout)
+		except asyncio.TimeoutError:
+			await context.send(_('Confirmation phrase not received in time. Please try again.'))
+			return False
+		else:
+			return True
+
 	@commands.command()
 	async def help(self, context, *, args: str=None):
 		if args is None:

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-14 04:49+0000\n"
+"POT-Creation-Date: 2018-10-21 04:55+0000\n"
 "PO-Revision-Date: 2018-08-13 17:05-0500\n"
 "Last-Translator: diniboy <diniboy@protonmail.com>\n"
 "Language-Team: Hungarian\n"
@@ -17,19 +17,23 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: emote_collector/__init__.py:118
+#: emote_collector/__init__.py:94
 msgid "This command cannot be used in private messages."
 msgstr ""
 
-#: emote_collector/__init__.py:120
+#: emote_collector/__init__.py:96
 msgid "Sorry. This command is disabled and cannot be used."
 msgstr ""
 
-#: emote_collector/__init__.py:137
+#: emote_collector/__init__.py:113
 msgid "An internal error occured while trying to run that command."
 msgstr ""
 
-#: emote_collector/extensions/api.py:47
+#: emote_collector/extensions/admin.py:14
+msgid "Reloaded the emotes extension with {} replies."
+msgstr ""
+
+#: emote_collector/extensions/api.py:46
 #, python-brace-format
 msgid ""
 "I have a RESTful API available. The docs for it are located at {docs_url}."
@@ -37,19 +41,19 @@ msgstr ""
 "A bot rendelkezik egy RESTful API-al. A hozzá csatolt dokumentáció "
 "megtalálható a {docs_url} címen."
 
-#: emote_collector/extensions/api.py:64
+#: emote_collector/extensions/api.py:63
 msgid "Your new API token is:\n"
 msgstr "Az új API kulcsod:\n"
 
-#: emote_collector/extensions/api.py:66
+#: emote_collector/extensions/api.py:65
 msgid "Your API token is:\n"
 msgstr "Az API kulcsod:\n"
 
-#: emote_collector/extensions/api.py:71
+#: emote_collector/extensions/api.py:70
 msgid "Do **not** share it with anyone!"
 msgstr "**Ne** oszd meg senkivel!"
 
-#: emote_collector/extensions/api.py:76
+#: emote_collector/extensions/api.py:75
 msgid "Error: I could not send you your token via DMs."
 msgstr "Hiba: Nem tudtam elküldeni a kulcsod privát üzenetben."
 
@@ -310,25 +314,53 @@ msgstr ""
 msgid "Invalid locale. The valid locales are: {locales}"
 msgstr "Helytelen nyelv. A elérhetőek listája: {locales}"
 
-#: emote_collector/extensions/locale.py:73
+#: emote_collector/extensions/locale.py:72
 #, python-brace-format
 msgid "Your current locale is: {user_locale}"
 msgstr ""
 
-#: emote_collector/extensions/locale.py:78
+#: emote_collector/extensions/locale.py:77
 #, python-brace-format
 msgid "The current locale for that channel is: {channel_or_guild_locale}"
 msgstr ""
 "A jelenleg beállított nyelv ezen csatorna számára: {channel_or_guild_locale}"
 
-#: emote_collector/extensions/locale.py:120
+#: emote_collector/extensions/locale.py:119
 #, python-brace-format
 msgid "The current locale for this server is: {guild_locale}"
 msgstr "A jelenlegi beállított nyelv a szerver számára: {guild_locale}"
 
-#: emote_collector/extensions/meta.py:80
+#: emote_collector/extensions/meta.py:47
+msgid "Yes, delete my account."
+msgstr ""
+
+#: emote_collector/extensions/meta.py:49
+#, python-brace-format
+msgid ""
+"Are you sure you want to delete your account? To confirm, please say "
+"“{confirmation_phrase}” exactly."
+msgstr ""
+
+#: emote_collector/extensions/meta.py:56
+msgid "Deleting your account…"
+msgstr ""
+
+#: emote_collector/extensions/meta.py:63
+#, python-brace-format
+msgid "{context.author.mention}: I've deleted your account succesfully."
+msgstr ""
+
+#: emote_collector/extensions/meta.py:82
+msgid "Confirmation phrase not received in time. Please try again."
+msgstr ""
+
+#: emote_collector/extensions/meta.py:132
 #, python-brace-format
 msgid "Command or category \"{command_name}\" not found."
+msgstr ""
+
+#: emote_collector/extensions/meta.py:185
+msgid "Could not fetch changes due to memory error. Sorry."
 msgstr ""
 
 #: emote_collector/utils/converter.py:17 emote_collector/utils/converter.py:31

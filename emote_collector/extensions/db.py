@@ -392,12 +392,23 @@ class Database:
 			RETURNING *""", should_preserve, name)
 
 		# why are we doing this "if not emote" checking, when we could just call get_emote
-		# before insert?
+		# before update?
 		# because that would constitute an extra database query which we don't need
 		if not emote:
 			raise errors.EmoteNotFoundError(name)
 		else:
 			return DatabaseEmote(emote)
+
+	async def delete_user_account(self, user_id):
+		await self.delete_all_user_emotes(user_id)
+		await self.delete_all_user_state(user_id)
+
+	async def delete_all_user_emotes(self, user_id):
+		async for emote in self.all_emotes(user_id):
+			with contextlib.suppress(errors.EmoteError):
+				# since we're only listing emotes by user_id,
+				# we don't need to perform another ownership check
+				await self.remove_emote(emote, user_id=None)
 
 	async def log_emote_use(self, emote_id, user_id=None):
 		await self.bot.pool.execute("""
@@ -427,14 +438,8 @@ class Database:
 
 	## User / Guild Options
 
-	def _toggle_state(self, table_name, id, default):
-		"""toggle the state for a user or guild. If there's no entry already, new state = default."""
-		# see _get_state for why string formatting is OK here
-		return self.bot.pool.fetchval(f"""
-			INSERT INTO {table_name} (id, state) VALUES ($1, $2)
-			ON CONFLICT (id) DO UPDATE SET state = NOT {table_name}.state
-			RETURNING state
-		""", id, default)
+	async def delete_all_user_state(self, user_id):
+		await self.bot.pool.execute('DELETE FROM user_opt WHERE id = $1', user_id)
 
 	async def toggle_user_state(self, user_id, guild_id=None) -> bool:
 		"""Toggle whether the user has opted to use the emote auto response.
@@ -448,6 +453,15 @@ class Database:
 			# if the auto response is enabled for the guild then toggling the user state should opt out
 			default = not guild_state
 		return await self._toggle_state('user_opt', user_id, default)
+
+	def _toggle_state(self, table_name, id, default):
+		"""toggle the state for a user or guild. If there's no entry already, new state = default."""
+		# see _get_state for why string formatting is OK here
+		return self.bot.pool.fetchval(f"""
+			INSERT INTO {table_name} (id, state) VALUES ($1, $2)
+			ON CONFLICT (id) DO UPDATE SET state = NOT {table_name}.state
+			RETURNING state
+		""", id, default)
 
 	def toggle_guild_state(self, guild_id):
 		"""Togle whether this guild is opt out.

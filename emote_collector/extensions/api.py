@@ -81,6 +81,9 @@ class API:
 		"""get the user's API token. If they don't already have a token, make a new one"""
 		return await self.existing_token(user_id) or await self.new_token(user_id)
 
+	async def delete_user_account(self, user_id):
+		await self.bot.pool.execute('DELETE FROM api_tokens WHERE id = $1', user_id)
+
 	async def existing_token(self, user_id):
 		secret = await self.bot.pool.fetchval("""
 			SELECT secret

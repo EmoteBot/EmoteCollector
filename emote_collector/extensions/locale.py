@@ -211,5 +211,8 @@ class Locales:
 			SET locale = EXCLUDED.locale
 		""", user, locale)
 
+	async def delete_user_account(self, user_id):
+		await self.bot.pool.execute('DELETE FROM locales WHERE "user" = $1', user_id)
+
 def setup(bot):
 	bot.add_cog(Locales(bot))
