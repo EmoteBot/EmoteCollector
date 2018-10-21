@@ -73,7 +73,7 @@ class Meta:
 	async def confirm(self, context, prompt, required_phrase, *, timeout=30):
 		await context.send(prompt)
 
-		async def check(message):
+		def check(message):
 			return (
 				message.author == context.author
 				and message.channel == context.channel
