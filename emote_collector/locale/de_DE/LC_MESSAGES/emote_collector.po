@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-21 05:21+0000\n"
+"POT-Creation-Date: 2018-10-22 08:01+0000\n"
 "PO-Revision-Date: 2018-08-18 18:53-0500\n"
 "Last-Translator: Adrian#1337\n"
 "Language-Team: \n"
@@ -357,7 +357,7 @@ msgstr ""
 
 #: emote_collector/extensions/meta.py:66
 #, python-brace-format
-msgid "{context.author.mention} I've deleted your account succesfully."
+msgid "{context.author.mention} I've deleted your account successfully."
 msgstr ""
 
 #: emote_collector/extensions/meta.py:85

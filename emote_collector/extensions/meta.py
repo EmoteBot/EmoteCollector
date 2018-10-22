@@ -63,7 +63,7 @@ class Meta:
 				await self.delete_user_account_from_cog(cog_name, context.author.id)
 
 		await status_message.delete()
-		await context.send(_("{context.author.mention} I've deleted your account succesfully.").format(**locals()))
+		await context.send(_("{context.author.mention} I've deleted your account successfully.").format(**locals()))
 
 	async def delete_user_account_from_cog(self, cog_name, user_id):
 		cog = self.bot.get_cog(cog_name)
