@@ -9,6 +9,7 @@ import logging
 import os.path
 import re
 import traceback
+import uuid
 
 import asyncpg
 import discord
@@ -57,6 +58,23 @@ class EmoteCollector(commands.AutoShardedBot):
 			self.config.get('success_or_failure_emojis', ('❌', '✅')))
 
 	@property
+	def prefix_re(self):
+		prefix = self.config['prefix']
+		if isinstance(prefix, str):
+			prefixes = [prefix]
+		else:
+			prefixes = prefix
+
+		prefixes = list(prefixes)  # ensure it's not a tuple
+		if self.is_ready():
+			prefixes.extend([f'<@{self.user.id}>', f'<@!{self.user.id}>'])
+
+		prefixes = '|'.join(map(re.escape, prefixes))
+		prefixes = f'(?:{prefixes})'
+
+		return re.compile(f'^\N{zero width space}?{prefixes}\\s*', re.IGNORECASE)
+
+	@property
 	def activity(self):
 		prefix = self.config['prefix']
 		if isinstance(prefix, str):
@@ -64,17 +82,17 @@ class EmoteCollector(commands.AutoShardedBot):
 		return discord.Game(name=prefix[0]+'help')
 
 	async def get_prefix_(self, bot, message):
-		prefix = self.config['prefix']
-		if isinstance(prefix, str):
-			prefix = (prefix,)
-		prefix = '|'.join(map(re.escape, prefix))
-
-		match = re.search(f'^\N{zero width space}?{prefix}', message.content, re.IGNORECASE)
+		match = self.prefix_re.search(message.content)
 
 		if match is None:
-			return commands.when_mentioned(bot, message)
+			# Callable prefixes must always return at least one prefix,
+			# but no prefix was found in the message,
+			# so we still have to return *something*.
+			# Use a UUID because it's practically guaranteed not to be in the message.
+			print('no match')
+			return str(uuid.uuid4())
 		else:
-			return commands.when_mentioned_or(match[0])(bot, message)
+			return match[0]
 
 	### Events
 
