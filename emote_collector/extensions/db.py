@@ -110,20 +110,15 @@ class Database:
 		await self.bot.pool.executemany('UPDATE emotes SET guild = $2 WHERE id = $1', emotes)
 
 	async def decay_loop(self):
-		while True:
-			logger.debug('entering decay loop')
+		while await asyncio.sleep(60*10, True):
 			if not self.bot.config.get('decay', False):
-				logger.warning("decay disabled! make sure it's enabled in the config.")
-				return
-			logger.debug('decay enabled')
+				# allow the user to enable the decay for next loop
+				continue
 
 			await self.bot.wait_until_ready()
 			await self.bot.db_ready.wait()
-			logger.debug('decaying')
 
 			await self.decay()
-
-			await asyncio.sleep(60*10)
 
 	@commands.command(name='sql', aliases=['SQL'], hidden=True)
 	@commands.is_owner()
