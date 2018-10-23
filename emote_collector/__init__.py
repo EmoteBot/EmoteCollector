@@ -46,11 +46,18 @@ class EmoteCollector(commands.AutoShardedBot):
 		super().__init__(
 			command_prefix=self.get_prefix_,
 			description=self.config.get('description'),
-			activity=discord.Game(name=self.config['prefix'] + 'help'),  # "Playing ec/help"
+			activity=self.activity,
 			*args, **kwargs)
 
 		utils.i18n.setup(self.loop)
 		self._setup_success_emojis()
+
+	@property
+	def activity(self):
+		prefix = self.config['prefix']
+		if isinstance(prefix, str):
+			prefix = (prefix,)
+		return discord.Game(name=prefix[0]+'help')
 
 	def _setup_success_emojis(self):
 		utils.SUCCESS_EMOJIS = utils.misc.SUCCESS_EMOJIS = (
@@ -58,6 +65,10 @@ class EmoteCollector(commands.AutoShardedBot):
 
 	async def get_prefix_(self, bot, message):
 		prefix = self.config['prefix']
+		if isinstance(prefix, str):
+			prefix = (prefix,)
+		prefix = '|'.join(map(re.escape, prefix))
+
 		match = re.search(f'^\N{zero width space}?{prefix}', message.content, re.IGNORECASE)
 
 		if match is None:
