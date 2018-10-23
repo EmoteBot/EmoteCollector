@@ -81,7 +81,7 @@ class EmoteCollector(commands.AutoShardedBot):
 			prefix = (prefix,)
 		return discord.Game(name=prefix[0]+'help')
 
-	async def get_prefix_(self, bot, message):
+	def get_prefix_(self, bot, message):
 		match = self.prefix_re.search(message.content)
 
 		if match is None:
