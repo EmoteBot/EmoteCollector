@@ -29,18 +29,10 @@ from . import extensions
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('bot')
 
-
 class EmoteCollector(commands.AutoShardedBot):
 	def __init__(self, *args, **kwargs):
 		self.config = kwargs.pop('config')
-
-		self.owners = set(self.config.get('extra_owners', ()))
-		if self.config.get('primary_owner'):
-			self.owners.add(self.config['primary_owner'])
-
-		with contextlib.suppress(KeyError):
-			self.config['copyright_license_file'] = os.path.join(BASE_DIR, self.config['copyright_license_file'])
-
+		self.process_config()
 		self.db_ready = asyncio.Event()
 
 		super().__init__(
@@ -50,7 +42,19 @@ class EmoteCollector(commands.AutoShardedBot):
 			*args, **kwargs)
 
 		utils.i18n.setup(self.loop)
+
+	def process_config(self):
+		self.owners = set(self.config.get('extra_owners', ()))
+		if self.config.get('primary_owner'):
+			self.owners.add(self.config['primary_owner'])
+
+		with contextlib.suppress(KeyError):
+			self.config['copyright_license_file'] = os.path.join(BASE_DIR, self.config['copyright_license_file'])
 		self._setup_success_emojis()
+
+	def _setup_success_emojis(self):
+		utils.SUCCESS_EMOJIS = utils.misc.SUCCESS_EMOJIS = (
+			self.config.get('success_or_failure_emojis', ('❌', '✅')))
 
 	@property
 	def activity(self):
@@ -58,10 +62,6 @@ class EmoteCollector(commands.AutoShardedBot):
 		if isinstance(prefix, str):
 			prefix = (prefix,)
 		return discord.Game(name=prefix[0]+'help')
-
-	def _setup_success_emojis(self):
-		utils.SUCCESS_EMOJIS = utils.misc.SUCCESS_EMOJIS = (
-			self.config.get('success_or_failure_emojis', ('❌', '✅')))
 
 	async def get_prefix_(self, bot, message):
 		prefix = self.config['prefix']
