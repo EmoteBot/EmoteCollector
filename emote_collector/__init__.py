@@ -89,7 +89,6 @@ class EmoteCollector(commands.AutoShardedBot):
 			# but no prefix was found in the message,
 			# so we still have to return *something*.
 			# Use a UUID because it's practically guaranteed not to be in the message.
-			print('no match')
 			return str(uuid.uuid4())
 		else:
 			return match[0]
