@@ -510,12 +510,12 @@ class Emotes:
 
 			if emote.preserve:
 				processed.append(
-					_('{emote} (Preserved) — owned by {author}').format(
+					_('{emote} (Preserved)').format(
 						emote=emote.with_name(),
 						author=author))
 			else:
 				processed.append(
-					_('{emote} — owned by {author}').format(emote=emote.with_name(), author=author))
+					_('{emote}').format(emote=emote.with_name(), author=author))
 
 		if not processed:
 			if not user:
