@@ -510,12 +510,9 @@ class Emotes:
 			author = utils.format_user(self.bot, emote.author, mention=True)
 
 			if emote.preserve:
-				processed.append(
-					_('{emote} (Preserved)').format(
-						emote=emote.with_linked_name(),
-						author=author))
+				processed.append(_('{emote} (Preserved)').format(emote=emote.with_linked_name()))
 			else:
-				processed.append(emote.with_linked_name(), author=author))
+				processed.append(emote.with_linked_name())
 
 		if not processed:
 			if not user:
