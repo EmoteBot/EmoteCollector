@@ -42,9 +42,9 @@ class DatabaseEmote(utils.AttrDict):
 		"""return this emote as a string suitable for displaying in a list form or embed"""
 		return f'{self} {self.escaped_name()}'
 
-	def with_linked_name(self):
+	def with_linked_name(self, *, separator='|'):
 		"""return this emote as a string suitable for displaying in a list form or embed"""
-		return f'{self} | [{self.escaped_name()}]({self.url})'
+		return f'{self} {separator} [{self.escaped_name()}]({self.url})'
 
 	@property
 	def url(self):
