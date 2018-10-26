@@ -95,7 +95,7 @@ class Logger:
 
 	async def log_emote_action(self, emote, action, color):
 		author = utils.format_user(self.bot, emote.author, mention=True)
-		description = f'{emote.with_name()}\nOwner: {author}'
+		description = f'{emote.with_linked_name()}\nOwner: {author}'
 
 		return await self._log(title=action, description=description, color=color)
 

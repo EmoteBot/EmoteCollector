@@ -67,6 +67,7 @@ class Emotes:
 		The emote must be in the database.
 		"""
 		embed = discord.Embed()
+		embed.url = emote.url
 
 		if emote.preserve:
 			embed.title = _('{emote} (Preserved)').format(emote=emote.with_name())
@@ -511,11 +512,11 @@ class Emotes:
 			if emote.preserve:
 				processed.append(
 					_('{emote} (Preserved)').format(
-						emote=emote.with_name(),
+						emote=emote.with_linked_name(),
 						author=author))
 			else:
 				processed.append(
-					_('{emote}').format(emote=emote.with_name(), author=author))
+					_('{emote}').format(emote=emote.with_linked_name(), author=author))
 
 		if not processed:
 			if not user:
@@ -543,7 +544,7 @@ class Emotes:
 		processed = []
 
 		async for emote in self.db.search(query):
-			processed.append(emote.with_name())
+			processed.append(emote.with_linked_name())
 
 		if not processed:
 			return await context.send(_('No results matched your query.'))
@@ -566,7 +567,7 @@ class Emotes:
 
 			# TODO internationalize this (needs plural support)
 			processed.append(
-				f'{emote.with_name()} '
+				f'{emote.with_linked_name()} '
 				f'— used {c} time{multiple}')
 
 		if not processed:
