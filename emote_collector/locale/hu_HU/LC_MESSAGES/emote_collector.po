@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-22 08:01+0000\n"
+"POT-Creation-Date: 2018-10-26 15:19+0000\n"
 "PO-Revision-Date: 2018-08-13 17:05-0500\n"
 "Last-Translator: diniboy <diniboy@protonmail.com>\n"
 "Language-Team: Hungarian\n"
@@ -17,15 +17,15 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: emote_collector/__init__.py:94
+#: emote_collector/__init__.py:123
 msgid "This command cannot be used in private messages."
 msgstr ""
 
-#: emote_collector/__init__.py:96
+#: emote_collector/__init__.py:125
 msgid "Sorry. This command is disabled and cannot be used."
 msgstr ""
 
-#: emote_collector/__init__.py:113
+#: emote_collector/__init__.py:142
 msgid "An internal error occured while trying to run that command."
 msgstr ""
 
@@ -57,20 +57,21 @@ msgstr "**Ne** oszd meg senkivel!"
 msgid "Error: I could not send you your token via DMs."
 msgstr "Hiba: Nem tudtam elküldeni a kulcsod privát üzenetben."
 
-#: emote_collector/extensions/emote.py:72
+#: emote_collector/extensions/emote.py:73
+#: emote_collector/extensions/emote.py:514
 #, python-brace-format
 msgid "{emote} (Preserved)"
 msgstr "{emote} (Tartós)"
 
-#: emote_collector/extensions/emote.py:81
+#: emote_collector/extensions/emote.py:82
 msgid "Created"
 msgstr "Létrehozva"
 
-#: emote_collector/extensions/emote.py:95
+#: emote_collector/extensions/emote.py:96
 msgid "Last modified"
 msgstr "Utoljára módosítva"
 
-#: emote_collector/extensions/emote.py:110
+#: emote_collector/extensions/emote.py:111
 #, python-brace-format
 msgid ""
 "Static emotes: **{static} ⁄ {static_cap}**\n"
@@ -81,12 +82,12 @@ msgstr ""
 "Animált hangulatjelek: **{animated} ⁄ {animated_cap}**\n"
 "**Összes: {total} ⁄ {total_cap}**"
 
-#: emote_collector/extensions/emote.py:131
+#: emote_collector/extensions/emote.py:132
 #, python-brace-format
 msgid "{context.author.mention} said:"
 msgstr "{context.author.mention} mondta:"
 
-#: emote_collector/extensions/emote.py:157
+#: emote_collector/extensions/emote.py:158
 msgid ""
 "Sorry, webhooks and bots may not add emotes. Go find a human to do it for "
 "you."
@@ -94,7 +95,7 @@ msgstr ""
 "Sajnálatos módon webhookok és botok nem hozhatnak létre hangulatjeleket. "
 "Keress egy embert erre a célra!"
 
-#: emote_collector/extensions/emote.py:173
+#: emote_collector/extensions/emote.py:174
 msgid ""
 "Error: I expected a custom emote as the first argument, but I got something "
 "else. If you're trying to add an emote using an image URL, you need to "
@@ -106,110 +107,100 @@ msgstr ""
 "hangulatjelet, meg kell adnod a nevét, mint első argumentum, így:\n"
 "`{}add NÉV_IDE URL_IDE`"
 
-#: emote_collector/extensions/emote.py:194
+#: emote_collector/extensions/emote.py:195
 msgid "Your message had no emotes and no name!"
 msgstr "Az üzeneted nem tartalmazott hangulatjeleket és neveket!"
 
-#: emote_collector/extensions/emote.py:213
+#: emote_collector/extensions/emote.py:214
 msgid "An error occurred while creating the emote:\n"
 msgstr "Hiba történt a hangulatjel létrehozása során:\n"
 
-#: emote_collector/extensions/emote.py:216
+#: emote_collector/extensions/emote.py:217
 msgid "Error: Invalid URL."
 msgstr "Hiba: Helytelen URL."
 
-#: emote_collector/extensions/emote.py:218
+#: emote_collector/extensions/emote.py:219
 #, python-brace-format
 msgid "Emote {emote} successfully created."
 msgstr "A hangulatjel {emote} sikeresen létrehozva."
 
-#: emote_collector/extensions/emote.py:274
+#: emote_collector/extensions/emote.py:275
 msgid "Error: you must provide the name of at least one emote to remove"
 msgstr "HIba: Minimum egy hangulatjel nevét meg kell adnod a törléshez!"
 
-#: emote_collector/extensions/emote.py:298
+#: emote_collector/extensions/emote.py:299
 msgid "**Successfully deleted:**"
 msgstr ""
 
-#: emote_collector/extensions/emote.py:327
+#: emote_collector/extensions/emote.py:328
 msgid "**Successfully created:**"
 msgstr ""
 
-#: emote_collector/extensions/emote.py:330
+#: emote_collector/extensions/emote.py:331
 msgid "Error: no existing custom emotes were provided."
 msgstr "Hiba: egyetlen, már létező egyedi hangulatjel sem lett megadva."
 
-#: emote_collector/extensions/emote.py:339
+#: emote_collector/extensions/emote.py:340
 msgid "**Already exists:**"
 msgstr ""
 
-#: emote_collector/extensions/emote.py:342
+#: emote_collector/extensions/emote.py:343
 msgid "**Not found:**"
 msgstr ""
 
-#: emote_collector/extensions/emote.py:344
+#: emote_collector/extensions/emote.py:345
 #, python-brace-format
 msgid "**Server returned error code {error.status}:**"
 msgstr ""
 
-#: emote_collector/extensions/emote.py:346
+#: emote_collector/extensions/emote.py:347
 msgid "**Took too long to retrieve or resize:**"
 msgstr ""
 
-#: emote_collector/extensions/emote.py:348
+#: emote_collector/extensions/emote.py:349
 msgid "**Failed because I ran out of backend servers:**"
 msgstr ""
 
-#: emote_collector/extensions/emote.py:381
+#: emote_collector/extensions/emote.py:382
 msgid "You must specify an old name and a new name."
 msgstr "Mindenképpen adj meg egy régi, illetve egy új nevet is!"
 
-#: emote_collector/extensions/emote.py:387
+#: emote_collector/extensions/emote.py:388
 msgid "Error: you must provide a new name for the emote."
 msgstr "Hiba: meg kell adnod a hangulatjel nevét."
 
-#: emote_collector/extensions/emote.py:398
+#: emote_collector/extensions/emote.py:399
 msgid "Emote successfully renamed."
 msgstr "A hangulatjel sikeresen átnevezve!"
 
-#: emote_collector/extensions/emote.py:438
+#: emote_collector/extensions/emote.py:439
 msgid "You can already react to that message with that emote."
 msgstr "Már tudsz reagálni a hangulatjel segítségével az üzenetre."
 
-#: emote_collector/extensions/emote.py:444
+#: emote_collector/extensions/emote.py:445
 msgid "Unable to react: permission denied."
 msgstr "A reakció sikertelen: hozzáférés megtagadva."
 
-#: emote_collector/extensions/emote.py:446
+#: emote_collector/extensions/emote.py:447
 msgid "Unable to react. Discord must be acting up."
 msgstr "A reakció sikertelen. Valószínűsíthetően Discord probléma áll fenn."
 
-#: emote_collector/extensions/emote.py:449
+#: emote_collector/extensions/emote.py:450
 msgid "OK! I've reacted to that message. Please add your reaction now."
 msgstr "Ok! Ragáltam az üzenetre. Kérlek reagálj te is most!"
 
-#: emote_collector/extensions/emote.py:486
+#: emote_collector/extensions/emote.py:487
 msgid ""
 "Unable to react: you and I both need permission to read message history."
 msgstr ""
 
-#: emote_collector/extensions/emote.py:489
+#: emote_collector/extensions/emote.py:490
 msgid "Unable to react: you and I both need permission to add reactions."
 msgstr ""
 
-#: emote_collector/extensions/emote.py:492
+#: emote_collector/extensions/emote.py:493
 msgid "Unable to react: you and I both need permission to use external emotes."
 msgstr ""
-
-#: emote_collector/extensions/emote.py:513
-#, python-brace-format
-msgid "{emote} (Preserved) — owned by {author}"
-msgstr "{emote} (Tartós) — Birtokolja: {author}"
-
-#: emote_collector/extensions/emote.py:518
-#, python-brace-format
-msgid "{emote} — owned by {author}"
-msgstr "{emote} — Birtokolja: {author}"
 
 #: emote_collector/extensions/emote.py:522
 #: emote_collector/extensions/emote.py:573
