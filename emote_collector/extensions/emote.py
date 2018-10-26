@@ -515,8 +515,7 @@ class Emotes:
 						emote=emote.with_linked_name(),
 						author=author))
 			else:
-				processed.append(
-					_('{emote}').format(emote=emote.with_linked_name(), author=author))
+				processed.append(emote.with_linked_name(), author=author))
 
 		if not processed:
 			if not user:
