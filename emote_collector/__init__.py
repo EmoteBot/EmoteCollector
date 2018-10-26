@@ -35,6 +35,7 @@ class EmoteCollector(commands.AutoShardedBot):
 		self.config = kwargs.pop('config')
 		self.process_config()
 		self.db_ready = asyncio.Event()
+		self._fallback_prefix = str(uuid.uuid4())
 
 		super().__init__(
 			command_prefix=self.get_prefix_,
@@ -89,8 +90,7 @@ class EmoteCollector(commands.AutoShardedBot):
 			# but no prefix was found in the message,
 			# so we still have to return *something*.
 			# Use a UUID because it's practically guaranteed not to be in the message.
-			print('no match')
-			return str(uuid.uuid4())
+			return self._fallback_prefix
 		else:
 			return match[0]
 
