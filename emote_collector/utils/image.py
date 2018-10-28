@@ -18,7 +18,8 @@ from . import size
 def resize_until_small(image_data: io.BytesIO) -> io.BytesIO:
 	"""If the image_data is bigger than 256KB, resize it until it's not.
 
-	If resizing takes more than 30 seconds, raise asyncio.TimeoutError."""
+	If resizing takes more than 30 seconds, raise asyncio.TimeoutError.
+	"""
 	# It's important that we only attempt to resize the image when we have to,
 	# ie when it exceeds the Discord limit of 256KiB.
 	# Apparently some <256KiB images become larger when we attempt to resize them,
@@ -33,8 +34,11 @@ def resize_until_small(image_data: io.BytesIO) -> io.BytesIO:
 		max_resolution //= 2
 	return image_data
 
-def thumbnail(image_data: io.BytesIO, max_size=(128, 128)):
-	"""Resize an image in place to no more than max_size pixels, preserving aspect ratio."""
+def thumbnail(image_data: io.BytesIO, max_size=(128, 128)) -> io.BytesIO:
+	"""Resize an image in place to no more than max_size pixels, preserving aspect ratio.
+
+	Return the new image.
+	"""
 	# Credit to @Liara#0001 (ID 136900814408122368)
 	# https://gitlab.com/Pandentia/element-zero/blob/47bc8eeeecc7d353ec66e1ef5235adab98ca9635/element_zero/cogs/emoji.py#L243-247
 	image = Image(blob=image_data)
@@ -48,10 +52,12 @@ def thumbnail(image_data: io.BytesIO, max_size=(128, 128)):
 	return out
 
 def scale_resolution(old_res, new_res):
-	# https://stackoverflow.com/a/6565988
 	"""Resize a resolution, preserving aspect ratio. Returned w,h will be <= new_res"""
+	# https://stackoverflow.com/a/6565988
+
 	old_width, old_height = old_res
 	new_width, new_height = new_res
+
 	old_ratio = old_width / old_height
 	new_ratio = new_width / new_height
 	if new_ratio > old_ratio:
