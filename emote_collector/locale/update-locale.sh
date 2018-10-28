@@ -3,6 +3,7 @@
 xgettext \
 	--files-from POTFILES.in \
 	--from-code utf-8 \
+	--add-comments \
 	--directory ../../ \
 	--output messages.pot
 
