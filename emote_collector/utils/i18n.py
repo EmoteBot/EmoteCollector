@@ -22,6 +22,11 @@ gettext_translations = {
 		localedir=os.path.join(BASE_DIR, locale_dir))
 	for locale in locales}
 
+# source code is already in en_US.
+# we don't use default_locale as the key here
+# because the default locale for this installation may not be en_US
+gettext_translations['en_US'] = gettext.NullTranslations()
+
 def use_current_gettext(*args, **kwargs):
 	if not gettext_translations:
 		return gettext.gettext(*args, **kwargs)
