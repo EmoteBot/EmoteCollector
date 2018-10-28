@@ -5,7 +5,6 @@ import os.path
 
 import pkg_resources
 import setuptools
-import subprocess
 
 actual_pip_version = pkg_resources.get_distribution('pip').parsed_version
 # this class recently moved packages
