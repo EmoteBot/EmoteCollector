@@ -4,6 +4,7 @@
 import asyncio
 import collections
 import contextlib
+import enum
 import io
 import logging
 import re
@@ -20,9 +21,21 @@ from .. import utils
 from ..utils import image as image_utils
 from ..utils import checks
 from ..utils import errors
+from ..utils.converter import Snowflake
 from ..utils.paginator import CannotPaginate, Pages
 
 logger = logging.getLogger(__name__)
+
+class MessageReplyType(enum.IntEnum):
+	"""Indicates the type of a reply that we sent to a user.
+
+	Values:
+		auto: an auto response to the user. Happens when they say e.g. ";thonk;" without a command.
+		quote: a quoted reply to the user. For example: "ec/quote this sucks :speedtest:"
+	"""
+
+	auto = enum.auto()
+	quote = enum.auto()
 
 class Emotes:
 	"""Commands related to the main functionality of the bot"""
@@ -136,7 +149,7 @@ class Emotes:
 				await context.message.delete()
 
 		reply = await context.send(message)
-		self.replies[context.message.id] = 1, reply
+		self.replies[context.message.id] = MessageReplyType.quote, reply
 
 	@commands.command(aliases=['create'], usage='[name] <image URL or custom emote>')
 	@checks.not_blacklisted()
@@ -702,7 +715,7 @@ class Emotes:
 		if not has_emotes:
 			return
 
-		self.replies[message.id] = 0, await message.channel.send(reply)
+		self.replies[message.id] = MessageReplyType.auto, await message.channel.send(reply)
 
 	async def _should_auto_reply(self, message: discord.Message):
 		"""return whether the bot should send an emote auto response to message"""
@@ -742,11 +755,12 @@ class Emotes:
 			channel=self.bot.get_channel(int(payload.data['channel_id'])),
 			data=payload.data)
 
+		handlers = {
+			MessageReplyType.auto: self._handle_extracted_edit,
+			MessageReplyType.quote: self._handle_quoted_edit}
+
 		type, reply = self.replies[payload.message_id]
-		if type == 0:  # extract_emotes
-			await self._handle_extracted_edit(message, reply)
-		else:
-			await self._handle_quoted_edit(message, reply)
+		await handlers[type](message, reply)
 
 	async def _handle_extracted_edit(self, message, reply):
 		"""handle the case when a user edits a message that we auto-responded to"""
