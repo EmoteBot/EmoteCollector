@@ -464,7 +464,8 @@ class Emotes:
 			# unfortunately, if you look at the list of reactions, it still says the bot reacted.
 			# no amount of sleeping can fix that, in my tests.
 			await asyncio.sleep(0.2)
-			await message.remove_reaction(emote.as_reaction(), self.bot.user)
+			with contextlib.suppress(discord.HTTPException):
+				await message.remove_reaction(emote.as_reaction(), self.bot.user)
 
 			for message in context.message, instruction_message:
 				with contextlib.suppress(discord.HTTPException):
