@@ -579,7 +579,7 @@ class Emotes:
 
 	@commands.command(hidden=True)
 	@commands.is_owner()
-	async def recover(self, context, message_id):
+	async def recover(self, context, message_id: Snowflake):
 		"""recovers a decayed or removed emote from the log channel.
 
 		message_id is the ID of the log message.

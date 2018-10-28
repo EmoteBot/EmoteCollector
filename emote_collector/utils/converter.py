@@ -24,7 +24,7 @@ async def convert_offset(context, channel, offset):
 
 	raise commands.BadArgument(_('Not a message offset.'))
 
-def _validate_snowflake(argument: str):
+def Snowflake(argument: str):
 	try:
 		id = int(argument)
 	except ValueError:
@@ -36,7 +36,7 @@ def _validate_snowflake(argument: str):
 	return id
 
 async def convert_id(context, channel, id: str):
-	id = _validate_snowflake(id)
+	id = Snowflake(id)
 
 	try:
 		return await channel.get_message(id)
