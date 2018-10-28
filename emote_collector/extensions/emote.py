@@ -443,9 +443,7 @@ class Emotes:
 		except discord.HTTPException:
 			return await context.send(_('Unable to react. Discord must be acting up.'))
 
-		instruction_message = await context.send(_(
-			"OK! I've reacted to that message. "
-			"Please add your reaction now."))
+		instruction_message = await context.send(_("OK! I've reacted to that message. Please add your reaction now."))
 
 		def check(payload):
 			return (

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-26 15:19+0000\n"
+"POT-Creation-Date: 2018-10-28 06:50+0000\n"
 "PO-Revision-Date: 2018-08-13 17:05-0500\n"
 "Last-Translator: diniboy <diniboy@protonmail.com>\n"
 "Language-Team: Hungarian\n"
@@ -58,7 +58,7 @@ msgid "Error: I could not send you your token via DMs."
 msgstr "Hiba: Nem tudtam elküldeni a kulcsod privát üzenetben."
 
 #: emote_collector/extensions/emote.py:73
-#: emote_collector/extensions/emote.py:514
+#: emote_collector/extensions/emote.py:489
 #, python-brace-format
 msgid "{emote} (Preserved)"
 msgstr "{emote} (Tartós)"
@@ -173,115 +173,110 @@ msgstr "Hiba: meg kell adnod a hangulatjel nevét."
 msgid "Emote successfully renamed."
 msgstr "A hangulatjel sikeresen átnevezve!"
 
-#: emote_collector/extensions/emote.py:439
+#: emote_collector/extensions/emote.py:436
 msgid "You can already react to that message with that emote."
 msgstr "Már tudsz reagálni a hangulatjel segítségével az üzenetre."
 
-#: emote_collector/extensions/emote.py:445
+#: emote_collector/extensions/emote.py:442
 msgid "Unable to react: permission denied."
 msgstr "A reakció sikertelen: hozzáférés megtagadva."
 
-#: emote_collector/extensions/emote.py:447
+#: emote_collector/extensions/emote.py:444
 msgid "Unable to react. Discord must be acting up."
 msgstr "A reakció sikertelen. Valószínűsíthetően Discord probléma áll fenn."
 
-#: emote_collector/extensions/emote.py:450
+#: emote_collector/extensions/emote.py:446
 msgid "OK! I've reacted to that message. Please add your reaction now."
 msgstr "Ok! Ragáltam az üzenetre. Kérlek reagálj te is most!"
 
-#: emote_collector/extensions/emote.py:487
-msgid ""
-"Unable to react: you and I both need permission to read message history."
-msgstr ""
-
-#: emote_collector/extensions/emote.py:490
-msgid "Unable to react: you and I both need permission to add reactions."
-msgstr ""
-
-#: emote_collector/extensions/emote.py:493
-msgid "Unable to react: you and I both need permission to use external emotes."
-msgstr ""
-
-#: emote_collector/extensions/emote.py:522
-#: emote_collector/extensions/emote.py:573
+#: emote_collector/extensions/emote.py:495
+#: emote_collector/extensions/emote.py:546
 msgid "No emotes have been created yet. Be the first!"
 msgstr "Nincs egyetlen létrehozott hangulatjel sem. Légy te az első!"
 
-#: emote_collector/extensions/emote.py:525
+#: emote_collector/extensions/emote.py:498
 msgid "You have not created any emotes yet."
 msgstr "Még nem hoztál létre egyetlen hangulatjelet sem."
 
-#: emote_collector/extensions/emote.py:527
+#: emote_collector/extensions/emote.py:500
 msgid "That person has not created any emotes yet."
 msgstr "Ez a személy még nem hozott létre egyetlen hangulatjelet sem."
 
-#: emote_collector/extensions/emote.py:534
+#: emote_collector/extensions/emote.py:507
 #, python-brace-format
 msgid "Also check out the list website at {website}."
 msgstr "Ne felejtsd el megtekinteni a listázó weboldalt: {website}."
 
-#: emote_collector/extensions/emote.py:549
+#: emote_collector/extensions/emote.py:522
 msgid "No results matched your query."
 msgstr "Egyetlen találat sincs a keresésre."
 
-#: emote_collector/extensions/emote.py:590
+#: emote_collector/extensions/emote.py:563
 msgid "Logger cog not loaded."
 msgstr "A logolásért felelős cog nincs betöltve."
 
-#: emote_collector/extensions/emote.py:595
-#: emote_collector/utils/converter.py:57
+#: emote_collector/extensions/emote.py:568
+#: emote_collector/utils/converter.py:77
 msgid "Message not found."
 msgstr "Az üzenet nem létezik."
 
-#: emote_collector/extensions/emote.py:600
+#: emote_collector/extensions/emote.py:573
 msgid "No embeds were found in that message."
 msgstr "Egyetlen beágyazott rész sincs ebben az üzenetben."
 
-#: emote_collector/extensions/emote.py:605
+#: emote_collector/extensions/emote.py:578
 msgid "No description was found in that embed."
 msgstr "Nincs leírása a beágyazott üzenetnek."
 
-#: emote_collector/extensions/emote.py:611
+#: emote_collector/extensions/emote.py:584
 msgid "No custom emotes were found in that embed's description."
 msgstr ""
 "Egyetlen egyedi hangulatjelet sem sikerült találni a beágyazott üzenet "
 "leírásában."
 
-#: emote_collector/extensions/emote.py:618
+#: emote_collector/extensions/emote.py:591
 msgid "No author IDs were found in that embed."
 msgstr "Egyetlen birtokos azonosítója sem szerepel a beágyazott üzenetben."
 
-#: emote_collector/extensions/emote.py:634
+#: emote_collector/extensions/emote.py:607
 msgid "Opted in to the emote auto response."
 msgstr "A hangulatjelekre automatikus válaszolás bekapcsolva."
 
-#: emote_collector/extensions/emote.py:636
+#: emote_collector/extensions/emote.py:609
 msgid "Opted out of the emote auto response."
 msgstr "A hangulatjelekre automatikus válaszolás kikapcsolva."
 
-#: emote_collector/extensions/emote.py:653
+#: emote_collector/extensions/emote.py:626
 msgid "Emote auto response is now opt-out for this server."
 msgstr ""
 
-#: emote_collector/extensions/emote.py:655
+#: emote_collector/extensions/emote.py:628
 msgid "Emote auto response is now opt-in for this server."
 msgstr ""
 
-#: emote_collector/extensions/emote.py:670
+#: emote_collector/extensions/emote.py:643
 msgid "User un-blacklisted."
 msgstr "Felhasználó felszabadítva a feketelistáról."
 
-#: emote_collector/extensions/emote.py:672
+#: emote_collector/extensions/emote.py:645
 #, python-brace-format
 msgid "User blacklisted with reason \"{reason}\"."
 msgstr "Felhasználó feketelistázva a következő indokkal: `{reason}`."
 
-#: emote_collector/extensions/emote.py:681
+#: emote_collector/extensions/emote.py:654
 msgid "**Succesfully preserved:**"
 msgstr ""
 
-#: emote_collector/extensions/emote.py:683
+#: emote_collector/extensions/emote.py:656
 msgid "**Succesfully un-preserved:**"
+msgstr ""
+
+#: emote_collector/extensions/file_upload_hook.py:25
+msgid "Way too long."
+msgstr ""
+
+#: emote_collector/extensions/file_upload_hook.py:28
+msgid "Way too long. Message attached."
 msgstr ""
 
 #: emote_collector/extensions/gimme.py:30
@@ -366,18 +361,37 @@ msgstr "Helytelen az üzenet pozíciója."
 msgid "Not a valid message ID."
 msgstr "Nem egy helyes üzenet azonosító."
 
-#: emote_collector/utils/converter.py:47
+#: emote_collector/utils/converter.py:45
 msgid "Message not found! Make sure your message ID is correct."
 msgstr ""
 "Nincs ilyen üzenet! Győződj meg róla, hogy az üzenethez tartozó azonosító "
 "helyes!"
 
-#: emote_collector/utils/converter.py:50
+#: emote_collector/utils/converter.py:48
 msgid ""
 "Permission denied! Make sure the bot has permission to read that message."
 msgstr ""
 "Hozzáférés megtagadva! Győződj meg róla, hogy a bot látja-e (van-e "
 "hozzáférése) az adott üzenetet."
+
+#: emote_collector/utils/converter.py:95
+msgid ""
+"Failed to interpret that as a message offset, message ID, or user, or failed "
+"to find a message containing that search keyword."
+msgstr ""
+
+#: emote_collector/utils/converter.py:120
+msgid ""
+"Unable to react: you and I both need permission to read message history."
+msgstr ""
+
+#: emote_collector/utils/converter.py:122
+msgid "Unable to react: you and I both need permission to add reactions."
+msgstr ""
+
+#: emote_collector/utils/converter.py:124
+msgid "Unable to react: you and I both need permission to use external emotes."
+msgstr ""
 
 #: emote_collector/utils/errors.py:13
 #, python-brace-format

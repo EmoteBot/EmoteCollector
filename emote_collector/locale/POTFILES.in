@@ -3,6 +3,7 @@ emote_collector/extensions/admin.py
 emote_collector/extensions/api.py
 emote_collector/extensions/db.py
 emote_collector/extensions/emote.py
+emote_collector/extensions/file_upload_hook.py
 emote_collector/extensions/gimme.py
 emote_collector/extensions/logging.py
 emote_collector/extensions/locale.py
