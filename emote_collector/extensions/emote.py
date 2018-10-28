@@ -464,7 +464,9 @@ class Emotes:
 
 		try:
 			await message.add_reaction(emote.as_reaction())
-		except discord.Forbidden:
+		except discord.Forbidden as exception:
+			if exception.text.startswith('Maximum number of reactions reached'):
+				return await context.send(_("Unable to react: there's too many reactions on that message already"))
 			return await context.send(_('Unable to react: permission denied.'))
 		except discord.HTTPException:
 			return await context.send(_('Unable to react. Discord must be acting up.'))
