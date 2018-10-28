@@ -423,9 +423,6 @@ class Emotes:
 		Otherwise, the first message matching the keyword will be reacted to.
 		"""
 
-		if not await self._check_reaction_permissions(context):
-			return
-
 		if message is None:
 			# get the second to last message (ie ignore the invoking message)
 			message = await utils.get_message_by_offset(context.channel, -2)
@@ -474,26 +471,6 @@ class Emotes:
 			for message in context.message, instruction_message:
 				with contextlib.suppress(discord.HTTPException):
 					await message.delete()
-
-	async def _check_reaction_permissions(self, context):
-		# author might not be a Member, even in a guild, if it's a webhook.
-		if not context.guild or not isinstance(context.author, discord.Member):
-			return True
-
-		sender_permissions = context.channel.permissions_for(context.author)
-		permissions = context.channel.permissions_for(context.guild.me)
-
-		if not sender_permissions.read_message_history or not permissions.read_message_history:
-			await context.send(_('Unable to react: you and I both need permission to read message history.'))
-			return False
-		if not sender_permissions.add_reactions or not permissions.add_reactions:
-			await context.send(_('Unable to react: you and I both need permission to add reactions.'))
-			return False
-		if not sender_permissions.external_emojis or not permissions.external_emojis:
-			await context.send(_('Unable to react: you and I both need permission to use external emotes.'))
-			return False
-
-		return True
 
 	@commands.command(aliases=('ls', 'dir'))
 	async def list(self, context, *, user: discord.User = None):
