@@ -24,6 +24,8 @@ SET_TRANSLATIONS = (
 class InvalidLocaleError(commands.BadArgument):
 	def __init__(self):
 		super().__init__(
+			# Translator's note: if there's no good translation for "locale",
+			# or it's not a common word in your language, feel free to use "language" instead for this file.
 			_('Invalid locale. The valid locales are: {locales}').format(
 				locales=', '.join(i18n.locales)))
 

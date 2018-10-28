@@ -11,6 +11,7 @@ class Admin:
 		context.bot.unload_extension(extension)
 		context.bot.load_extension(extension)
 		context.bot.get_cog('Emotes').replies = replies
+		# Translator's note: it's not crucial to translate this message, for the same reason as "Logger cog not loaded"
 		await context.send(_('Reloaded the emotes extension with {} replies.').format(len(replies)))
 
 def setup(bot):

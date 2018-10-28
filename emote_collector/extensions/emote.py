@@ -170,6 +170,7 @@ class Emotes:
 		elif len(args) == 1:
 			match = re.match(utils.lexer.t_CUSTOM_EMOTE, args[0])
 			if match is None:
+				# translator's note: please also translate NAME_HERE and URL_HERE
 				raise commands.BadArgument(_(
 					'Error: I expected a custom emote as the first argument, '
 					'but I got something else. '
@@ -337,6 +338,8 @@ class Emotes:
 	@staticmethod
 	def _humanize_errors(error=None):
 		if isinstance(error, errors.EmoteExistsError):
+			# translator's note: the next five strings are displayed as errors
+			# when the user tries to add/remove an emote
 			return 1, _('**Already exists:**')
 		if isinstance(error, errors.EmoteNotFoundError):
 			# same priority as EmoteExists
@@ -570,6 +573,9 @@ class Emotes:
 		try:
 			channel = self.bot.get_cog('Logger').channel
 		except AttributeError:
+			# translator's note: it's not crucial that you translate the next 6 strings.
+			# they're meant for use by the owner, so translating them is really only useful to people that self host
+			# the bot and prefer another language than English.
 			return await context.send(_('Logger cog not loaded.'))
 
 		try:
@@ -641,9 +647,9 @@ class Emotes:
 	@commands.is_owner()
 	async def blacklist(self, context, user: discord.Member, *,
 		reason: commands.clean_content(
-			fix_channel_mentions=True,
+			fix_channel_mentions=True,  # blacklist messages are global, so we don't want "#invalid-channel"
 			escape_markdown=True,
-			use_nicknames=False
+			use_nicknames=False,
 		) = None
 	):
 		"""Prevent a user from using commands and the emote auto response.

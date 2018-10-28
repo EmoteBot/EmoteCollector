@@ -22,9 +22,12 @@ async def upload_to_privatebin_if_too_long(original_send, content=None, **kwargs
 
 	out = io.StringIO(content)
 	if utils.size(out) > FILE_SIZE_LIMIT:
+		# translator's note: this is sent to the user when the bot tries to send a message larger than ~8MiB
 		return False, await original_send(_('Way too long.'))
 
 	file = discord.File(fp=io.StringIO(content), filename='message.txt')
+	# translator's note: this is sent to the user when the bot tries to send a message >2000 characters
+	# but less than 8MiB
 	return False, await original_send(_('Way too long. Message attached.'), **kwargs, file=file)
 
 def setup(bot):
