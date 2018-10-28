@@ -98,6 +98,9 @@ class Message(commands.Converter):
 	@classmethod
 	async def _parse_argument(cls, context, argument) -> typing.Tuple[discord.abc.Messageable, str]:
 		channel, slash, message = argument.partition('/')
+		# allow spaces around the "/"
+		channel = channel.rstrip()
+		message = message.lstrip()
 		if channel:
 			try:
 				channel = await cls._channel_converter.convert(context, channel)
