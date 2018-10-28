@@ -418,9 +418,19 @@ class Emotes:
 	async def react(self, context, emote: DatabaseEmote, *, message: utils.converter.Message = None):
 		"""Add a reaction to a message. Sad reacts only please.
 
-		To specify the message, either provide a keyword to search for, or a message ID.
+		To specify the message, provide a keyword to search for, a message ID, or an offset.
 		If you don't specify a message, the last message sent in this channel will be chosen.
 		Otherwise, the first message matching the keyword will be reacted to.
+
+		You can also put a channel before the message in order to react to a message from another channel.
+
+		**Examples:**
+		`ec/react blobowo` reacts with :blobowo: to the last message in this channel.
+		`ec/react ;speedtest; #testing` reacts with :speedtest: to the last message in #testing.
+		`ec/react :thonk: #announcements / hi there` reacts with :Think: to the most recent message containing "hi there" in #testing
+		`ec/react oof -5` reacts with :oof: to the 5th most recent message.
+		`ec/react rollsafe lambda` reacts with :rollsafe: to the last message by @lambda
+		`ec/react angeryBOYE #announcements / @lambda#0987` reacts with :angeryBOYE: to the last message in announcements by @lambda
 		"""
 
 		if message is None:
