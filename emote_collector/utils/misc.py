@@ -71,12 +71,6 @@ class LRUDict(collections.OrderedDict):
 
 		super().__setitem__(key, value)
 
-AttrDict = type('AttrDict', (dict,), {
-	'__getattr__': dict.__getitem__,
-	'__setattr__': dict.__setitem__,
-	'__delattr__': dict.__delitem__,
-})
-
 def bytes_to_int(x):
 	return int.from_bytes(x, byteorder='big')
 

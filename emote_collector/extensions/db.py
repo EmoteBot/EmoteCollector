@@ -18,7 +18,22 @@ from ..utils import errors
 
 logger = logging.getLogger(__name__)
 
-class DatabaseEmote(utils.AttrDict):
+class DatabaseEmote:
+	__slots__ = frozenset((
+		'name',
+		'id',
+		'author',
+		'animated',
+		'description',
+		'created',
+		'modified',
+		'preserve',
+		'guild'))
+
+	def __init__(self, record):
+		for column in self.__slots__:
+			setattr(self, column, record[column])
+
 	def __hash__(self):
 		return self.id >> 22
 
