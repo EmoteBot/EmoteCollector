@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-28 22:59+0000\n"
+"POT-Creation-Date: 2018-10-30 04:33+0000\n"
 "PO-Revision-Date: 2018-08-13 17:05-0500\n"
 "Last-Translator: diniboy <diniboy@protonmail.com>\n"
 "Language-Team: Hungarian\n"
@@ -236,50 +236,50 @@ msgstr "Az üzenet nem létezik."
 msgid "No embeds were found in that message."
 msgstr "Egyetlen beágyazott rész sincs ebben az üzenetben."
 
-#: emote_collector/extensions/emote.py:609
+#: emote_collector/extensions/emote.py:611
 msgid "No description was found in that embed."
 msgstr "Nincs leírása a beágyazott üzenetnek."
 
-#: emote_collector/extensions/emote.py:615
+#: emote_collector/extensions/emote.py:617
 msgid "No custom emotes were found in that embed's description."
 msgstr ""
 "Egyetlen egyedi hangulatjelet sem sikerült találni a beágyazott üzenet "
 "leírásában."
 
-#: emote_collector/extensions/emote.py:622
+#: emote_collector/extensions/emote.py:624
 msgid "No author IDs were found in that embed."
 msgstr "Egyetlen birtokos azonosítója sem szerepel a beágyazott üzenetben."
 
-#: emote_collector/extensions/emote.py:638
+#: emote_collector/extensions/emote.py:642
 msgid "Opted in to the emote auto response."
 msgstr "A hangulatjelekre automatikus válaszolás bekapcsolva."
 
-#: emote_collector/extensions/emote.py:640
+#: emote_collector/extensions/emote.py:644
 msgid "Opted out of the emote auto response."
 msgstr "A hangulatjelekre automatikus válaszolás kikapcsolva."
 
-#: emote_collector/extensions/emote.py:657
+#: emote_collector/extensions/emote.py:661
 msgid "Emote auto response is now opt-out for this server."
 msgstr ""
 
-#: emote_collector/extensions/emote.py:659
+#: emote_collector/extensions/emote.py:663
 msgid "Emote auto response is now opt-in for this server."
 msgstr ""
 
-#: emote_collector/extensions/emote.py:674
+#: emote_collector/extensions/emote.py:678
 msgid "User un-blacklisted."
 msgstr "Felhasználó felszabadítva a feketelistáról."
 
-#: emote_collector/extensions/emote.py:676
+#: emote_collector/extensions/emote.py:680
 #, python-brace-format
 msgid "User blacklisted with reason \"{reason}\"."
 msgstr "Felhasználó feketelistázva a következő indokkal: `{reason}`."
 
-#: emote_collector/extensions/emote.py:685
+#: emote_collector/extensions/emote.py:689
 msgid "**Succesfully preserved:**"
 msgstr ""
 
-#: emote_collector/extensions/emote.py:687
+#: emote_collector/extensions/emote.py:691
 msgid "**Succesfully un-preserved:**"
 msgstr ""
 
@@ -539,6 +539,7 @@ msgid "{cog_name} Commands"
 msgstr "{cog_name} parancsok"
 
 #: emote_collector/utils/paginator.py:427
+#: emote_collector/utils/paginator.py:496
 msgid "No help given."
 msgstr "Nincs segítség megadva."
 
@@ -564,10 +565,6 @@ msgid "Use \"{self.prefix}help command\" for more info on a command."
 msgstr ""
 "Használd a \"{self.prefix}help parancs\" parancsot további infókért egy "
 "paranccsal kapcsolatban!"
-
-#: emote_collector/utils/paginator.py:496
-msgid "No help given"
-msgstr "Nincs segítség megadva"
 
 #: emote_collector/utils/paginator.py:501
 #, python-brace-format

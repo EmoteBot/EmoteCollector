@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-28 22:59+0000\n"
+"POT-Creation-Date: 2018-10-30 04:33+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -225,48 +225,48 @@ msgstr ""
 msgid "No embeds were found in that message."
 msgstr ""
 
-#: emote_collector/extensions/emote.py:609
+#: emote_collector/extensions/emote.py:611
 msgid "No description was found in that embed."
 msgstr ""
 
-#: emote_collector/extensions/emote.py:615
+#: emote_collector/extensions/emote.py:617
 msgid "No custom emotes were found in that embed's description."
 msgstr ""
 
-#: emote_collector/extensions/emote.py:622
+#: emote_collector/extensions/emote.py:624
 msgid "No author IDs were found in that embed."
 msgstr ""
 
-#: emote_collector/extensions/emote.py:638
+#: emote_collector/extensions/emote.py:642
 msgid "Opted in to the emote auto response."
 msgstr ""
 
-#: emote_collector/extensions/emote.py:640
+#: emote_collector/extensions/emote.py:644
 msgid "Opted out of the emote auto response."
 msgstr ""
 
-#: emote_collector/extensions/emote.py:657
+#: emote_collector/extensions/emote.py:661
 msgid "Emote auto response is now opt-out for this server."
 msgstr ""
 
-#: emote_collector/extensions/emote.py:659
+#: emote_collector/extensions/emote.py:663
 msgid "Emote auto response is now opt-in for this server."
 msgstr ""
 
-#: emote_collector/extensions/emote.py:674
+#: emote_collector/extensions/emote.py:678
 msgid "User un-blacklisted."
 msgstr ""
 
-#: emote_collector/extensions/emote.py:676
+#: emote_collector/extensions/emote.py:680
 #, python-brace-format
 msgid "User blacklisted with reason \"{reason}\"."
 msgstr ""
 
-#: emote_collector/extensions/emote.py:685
+#: emote_collector/extensions/emote.py:689
 msgid "**Succesfully preserved:**"
 msgstr ""
 
-#: emote_collector/extensions/emote.py:687
+#: emote_collector/extensions/emote.py:691
 msgid "**Succesfully un-preserved:**"
 msgstr ""
 
@@ -510,6 +510,7 @@ msgid "{cog_name} Commands"
 msgstr ""
 
 #: emote_collector/utils/paginator.py:427
+#: emote_collector/utils/paginator.py:496
 msgid "No help given."
 msgstr ""
 
@@ -530,10 +531,6 @@ msgstr ""
 #: emote_collector/utils/paginator.py:489
 #, python-brace-format
 msgid "Use \"{self.prefix}help command\" for more info on a command."
-msgstr ""
-
-#: emote_collector/utils/paginator.py:496
-msgid "No help given"
 msgstr ""
 
 #: emote_collector/utils/paginator.py:501

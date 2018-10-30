@@ -493,7 +493,7 @@ class HelpPaginator(Pages):
 		for entry in entries:
 			self.embed.add_field(
 				name=signature(entry),
-				value=entry.short_doc or _("No help given"),
+				value=entry.short_doc or _('No help given.'),
 				inline=False)
 
 		if self.maximum_pages:

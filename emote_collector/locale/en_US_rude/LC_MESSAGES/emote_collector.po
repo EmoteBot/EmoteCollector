@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-28 22:59+0000\n"
+"POT-Creation-Date: 2018-10-30 04:33+0000\n"
 "PO-Revision-Date: 2018-10-29 22:20+0000\n"
 "Last-Translator: Weblate Admin <bmintz@protonmail.com>\n"
 "Language-Team: English (United States) <http://example.com/weblate/projects/"
@@ -239,48 +239,48 @@ msgstr "Message not found."
 msgid "No embeds were found in that message."
 msgstr "No embeds were found in that message."
 
-#: emote_collector/extensions/emote.py:609
+#: emote_collector/extensions/emote.py:611
 msgid "No description was found in that embed."
 msgstr "No description was found in that embed."
 
-#: emote_collector/extensions/emote.py:615
+#: emote_collector/extensions/emote.py:617
 msgid "No custom emotes were found in that embed's description."
 msgstr "No custom emotes were found in that embed's description."
 
-#: emote_collector/extensions/emote.py:622
+#: emote_collector/extensions/emote.py:624
 msgid "No author IDs were found in that embed."
 msgstr "No author IDs were found in that embed."
 
-#: emote_collector/extensions/emote.py:638
+#: emote_collector/extensions/emote.py:642
 msgid "Opted in to the emote auto response."
 msgstr "Opted in and ready to spam."
 
-#: emote_collector/extensions/emote.py:640
+#: emote_collector/extensions/emote.py:644
 msgid "Opted out of the emote auto response."
 msgstr "OK fine I opted you out."
 
-#: emote_collector/extensions/emote.py:657
+#: emote_collector/extensions/emote.py:661
 msgid "Emote auto response is now opt-out for this server."
 msgstr "Emote auto response is now opt-out for this server. Ready to spam :)"
 
-#: emote_collector/extensions/emote.py:659
+#: emote_collector/extensions/emote.py:663
 msgid "Emote auto response is now opt-in for this server."
 msgstr "Emote auto response is now opt-in for this server."
 
-#: emote_collector/extensions/emote.py:674
+#: emote_collector/extensions/emote.py:678
 msgid "User un-blacklisted."
 msgstr "User un-blacklisted."
 
-#: emote_collector/extensions/emote.py:676
+#: emote_collector/extensions/emote.py:680
 #, python-brace-format
 msgid "User blacklisted with reason \"{reason}\"."
 msgstr "User blacklisted with reason `{reason}`."
 
-#: emote_collector/extensions/emote.py:685
+#: emote_collector/extensions/emote.py:689
 msgid "**Succesfully preserved:**"
 msgstr "**Successfully preserved:**"
 
-#: emote_collector/extensions/emote.py:687
+#: emote_collector/extensions/emote.py:691
 msgid "**Succesfully un-preserved:**"
 msgstr "**Successfully un-preserved:**"
 
@@ -540,6 +540,7 @@ msgid "{cog_name} Commands"
 msgstr "{cog_name} Commands"
 
 #: emote_collector/utils/paginator.py:427
+#: emote_collector/utils/paginator.py:496
 msgid "No help given."
 msgstr "the developer was too lazy to document this command."
 
@@ -561,10 +562,6 @@ msgstr "For more help, join the official bot support server: {invite}"
 #, python-brace-format
 msgid "Use \"{self.prefix}help command\" for more info on a command."
 msgstr "Use \"{self.prefix}help command\" for more info on a command."
-
-#: emote_collector/utils/paginator.py:496
-msgid "No help given"
-msgstr "No help given"
 
 #: emote_collector/utils/paginator.py:501
 #, python-brace-format
