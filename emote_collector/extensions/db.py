@@ -28,11 +28,13 @@ class DatabaseEmote:
 		'created',
 		'modified',
 		'preserve',
-		'guild'))
+		'guild',
+		'usage'))
 
 	def __init__(self, record):
 		for column in self.__slots__:
-			setattr(self, column, record[column])
+			with contextlib.suppress(KeyError):
+				setattr(self, column, record[column])
 
 	def __hash__(self):
 		return self.id >> 22
