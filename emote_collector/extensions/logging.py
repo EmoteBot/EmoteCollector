@@ -8,7 +8,7 @@ from .. import utils
 
 logger = logging.getLogger(__name__)
 
-class LogColor:  # like an enum but we don't want the conversion of fields to the Enum type
+class LogColor:  # like an enum but we don't want the conversion of fields to instances of the enum type
 	__slots__ = ()
 
 	_discord_color = lambda h, s, v: discord.Color.from_hsv(*(component / 255 for component in (h, s, v)))
@@ -64,10 +64,8 @@ class Logger:
 				'force_remove',
 				'decay',
 				'preserve',
-				'unpreserve',
-			),
-			False
-		)
+				'unpreserve'),
+			False)
 
 		try:
 			self.settings.update(self.bot.config['logs']['emotes']['settings'])
@@ -76,9 +74,9 @@ class Logger:
 
 	async def _log(self, **fields):
 		footer = fields.pop('footer', None)
+		fields.setdefault('timestamp', datetime.datetime.utcnow())
 
 		e = discord.Embed(**fields)
-		e.timestamp = datetime.datetime.utcnow()
 
 		if footer:
 			e.set_footer(text=footer)
@@ -94,8 +92,10 @@ class Logger:
 	async def log_emote_action(self, emote, action, color):
 		author = utils.format_user(self.bot, emote.author, mention=True)
 		description = f'{emote.with_linked_name(separator="—")}\nOwner: {author}'
+		footer = 'Emote originally created'
+		timestamp = emote.created
 
-		return await self._log(title=action, description=description, color=color)
+		return await self._log(title=action, description=description, footer=footer, timestamp=timestamp, color=color)
 
 	async def on_emote_add(self, emote):
 		if self.settings['add']:
@@ -120,7 +120,6 @@ class Logger:
 	async def on_emote_unpreserve(self, emote):
 		if self.settings['unpreserve']:
 			await self.log_emote_action(emote, 'Un-preservation', LogColor.preserve)
-
 
 def setup(bot):
 	bot.add_cog(Logger(bot))

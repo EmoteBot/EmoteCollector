@@ -371,6 +371,14 @@ class Database:
 			WHERE id = $1
 			RETURNING *""", emote.id, new_name))
 
+	async def set_emote_creation(self, name, time: datetime):
+		"""Set the creation time of an emote."""
+		await self.bot.pool.execute("""
+			UPDATE emotes
+			SET created = $2
+			WHERE LOWER(name) = LOWER($1)
+			RETURNING *""", name, time)
+
 	async def set_emote_description(self, name, user_id=None, description=None):
 		"""Set an emote's description.
 

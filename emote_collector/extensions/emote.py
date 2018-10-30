@@ -599,9 +599,11 @@ class Emotes:
 			return await context.send(_('Message not found.'))
 
 		try:
-			description = message.embeds[0].description
+			embed = message.embeds[0]
 		except IndexError:
 			return await context.send(_('No embeds were found in that message.'))
+
+		description = embed.description
 
 		try:
 			emote = re.match(utils.lexer.t_CUSTOM_EMOTE, description)
@@ -622,6 +624,8 @@ class Emotes:
 			return await context.send(_('No author IDs were found in that embed.'))
 
 		message = await self.add_safe(name, url, author)
+		if getattr(embed.footer, 'text', None) == 'Emote originally created':
+			await self.db.set_emote_creation(name, embed.timestamp)
 		await context.send(message)
 
 	@commands.command()
