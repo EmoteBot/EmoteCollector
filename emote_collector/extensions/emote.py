@@ -577,12 +577,11 @@ class Emotes:
 		self.paginators.add(paginator)
 		await paginator.begin()
 
-	@commands.command(hidden=True)
-	@commands.is_owner()
+	@commands.command()
 	async def recover(self, context, message_id: Snowflake):
 		"""recovers a decayed or removed emote from the log channel.
 
-		message_id is the ID of the log message.
+		message_id is the ID of the log message. To get it you can use developer mode.
 		"""
 
 		try:
