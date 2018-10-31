@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-10-30 04:33+0000\n"
-"PO-Revision-Date: 2018-10-26 18:44+0200\n"
+"PO-Revision-Date: 2018-10-31 11:33+0100\n"
 "Last-Translator: Adrian#1337\n"
 "Language-Team: \n"
 "Language: de\n"
@@ -190,6 +190,8 @@ msgstr "Sie können auf diese Nachricht bereits mit diesem Emote reagieren."
 #: emote_collector/extensions/emote.py:469
 msgid "Unable to react: there's too many reactions on that message already"
 msgstr ""
+"Kann nicht reagieren: Es sind schon zu viele Reaktionen zu dieser Nachricht "
+"hinzugefügt"
 
 #: emote_collector/extensions/emote.py:470
 msgid "Unable to react: permission denied."
@@ -294,13 +296,13 @@ msgstr "**Erfolgreich entsichert:**"
 #. translator's note: this is sent to the user when the bot tries to send a message larger than ~8MiB
 #: emote_collector/extensions/file_upload_hook.py:26
 msgid "Way too long."
-msgstr ""
+msgstr "Viel zu lang."
 
 #. translator's note: this is sent to the user when the bot tries to send a message >2000 characters
 #. but less than 8MiB
 #: emote_collector/extensions/file_upload_hook.py:31
 msgid "Way too long. Message attached."
-msgstr ""
+msgstr "Viel zu lang. Nachricht angefügt."
 
 #: emote_collector/extensions/gimme.py:30
 #, python-brace-format
@@ -406,6 +408,9 @@ msgid ""
 "Failed to interpret that as a message offset, message ID, or user, or failed "
 "to find a message containing that search keyword."
 msgstr ""
+"Konnte dies nicht als ein Nachrichten-Offset, eine Nachricht-ID, Benutzer "
+"interpretieren oder konnte keine Nachricht, die dieses Stichwort enthält, "
+"finden."
 
 #: emote_collector/utils/converter.py:123
 msgid ""
