@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-30 04:33+0000\n"
+"POT-Creation-Date: 2018-10-31 16:51+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -212,61 +212,61 @@ msgstr ""
 #. translator's note: it's not crucial that you translate the next 6 strings.
 #. they're meant for use by the owner, so translating them is really only useful to people that self host
 #. the bot and prefer another language than English.
-#: emote_collector/extensions/emote.py:594
+#: emote_collector/extensions/emote.py:593
 msgid "Logger cog not loaded."
 msgstr ""
 
-#: emote_collector/extensions/emote.py:599
+#: emote_collector/extensions/emote.py:598
 #: emote_collector/utils/converter.py:77
 msgid "Message not found."
 msgstr ""
 
-#: emote_collector/extensions/emote.py:604
+#: emote_collector/extensions/emote.py:603
 msgid "No embeds were found in that message."
 msgstr ""
 
-#: emote_collector/extensions/emote.py:611
+#: emote_collector/extensions/emote.py:610
 msgid "No description was found in that embed."
 msgstr ""
 
-#: emote_collector/extensions/emote.py:617
+#: emote_collector/extensions/emote.py:616
 msgid "No custom emotes were found in that embed's description."
 msgstr ""
 
-#: emote_collector/extensions/emote.py:624
+#: emote_collector/extensions/emote.py:623
 msgid "No author IDs were found in that embed."
 msgstr ""
 
-#: emote_collector/extensions/emote.py:642
+#: emote_collector/extensions/emote.py:641
 msgid "Opted in to the emote auto response."
 msgstr ""
 
-#: emote_collector/extensions/emote.py:644
+#: emote_collector/extensions/emote.py:643
 msgid "Opted out of the emote auto response."
 msgstr ""
 
-#: emote_collector/extensions/emote.py:661
+#: emote_collector/extensions/emote.py:660
 msgid "Emote auto response is now opt-out for this server."
 msgstr ""
 
-#: emote_collector/extensions/emote.py:663
+#: emote_collector/extensions/emote.py:662
 msgid "Emote auto response is now opt-in for this server."
 msgstr ""
 
-#: emote_collector/extensions/emote.py:678
+#: emote_collector/extensions/emote.py:677
 msgid "User un-blacklisted."
 msgstr ""
 
-#: emote_collector/extensions/emote.py:680
+#: emote_collector/extensions/emote.py:679
 #, python-brace-format
 msgid "User blacklisted with reason \"{reason}\"."
 msgstr ""
 
-#: emote_collector/extensions/emote.py:689
+#: emote_collector/extensions/emote.py:688
 msgid "**Succesfully preserved:**"
 msgstr ""
 
-#: emote_collector/extensions/emote.py:691
+#: emote_collector/extensions/emote.py:690
 msgid "**Succesfully un-preserved:**"
 msgstr ""
 
