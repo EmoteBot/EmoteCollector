@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-10-30 04:33+0000\n"
-"PO-Revision-Date: 2018-10-31 11:33+0100\n"
+"PO-Revision-Date: 2018-10-31 12:03+0100\n"
 "Last-Translator: Adrian#1337\n"
 "Language-Team: \n"
 "Language: de\n"
@@ -539,8 +539,8 @@ msgid ""
 "This interactively allows you to see pages of text by navigating with "
 "reactions. They are as follows:\n"
 msgstr ""
-"Dies erlaubt dir, Textseiten durch das Navigieren mitReaktionen zu sehen.Sie "
-"sind folgendermaßen:\n"
+"Dies erlaubt dir, Textseiten durch das Navigieren mit Reaktionen zu sehen."
+"Sie sind folgendermaßen:\n"
 
 #: emote_collector/utils/paginator.py:223
 #: emote_collector/utils/paginator.py:524
@@ -566,7 +566,7 @@ msgstr "Misc"
 #: emote_collector/utils/paginator.py:471
 #, python-brace-format
 msgid "{cog} Commands"
-msgstr "{cog} Commands"
+msgstr "{cog} Befehle"
 
 #: emote_collector/utils/paginator.py:485
 #, python-brace-format
