@@ -587,9 +587,6 @@ class Emotes:
 		try:
 			channel = self.bot.get_cog('Logger').channel
 		except AttributeError:
-			# translator's note: it's not crucial that you translate the next 6 strings.
-			# they're meant for use by the owner, so translating them is really only useful to people that self host
-			# the bot and prefer another language than English.
 			return await context.send(_('Logger cog not loaded.'))
 
 		try:

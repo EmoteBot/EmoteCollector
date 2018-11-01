@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-31 16:51+0000\n"
+"POT-Creation-Date: 2018-11-01 18:38+0000\n"
 "PO-Revision-Date: 2018-11-01 18:52+0100\n"
 "Last-Translator: @!CsSkrouble <3#2681 (ID: 397074329688342539)>\n"
 "Language-Team: \n"
@@ -223,64 +223,61 @@ msgstr "Zobacz także liste. Strona {website}"
 msgid "No results matched your query."
 msgstr "Brak wyników pasujących do twojego zapytania."
 
-#. translator's note: it's not crucial that you translate the next 6 strings.
-#. they're meant for use by the owner, so translating them is really only useful to people that self host
-#. the bot and prefer another language than English.
-#: emote_collector/extensions/emote.py:593
+#: emote_collector/extensions/emote.py:590
 msgid "Logger cog not loaded."
 msgstr "Zębatka rejestratora nie jest załadowana."
 
-#: emote_collector/extensions/emote.py:598
+#: emote_collector/extensions/emote.py:595
 #: emote_collector/utils/converter.py:77
 msgid "Message not found."
 msgstr "Wiadomość nie znaleziona."
 
-#: emote_collector/extensions/emote.py:603
+#: emote_collector/extensions/emote.py:600
 msgid "No embeds were found in that message."
 msgstr "W wiadomości nie znaleziono żadnych osadzeń."
 
-#: emote_collector/extensions/emote.py:610
+#: emote_collector/extensions/emote.py:607
 msgid "No description was found in that embed."
 msgstr "Żaden opis nie został znaleziony w tym osadzeniu."
 
-#: emote_collector/extensions/emote.py:616
+#: emote_collector/extensions/emote.py:613
 msgid "No custom emotes were found in that embed's description."
 msgstr "Żadne własne emotikony nie zostały znalezione w opisie osadzenia."
 
-#: emote_collector/extensions/emote.py:623
+#: emote_collector/extensions/emote.py:620
 msgid "No author IDs were found in that embed."
 msgstr "W osadzeniu nie zostały znalezione ID autorów."
 
-#: emote_collector/extensions/emote.py:641
+#: emote_collector/extensions/emote.py:638
 msgid "Opted in to the emote auto response."
 msgstr "Włączono automatyczne odpisywanie na emotikony."
 
-#: emote_collector/extensions/emote.py:643
+#: emote_collector/extensions/emote.py:640
 msgid "Opted out of the emote auto response."
 msgstr "Wyłączono automatyczne odpisywanie na emotikony."
 
-#: emote_collector/extensions/emote.py:660
+#: emote_collector/extensions/emote.py:657
 msgid "Emote auto response is now opt-out for this server."
 msgstr "Automatyczna reakcja na emotikony jest wyłączona na tym serwerze."
 
-#: emote_collector/extensions/emote.py:662
+#: emote_collector/extensions/emote.py:659
 msgid "Emote auto response is now opt-in for this server."
 msgstr "Automatyczna reakcja na emotikony jest włączona na tym serwerze."
 
-#: emote_collector/extensions/emote.py:677
+#: emote_collector/extensions/emote.py:674
 msgid "User un-blacklisted."
 msgstr "Użytownik usunięty z czarnej listy."
 
-#: emote_collector/extensions/emote.py:679
+#: emote_collector/extensions/emote.py:676
 #, python-brace-format
 msgid "User blacklisted with reason \"{reason}\"."
 msgstr "Użytkownik dodany do czarnej listy z powodem \"{reason}\"."
 
-#: emote_collector/extensions/emote.py:688
+#: emote_collector/extensions/emote.py:685
 msgid "**Succesfully preserved:**"
 msgstr "**Pomyślnie zachowane:**"
 
-#: emote_collector/extensions/emote.py:690
+#: emote_collector/extensions/emote.py:687
 msgid "**Succesfully un-preserved:**"
 msgstr "**Pomyślnie nie zachowane:**"
 

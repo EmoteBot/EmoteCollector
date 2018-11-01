@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-31 16:51+0000\n"
+"POT-Creation-Date: 2018-11-01 18:38+0000\n"
 "PO-Revision-Date: 2018-10-29 22:20+0000\n"
 "Last-Translator: Weblate Admin <bmintz@protonmail.com>\n"
 "Language-Team: English (United States) <http://example.com/weblate/projects/"
@@ -223,64 +223,61 @@ msgstr "Also check out the list website at {website}."
 msgid "No results matched your query."
 msgstr "Your query a fuck. No emotes found."
 
-#. translator's note: it's not crucial that you translate the next 6 strings.
-#. they're meant for use by the owner, so translating them is really only useful to people that self host
-#. the bot and prefer another language than English.
-#: emote_collector/extensions/emote.py:593
+#: emote_collector/extensions/emote.py:590
 msgid "Logger cog not loaded."
 msgstr "Logger cog not loaded."
 
-#: emote_collector/extensions/emote.py:598
+#: emote_collector/extensions/emote.py:595
 #: emote_collector/utils/converter.py:77
 msgid "Message not found."
 msgstr "Message not found."
 
-#: emote_collector/extensions/emote.py:603
+#: emote_collector/extensions/emote.py:600
 msgid "No embeds were found in that message."
 msgstr "No embeds were found in that message."
 
-#: emote_collector/extensions/emote.py:610
+#: emote_collector/extensions/emote.py:607
 msgid "No description was found in that embed."
 msgstr "No description was found in that embed."
 
-#: emote_collector/extensions/emote.py:616
+#: emote_collector/extensions/emote.py:613
 msgid "No custom emotes were found in that embed's description."
 msgstr "No custom emotes were found in that embed's description."
 
-#: emote_collector/extensions/emote.py:623
+#: emote_collector/extensions/emote.py:620
 msgid "No author IDs were found in that embed."
 msgstr "No author IDs were found in that embed."
 
-#: emote_collector/extensions/emote.py:641
+#: emote_collector/extensions/emote.py:638
 msgid "Opted in to the emote auto response."
 msgstr "Opted in and ready to spam."
 
-#: emote_collector/extensions/emote.py:643
+#: emote_collector/extensions/emote.py:640
 msgid "Opted out of the emote auto response."
 msgstr "OK fine I opted you out."
 
-#: emote_collector/extensions/emote.py:660
+#: emote_collector/extensions/emote.py:657
 msgid "Emote auto response is now opt-out for this server."
 msgstr "Emote auto response is now opt-out for this server. Ready to spam :)"
 
-#: emote_collector/extensions/emote.py:662
+#: emote_collector/extensions/emote.py:659
 msgid "Emote auto response is now opt-in for this server."
 msgstr "Emote auto response is now opt-in for this server."
 
-#: emote_collector/extensions/emote.py:677
+#: emote_collector/extensions/emote.py:674
 msgid "User un-blacklisted."
 msgstr "User un-blacklisted."
 
-#: emote_collector/extensions/emote.py:679
+#: emote_collector/extensions/emote.py:676
 #, python-brace-format
 msgid "User blacklisted with reason \"{reason}\"."
 msgstr "User blacklisted with reason `{reason}`."
 
-#: emote_collector/extensions/emote.py:688
+#: emote_collector/extensions/emote.py:685
 msgid "**Succesfully preserved:**"
 msgstr "**Successfully preserved:**"
 
-#: emote_collector/extensions/emote.py:690
+#: emote_collector/extensions/emote.py:687
 msgid "**Succesfully un-preserved:**"
 msgstr "**Successfully un-preserved:**"
 

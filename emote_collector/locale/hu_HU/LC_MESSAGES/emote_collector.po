@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-31 16:51+0000\n"
+"POT-Creation-Date: 2018-11-01 18:38+0000\n"
 "PO-Revision-Date: 2018-08-13 17:05-0500\n"
 "Last-Translator: diniboy <diniboy@protonmail.com>\n"
 "Language-Team: Hungarian\n"
@@ -220,66 +220,63 @@ msgstr "Ne felejtsd el megtekinteni a listázó weboldalt: {website}."
 msgid "No results matched your query."
 msgstr "Egyetlen találat sincs a keresésre."
 
-#. translator's note: it's not crucial that you translate the next 6 strings.
-#. they're meant for use by the owner, so translating them is really only useful to people that self host
-#. the bot and prefer another language than English.
-#: emote_collector/extensions/emote.py:593
+#: emote_collector/extensions/emote.py:590
 msgid "Logger cog not loaded."
 msgstr "A logolásért felelős cog nincs betöltve."
 
-#: emote_collector/extensions/emote.py:598
+#: emote_collector/extensions/emote.py:595
 #: emote_collector/utils/converter.py:77
 msgid "Message not found."
 msgstr "Az üzenet nem létezik."
 
-#: emote_collector/extensions/emote.py:603
+#: emote_collector/extensions/emote.py:600
 msgid "No embeds were found in that message."
 msgstr "Egyetlen beágyazott rész sincs ebben az üzenetben."
 
-#: emote_collector/extensions/emote.py:610
+#: emote_collector/extensions/emote.py:607
 msgid "No description was found in that embed."
 msgstr "Nincs leírása a beágyazott üzenetnek."
 
-#: emote_collector/extensions/emote.py:616
+#: emote_collector/extensions/emote.py:613
 msgid "No custom emotes were found in that embed's description."
 msgstr ""
 "Egyetlen egyedi hangulatjelet sem sikerült találni a beágyazott üzenet "
 "leírásában."
 
-#: emote_collector/extensions/emote.py:623
+#: emote_collector/extensions/emote.py:620
 msgid "No author IDs were found in that embed."
 msgstr "Egyetlen birtokos azonosítója sem szerepel a beágyazott üzenetben."
 
-#: emote_collector/extensions/emote.py:641
+#: emote_collector/extensions/emote.py:638
 msgid "Opted in to the emote auto response."
 msgstr "A hangulatjelekre automatikus válaszolás bekapcsolva."
 
-#: emote_collector/extensions/emote.py:643
+#: emote_collector/extensions/emote.py:640
 msgid "Opted out of the emote auto response."
 msgstr "A hangulatjelekre automatikus válaszolás kikapcsolva."
 
-#: emote_collector/extensions/emote.py:660
+#: emote_collector/extensions/emote.py:657
 msgid "Emote auto response is now opt-out for this server."
 msgstr ""
 
-#: emote_collector/extensions/emote.py:662
+#: emote_collector/extensions/emote.py:659
 msgid "Emote auto response is now opt-in for this server."
 msgstr ""
 
-#: emote_collector/extensions/emote.py:677
+#: emote_collector/extensions/emote.py:674
 msgid "User un-blacklisted."
 msgstr "Felhasználó felszabadítva a feketelistáról."
 
-#: emote_collector/extensions/emote.py:679
+#: emote_collector/extensions/emote.py:676
 #, python-brace-format
 msgid "User blacklisted with reason \"{reason}\"."
 msgstr "Felhasználó feketelistázva a következő indokkal: `{reason}`."
 
-#: emote_collector/extensions/emote.py:688
+#: emote_collector/extensions/emote.py:685
 msgid "**Succesfully preserved:**"
 msgstr ""
 
-#: emote_collector/extensions/emote.py:690
+#: emote_collector/extensions/emote.py:687
 msgid "**Succesfully un-preserved:**"
 msgstr ""
 
