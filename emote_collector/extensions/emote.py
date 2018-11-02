@@ -458,9 +458,11 @@ class Emotes:
 			return getattr(reaction.emoji, 'id', None) == emote.id
 
 		if discord.utils.find(same_emote, message.reactions):
-			return await context.send(_(
-				'You can already react to that message with that emote.'),
-				delete_after=5)
+			with contextlib.suppress(discord.HTTPException):
+				await context.send(_(
+					'You can already react to that message with that emote.'),
+					delete_after=5)
+			return
 
 		try:
 			await message.add_reaction(emote.as_reaction())
@@ -471,7 +473,10 @@ class Emotes:
 		except discord.HTTPException:
 			return await context.send(_('Unable to react. Discord must be acting up.'))
 
-		instruction_message = await context.send(_("OK! I've reacted to that message. Please add your reaction now."))
+		to_delete = [context.message]
+
+		with contextlib.suppress(discord.Forbidden):
+			to_delete.append(await context.send(_("OK! I've reacted to that message. Please add your reaction now.")))
 
 		def check(payload):
 			return (
@@ -495,7 +500,7 @@ class Emotes:
 			with contextlib.suppress(discord.HTTPException):
 				await message.remove_reaction(emote.as_reaction(), self.bot.user)
 
-			for message in context.message, instruction_message:
+			for message in to_delete:
 				with contextlib.suppress(discord.HTTPException):
 					await message.delete()
 
