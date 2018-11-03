@@ -651,8 +651,6 @@ class Emotes:
 			return await context.send(_('No author IDs were found in that embed.'))
 
 		message = await self.add_safe(name, url, author)
-		if getattr(embed.footer, 'text', None) == 'Emote originally created':
-			await self.db.set_emote_creation(name, embed.timestamp)
 		await context.send(message)
 
 	@commands.command()
