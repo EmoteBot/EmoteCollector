@@ -1,6 +1,6 @@
 import asyncio
 
-from discord.ext.commands import CommandError
+from discord.ext.commands import UserInputError, CommandError
 
 class ConnoisseurError(CommandError):
 	"""Generic error with the bot. This can be used to catch all bot errors."""

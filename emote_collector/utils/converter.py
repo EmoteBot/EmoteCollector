@@ -9,6 +9,23 @@ from discord.ext import commands
 
 from .. import utils
 
+class TooLewdError(commands.BadArgument):
+	"""An NSFW emote was used in an SFW channel"""
+	def __init__(self, name):
+		self.name = name
+		super().__init__(_('`{name}` is NSFW, but this channel is SFW.').format(**locals()))
+
+class DatabaseEmoteConverter(commands.Converter):
+	def __init__(self, *, check_nsfw=True):
+		self.check_nsfw = check_nsfw
+
+	async def convert(self, context, name: str):
+		name = name.strip().strip(':;')
+		cog = context.bot.get_cog('Database')
+		emote = await cog.get_emote(name)
+		if self.check_nsfw and emote.is_nsfw and not context.channel.nsfw:
+			raise TooLewdError(emote.name)
+		return emote
 
 async def convert_offset(context, channel, offset):
 	try:

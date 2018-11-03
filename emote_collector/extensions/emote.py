@@ -16,12 +16,11 @@ import asyncpg
 import discord
 from discord.ext import commands
 
-from .db import DatabaseEmote
 from .. import utils
 from ..utils import image as image_utils
 from ..utils import checks
 from ..utils import errors
-from ..utils.converter import Snowflake
+from ..utils.converter import DatabaseEmoteConverter, Snowflake
 from ..utils.paginator import CannotPaginate, Pages
 
 logger = logging.getLogger(__name__)
@@ -74,7 +73,7 @@ class Emotes:
 
 	@commands.command()
 	@checks.not_blacklisted()
-	async def info(self, context, emote: DatabaseEmote):
+	async def info(self, context, emote: DatabaseEmoteConverter()):
 		"""Gives info on an emote.
 
 		The emote must be in the database.
@@ -82,10 +81,7 @@ class Emotes:
 		embed = discord.Embed()
 		embed.url = emote.url
 
-		if emote.preserve:
-			embed.title = _('{emote} (Preserved)').format(emote=emote.with_name())
-		else:
-			embed.title = emote.with_name()
+		embed.title = self.info_embed_title(emote)
 
 		if emote.description is not None:
 			embed.description = emote.description
@@ -114,6 +110,16 @@ class Emotes:
 
 		await context.send(embed=embed)
 
+	@staticmethod
+	def info_embed_title(emote):
+		if emote.preserve and emote.is_nsfw:
+			return _('{emote} (Preserved, NSFW)').format(emote=emote.with_name())
+		if emote.preserve and not emote.is_nsfw:
+			return _('{emote} (Preserved)').format(emote=emote.with_name())
+		if not emote.preserve and emote.is_nsfw:
+			return _('{emote} (NSFW)').format(emote=emote.with_name())
+		return emote.with_name()
+
 	@commands.command()
 	@checks.not_blacklisted()
 	async def count(self, context):
@@ -127,7 +133,7 @@ class Emotes:
 
 	@commands.command()
 	@checks.not_blacklisted()
-	async def big(self, context, emote: DatabaseEmote):
+	async def big(self, context, emote: DatabaseEmoteConverter()):
 		"""Shows the original image for the given emote."""
 		await context.send(f'{emote.name}: {emote.url}')
 
@@ -429,9 +435,28 @@ class Emotes:
 		await self.db.set_emote_description(name, context.author.id, description)
 		await context.try_add_reaction(utils.SUCCESS_EMOJIS[True])
 
+	@commands.command(name='toggle-nsfw', aliases=['nsfw'])
+	@checks.not_blacklisted()
+	async def toggle_nsfw(self, context, emote: DatabaseEmoteConverter(check_nsfw=False)):
+		"""Toggles the NSFW status of an emote.
+		You may only toggle the status of your own emotes, unless you are an emote moderator.
+		"""
+		if await self.bot.is_owner(discord.Object(context.author.id)):
+			by_mod = True
+		elif context.author.id == emote.author:
+			by_mod = False
+		else:
+			return await context.send(
+				_('You may not change the NSFW status of this emote because you do not own it, or you are not a mod.'))
+
+		new_emote = await self.db.toggle_emote_nsfw(emote, by_mod)
+		if new_emote.is_nsfw:
+			return await context.send(_('Emote is now NSFW.'))
+		await context.send(_('Emote is now SFW.'))
+
 	@commands.command()
 	@checks.not_blacklisted()
-	async def react(self, context, emote: DatabaseEmote, *, message: utils.converter.Message = None):
+	async def react(self, context, emote, *, message: utils.converter.Message = None):
 		"""Add a reaction to a message. Sad reacts only please.
 
 		To specify the message, provide a keyword to search for, a message ID, or an offset.
@@ -453,15 +478,17 @@ class Emotes:
 			# get the second to last message (ie ignore the invoking message)
 			message = await utils.get_message_by_offset(context.channel, -2)
 
+		# allow users to react with NSFW emotes to messages in NSFW channels that are not context.channel
+		other_channel_context = await self.bot.get_context(message) if context.channel != message.channel else context
+		emote = await DatabaseEmoteConverter().convert(other_channel_context, emote)
+
 		# there's no need to react to a message if that reaction already exists
 		def same_emote(reaction):
 			return getattr(reaction.emoji, 'id', None) == emote.id
 
 		if discord.utils.find(same_emote, message.reactions):
 			with contextlib.suppress(discord.HTTPException):
-				await context.send(_(
-					'You can already react to that message with that emote.'),
-					delete_after=5)
+				await context.send(_('You can already react to that message with that emote.'), delete_after=5)
 			return
 
 		try:

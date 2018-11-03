@@ -2,6 +2,10 @@ SET TIME ZONE UTC;
 
 ALTER TABLE IF EXISTS emote RENAME TO emotes;
 
+DO $$ BEGIN
+	IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'nsfw') THEN
+		CREATE TYPE nsfw AS ENUM ('SFW', 'SELF_NSFW', 'MOD_NSFW'); END IF; END; $$;
+
 CREATE TABLE IF NOT EXISTS emotes(
 	name VARCHAR(32) NOT NULL,
 	id BIGINT PRIMARY KEY,
@@ -11,12 +15,14 @@ CREATE TABLE IF NOT EXISTS emotes(
 	created TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
 	modified TIMESTAMP WITH TIME ZONE,
 	preserve BOOLEAN DEFAULT FALSE,
-	guild BIGINT NOT NULL);
+	guild BIGINT NOT NULL,
+	nsfw nsfw NOT NULL DEFAULT 'SFW');
 
 CREATE UNIQUE INDEX IF NOT EXISTS emotes_lower_idx ON emotes (LOWER(name));
 CREATE INDEX IF NOT EXISTS emotes_name_trgm_idx ON emotes USING GIN (name gin_trgm_ops);
 CREATE INDEX IF NOT EXISTS emotes_author_idx ON emotes (author);
 CREATE INDEX IF NOT EXISTS emotes_created_idx ON emotes (created) WHERE NOT preserve;
+CREATE INDEX IF NOT EXISTS emotes_nsfw_idx ON emotes (nsfw);
 
 -- all this nonsense for "ADD PRIMARY KEY IF NOT EXISTS" lol
 -- we're adding a PK so that JOINS will work btw

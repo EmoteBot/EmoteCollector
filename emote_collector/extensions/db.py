@@ -29,6 +29,7 @@ class DatabaseEmote:
 		'modified',
 		'preserve',
 		'guild',
+		'nsfw',
 		'usage'))
 
 	def __init__(self, record):
@@ -67,11 +68,9 @@ class DatabaseEmote:
 	def url(self):
 		return utils.emote.url(self.id, animated=self.animated)
 
-	@classmethod
-	def convert(cls, context, name: str):
-		name = name.strip().strip(':;')
-		cog = context.bot.get_cog('Database')
-		return cog.get_emote(name)
+	@property
+	def is_nsfw(self):
+		return self.nsfw.endswith('NSFW')
 
 class Database:
 	def __init__(self, bot):
@@ -336,7 +335,7 @@ class Database:
 			return True
 
 		if not emote:  # you can't own an emote that doesn't exist
-			raise errors.EmoteNotFoundError(name)
+			raise errors.EmoteNotFoundError(emote.name)
 		user = discord.Object(user_id)
 		return await self.bot.is_owner(user) or emote.author == user.id
 
@@ -447,6 +446,35 @@ class Database:
 			raise errors.EmoteNotFoundError(name)
 		else:
 			return DatabaseEmote(emote)
+
+	async def toggle_emote_nsfw(self, emote: DatabaseEmote, by_mod=False):
+		"""Toggles the NSFW status of an emote."""
+		# i probably could do this in one giant query, but i'm lazy
+		new_status = self.new_nsfw_status(emote, by_mod)
+
+		return DatabaseEmote(await self.bot.pool.fetchrow("""
+			UPDATE emotes
+			SET nsfw = $2
+			WHERE id = $1
+			RETURNING *
+		""", emote.id, new_status))
+
+	@staticmethod
+	def new_nsfw_status(emote, by_mod):
+		desired_status = not emote.is_nsfw
+
+		if by_mod:
+			# mods can do anything
+			return 'MOD_NSFW' if desired_status else 'SFW'
+		elif desired_status:
+			return 'SELF_NSFW'
+
+		# not by mod and SFW
+		if emote.nsfw == 'MOD_NSFW':
+			raise commands.BadArgument(
+				_('You may not set this emote as SFW because it was set NSFW by an emote moderator.'))
+		if emote.nsfw == 'SELF_NSFW':
+			return 'SFW'
 
 	async def delete_user_account(self, user_id):
 		await self.delete_all_user_emotes(user_id)
