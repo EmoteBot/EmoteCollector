@@ -81,7 +81,7 @@ class Emotes:
 		embed = discord.Embed()
 		embed.url = emote.url
 
-		embed.title = self.info_embed_title(emote)
+		embed.title = self.emote_status(emote)
 
 		if emote.description is not None:
 			embed.description = emote.description
@@ -111,14 +111,16 @@ class Emotes:
 		await context.send(embed=embed)
 
 	@staticmethod
-	def info_embed_title(emote):
+	def emote_status(emote, *, linked=False):
+		formatted = emote.with_linked_name() if linked else emote.with_name()
+
 		if emote.preserve and emote.is_nsfw:
-			return _('{emote} (Preserved, NSFW)').format(emote=emote.with_name())
+			return _('{emote} (Preserved, NSFW)').format(emote=formatted)
 		if emote.preserve and not emote.is_nsfw:
-			return _('{emote} (Preserved)').format(emote=emote.with_name())
+			return _('{emote} (Preserved)').format(emote=formatted)
 		if not emote.preserve and emote.is_nsfw:
-			return _('{emote} (NSFW)').format(emote=emote.with_name())
-		return emote.with_name()
+			return _('{emote} (NSFW)').format(emote=formatted)
+		return formatted
 
 	@commands.command()
 	@checks.not_blacklisted()
@@ -542,13 +544,10 @@ class Emotes:
 		if user is not None:
 			args.append(user.id)
 
-		async for emote in self.db.all_emotes(*args):
-			author = utils.format_user(self.bot, emote.author, mention=True)
-
-			if emote.preserve:
-				processed.append(_('{emote} (Preserved)').format(emote=emote.with_linked_name()))
-			else:
-				processed.append(emote.with_linked_name())
+		processed = [
+			self.emote_status(emote, linked=True)
+			async for emote in self.db.all_emotes(*args)
+			if not emote.is_nsfw or getattr(context.channel, 'nsfw', True)]
 
 		if not processed:
 			if not user:
