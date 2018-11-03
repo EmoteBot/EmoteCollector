@@ -76,12 +76,27 @@ class DatabaseEmote:
 class Database:
 	def __init__(self, bot):
 		self.bot = bot
+		self._process_decay_config()
+
 		self.tasks = []
 		# without backend guild enumeration, the bot will report all guilds being full
 		self.tasks.append(self.bot.loop.create_task(self.find_backend_guilds()))
 		self.tasks.append(self.bot.loop.create_task(self.update_emote_guilds()))
 		self.tasks.append(self.bot.loop.create_task(self.decay_loop()))
 		self.logger = self.bot.get_cog('Logger')
+
+	def _process_decay_config(self):
+		# example: {'enabled': True, 'cutoff': {'time': datetime.timedelta(...), 'usage': 3}}
+		decay_settings = self.bot.config.get('decay', False)
+		if isinstance(decay_settings, bool):
+			# old schema: just a bool to indicate enabled
+			self.bot.config['decay'] = decay_settings = {'enabled': decay_settings}
+
+		decay_settings.setdefault('enabled', False)
+
+		cutoff_settings = decay_settings.setdefault('cutoff', {})
+		cutoff_settings.setdefault('time', datetime.timedelta(weeks=4))
+		cutoff_settings.setdefault('usage', 2)
 
 	def __unload(self):
 		for task in self.tasks:
@@ -95,13 +110,10 @@ class Database:
 
 		await self.bot.wait_until_ready()
 
-		guilds = set()
-		for guild in self.bot.guilds:
-			if (
-				guild.name.startswith(('EmojiBackend', 'EmoteBackend'))
-				and await self.bot.is_owner(guild.owner)
-			):
-				guilds.add(guild)
+		guilds = {
+			guild
+			for guild in self.bot.guilds
+			if guild.name.startswith(('EmojiBackend', 'EmoteBackend')) and await self.bot.is_owner(guild.owner)}
 
 		await self.bot.pool.executemany("""
 			INSERT INTO _guilds
@@ -131,15 +143,19 @@ class Database:
 		await self.bot.pool.executemany('UPDATE emotes SET guild = $2 WHERE id = $1', emotes)
 
 	async def decay_loop(self):
-		while await asyncio.sleep(60*10, True):
-			if not self.bot.config.get('decay', False):
+		poll_interval = 60 * 10
+		while True:
+			if not self.bot.config['decay']['enabled']:
 				# allow the user to enable the decay for next loop
+				await asyncio.sleep(poll_interval)
 				continue
 
 			await self.bot.wait_until_ready()
 			await self.bot.db_ready.wait()
 
 			await self.decay()
+
+			await asyncio.sleep(poll_interval)
 
 	@commands.command(name='sql', aliases=['SQL'], hidden=True)
 	@commands.is_owner()
@@ -188,7 +204,8 @@ class Database:
 				COUNT(*) FILTER (WHERE NOT animated) AS static,
 				COUNT(*) FILTER (WHERE animated) AS animated,
 				COUNT(*) AS total
-			FROM emotes;""")
+			FROM emotes
+		""")
 
 	def capacity(self):
 		"""return a three-tuple of static capacity, animated, total"""
@@ -208,12 +225,13 @@ class Database:
 
 	def get_emote_usage(self, emote) -> int:
 		"""return how many times this emote was used"""
+		cutoff_time = datetime.datetime.utcnow() - self.bot.config['decay']['cutoff']['time']
 		return self.bot.pool.fetchval("""
 			SELECT COUNT(*)
 			FROM emote_usage_history
 			WHERE id = $1
-			AND   time > (CURRENT_TIMESTAMP - INTERVAL '4 weeks')
-		""", emote.id)
+			  AND time > $2
+		""", emote.id, cutoff_time)
 
 	## Iterators
 
@@ -231,16 +249,18 @@ class Database:
 
 	def popular_emotes(self, *, limit=200):
 		"""return an async iterator that gets emotes from the db sorted by popularity"""
+		cutoff_time = datetime.datetime.utcnow() - self.bot.config['decay']['cutoff']['time']
+
 		return self._database_emote_cursor("""
 			SELECT e.*, COUNT(euh.id) AS usage
 			FROM emotes AS e
 			LEFT JOIN emote_usage_history AS euh
-				ON euh.id = e.id
-				   AND euh.time > (CURRENT_TIMESTAMP - INTERVAL '4 weeks')
+			    ON euh.id = e.id
+			   AND euh.time > $1
 			GROUP BY e.id
 			ORDER BY usage DESC, LOWER(e.name)
-			LIMIT $1
-		""", limit)
+			LIMIT $2
+		""", cutoff_time, limit)
 
 	def search(self, query):
 		"""return an async iterator that gets emotes from the db whose name is similar to `query`."""
@@ -253,7 +273,7 @@ class Database:
 			LIMIT 100
 		""", query)
 
-	def decayable_emotes(self, cutoff: datetime = None, usage_threshold=2):
+	def decayable_emotes(self):
 		"""emotes that should be removed due to inactivity.
 
 		returns an async iterator over all emotes that:
@@ -261,22 +281,23 @@ class Database:
 			- have been used < `usage_threshold` between now and cutoff, and
 			- are not preserved
 
-		the default cutoff is 4 weeks.
+		the cut off and usage threshold are specified in a dict at self.bot.config['decay'],
+		under subkeys 'cutoff_time' and 'cutoff_usage', respectively.
 		"""
-		if cutoff is None:
-			cutoff = datetime.datetime.utcnow() - datetime.timedelta(weeks=4)
+		cutoff_time = datetime.datetime.utcnow() - self.bot.config['decay']['cutoff']['time']
+		usage_threshold = self.bot.config['decay']['cutoff']['usage']
 
 		return self._database_emote_cursor("""
 			SELECT e.*, COUNT(euh.id) AS usage
 			FROM emotes AS e
-			INNER JOIN emote_usage_history AS euh
-				ON euh.id = e.id
-				   AND time > $1
-				   AND NOT preserve
-				   AND created < $1
+			LEFT JOIN emote_usage_history AS euh
+			    ON euh.id = e.id
+			   AND time > $1
+			WHERE created < $1
+			      AND NOT preserve
 			GROUP BY e.id
 			HAVING COUNT(euh.id) < $2
-		""", cutoff, usage_threshold)
+		""", cutoff_time, usage_threshold)
 
 	async def _database_emote_cursor(self, query, *args):
 		"""like _cursor, but wraps results in DatabaseEmote objects"""
@@ -335,12 +356,13 @@ class Database:
 		image = discord.utils._bytes_to_base64_data(image_data)
 		emote_data = await self.bot.http.create_custom_emoji(guild_id=guild_id, name=name, image=image)
 		return DatabaseEmote(await self.bot.pool.fetchrow("""
-			INSERT INTO emotes(name, id, author, animated, guild)
+			INSERT INTO emotes (name, id, author, animated, guild)
 			VALUES ($1, $2, $3, $4, $5)
-			RETURNING *""", name, int(emote_data['id']), author_id, animated, guild_id))
+			RETURNING *
+		""", name, int(emote_data['id']), author_id, animated, guild_id))
 
 	async def remove_emote(self, emote, user_id):
-		"""Remove an emote given by name.
+		"""Remove an emote given by name or DatabaseEmote object.
 		- user_id: the user trying to remove this emote,
 		  or None if their ownership should not
 		  be verified
@@ -371,7 +393,8 @@ class Database:
 			UPDATE emotes
 			SET name = $2
 			WHERE id = $1
-			RETURNING *""", emote.id, new_name))
+			RETURNING *
+		""", emote.id, new_name))
 
 	async def set_emote_creation(self, name, time: datetime):
 		"""Set the creation time of an emote."""
@@ -379,7 +402,7 @@ class Database:
 			UPDATE emotes
 			SET created = $2
 			WHERE LOWER(name) = LOWER($1)
-			RETURNING *""", name, time)
+		""", name, time)
 
 	async def set_emote_description(self, name, user_id=None, description=None):
 		"""Set an emote's description.
@@ -399,7 +422,8 @@ class Database:
 				UPDATE emotes
 				SET DESCRIPTION = $2
 				WHERE id = $1
-				RETURNING *""",emote.id, description))
+				RETURNING *
+			""",emote.id, description))
 		except asyncpg.StringDataRightTruncationError as exception:
 			# XXX dumb way to do it but it's the only way i've got
 			limit = int(re.search(r'character varying\((\d+)\)', exception.message)[1])
@@ -413,7 +437,8 @@ class Database:
 			UPDATE emotes
 			SET preserve = $1
 			WHERE LOWER(name) = LOWER($2)
-			RETURNING *""", should_preserve, name)
+			RETURNING *
+		""", should_preserve, name)
 
 		# why are we doing this "if not emote" checking, when we could just call get_emote
 		# before update?
@@ -434,7 +459,7 @@ class Database:
 				# we don't need to perform another ownership check
 				await self.remove_emote(emote, user_id=None)
 
-	async def log_emote_use(self, emote_id, user_id=None):
+	async def log_emote_use(self, emote_id, user_id):
 		await self.bot.pool.execute("""
 			INSERT INTO emote_usage_history (id)
 			-- this is SELECT ... WHERE NOT EXISTS, not INSERT INTO ... WHERE NOT EXISTS
@@ -443,14 +468,14 @@ class Database:
 			WHERE NOT EXISTS (
 				-- restrict emote logging to non-owners
 				-- this should reduce some spam and stats-inflation
-				SELECT 1 FROM emotes WHERE id = $1 AND author = $2)""",
-			emote_id, user_id)
+				SELECT 1
+				FROM emotes
+				WHERE id = $1
+				  AND author = $2)
+		""", emote_id, user_id)
 
-	async def decay(self, cutoff=None, usage_threshold=2):
-		if cutoff is None:
-			cutoff = datetime.datetime.utcnow() - datetime.timedelta(weeks=4)
-
-		async for emote in self.decayable_emotes(cutoff, usage_threshold):
+	async def decay(self):
+		async for emote in self.decayable_emotes():
 			logger.debug('decaying %s', emote.name)
 			removal_message = await self.logger.on_emote_decay(emote)
 			try:
@@ -482,8 +507,10 @@ class Database:
 		"""toggle the state for a user or guild. If there's no entry already, new state = default."""
 		# see _get_state for why string formatting is OK here
 		return self.bot.pool.fetchval(f"""
-			INSERT INTO {table_name} (id, state) VALUES ($1, $2)
-			ON CONFLICT (id) DO UPDATE SET state = NOT {table_name}.state
+			INSERT INTO {table_name} (id, state)
+			VALUES ($1, $2)
+			ON CONFLICT (id) DO UPDATE
+				SET state = NOT {table_name}.state
 			RETURNING state
 		""", id, default)
 
@@ -520,14 +547,18 @@ class Database:
 				(SELECT state FROM user_opt  WHERE id = $2),
 				(SELECT state FROM guild_opt WHERE id = $1),
 				true
-			)""",
-		guild_id, user_id)
+			)
+		""", guild_id, user_id)
 
 	## Blacklists
 
 	def get_user_blacklist(self, user_id):
 		"""return a reason for the user's blacklist, or None if not blacklisted"""
-		return self.bot.pool.fetchval('SELECT blacklist_reason from user_opt WHERE id = $1', user_id)
+		return self.bot.pool.fetchval("""
+			SELECT blacklist_reason
+			FROM user_opt
+			WHERE id = $1
+		""", user_id)
 
 	async def set_user_blacklist(self, user_id, reason=None):
 		"""make user_id blacklisted
@@ -535,9 +566,11 @@ class Database:
 		# insert regardless of whether it exists
 		# and if it does exist, update
 		await self.bot.pool.execute("""
-			INSERT INTO user_opt (id, blacklist_reason) VALUES ($1, $2)
-			ON CONFLICT (id) DO UPDATE SET blacklist_reason = EXCLUDED.blacklist_reason""",
-		user_id, reason)
+			INSERT INTO user_opt (id, blacklist_reason)
+			VALUES ($1, $2)
+			ON CONFLICT (id) DO UPDATE
+				SET blacklist_reason = EXCLUDED.blacklist_reason
+		""", user_id, reason)
 
 def setup(bot):
 	bot.add_cog(Database(bot))

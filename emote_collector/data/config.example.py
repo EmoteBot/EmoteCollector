@@ -1,7 +1,14 @@
 {
 	'description': 'Emote Collector curates emotes from any server and lets you use them without Nitro.',
-	'decay': True,  # whether to enable the deletion of old emotes
 	'prefix': 'ec/',
+
+	'decay': {
+		'enabled': False,  # whether to enable the deletion of old emotes
+		'cutoff': {  # emotes older than 4 weeks old that were not used 3 times will be removed automatically
+			'usage': 2,
+			'time': datetime.timedelta(weeks=4),
+		},
+	},
 
 	# your instance of the website code located at https://github.com/EmoteCollector/website
 	# if this is left blank, the ec/list command will not advertise the online version of the list.

@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS emotes(
 CREATE UNIQUE INDEX IF NOT EXISTS emotes_lower_idx ON emotes (LOWER(name));
 CREATE INDEX IF NOT EXISTS emotes_name_trgm_idx ON emotes USING GIN (name gin_trgm_ops);
 CREATE INDEX IF NOT EXISTS emotes_author_idx ON emotes (author);
+CREATE INDEX IF NOT EXISTS emotes_created_idx ON emotes (created) WHERE NOT preserve;
 
 -- all this nonsense for "ADD PRIMARY KEY IF NOT EXISTS" lol
 -- we're adding a PK so that JOINS will work btw
@@ -44,8 +45,7 @@ CREATE OR REPLACE VIEW guilds AS
 	COUNT(e.guild) FILTER (WHERE NOT e.animated) AS static_usage,
 	COUNT(e.guild) FILTER (WHERE e.animated) AS animated_usage
 	FROM _guilds AS g
-	LEFT JOIN
-		emotes AS e
+	LEFT JOIN emotes AS e
 		ON e.guild = g.id
 	GROUP BY g.id;
 

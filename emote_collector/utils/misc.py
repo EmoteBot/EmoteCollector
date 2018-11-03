@@ -4,7 +4,7 @@
 import asyncio
 import collections
 import contextlib
-from datetime import datetime
+import datetime
 import functools
 import io
 import math
@@ -107,7 +107,7 @@ def format_user(bot, id, *, mention=False):
 	else:
 		return f'@{user} ({user.id})'
 
-def format_time(date: datetime):
+def format_time(date: datetime.datetime):
 	"""Format a datetime to look like '2018-02-22 22:38:12 UTC'."""
 	return date.strftime('%Y-%m-%d %H:%m:%S %Z')
 
@@ -163,7 +163,8 @@ def load_json_compat(filename):
 	# NOTHING the user ever sends, ends up in there.
 	# Also, consider another common approach: `import config`.
 	# Which is arbitrary code execution anyway.
-	globals = dict(true=True, false=False, null=None)
+	# Also we add datetime to the globals so that we can use timedeltas in the config.
+	globals = dict(true=True, false=False, null=None, datetime=datetime)
 	with open(filename) as f:
 		# we use compile so that tracebacks contain the filename
 		compiled = compile(f.read(), filename, 'eval')
