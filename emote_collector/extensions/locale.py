@@ -47,7 +47,7 @@ class Locales:
 	))
 	async def locales(self, context):
 		"""Lists the valid locales you can use."""
-		await context.send(', '.join(i18n.locales))
+		await context.send(', '.join(sorted(i18n.locales)))
 
 	@commands.group(name='locale', aliases=(
 		'language',  # en_US
