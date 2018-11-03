@@ -234,7 +234,7 @@ class Database:
 
 	## Iterators
 
-	def all_emotes(self, author_id=None):
+	def all_emotes(self, author_id=None, *, filter_nsfw_for: discord.abc.Messageable = None):
 		"""return an async iterator that gets emotes from the database.
 		If author id is provided, get only emotes from them."""
 		query = 'SELECT * FROM emotes '
@@ -244,9 +244,9 @@ class Database:
 			args.append(author_id)
 		query += 'ORDER BY LOWER(name)'
 
-		return self._database_emote_cursor(query, *args)
+		return self._database_emote_cursor(query, *args, filter_nsfw_for)
 
-	def popular_emotes(self, *, limit=200):
+	def popular_emotes(self, *, limit=200, filter_nsfw_for: discord.abc.Messageable = None):
 		"""return an async iterator that gets emotes from the db sorted by popularity"""
 		cutoff_time = datetime.datetime.utcnow() - self.bot.config['decay']['cutoff']['time']
 
@@ -259,9 +259,9 @@ class Database:
 			GROUP BY e.id
 			ORDER BY usage DESC, LOWER(e.name)
 			LIMIT $2
-		""", cutoff_time, limit)
+		""", cutoff_time, limit, filter_nsfw_for)
 
-	def search(self, query):
+	def search(self, query, *, filter_nsfw_for: discord.abc.Messageable = None):
 		"""return an async iterator that gets emotes from the db whose name is similar to `query`."""
 
 		return self._database_emote_cursor("""
@@ -270,7 +270,7 @@ class Database:
 			WHERE name % $1
 			ORDER BY similarity(name, $1) DESC, LOWER(name)
 			LIMIT 100
-		""", query)
+		""", query, filter_nsfw_for)
 
 	def decayable_emotes(self):
 		"""emotes that should be removed due to inactivity.
@@ -301,8 +301,16 @@ class Database:
 	async def _database_emote_cursor(self, query, *args):
 		"""like _cursor, but wraps results in DatabaseEmote objects"""
 
+		channel = None
+		if isinstance(args[-1], discord.abc.Messageable):
+			# we want to filter nsfw emotes in this channel
+			channel = args[-1]
+			args = args[:-1]
+
 		async for row in self._cursor(query, *args):
-			yield DatabaseEmote(row)
+			emote = DatabaseEmote(row)
+			if not channel or not emote.is_nsfw or getattr(channel, 'nsfw', True):
+				yield emote
 
 	async def _cursor(self, query, *args):
 		"""return an Async Generator over all records selected by the query and its args"""

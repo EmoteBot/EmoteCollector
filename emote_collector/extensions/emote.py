@@ -546,8 +546,7 @@ class Emotes:
 
 		processed = [
 			self.emote_status(emote, linked=True)
-			async for emote in self.db.all_emotes(*args)
-			if not emote.is_nsfw or getattr(context.channel, 'nsfw', True)]
+			async for emote in self.db.all_emotes(*args, filter_nsfw_for=context.channel)]
 
 		if not processed:
 			if not user:
@@ -572,10 +571,9 @@ class Emotes:
 	async def search(self, context, query):
 		"""Search for emotes whose name contains "query"."""
 
-		processed = []
-
-		async for emote in self.db.search(query):
-			processed.append(emote.with_linked_name())
+		processed = [
+			emote.with_linked_name()
+			async for emote in self.db.search(query, filter_nsfw_for=context.channel)]
 
 		if not processed:
 			return await context.send(_('No results matched your query.'))
@@ -592,7 +590,7 @@ class Emotes:
 		# https://gitlab.com/Pandentia/element-zero/blob/ca7d7f97e068e89334e66692922d9a8744e3e9be/element_zero/cogs/emoji.py#L364-399
 		processed = []
 
-		async for i, emote in utils.async_enumerate(self.db.popular_emotes(limit=200)):
+		async for i, emote in utils.async_enumerate(self.db.popular_emotes(limit=200, filter_nsfw_for=context.channel)):
 			c = emote.usage
 			multiple = '' if c == 1 else 's'
 
