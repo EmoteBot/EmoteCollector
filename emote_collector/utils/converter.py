@@ -23,7 +23,7 @@ class DatabaseEmoteConverter(commands.Converter):
 		name = name.strip().strip(':;')
 		cog = context.bot.get_cog('Database')
 		emote = await cog.get_emote(name)
-		if self.check_nsfw and emote.is_nsfw and not context.channel.nsfw:
+		if self.check_nsfw and emote.is_nsfw and not getattr(context.channel, 'nsfw', True):
 			raise TooLewdError(emote.name)
 		return emote
 

@@ -876,8 +876,9 @@ class Emotes:
 			try:
 				emote = await self.db.get_emote(toke1.value.strip(':;'))
 			except errors.EmoteNotFoundError:
-				pass
-			else:
+				return
+
+			if not emote.is_nsfw or getattr(message.channel, 'nsfw', True):
 				out.write(str(emote))
 				emotes_used.add(emote.id)
 
@@ -899,8 +900,9 @@ class Emotes:
 			try:
 				emote = await self.db.get_emote(toke1.value.strip(':;'))
 			except errors.EmoteNotFoundError:
-				out.write('\\'+toke1.value)
-			else:
+				return out.write('\\'+toke1.value)
+
+			if not emote.is_nsfw or getattr(message.channel, 'nsfw', True):
 				out.write(str(emote))
 				emotes_used.add(emote.id)
 
