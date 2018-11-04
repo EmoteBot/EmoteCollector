@@ -1,89 +1,88 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# Language 👌 translations for PACKAGE package.
+# Copyright (C) 2018 THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#  <bmintz@protonmail.com>, 2018.
 #
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-04 01:19+0000\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
+"POT-Creation-Date: 2018-11-03 20:14+0000\n"
+"PO-Revision-Date: 2018-11-03 22:34+0000\n"
+"Last-Translator: Benjamin Mintz <bmintz@protonmail.com>\n"
+"Language-Team: Language 😃\n"
+"Language: 😃\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
 #: emote_collector/__init__.py:123
 msgid "This command cannot be used in private messages."
-msgstr ""
+msgstr "🚫📫🙅"
 
 #: emote_collector/__init__.py:125
 msgid "Sorry. This command is disabled and cannot be used."
-msgstr ""
+msgstr "🚫💻🙅"
 
 #: emote_collector/__init__.py:142
 msgid "An internal error occured while trying to run that command."
-msgstr ""
+msgstr "❗❗❗🙅"
 
 #. Translator's note: it's not crucial to translate this message, for the same reason as "Logger cog not loaded"
 #: emote_collector/extensions/admin.py:15
 msgid "Reloaded the emotes extension with {} replies."
-msgstr ""
+msgstr "🔁😃⚙🔢{}"
 
 #: emote_collector/extensions/api.py:46
 #, python-brace-format
 msgid ""
 "I have a RESTful API available. The docs for it are located at {docs_url}."
-msgstr ""
+msgstr "🌏↔🌎{docs_url}"
 
 #: emote_collector/extensions/api.py:63
 msgid "Your new API token is:\n"
-msgstr ""
+msgstr "🔁🌏↔🌎🗒:\n"
 
 #: emote_collector/extensions/api.py:65
 msgid "Your API token is:\n"
-msgstr ""
+msgstr "🌏↔🌎🗒:\n"
 
 #: emote_collector/extensions/api.py:70
 msgid "Do **not** share it with anyone!"
-msgstr ""
+msgstr "🗣🚫"
 
 #: emote_collector/extensions/api.py:75
 msgid "Error: I could not send you your token via DMs."
-msgstr ""
+msgstr "🚫🌏↔🌎🗒📫🙅"
 
 #: emote_collector/extensions/db.py:483
 msgid ""
 "You may not set this emote as SFW because it was set NSFW by an emote "
 "moderator."
-msgstr ""
+msgstr "🚫✏<1⃣8⃣➡🔞😃👮"
 
 #: emote_collector/extensions/emote.py:91
 msgid "Created"
-msgstr ""
+msgstr "🎂📆"
 
 #: emote_collector/extensions/emote.py:105
 msgid "Last modified"
-msgstr ""
+msgstr "📝📆"
 
 #: emote_collector/extensions/emote.py:118
 #, python-brace-format
 msgid "{emote} (Preserved, NSFW)"
-msgstr ""
+msgstr "{emote}✅🔞"
 
 #: emote_collector/extensions/emote.py:120
 #, python-brace-format
 msgid "{emote} (Preserved)"
-msgstr ""
+msgstr "{emote} ✅"
 
 #: emote_collector/extensions/emote.py:122
 #, python-brace-format
 msgid "{emote} (NSFW)"
-msgstr ""
+msgstr "{emote}🔞"
 
 #: emote_collector/extensions/emote.py:132
 #, python-brace-format
@@ -92,18 +91,21 @@ msgid ""
 "Animated emotes: **{animated} ⁄ {animated_cap}**\n"
 "**Total: {total} ⁄ {total_cap}**"
 msgstr ""
+"📷😃{static}➗{static_cap}\n"
+"🎥😃{animated}➗{animated_cap}\n"
+"📷😃➕🎥😃{total}➗{total_cap}"
 
 #. no space because rest_is_raw preserves the space after "ec/quote"
 #: emote_collector/extensions/emote.py:153
 #, python-brace-format
 msgid "{context.author.mention} said:"
-msgstr ""
+msgstr "{context.author.mention}🗣"
 
 #: emote_collector/extensions/emote.py:179
 msgid ""
 "Sorry, webhooks and bots may not add emotes. Go find a human to do it for "
 "you."
-msgstr ""
+msgstr "🚫🤖➕😃"
 
 #: emote_collector/extensions/emote.py:196
 msgid ""
@@ -115,72 +117,72 @@ msgstr ""
 
 #: emote_collector/extensions/emote.py:217
 msgid "Your message had no emotes and no name!"
-msgstr ""
+msgstr "💬🚫😃🚫📛"
 
 #: emote_collector/extensions/emote.py:236
 msgid "An error occurred while creating the emote:\n"
-msgstr ""
+msgstr "🚫\n"
 
 #: emote_collector/extensions/emote.py:239
 msgid "Error: Invalid URL."
-msgstr ""
+msgstr "🚫🌐"
 
 #: emote_collector/extensions/emote.py:241
 #, python-brace-format
 msgid "Emote {emote} successfully created."
-msgstr ""
+msgstr "➕{emote}👌"
 
 #: emote_collector/extensions/emote.py:297
 msgid "Error: you must provide the name of at least one emote to remove"
-msgstr ""
+msgstr "🚫≥1⃣😃"
 
 #: emote_collector/extensions/emote.py:321
 msgid "**Successfully deleted:**"
-msgstr ""
+msgstr "➖👌"
 
 #: emote_collector/extensions/emote.py:350
 msgid "**Successfully created:**"
-msgstr ""
+msgstr "➕👌"
 
 #: emote_collector/extensions/emote.py:353
 msgid "Error: no existing custom emotes were provided."
-msgstr ""
+msgstr "🚫🛃😃"
 
 #. translator's note: the next five strings are displayed as errors
 #. when the user tries to add/remove an emote
 #: emote_collector/extensions/emote.py:364
 msgid "**Already exists:**"
-msgstr ""
+msgstr "❗"
 
 #. same priority as EmoteExists
 #: emote_collector/extensions/emote.py:367
 msgid "**Not found:**"
-msgstr ""
+msgstr "🚫🔍"
 
 #: emote_collector/extensions/emote.py:369
 #, python-brace-format
 msgid "**Server returned error code {error.status}:**"
-msgstr ""
+msgstr "🌐💻→🔢{error.status}"
 
 #: emote_collector/extensions/emote.py:371
 msgid "**Took too long to retrieve or resize:**"
-msgstr ""
+msgstr "🕔😴"
 
 #: emote_collector/extensions/emote.py:373
 msgid "**Failed because I ran out of backend servers:**"
-msgstr ""
+msgstr "🚫🌐💻❗❗"
 
 #: emote_collector/extensions/emote.py:406
 msgid "You must specify an old name and a new name."
-msgstr ""
+msgstr "🚫👵📛👧📛"
 
 #: emote_collector/extensions/emote.py:412
 msgid "Error: you must provide a new name for the emote."
-msgstr ""
+msgstr "🚫🆕📛"
 
 #: emote_collector/extensions/emote.py:423
 msgid "Emote successfully renamed."
-msgstr ""
+msgstr "📛→📛👌"
 
 #: emote_collector/extensions/emote.py:452
 msgid ""
@@ -190,11 +192,11 @@ msgstr ""
 
 #: emote_collector/extensions/emote.py:456
 msgid "Emote is now NSFW."
-msgstr ""
+msgstr "😃🔞👌"
 
 #: emote_collector/extensions/emote.py:457
 msgid "Emote is now SFW."
-msgstr ""
+msgstr "😃<1⃣8⃣👌"
 
 #: emote_collector/extensions/emote.py:493
 msgid "You can already react to that message with that emote."
