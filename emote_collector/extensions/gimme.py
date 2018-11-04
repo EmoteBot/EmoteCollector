@@ -6,7 +6,7 @@ import discord
 from discord.ext import commands
 
 from .. import utils
-from .db import DatabaseEmote
+from ..utils.converter import DatabaseEmoteConverter
 
 logger = logging.getLogger(__name__)
 
@@ -17,7 +17,7 @@ class Gimme:
 		self.bot = bot
 
 	@commands.command()
-	async def gimme(self, context, emote: DatabaseEmote):
+	async def gimme(self, context, emote: DatabaseEmoteConverter(check_nsfw=False)):
 		"""Lets you join the server that has the emote you specify.
 
 		If you have nitro, this will let you use it anywhere!
