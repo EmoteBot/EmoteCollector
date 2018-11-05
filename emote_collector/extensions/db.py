@@ -381,7 +381,13 @@ class Database:
 
 		await self.owner_check(emote, user_id)
 
-		await self.bot.http.delete_custom_emoji(emote.guild, emote.id)
+		try:
+			await self.bot.http.delete_custom_emoji(emote.guild, emote.id)
+		except discord.NotFound:
+			# sometimes the database and the backend get out of sync
+			# but we don't really care if there's an entry in the database and not the backend
+			logger.warn(f'emote {emote.name} found in the database but not the backend! removing anyway.')
+
 		await self.bot.pool.execute('DELETE FROM emotes WHERE id = $1', emote.id)
 		return emote
 
