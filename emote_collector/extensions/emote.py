@@ -583,14 +583,18 @@ class Emotes:
 		await paginator.begin()
 
 	@commands.command()
-	async def popular(self, context):
-		"""Lists popular emojis."""
+	async def popular(self, context, user: discord.User = None):
+		"""Lists popular emojis.
+		If a user is provided, the list will only contain popular emotes created by that user.
+		"""
 
 		# code generously provided by @Liara#0001 under the MIT License:
 		# https://gitlab.com/Pandentia/element-zero/blob/ca7d7f97e068e89334e66692922d9a8744e3e9be/element_zero/cogs/emoji.py#L364-399
 		processed = []
 
-		async for i, emote in utils.async_enumerate(self.db.popular_emotes(limit=200, filter_nsfw_for=context.channel)):
+		async for i, emote in utils.async_enumerate(
+			self.db.popular_emotes(user.id if user else None, limit=200, filter_nsfw_for=context.channel)
+		):
 			c = emote.usage
 			multiple = '' if c == 1 else 's'
 

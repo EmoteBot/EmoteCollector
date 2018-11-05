@@ -250,21 +250,24 @@ class Database:
 
 		return self._database_emote_cursor(query, *args)
 
-	def popular_emotes(self, *, limit=200, filter_nsfw_for: discord.abc.Messageable = None):
+	def popular_emotes(self, author_id=None, *, limit=200, filter_nsfw_for: discord.abc.Messageable = None):
 		"""return an async iterator that gets emotes from the db sorted by popularity"""
 		cutoff_time = datetime.datetime.utcnow() - self.bot.config['decay']['cutoff']['time']
 
-		return self._database_emote_cursor("""
+		extra_args = [] if author_id is None else [author_id]
+		return self._database_emote_cursor(f"""
 			SELECT e.*, COUNT(euh.id) AS usage
 			FROM emotes AS e
 			LEFT JOIN emote_usage_history AS euh
 			    ON euh.id = e.id
 			   AND euh.time > $1
-			WHERE nsfw = ANY ($3)
+			WHERE
+				nsfw = ANY ($3)
+				{"AND author = $4" if author_id else ""}
 			GROUP BY e.id
 			ORDER BY usage DESC, LOWER(e.name)
 			LIMIT $2
-		""", cutoff_time, limit, self.allowed_nsfw_types(filter_nsfw_for))
+		""", cutoff_time, limit, self.allowed_nsfw_types(filter_nsfw_for), *extra_args)
 
 	def search(self, query, *, filter_nsfw_for: discord.abc.Messageable = None):
 		"""return an async iterator that gets emotes from the db whose name is similar to `query`."""
