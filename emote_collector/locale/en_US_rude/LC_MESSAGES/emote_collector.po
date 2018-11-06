@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-03 20:14+0000\n"
+"POT-Creation-Date: 2018-11-06 04:40+0000\n"
 "PO-Revision-Date: 2018-10-29 22:20+0000\n"
 "Last-Translator: Weblate Admin <bmintz@protonmail.com>\n"
 "Language-Team: English (United States) <http://example.com/weblate/projects/"
@@ -60,7 +60,7 @@ msgstr "Don't you fucking dare share it with anyone."
 msgid "Error: I could not send you your token via DMs."
 msgstr "Hey dumbass! Allow DMs from server members!"
 
-#: emote_collector/extensions/db.py:483
+#: emote_collector/extensions/db.py:513
 msgid ""
 "You may not set this emote as SFW because it was set NSFW by an emote "
 "moderator."
@@ -231,17 +231,20 @@ msgstr ""
 "out of patience."
 
 #: emote_collector/extensions/emote.py:553
-#: emote_collector/extensions/emote.py:603
-msgid "No emotes have been created yet. Be the first!"
-msgstr "This bot is so fucking dumb that nobody even created an emote yet."
+#: emote_collector/extensions/emote.py:608
+msgid "No emotes have been created yet, or all emotes are NSFW."
+msgstr ""
 
 #: emote_collector/extensions/emote.py:556
-msgid "You have not created any emotes yet."
-msgstr "Try making some emotes first, dumbass."
+#: emote_collector/extensions/emote.py:610
+msgid "You have not created any emotes yet, or all your emotes are NSFW."
+msgstr ""
 
 #: emote_collector/extensions/emote.py:558
-msgid "That person has not created any emotes yet."
-msgstr "That person has not created any emotes yet."
+#: emote_collector/extensions/emote.py:612
+msgid ""
+"That person has not created any emotes yet, or all their emotes are NSFW."
+msgstr ""
 
 #: emote_collector/extensions/emote.py:565
 #, python-brace-format
@@ -249,64 +252,64 @@ msgid "Also check out the list website at {website}."
 msgstr "Also check out the list website at {website}."
 
 #: emote_collector/extensions/emote.py:579
-msgid "No results matched your query."
-msgstr "Your query a fuck. No emotes found."
+msgid "No results matched your query, or your query only found NSFW emotes."
+msgstr ""
 
-#: emote_collector/extensions/emote.py:619
+#: emote_collector/extensions/emote.py:628
 msgid "Logger cog not loaded."
 msgstr "Logger cog not loaded."
 
-#: emote_collector/extensions/emote.py:624
+#: emote_collector/extensions/emote.py:633
 #: emote_collector/utils/converter.py:94
 msgid "Message not found."
 msgstr "Message not found."
 
-#: emote_collector/extensions/emote.py:629
+#: emote_collector/extensions/emote.py:638
 msgid "No embeds were found in that message."
 msgstr "No embeds were found in that message."
 
-#: emote_collector/extensions/emote.py:636
+#: emote_collector/extensions/emote.py:645
 msgid "No description was found in that embed."
 msgstr "No description was found in that embed."
 
-#: emote_collector/extensions/emote.py:642
+#: emote_collector/extensions/emote.py:651
 msgid "No custom emotes were found in that embed's description."
 msgstr "No custom emotes were found in that embed's description."
 
-#: emote_collector/extensions/emote.py:649
+#: emote_collector/extensions/emote.py:658
 msgid "No author IDs were found in that embed."
 msgstr "No author IDs were found in that embed."
 
-#: emote_collector/extensions/emote.py:665
+#: emote_collector/extensions/emote.py:674
 msgid "Opted in to the emote auto response."
 msgstr "Opted in and ready to spam."
 
-#: emote_collector/extensions/emote.py:667
+#: emote_collector/extensions/emote.py:676
 msgid "Opted out of the emote auto response."
 msgstr "OK fine I opted you out."
 
-#: emote_collector/extensions/emote.py:684
+#: emote_collector/extensions/emote.py:693
 msgid "Emote auto response is now opt-out for this server."
 msgstr "Emote auto response is now opt-out for this server. Ready to spam :)"
 
-#: emote_collector/extensions/emote.py:686
+#: emote_collector/extensions/emote.py:695
 msgid "Emote auto response is now opt-in for this server."
 msgstr "Emote auto response is now opt-in for this server."
 
-#: emote_collector/extensions/emote.py:701
+#: emote_collector/extensions/emote.py:710
 msgid "User un-blacklisted."
 msgstr "User un-blacklisted."
 
-#: emote_collector/extensions/emote.py:703
+#: emote_collector/extensions/emote.py:712
 #, python-brace-format
 msgid "User blacklisted with reason \"{reason}\"."
 msgstr "User blacklisted with reason `{reason}`."
 
-#: emote_collector/extensions/emote.py:712
+#: emote_collector/extensions/emote.py:721
 msgid "**Succesfully preserved:**"
 msgstr "**Successfully preserved:**"
 
-#: emote_collector/extensions/emote.py:714
+#: emote_collector/extensions/emote.py:723
 msgid "**Succesfully un-preserved:**"
 msgstr "**Successfully un-preserved:**"
 
@@ -648,3 +651,15 @@ msgstr ""
 "This means you can have multiple arguments.\n"
 "Now that you know the basics, it should be noted that...\n"
 "__**You do not type in the brackets!**__"
+
+#~ msgid "No emotes have been created yet. Be the first!"
+#~ msgstr "This bot is so fucking dumb that nobody even created an emote yet."
+
+#~ msgid "You have not created any emotes yet."
+#~ msgstr "Try making some emotes first, dumbass."
+
+#~ msgid "That person has not created any emotes yet."
+#~ msgstr "That person has not created any emotes yet."
+
+#~ msgid "No results matched your query."
+#~ msgstr "Your query a fuck. No emotes found."
