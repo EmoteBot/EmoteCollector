@@ -550,12 +550,12 @@ class Emotes:
 
 		if not processed:
 			if not user:
-				return await context.send(_('No emotes have been created yet. Be the first!'))
+				return await context.send(_('No emotes have been created yet, or all emotes are NSFW.'))
 
 			if user == context.author:
-				return await context.send(_('You have not created any emotes yet.'))
+				return await context.send(_('You have not created any emotes yet, or all your emotes are NSFW.'))
 
-			return await context.send(_('That person has not created any emotes yet.'))
+			return await context.send(_('That person has not created any emotes yet, or all their emotes are NSFW.'))
 
 		paginator = Pages(context, entries=processed)
 		self.paginators.add(paginator)
@@ -576,7 +576,7 @@ class Emotes:
 			async for emote in self.db.search(query, allow_nsfw=context.channel)]
 
 		if not processed:
-			return await context.send(_('No results matched your query.'))
+			return await context.send(_('No results matched your query, or your query only found NSFW emotes.'))
 
 		paginator = Pages(context, entries=processed)
 		self.paginators.add(paginator)
@@ -604,7 +604,12 @@ class Emotes:
 				f'— used {c} time{multiple}')
 
 		if not processed:
-			return await context.send(_('No emotes have been created yet. Be the first!'))
+			if not user:
+				return await context.send(_('No emotes have been created yet, or all emotes are NSFW.'))
+			if user == context.author:
+				return await context.send(_('You have not created any emotes yet, or all your emotes are NSFW.'))
+
+			return await context.send(_('That person has not created any emotes yet, or all their emotes are NSFW.'))
 
 		paginator = Pages(context, entries=processed)
 		self.paginators.add(paginator)
