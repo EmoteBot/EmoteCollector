@@ -20,7 +20,7 @@ from .. import utils
 from ..utils import image as image_utils
 from ..utils import checks
 from ..utils import errors
-from ..utils.converter import DatabaseEmoteConverter, Snowflake
+from ..utils.converter import DatabaseEmoteConverter, Snowflake, UserOrMember
 from ..utils.paginator import CannotPaginate, Pages
 
 logger = logging.getLogger(__name__)
@@ -534,7 +534,7 @@ class Emotes:
 					await message.delete()
 
 	@commands.command(aliases=('ls', 'dir'))
-	async def list(self, context, *, user: discord.User = None):
+	async def list(self, context, *, user: UserOrMember = None):
 		"""List all emotes the bot knows about.
 		If a user is provided, the list will only contain emotes created by that user.
 		"""
@@ -583,7 +583,7 @@ class Emotes:
 		await paginator.begin()
 
 	@commands.command()
-	async def popular(self, context, user: discord.User = None):
+	async def popular(self, context, user: UserOrMember = None):
 		"""Lists popular emojis.
 		If a user is provided, the list will only contain popular emotes created by that user.
 		"""

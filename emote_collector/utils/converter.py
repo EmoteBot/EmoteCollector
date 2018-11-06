@@ -27,6 +27,8 @@ class DatabaseEmoteConverter(commands.Converter):
 			raise TooLewdError(emote.name)
 		return emote
 
+UserOrMember = typing.Union[discord.Member, discord.User]
+
 async def convert_offset(context, channel, offset):
 	try:
 		offset = int(offset, base=0) - 1  # skip the invoking message
