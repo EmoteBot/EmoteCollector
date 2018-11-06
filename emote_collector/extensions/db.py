@@ -8,6 +8,7 @@ import logging
 import random
 import re
 import time
+import typing
 
 import asyncpg
 import discord
@@ -234,13 +235,17 @@ class Database:
 
 	## Iterators
 
-	def all_emotes(self, author_id=None, *, filter_nsfw_for: discord.abc.Messageable = None):
+	# if a channel, acts based on whether the channel is NSFW
+	# if a bool, allow NSFW emotes if True
+	AllowNsfwType = typing.Union[discord.DMChannel, discord.TextChannel, bool]
+
+	def all_emotes(self, author_id=None, *, allow_nsfw: AllowNsfwType = False):
 		"""return an async iterator that gets emotes from the database.
 		If author id is provided, get only emotes from them.
 		"""
 		# it's times like these i wish i had mongo tbh
 		query = 'SELECT * FROM emotes WHERE nsfw = ANY ($1) '
-		args = [self.allowed_nsfw_types(filter_nsfw_for)]
+		args = [self.allowed_nsfw_types(allow_nsfw)]
 
 		if author_id is not None:
 			query += 'AND author = $2 '
@@ -250,7 +255,7 @@ class Database:
 
 		return self._database_emote_cursor(query, *args)
 
-	def popular_emotes(self, author_id=None, *, limit=200, filter_nsfw_for: discord.abc.Messageable = None):
+	def popular_emotes(self, author_id=None, *, limit=200, allow_nsfw: AllowNsfwType = False):
 		"""return an async iterator that gets emotes from the db sorted by popularity"""
 		cutoff_time = datetime.datetime.utcnow() - self.bot.config['decay']['cutoff']['time']
 
@@ -263,13 +268,13 @@ class Database:
 			   AND euh.time > $1
 			WHERE
 				nsfw = ANY ($3)
-				{"AND author = $4" if author_id else ""}
+				{"AND author = $4" if author_id is not None else ""}
 			GROUP BY e.id
 			ORDER BY usage DESC, LOWER(e.name)
 			LIMIT $2
-		""", cutoff_time, limit, self.allowed_nsfw_types(filter_nsfw_for), *extra_args)
+		""", cutoff_time, limit, self.allowed_nsfw_types(allow_nsfw), *extra_args)
 
-	def search(self, query, *, filter_nsfw_for: discord.abc.Messageable = None):
+	def search(self, query, *, allow_nsfw: AllowNsfwType = False):
 		"""return an async iterator that gets emotes from the db whose name is similar to `query`."""
 
 		return self._database_emote_cursor("""
@@ -279,17 +284,26 @@ class Database:
 			AND nsfw = ANY ($2)
 			ORDER BY similarity(name, $1) DESC, LOWER(name)
 			LIMIT 100
-		""", query, self.allowed_nsfw_types(filter_nsfw_for))
+		""", query, self.allowed_nsfw_types(allow_nsfw))
+
+	@classmethod
+	def allowed_nsfw_types(cls, allow_nsfw: AllowNsfwType):
+		"""return the allowed values for the nsfw column in an emote row based on the allow_nsfw argument.
+		if it's a channel (any kind), return whether the channel is NSFW.
+		else, return the argument.
+
+		This is mostly useful for database functions which take in either a bool or channel and need to convert to
+		something that can be passed into postgres.
+		"""
+		if isinstance(allow_nsfw, (discord.DMChannel, discord.TextChannel)):
+			allow_nsfw = cls.channel_is_nsfw(allow_nsfw)
+		return ('SFW', 'SELF_NSFW', 'MOD_NSFW') if allow_nsfw else ('SFW',)
 
 	@staticmethod
-	def allowed_nsfw_types(channel):
-		types = 'SFW', 'SELF_NSFW', 'MOD_NSFW'
-		return (types
-		if
+	def channel_is_nsfw(channel):
+		return (
 			not channel  # if not specified, allow NSFW
-			or getattr(channel, 'nsfw', True)  # otherwise, allow NSFW if DMs or the guild channel is NSFW
-		else
-			types[:1])
+			or getattr(channel, 'nsfw', True))  # otherwise, allow NSFW if DMs or the guild channel is NSFW
 
 	def decayable_emotes(self):
 		"""emotes that should be removed due to inactivity.

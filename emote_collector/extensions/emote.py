@@ -546,7 +546,7 @@ class Emotes:
 
 		processed = [
 			self.emote_status(emote, linked=True)
-			async for emote in self.db.all_emotes(*args, filter_nsfw_for=context.channel)]
+			async for emote in self.db.all_emotes(*args, allow_nsfw=context.channel)]
 
 		if not processed:
 			if not user:
@@ -573,7 +573,7 @@ class Emotes:
 
 		processed = [
 			emote.with_linked_name()
-			async for emote in self.db.search(query, filter_nsfw_for=context.channel)]
+			async for emote in self.db.search(query, allow_nsfw=context.channel)]
 
 		if not processed:
 			return await context.send(_('No results matched your query.'))
@@ -593,7 +593,7 @@ class Emotes:
 		processed = []
 
 		async for i, emote in utils.async_enumerate(
-			self.db.popular_emotes(user.id if user else None, limit=200, filter_nsfw_for=context.channel)
+			self.db.popular_emotes(user.id if user else None, limit=200, allow_nsfw=context.channel)
 		):
 			c = emote.usage
 			multiple = '' if c == 1 else 's'
