@@ -451,7 +451,7 @@ class Emotes:
 			return await context.send(
 				_('You may not change the NSFW status of this emote because you do not own it, or you are not a mod.'))
 
-		new_emote = await self.db.toggle_emote_nsfw(emote, by_mod)
+		new_emote = await self.db.toggle_emote_nsfw(emote, by_mod=by_mod)
 		if new_emote.is_nsfw:
 			return await context.send(_('Emote is now NSFW.'))
 		await context.send(_('Emote is now SFW.'))

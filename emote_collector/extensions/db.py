@@ -485,10 +485,12 @@ class Database:
 		else:
 			return DatabaseEmote(emote)
 
-	async def toggle_emote_nsfw(self, emote: DatabaseEmote, by_mod=False):
-		"""Toggles the NSFW status of an emote."""
-		# i probably could do this in one giant query, but i'm lazy
-		new_status = self.new_nsfw_status(emote, by_mod)
+	async def toggle_emote_nsfw(self, emote: DatabaseEmote, *, by_mod=False):
+		new_state = not emote.is_nsfw
+		return await self.set_emote_nsfw(emote, new_state, by_mod=by_mod)
+
+	async def set_emote_nsfw(self, emote: DatabaseEmote, new_state: bool, *, by_mod=False):
+		new_status = self.new_nsfw_status(emote, new_state, by_mod=by_mod)
 
 		return DatabaseEmote(await self.bot.pool.fetchrow("""
 			UPDATE emotes
@@ -498,9 +500,7 @@ class Database:
 		""", emote.id, new_status))
 
 	@staticmethod
-	def new_nsfw_status(emote, by_mod):
-		desired_status = not emote.is_nsfw
-
+	def new_nsfw_status(emote, desired_status: bool, *, by_mod=False):
 		if by_mod:
 			# mods can do anything
 			return 'MOD_NSFW' if desired_status else 'SFW'
@@ -509,7 +509,7 @@ class Database:
 
 		# not by mod and SFW
 		if emote.nsfw == 'MOD_NSFW':
-			raise commands.BadArgument(
+			raise errors.PermissionDeniedError(
 				_('You may not set this emote as SFW because it was set NSFW by an emote moderator.'))
 		if emote.nsfw == 'SELF_NSFW':
 			return 'SFW'
