@@ -434,7 +434,7 @@ class Emotes:
 		- Describe how it's used
 		Currently, there's a limit of 500 characters.
 		"""
-		await self.db.set_emote_description(name, context.author.id, description)
+		await self.db.set_emote_description(name, description, context.author.id)
 		await context.try_add_reaction(utils.SUCCESS_EMOJIS[True])
 
 	@commands.command(name='toggle-nsfw', aliases=['nsfw'])

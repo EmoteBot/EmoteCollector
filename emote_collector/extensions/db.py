@@ -441,7 +441,7 @@ class Database:
 			WHERE LOWER(name) = LOWER($1)
 		""", name, time)
 
-	async def set_emote_description(self, name, user_id=None, description=None):
+	async def set_emote_description(self, name, description=None, user_id=None):
 		"""Set an emote's description.
 
 		If you leave out the description, it will be removed.
