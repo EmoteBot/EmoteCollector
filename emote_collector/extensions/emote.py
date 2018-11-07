@@ -443,7 +443,7 @@ class Emotes:
 		"""Toggles the NSFW status of an emote.
 		You may only toggle the status of your own emotes, unless you are an emote moderator.
 		"""
-		if await self.bot.is_owner(discord.Object(context.author.id)):
+		if await self.bot.is_owner(context.author):
 			by_mod = True
 		elif context.author.id == emote.author:
 			by_mod = False
