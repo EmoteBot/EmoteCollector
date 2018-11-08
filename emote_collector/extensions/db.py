@@ -339,13 +339,12 @@ class Database:
 	async def _cursor(self, query, *args):
 		"""return an Async Generator over all records selected by the query and its args"""
 
-		async with self.bot.pool.acquire() as connection:
-			async with connection.transaction():
-				async for row in connection.cursor(query, *args):
-					# we can't just return connection.cursor(...)
-					# because the connection would be closed by the time we returned
-					# so we have to become a generator to keep the conn open
-					yield row
+		async with self.bot.pool.acquire() as connection, connection.transaction():
+			async for row in connection.cursor(query, *args):
+				# we can't just return connection.cursor(...)
+				# because the connection would be closed by the time we returned
+				# so we have to become a generator to keep the conn open
+				yield row
 
 	## Checks
 
