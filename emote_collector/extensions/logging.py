@@ -11,13 +11,13 @@ logger = logging.getLogger(__name__)
 class LogColor:  # like an enum but we don't want the conversion of fields to instances of the enum type
 	__slots__ = ()
 
-	_discord_color = lambda h, s, v: discord.Color.from_hsv(*(component / 255 for component in (h, s, v)))
+	_discord_color = lambda h, s, v: discord.Color.from_hsv(*(component / 256 for component in (h, s, v)))
 
 	green = _discord_color(86, 144, 175)
 	dark_green = _discord_color(85, 100, 165)
-	red = _discord_color(2, 198, 244)
-	dark_red = _discord_color(2, 125, 255)
 	light_red = _discord_color(2, 125, 200)
+	red = _discord_color(2, 198, 244)
+	dark_red = _discord_color(2, 125, 256)
 	gray = _discord_color(141, 78, 139)
 	grey = gray
 
@@ -25,7 +25,7 @@ class LogColor:  # like an enum but we don't want the conversion of fields to in
 	preserve = dark_green
 	remove = red
 	force_remove = dark_red
-	preserve = light_red
+	unpreserve = light_red
 	decay = gray
 
 	del _discord_color
@@ -119,7 +119,7 @@ class Logger:
 
 	async def on_emote_unpreserve(self, emote):
 		if self.settings['unpreserve']:
-			await self.log_emote_action(emote, 'Un-preservation', LogColor.preserve)
+			await self.log_emote_action(emote, 'Un-preservation', LogColor.unpreserve)
 
 def setup(bot):
 	bot.add_cog(Logger(bot))
