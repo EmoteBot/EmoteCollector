@@ -96,7 +96,12 @@ class Meta:
 			self.paginators.add(paginator)
 			return await paginator.begin()
 
-		opts, args = getopt.gnu_getopt(shlex.split(args), '', ['embed', 'no-embed'])
+		args = shlex.split(args)
+		try:
+			opts, args = getopt.gnu_getopt(args, '', ['embed', 'no-embed'])
+		except getopt.GetoptError:
+			opts = []
+
 		# since opts is a list of two-tuples, we can't use frozenset on it directly
 		# so we have to call dict first
 		opts = frozenset(dict(opts))
