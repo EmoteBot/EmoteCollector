@@ -293,7 +293,11 @@ class Emotes:
 
 	@commands.command(aliases=['delete', 'delet', 'del', 'rm'])
 	async def remove(self, context, *names: commands.clean_content):
-		"""Removes one or more emotes from the bot. You must own all of them."""
+		"""Removes one or more emotes from the bot. You must own all of them.
+
+		Optional arguments:
+			-f, --force Whether to forcibly remove the emotes. This option can only be used by emote moderators.
+		"""
 
 		try:
 			opts, names = getopt.gnu_getopt(names, 'f', ('force',))
