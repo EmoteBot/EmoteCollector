@@ -296,7 +296,7 @@ class Emotes:
 		"""Removes one or more emotes from the bot. You must own all of them."""
 
 		try:
-			opts, names = getopt.gnu_getopt(names, 'f', ('--force',))
+			opts, names = getopt.gnu_getopt(names, 'f', ('force',))
 		except getopt.GetoptError:
 			opts = []
 		opts = frozenset(dict(opts))
@@ -308,7 +308,7 @@ class Emotes:
 			force = True
 
 		logger = (
-			lambda emote: self.logger.on_emote_force_remove(emote, context.author)
+			(lambda emote: self.logger.on_emote_force_remove(emote, context.author))
 			if force
 			else self.logger.on_emote_remove)
 
