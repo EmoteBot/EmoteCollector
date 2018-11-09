@@ -77,12 +77,12 @@ class Database:
 	def __init__(self, bot):
 		self.bot = bot
 		self._process_decay_config()
+		self._process_support_server_config()
 
 		self.tasks = []
-		# without backend guild enumeration, the bot will report all guilds being full
-		self.tasks.append(self.bot.loop.create_task(self.find_backend_guilds()))
-		self.tasks.append(self.bot.loop.create_task(self.update_emote_guilds()))
-		self.tasks.append(self.bot.loop.create_task(self.decay_loop()))
+		for meth in self.find_backend_guilds, self.update_emote_guilds, self.update_moderator_list, self.decay_loop:
+			self.tasks.append(self.bot.loop.create_task(meth()))
+
 		self.logger = self.bot.get_cog('Logger')
 
 	def _process_decay_config(self):
@@ -98,9 +98,16 @@ class Database:
 		cutoff_settings.setdefault('time', datetime.timedelta(weeks=4))
 		cutoff_settings.setdefault('usage', 2)
 
+	def _process_support_server_config(self):
+		with contextlib.suppress(KeyError):
+			self.bot.config.setdefault('support_server', {})['invite_code'] \
+			= self.bot.config['support_server_invite_code']
+
 	def __unload(self):
 		for task in self.tasks:
 			task.cancel()
+
+	## Tasks
 
 	async def find_backend_guilds(self):
 		"""Find all the guilds used to store emotes"""
@@ -142,6 +149,42 @@ class Database:
 
 		await self.bot.pool.executemany('UPDATE emotes SET guild = $2 WHERE id = $1', emotes)
 
+	async def update_moderator_list(self):
+		self.moderators = set()
+
+		await self.bot.wait_until_ready()
+
+		role = self._moderator_role()
+		if not role:
+			return
+
+		members = [(member.id,) for member in role.members if not member.bot]
+		self.moderators.update(members)
+
+		async with self.bot.pool.acquire() as connection, connection.transaction():
+			await self.bot.pool.execute('DELETE FROM moderators')
+			await self.bot.pool.executemany("""
+				INSERT INTO moderators
+				VALUES ($1)
+				ON CONFLICT (id) DO NOTHING
+			""", members)
+
+	def _moderator_role(self):
+		guild = self.bot.config['support_server'].get('id')
+		if not guild:
+			return
+
+		guild = self.bot.get_guild(guild)
+		if not guild:
+			return
+
+		role = self.bot.config['support_server'].get('moderator_role')
+		if not role:
+			return
+
+		role = guild.get_role(role)
+		return role
+
 	async def decay_loop(self):
 		poll_interval = 60 * 10
 		while True:
@@ -156,6 +199,34 @@ class Database:
 			await self.decay()
 
 			await asyncio.sleep(poll_interval)
+
+	## Events
+
+	async def on_guild_leave(self, guild):
+		await self.bot.pool.execute('DELETE FROM _guilds WHERE id = $1', guild.id)
+		with contextlib.suppress(AttributeError):
+			self.guilds.discard(guild)
+
+	async def on_member_update(self, before, after):
+		if before.guild.id != self.bot.config['support_server'].get('id') or after.bot:
+			return
+
+		mod_role = self._moderator_role()
+		if not mod_role:
+			return
+
+		if mod_role in before.roles and mod_role not in after.roles:
+			self.moderators.discard(after)
+			await self.bot.pool.execute('DELETE FROM moderators WHERE id = $1', after.id)
+		elif mod_role not in before.roles and mod_role in after.roles:
+			self.moderators.add(after)
+			await self.bot.pool.execute("""
+				INSERT INTO moderators
+				VALUES ($1)
+				ON CONFLICT (id) DO NOTHING
+			""", after.id)
+
+	## Commands
 
 	@commands.command(name='sql', aliases=['SQL'], hidden=True)
 	@commands.is_owner()
@@ -359,6 +430,14 @@ class Database:
 		else:
 			raise errors.EmoteExistsError(emote)
 
+	async def is_moderator(self, user_id):
+		# check the set first to avoid a query
+		# but also check the database in case we don't have access to the websocket and therefore the client cache
+		return (
+			user_id in self.moderators
+			or await self.bot.is_owner(discord.Object(user_id))
+			or await self.bot.pool.fetchval('SELECT true FROM moderators WHERE id = $1', user_id))
+
 	async def is_owner(self, emote, user_id):
 		"""return whether the user has permissions to modify this emote"""
 
@@ -367,8 +446,8 @@ class Database:
 
 		if not emote:  # you can't own an emote that doesn't exist
 			raise errors.EmoteNotFoundError(emote.name)
-		user = discord.Object(user_id)
-		return await self.bot.is_owner(user) or emote.author == user.id
+
+		return await self.is_moderator(user_id) or emote.author == user_id
 
 	async def owner_check(self, emote, user_id):
 		"""like is_owner but fails with an exception if the user is not authorized.
