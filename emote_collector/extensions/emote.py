@@ -5,6 +5,7 @@ import asyncio
 import collections
 import contextlib
 import enum
+import getopt
 import io
 import logging
 import re
@@ -293,6 +294,24 @@ class Emotes:
 	@commands.command(aliases=['delete', 'delet', 'del', 'rm'])
 	async def remove(self, context, *names: commands.clean_content):
 		"""Removes one or more emotes from the bot. You must own all of them."""
+
+		try:
+			opts, names = getopt.gnu_getopt(names, 'f', ('--force',))
+		except getopt.GetoptError:
+			opts = []
+		opts = frozenset(dict(opts))
+
+		force = False
+		if '-f' in opts or '--force' in opts:
+			if not await self.db.is_moderator(context.author.id):
+				return await context.send(_('Error: only emote moderators may forcibly remove emotes.'))
+			force = True
+
+		logger = (
+			lambda emote: self.logger.on_emote_force_remove(emote, context.author)
+			if force
+			else self.logger.on_emote_remove)
+
 		if not names:
 			return await context.send(_('Error: you must provide the name of at least one emote to remove'))
 		messages = {}
@@ -309,7 +328,7 @@ class Emotes:
 
 				# log the emote removal *first* because if we were to do it afterwards,
 				# the emote would not display (since it's already removed)
-				removal_message = await self.logger.on_emote_remove(emote)
+				removal_message = await logger(emote)
 				try:
 					await self.db.remove_emote(emote, context.author.id)
 				except (errors.ConnoisseurError, errors.DiscordError) as error:
