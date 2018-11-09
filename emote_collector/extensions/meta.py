@@ -201,11 +201,13 @@ class Meta:
 	async def support(self, context):
 		"""Directs you to the support server."""
 		try:
-			await context.author.send('https://discord.gg/' + self.bot.config['support_server_invite_code'])
-			await context.try_add_reaction('\N{open mailbox with raised flag}')
+			await context.author.send('https://discord.gg/' + self.bot.config['support_server']['invite_code'])
 		except discord.HTTPException:
 			await context.try_add_reaction('\N{cross mark}')
-			await context.send('Unable to send invite in DMs. Please allow DMs from server members.')
+			with contextlib.suppress(discord.HTTPException):
+				await context.send('Unable to send invite in DMs. Please allow DMs from server members.')
+		else:
+			await context.try_add_reaction('\N{open mailbox with raised flag}')
 
 	@commands.command(aliases=['inv'])
 	async def invite(self, context):
