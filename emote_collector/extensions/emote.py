@@ -462,13 +462,14 @@ class Emotes:
 		"""Toggles the NSFW status of an emote.
 		You may only toggle the status of your own emotes, unless you are an emote moderator.
 		"""
-		if await self.bot.is_owner(context.author):
+		if await self.db.is_moderator(context.author.id):
 			by_mod = True
 		elif context.author.id == emote.author:
 			by_mod = False
 		else:
-			return await context.send(
-				_('You may not change the NSFW status of this emote because you do not own it, or you are not a mod.'))
+			return await context.send(_(
+				'You may not change the NSFW status of this emote because you do not own it, '
+				'or you are not an emote moderator.'))
 
 		new_emote = await self.db.toggle_emote_nsfw(emote, by_mod=by_mod)
 		if new_emote.is_nsfw:
@@ -714,7 +715,7 @@ class Emotes:
 			await context.send(_('Emote auto response is now opt-in for this server.'))
 
 	@commands.command()
-	@commands.is_owner()
+	@checks.is_moderator()
 	async def blacklist(self, context, user: discord.Member, *,
 		reason: commands.clean_content(
 			fix_channel_mentions=True,  # blacklist messages are global, so we don't want "#invalid-channel"
@@ -731,7 +732,7 @@ class Emotes:
 			await context.send(_('User blacklisted with reason "{reason}".').format(**locals()))
 
 	@commands.command(hidden=True)
-	@commands.is_owner()
+	@checks.is_moderator()
 	async def preserve(self, context, should_preserve: bool, *names: commands.clean_content):
 		"""Sets preservation status of emotes."""
 		names = set(names)

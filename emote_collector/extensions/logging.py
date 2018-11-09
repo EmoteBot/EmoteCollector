@@ -89,9 +89,9 @@ class Logger:
 		except discord.HTTPException as exception:
 			logging.error(utils.format_http_exception(exception))
 
-	async def log_emote_action(self, emote, action, color):
+	async def log_emote_action(self, emote, action, color, *, extra=''):
 		author = utils.format_user(self.bot, emote.author, mention=True)
-		description = f'{emote.with_linked_name(separator="—")}\nOwner: {author}'
+		description = f'{emote.with_linked_name(separator="—")}\nOwner: {author}\n{extra}'
 		footer = 'Emote originally created'
 		timestamp = emote.created
 
@@ -109,9 +109,15 @@ class Logger:
 		if self.settings['decay']:
 			return await self.log_emote_action(emote, 'Decay', LogColor.decay)
 
-	async def on_emote_force_remove(self, emote):
-		if self.settings['force_remove']:
-			return await self.log_emote_action(emote, 'Removal by a moderator', LogColor.force_remove)
+	async def on_emote_force_remove(self, emote, responsible_moderator: discord.User = None):
+		if not self.settings['force_remove']:
+			return
+
+		extra = ''
+		if responsible_moderator is not None:
+			# we don't need to use format_user here because the moderator is in the same server as the log channel
+			extra += f'Action taken by: {responsible_moderator.mention}'
+		return await self.log_emote_action(emote, 'Removal by a moderator', LogColor.force_remove, extra=extra)
 
 	async def on_emote_preserve(self, emote):
 		if self.settings['preserve']:
