@@ -301,3 +301,5 @@ def setup(bot):
 	bot.add_cog(Meta(bot))
 	if not bot.config.get('repo'):
 		bot.remove_command('source')
+	if not bot.config['support_server'].get('invite_code'):
+		bot.remove_command('support')
