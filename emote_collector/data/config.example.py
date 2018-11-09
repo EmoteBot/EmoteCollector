@@ -30,6 +30,7 @@
 	'copyright_license_file': 'data/short-license.txt',
 	# make this a permanent invite to a guild where users can get help using the bot
 	'support_server_invite_code': 'Zujf4K',
+	'support_server_moderator_role': None,
 	# a user ID of someone to send logs to
 	# note: currently nothing is sent except a notification of the bot's guild count being a power of 2
 	'send_logs_to': 140516693242937345,

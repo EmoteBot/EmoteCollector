@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 # encoding: utf-8
 
+import getopt
 import inspect
 import shlex
 import os
 import pkg_resources
+import textwrap
 import weakref
 
 import psutil
@@ -12,7 +14,7 @@ import psutil
 import discord
 from discord.ext import commands
 
-from ..utils import argparse, asyncexecutor
+from ..utils import asyncexecutor
 from ..utils.paginator import HelpPaginator, CannotPaginate
 
 class Meta:
@@ -94,42 +96,45 @@ class Meta:
 			self.paginators.add(paginator)
 			return await paginator.begin()
 
-		parser = argparse.ArgumentParser(
-			prog=context.command.name,
-			add_help=True,
-			description='Shows help about a command, category, or the bot.')
+		opts, args = getopt.gnu_getopt(shlex.split(args), '', ['embed', 'no-embed'])
+		# since opts is a list of two-tuples, we can't use frozenset on it directly
+		# so we have to call dict first
+		opts = frozenset(dict(opts))
+		if len(opts) == 2:
+			raise commands.BadArgument('Only one of --embed, --no-embed is expected.')
 
-		parser.add_argument('--embed', dest='embed', action='store_true', help='display output with an embed')
-		parser.add_argument('--no-embed', dest='embed', action='store_false', help='display output without an embed')
-		parser.set_defaults(embed=True)
-		parser.add_argument('command or category', nargs='*')
+		embed = True if '--embed' in opts else False if '--no-embed' in opts else True
 
-		try:
-			parsed_args = parser.parse_args(shlex.split(args))
-		except argparse.ArgumentParserError as e:
-			return await context.send(e)
-
-		command = getattr(parsed_args, 'command or category') or ()
-
-		if not command:
-			paginator = await HelpPaginator.from_bot(context)
-			self.paginators.add(paginator)
-			return await paginator.begin()
-
-		if not parsed_args.embed:
-			return await context.invoke(self.old_help[0], *command)
+		if not args:
+			if embed:
+				paginator = await HelpPaginator.from_bot(context)
+				self.paginators.add(paginator)
+				return await paginator.begin()
+			return await context.invoke(self.old_help[0])
 
 		# derived from R.Danny's help command
 		# https://github.com/Rapptz/RoboDanny/blob/8919ec0a455f957848ef77b479fe3494e76f0aa7/cogs/meta.py
 		# MIT Licensed, Copyright © 2015 Rapptz
 
-		# it came from argparser so it's still a bunch of args
-		command = ' '.join(command)
+		# it came from getopt so it's still a bunch of args
+		command = ' '.join(args)
 
 		entity = self.bot.get_cog(command) or self.bot.get_command(command)
 
 		if entity is self.help:
-			return await context.send(f'```{parser.format_help()}```')
+			return await context.send(_(textwrap.dedent("""
+				```
+				{context.prefix}help [commands...]
+
+				Shows help about a command, category, or the bot.
+
+				Optional arguments:
+					--embed    display output with an embed
+					--no-embed display output without an embed
+				```""")).format(**locals()))
+		elif not embed:
+			return await context.invoke(self.old_help[0], *args)
+
 		if entity is None:
 			command_name = command.replace('@', '@\N{zero width non-joiner}')
 			return await context.send(_('Command or category "{command_name}" not found.').format(**locals()))
