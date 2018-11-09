@@ -16,8 +16,8 @@ class LogColor:  # like an enum but we don't want the conversion of fields to in
 	green = _discord_color(86, 144, 175)
 	dark_green = _discord_color(85, 100, 165)
 	light_red = _discord_color(2, 125, 200)
-	red = _discord_color(2, 198, 244)
-	dark_red = _discord_color(2, 125, 256)
+	red = _discord_color(2, 125, 256)
+	dark_red = _discord_color(2, 198, 244)
 	gray = _discord_color(141, 78, 139)
 	grey = gray
 
