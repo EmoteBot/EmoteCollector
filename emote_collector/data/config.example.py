@@ -56,26 +56,35 @@
 				'unpreserve': True,  # ditto, but for marking an emote as "not preserved" / decayable
 				'remove': False,  # whether to log whenever an emote is removed by the author
 				'force_remove': True,  # whether to log whenever an emote is removed by a moderator
-				'decay': True}}},  # whether to log decayed emotes
+				'decay': True,  # whether to log decayed emotes
+			}
+		}
+	},
 
 	'primary_owner': 140516693242937345,
 
+	# User IDs of people authorized to run privileged commands on the bot
 	'extra_owners': [
-		12345],  # User IDs of people authorized to run privileged commands on the bot
+	],
 
 	# postgresql connection info
+	# any fields left None will use defaults or environment variables
 	'database': {
-		'user': 'connoisseur',
-		'password': 'hunter2',
-		'database': 'connoisseur',
-		'host': '127.0.0.1',
-		'port': 5432},
+		'user': None,
+		'password': None,
+		'database': None,
+		'host': None,
+		'port': None,
+	},
 
 	'tokens': {
 		'discord': 'sek.rit.token',  # get this from https://discordapp.com/developers/applications/me
 		'stats': {  # keep these set to None unless your bot is listed on any of these sites
 			'bots.discord.pw': None,
 			'discordbots.org': None,
-			'botsfordiscord.com': None}},
+			'botsfordiscord.com': None
+		}
+	},
 
-	'success_or_failure_emojis': {False: '❌', True: '✅'}}
+	'success_or_failure_emojis': {False: '❌', True: '✅'},
+}
