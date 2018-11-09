@@ -122,13 +122,13 @@ class Database:
 			for guild in self.bot.guilds
 			if guild.name.startswith(('EmojiBackend', 'EmoteBackend')) and await self.bot.is_owner(guild.owner)}
 
+		self.guilds = guilds
 		await self.bot.pool.executemany("""
 			INSERT INTO _guilds
 			VALUES ($1)
 			ON CONFLICT (id) DO NOTHING
 		""", map(lambda x: (x.id,), guilds))
 
-		self.guilds = frozenset(guilds)
 		logger.info('In %s backend guilds.', len(self.guilds))
 
 		# allow other cogs that depend on the list of backend guilds to know when they've been found
@@ -139,6 +139,8 @@ class Database:
 
 		it's null in a former installation without the guild column
 		"""
+
+		await self.bot.wait_until_ready()
 
 		emotes = []
 		async for db_emote in self.all_emotes():
@@ -237,11 +239,13 @@ class Database:
 		try:
 			results = await self.bot.pool.fetch(query.strip('`'))
 		except asyncpg.PostgresError as exception:
-			return await context.send(exception)
+			return await context.send(f'{type(exception).__name__}: {exception}')
 		elapsed = time.perf_counter() - start
 
 		message = await utils.codeblock(str(utils.PrettyTable(results)))
 		return await context.send(f'{message}*{len(results)} rows retrieved in {elapsed:.2f} seconds.*')
+
+	## Informational
 
 	async def free_guild(self, animated=False):
 		"""Find a guild in the backend guilds suitable for storing an emote.
@@ -265,8 +269,6 @@ class Database:
 			raise errors.NoMoreSlotsError
 
 		return guild_id
-
-	## Informational
 
 	def count(self) -> asyncpg.Record:
 		"""Return (not animated count, animated count, total)"""
