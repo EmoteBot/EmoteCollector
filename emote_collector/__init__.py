@@ -133,7 +133,10 @@ class EmoteCollector(commands.AutoShardedBot):
 				await context.try_add_reaction(utils.SUCCESS_EMOJIS[False])
 		elif isinstance(error, (commands.UserInputError, commands.CheckFailure)):
 			await context.send(error)
-		elif isinstance(error, commands.CommandInvokeError):
+		elif (
+			isinstance(error, commands.CommandInvokeError)
+			and not hasattr(context.cog, utils.mangle(context.cog, '__error'))
+		):
 			logger.error('"%s" caused an exception', context.message.content)
 			logger.error(''.join(traceback.format_tb(error.original.__traceback__)))
 			# pylint: disable=logging-format-interpolation

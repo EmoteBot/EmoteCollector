@@ -228,22 +228,38 @@ class Database:
 				ON CONFLICT (id) DO NOTHING
 			""", after.id)
 
+	async def __error(self, context, error):
+		error = getattr(error, 'original', error)
+		if isinstance(error, asyncpg.PostgresError):
+			return await context.send(f'{type(error).__name__}: {error}')
+		raise
+
 	## Commands
 
-	@commands.command(name='sql', aliases=['SQL'], hidden=True)
+	@commands.group(name='sql', aliases=['SQL'], hidden=True, invoke_without_command=False)
 	@commands.is_owner()
-	async def sql_command(self, context, *, query):
-		"""Gets the rows of a SQL query. Prepared statements are not supported."""
-		start = time.perf_counter()
-		# XXX properly strip codeblocks
-		try:
-			results = await self.bot.pool.fetch(query.strip('`'))
-		except asyncpg.PostgresError as exception:
-			return await context.send(f'{type(exception).__name__}: {exception}')
-		elapsed = time.perf_counter() - start
+	async def sql_command(self, context):
+		pass
 
-		message = await utils.codeblock(str(utils.PrettyTable(results)))
-		return await context.send(f'{message}*{len(results)} rows retrieved in {elapsed:.2f} seconds.*')
+	@sql_command.command(name='execute', aliases=['e'])
+	async def sql_execute_command(self, context, *, query):
+		"""Execute a SQL query."""
+		elapsed, result = await utils.timeit(self.bot.pool.execute(query.strip('`')))
+		await context.send(f'`{result}`\n*Executed in {elapsed:.2f} seconds.*')
+
+	@sql_command.command(name='fetch', aliases=['f'])
+	async def sql_fetch_command(self, context, *, query):
+		"""Gets the rows of a SQL query."""
+		elapsed, results = await utils.timeit(self.bot.pool.fetch(query.strip('`')))
+		message = utils.codeblock(str(utils.PrettyTable(results)))
+		await context.send(f'{message}*{len(results)} rows retrieved in {elapsed:.2f} seconds.*')
+
+	@sql_command.command(name='fetchval', aliases=['fv'])
+	async def sql_fetchval_command(self, context, *, query):
+		"""Get a single value from a SQL query."""
+		elapsed, result = await utils.timeit(self.bot.pool.fetchval(query.strip('`')))
+		message = utils.codeblock(repr(result))
+		await context.send(f'{message}*Retrieved in {elapsed:.2f} seconds.*')
 
 	## Informational
 

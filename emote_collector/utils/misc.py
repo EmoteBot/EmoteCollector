@@ -9,6 +9,7 @@ import functools
 import io
 import math
 import re
+import time
 import typing
 from typing import Sequence, Union
 import urllib.parse
@@ -78,7 +79,7 @@ def int_to_bytes(n):
 	num_bytes = int(math.ceil(n.bit_length() / 8))
 	return n.to_bytes(num_bytes, byteorder='big')
 
-async def codeblock(message, *, lang=''):
+def codeblock(message, *, lang=''):
 	cleaned = message.replace('```', '\N{zero width space}'.join('```'))
 	return f'```{lang}\n{cleaned}```'
 
@@ -270,3 +271,13 @@ def asyncexecutor(*, timeout=None, loop=None, executor=None):
 			return asyncio.wait_for(coro, timeout=timeout, loop=loop)
 		return wrapper
 	return decorator
+
+async def timeit(coro, _timer=time.perf_counter):
+	t0 = _timer()
+	result = await coro
+	t1 = _timer()
+	return t1 - t0, result
+
+def mangle(obj, attr):
+	cls = obj if isinstance(obj, type) else type(obj)
+	return '_' + cls.__name__.lstrip('_') + attr
