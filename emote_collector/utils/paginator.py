@@ -480,8 +480,9 @@ class HelpPaginator(Pages):
 		self.embed.description = self.description
 		self.embed.title = self.title
 
-		if hasattr(self, '_is_bot'):
-			invite = f'https://discord.gg/{self.bot.config["support_server_invite_code"]}'
+		invite_code = self.bot.config['support_server'].get('invite_code')
+		if hasattr(self, '_is_bot') and invite_code:
+			invite = f'https://discord.gg/invite_code'
 			value = _('For more help, join the official bot support server: {invite}').format(**locals())
 			self.embed.add_field(name='Support', value=value, inline=False)
 
