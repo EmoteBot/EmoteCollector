@@ -477,7 +477,9 @@ class Emotes:
 
 		new_emote = await self.db.toggle_emote_nsfw(emote, by_mod=by_mod)
 		if new_emote.is_nsfw:
-			return await context.send(_('Emote is now NSFW.'))
+			await context.send(_('Emote is now NSFW.'))
+			await self.logger.on_emote_nsfw(emote, context.author)
+			return
 		await context.send(_('Emote is now SFW.'))
 
 	@commands.command()

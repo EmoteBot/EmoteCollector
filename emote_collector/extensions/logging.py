@@ -26,6 +26,7 @@ class LogColor:  # like an enum but we don't want the conversion of fields to in
 	remove = red
 	force_remove = dark_red
 	unpreserve = light_red
+	nsfw = light_red
 	decay = gray
 
 	del _discord_color
@@ -89,9 +90,14 @@ class Logger:
 		except discord.HTTPException as exception:
 			logging.error(utils.format_http_exception(exception))
 
-	async def log_emote_action(self, emote, action, color, *, extra=''):
+	async def log_emote_action(self, emote, action, color, *, by: discord.User = None):
 		author = utils.format_user(self.bot, emote.author, mention=True)
-		description = f'{emote.with_linked_name(separator="—")}\nOwner: {author}\n{extra}'
+		description = (
+			f'{emote.with_linked_name(separator="—")}\n'
+			f'Owner: {author}')
+		if by:
+			description += f'\nAction taken by: {by.mention}'
+
 		footer = 'Emote originally created'
 		timestamp = emote.created
 
@@ -109,15 +115,15 @@ class Logger:
 		if self.settings['decay']:
 			return await self.log_emote_action(emote, 'Decay', LogColor.decay)
 
-	async def on_emote_force_remove(self, emote, responsible_moderator: discord.User = None):
+	async def on_emote_force_remove(self, emote, responsible_moderator: discord.User):
 		if not self.settings['force_remove']:
 			return
 
-		extra = ''
-		if responsible_moderator is not None:
-			# we don't need to use format_user here because the moderator is in the same server as the log channel
-			extra += f'Action taken by: {responsible_moderator.mention}'
-		return await self.log_emote_action(emote, 'Removal by a moderator', LogColor.force_remove, extra=extra)
+		return await self.log_emote_action(
+			emote,
+			'Removal by a moderator',
+			LogColor.force_remove,
+			by=responsible_moderator)
 
 	async def on_emote_preserve(self, emote):
 		if self.settings['preserve']:
@@ -126,6 +132,10 @@ class Logger:
 	async def on_emote_unpreserve(self, emote):
 		if self.settings['unpreserve']:
 			await self.log_emote_action(emote, 'Un-preservation', LogColor.unpreserve)
+
+	async def on_emote_nsfw(self, emote, responsible_moderator: discord.User):
+		if self.settings.get('nsfw'):  # .get cause it's new
+			await self.log_emote_action(emote, 'Marked NSFW', LogColor.nsfw, by=responsible_moderator)
 
 def setup(bot):
 	bot.add_cog(Logger(bot))

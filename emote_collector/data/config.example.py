@@ -61,6 +61,7 @@
 				'remove': False,  # whether to log whenever an emote is removed by the author
 				'force_remove': True,  # whether to log whenever an emote is removed by a moderator
 				'decay': True,  # whether to log decayed emotes
+				'nsfw': True,  # whether to log when a moderator marks an emote as NSFW
 			}
 		}
 	},
