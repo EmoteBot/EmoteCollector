@@ -628,7 +628,7 @@ msgstr "argument"
 
 #: emote_collector/utils/paginator.py:543
 msgid "How do I use this bot?"
-msgstr "How do I use this bot?"
+msgstr "How do I use this shit?"
 
 #: emote_collector/utils/paginator.py:543
 msgid "Reading the bot signature is pretty simple."
