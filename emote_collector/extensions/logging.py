@@ -1,4 +1,3 @@
-import colorsys
 import datetime
 import logging
 
@@ -11,7 +10,7 @@ logger = logging.getLogger(__name__)
 class LogColor:  # like an enum but we don't want the conversion of fields to instances of the enum type
 	__slots__ = ()
 
-	_discord_color = lambda h, s, v: discord.Color.from_hsv(*(component / 256 for component in (h, s, v)))
+	_discord_color = lambda *hsv: discord.Color.from_hsv(*(component / 256 for component in hsv))
 
 	green = _discord_color(86, 144, 175)
 	dark_green = _discord_color(85, 100, 165)
@@ -21,12 +20,13 @@ class LogColor:  # like an enum but we don't want the conversion of fields to in
 	gray = _discord_color(141, 78, 139)
 	grey = gray
 
-	add = green
-	preserve = dark_green
+	add = dark_green
+	preserve = green
 	remove = red
 	force_remove = dark_red
 	unpreserve = light_red
 	nsfw = light_red
+	sfw = green
 	decay = gray
 
 	del _discord_color
@@ -136,6 +136,10 @@ class Logger:
 	async def on_emote_nsfw(self, emote, responsible_moderator: discord.User):
 		if self.settings.get('nsfw'):  # .get cause it's new
 			await self.log_emote_action(emote, 'Marked NSFW', LogColor.nsfw, by=responsible_moderator)
+
+	async def on_emote_sfw(self, emote, responsible_moderator: discord.User):
+		if self.settings.get('sfw'):
+			await self.log_emote_action(emote, 'Marked SFW', LogColor.sfw, by=responsible_moderator)
 
 def setup(bot):
 	bot.add_cog(Logger(bot))

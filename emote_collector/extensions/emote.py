@@ -481,6 +481,7 @@ class Emotes:
 			await self.logger.on_emote_nsfw(emote, context.author)
 			return
 		await context.send(_('Emote is now SFW.'))
+		await self.logger.on_emote_sfw(emote, context.author)
 
 	@commands.command()
 	@checks.not_blacklisted()
