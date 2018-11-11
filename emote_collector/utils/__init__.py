@@ -8,6 +8,7 @@ from . import checks
 from . import context
 from . import converter
 from . import custom_send
+from . import custom_typing
 from . import emote
 from . import errors
 from . import i18n
