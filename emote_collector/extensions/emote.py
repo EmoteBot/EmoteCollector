@@ -26,17 +26,6 @@ from ..utils.paginator import CannotPaginate, Pages
 
 logger = logging.getLogger(__name__)
 
-class MessageReplyType(enum.IntEnum):
-	"""Indicates the type of a reply that we sent to a user.
-
-	Values:
-		auto: an auto response to the user. Happens when they say e.g. ";thonk;" without a command.
-		quote: a quoted reply to the user. For example: "ec/quote this sucks :speedtest:"
-	"""
-
-	auto = enum.auto()
-	quote = enum.auto()
-
 class Emotes:
 	"""Commands related to the main functionality of the bot"""
 
@@ -49,12 +38,6 @@ class Emotes:
 				self.bot.config['user_agent'] + ' '
 				+ self.bot.http.user_agent
 		})
-
-		# Keep track of replies so that if the user edits/deletes a message,
-		# we delete/edit the corresponding reply.
-		# Each message supposedly takes up about 256 bytes of RAM.
-		# Don't store more than 1MiB of them.
-		self.replies = utils.LRUDict(size=1024**2//256)
 
 		# keep track of created paginators so that we can remove their reaction buttons on unload
 		self.paginators = weakref.WeakSet()
@@ -148,6 +131,7 @@ class Emotes:
 			return
 
 		message, has_emotes = await self.quote_emotes(context.message, message)
+		should_track_reply = True
 
 		if self.bot.has_permissions(context.message, manage_messages=True):
 			# no space because rest_is_raw preserves the space after "ec/quote"
@@ -157,8 +141,14 @@ class Emotes:
 			with contextlib.suppress(discord.NotFound):
 				await context.message.delete()
 
+			should_track_reply = False
+
 		reply = await context.send(message)
-		self.replies[context.message.id] = MessageReplyType.quote, reply
+		if should_track_reply:
+			await self.bot.pool.execute("""
+				INSERT INTO replies (invoking_message, type, reply_message)
+				VALUES ($1, 'QUOTE', $2)
+			""", context.message.id, reply.id)
 
 	@commands.command(aliases=['create'], usage='[name] <image URL or custom emote>')
 	@checks.not_blacklisted()
@@ -780,7 +770,11 @@ class Emotes:
 		if not has_emotes:
 			return
 
-		self.replies[message.id] = MessageReplyType.auto, await message.channel.send(reply)
+		reply = await message.channel.send(reply)
+		await self.bot.pool.execute("""
+			INSERT INTO replies (invoking_message, type, reply_message)
+			VALUES ($1, 'AUTO', $2)
+		""", message.id, reply.id)
 
 	async def _should_auto_reply(self, message: discord.Message):
 		"""return whether the bot should send an emote auto response to message"""
@@ -812,52 +806,54 @@ class Emotes:
 	async def on_raw_message_edit(self, payload):
 		"""Ensure that when a message containing emotes is edited, the corresponding emote reply is, too."""
 		# data = https://discordapp.com/developers/docs/resources/channel#message-object
-		if payload.message_id not in self.replies or 'content' not in payload.data:
+		if 'content' not in payload.data:
 			return
 
+		reply = await self.bot.pool.fetchrow("""
+			SELECT type, reply_message
+			FROM replies
+			WHERE invoking_message = $1
+		""", payload.message_id)
+		if not reply:
+			return
+		type, reply_message_id = reply
+
+		channel_id = int(payload.data['channel_id'])
 		message = discord.Message(
 			state=self.bot._connection,
-			channel=self.bot.get_channel(int(payload.data['channel_id'])),
+			channel=self.bot.get_channel(channel_id),
 			data=payload.data)
 
 		handlers = {
-			MessageReplyType.auto: self._handle_extracted_edit,
-			MessageReplyType.quote: self._handle_quoted_edit}
+			'AUTO': self._handle_extracted_edit,
+			'QUOTE': self._handle_quoted_edit}
 
-		type, reply = self.replies[payload.message_id]
-		await handlers[type](message, reply)
+		await handlers[type](message, reply_message_id)
 
-	async def _handle_extracted_edit(self, message, reply):
+	async def _handle_extracted_edit(self, message, reply_message_id):
 		"""handle the case when a user edits a message that we auto-responded to"""
 		emotes, message_has_emotes = await self.extract_emotes(message, log_usage=False)
 
 		# editing out emotes from a message deletes the reply
 		if not message_has_emotes:
-			del self.replies[message.id]
-			return await reply.delete()
-		elif emotes == reply.content:
-			# don't edit a message if we don't need to
-			return
+			return await self.delete_reply(message.channel.id, message.id)
 
-		await reply.edit(content=emotes)
+		# gah! why is the parameter order message_id, channel_id?
+		await self.bot.http.edit_message(reply_message_id, message.channel.id, content=emotes)
 
-	async def _handle_quoted_edit(self, message, reply):
+	async def _handle_quoted_edit(self, message, reply_message_id):
 		"""handle the case when the user edits an ec/quote invocation"""
 		context = await self.bot.get_context(message)
 		content = context.view.read_rest()
 		if not context.command or not context.command is self.quote or not content:
-			del self.replies[message.id]
-			return await reply.delete()
+			return await self.delete_reply(message.channel.id, message.id)
 
 		emotes, message_has_emotes = await self.quote_emotes(
 			message,
 			content,
 			log_usage=False)
-		if emotes == reply.content:
-			# don't edit a message if we don't need to
-			return
 
-		await reply.edit(content=emotes)
+		await self.bot.http.edit_message(reply_message_id, message.channel.id, content=emotes)
 
 	async def _extract_emotes(self,
 		message: discord.Message,
@@ -940,28 +936,35 @@ class Emotes:
 
 		return await self._extract_emotes(message, content, callback=callback, log_usage=log_usage)
 
-	@classmethod
-	def _is_emote(cls, toke1):
+	@staticmethod
+	def _is_emote(toke1):
 		return toke1.type == 'EMOTE' and toke1.value.strip(':') not in utils.emote.emoji_shortcodes
 
-	async def delete_reply(self, message_id):
+	async def delete_reply(self, channel_id, message_id):
 		"""Delete our reply to a message containing emotes."""
-		try:
-			type, message = self.replies.pop(message_id)
-		except KeyError:
-			return
+		reply_message = await self.bot.pool.fetchval("""
+			DELETE FROM replies
+			WHERE invoking_message = $1
+			RETURNING reply_message
+		""", message_id)
+		if not reply_message:
+			# if there's no reply, it's possible that our reply itself was deleted directly
+			return await self.bot.pool.execute("""
+				DELETE FROM replies
+				WHERE reply_message = $1
+			""", message_id)
 
 		with contextlib.suppress(discord.HTTPException):
-			await message.delete()
+			await self.bot.http.delete_message(channel_id, reply_message)
 
 	async def on_raw_message_delete(self, payload):
 		"""Ensure that when a message containing emotes is deleted, the emote reply is, too."""
-		await self.delete_reply(payload.message_id)
+		await self.delete_reply(payload.channel_id, payload.message_id)
 
 	async def on_raw_bulk_message_delete(self, payload):
 		# TODO use bot.delete_messages
 		for message_id in payload.message_ids:
-			await self.delete_reply(message_id)
+			await self.delete_reply(payload.channel_id, message_id)
 
 def setup(bot):
 	bot.add_cog(Emotes(bot))

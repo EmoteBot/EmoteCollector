@@ -128,6 +128,15 @@ ALTER TABLE locales ADD CONSTRAINT locales_check CHECK (
 	OR channel IS NOT NULL
 	OR "user" IS NOT NULL);
 
+DO $$ BEGIN
+	IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'message_reply_type') THEN
+		CREATE TYPE message_reply_type AS ENUM ('AUTO', 'QUOTE'); END IF; END; $$;
+
+CREATE TABLE IF NOT EXISTS replies(
+	invoking_message BIGINT PRIMARY KEY,
+	type message_reply_type NOT NULL,
+	reply_message BIGINT NOT NULL);
+
 -- old stuff --
 
 DROP INDEX IF EXISTS emojis_id_key;

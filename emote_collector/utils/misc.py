@@ -48,30 +48,6 @@ class PrettyTable(PrettyTable):
 		for row in rows:
 			self.add_row(row)
 
-class LRUDict(collections.OrderedDict):
-	"""a dictionary with fixed size, sorted by last use"""
-
-	def __init__(self, size):
-		super().__init__()
-		self.size = size
-
-	def __getitem__(self, key):
-		result = super().__getitem__(key)
-		del self[key]
-		super().__setitem__(key, result)
-		return result
-
-	def __setitem__(self, key, value):
-		try:
-			# if an entry exists at key, make sure it's moved up
-			del self[key]
-		except KeyError:
-			# we only need to do this when adding a new key
-			if len(self) >= self.size:
-				self.popitem(last=False)
-
-		super().__setitem__(key, value)
-
 def bytes_to_int(x):
 	return int.from_bytes(x, byteorder='big')
 

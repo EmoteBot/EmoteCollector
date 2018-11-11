@@ -218,7 +218,6 @@ class EmoteCollector(commands.AutoShardedBot):
 			'emote_collector.extensions.meta',
 			'emote_collector.extensions.stats',
 			'emote_collector.extensions.meme',
-			'emote_collector.extensions.admin',
 			'ben_cogs.ie_jishaku',
 			'ben_cogs.misc',
 			'ben_cogs.debug',
