@@ -369,7 +369,7 @@ class Database:
 		return self._database_emote_cursor("""
 			SELECT *
 			FROM emotes
-			WHERE name % $1
+			WHERE similarity(name, $1) > 0.2
 			AND nsfw = ANY ($2)
 			ORDER BY similarity(name, $1) DESC, LOWER(name)
 			LIMIT 100
