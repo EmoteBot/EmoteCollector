@@ -205,9 +205,9 @@ class Meta:
 		try:
 			await context.author.send('https://discord.gg/' + self.bot.config['support_server']['invite_code'])
 		except discord.HTTPException:
-			await context.try_add_reaction('\N{cross mark}')
+			await context.try_add_reaction(utils.SUCCESS_EMOJIS[False])
 			with contextlib.suppress(discord.HTTPException):
-				await context.send('Unable to send invite in DMs. Please allow DMs from server members.')
+				await context.send(_('Unable to send invite in DMs. Please allow DMs from server members.'))
 		else:
 			await context.try_add_reaction('\N{open mailbox with raised flag}')
 
