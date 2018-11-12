@@ -385,14 +385,8 @@ class Database:
 		something that can be passed into postgres.
 		"""
 		if isinstance(allow_nsfw, (discord.DMChannel, discord.TextChannel)):
-			allow_nsfw = cls.channel_is_nsfw(allow_nsfw)
+			allow_nsfw = utils.channel_is_nsfw(allow_nsfw)
 		return ('SFW', 'SELF_NSFW', 'MOD_NSFW') if allow_nsfw else ('SFW',)
-
-	@staticmethod
-	def channel_is_nsfw(channel):
-		return (
-			not channel  # if not specified, allow NSFW
-			or getattr(channel, 'nsfw', True))  # otherwise, allow NSFW if DMs or the guild channel is NSFW
 
 	def decayable_emotes(self):
 		"""emotes that should be removed due to inactivity.

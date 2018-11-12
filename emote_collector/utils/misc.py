@@ -257,3 +257,8 @@ async def timeit(coro, _timer=time.perf_counter):
 def mangle(obj, attr):
 	cls = obj if isinstance(obj, type) else type(obj)
 	return '_' + cls.__name__.lstrip('_') + attr
+
+def channel_is_nsfw(channel):
+	return (
+		not channel  # if not specified, allow NSFW
+		or getattr(channel, 'nsfw', True))  # otherwise, allow NSFW if DMs or the guild channel is NSFW
