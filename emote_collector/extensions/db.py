@@ -258,7 +258,7 @@ class Database:
 	async def sql_fetchval_command(self, context, *, query):
 		"""Get a single value from a SQL query."""
 		elapsed, result = await utils.timeit(self.bot.pool.fetchval(query.strip('`')))
-		message = utils.codeblock(repr(result))
+		message = utils.codeblock(repr(result), lang='py')
 		await context.send(f'{message}*Retrieved in {elapsed:.2f} seconds.*')
 
 	## Informational
