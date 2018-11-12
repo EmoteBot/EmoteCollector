@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-11 02:45+0000\n"
+"POT-Creation-Date: 2018-11-12 02:51+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Capn#0001\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -53,7 +53,7 @@ msgstr "¡**No** lo compartas con nadie!"
 msgid "Error: I could not send you your token via DMs."
 msgstr "Error: No puedo enviarte tu clave en DMs."
 
-#: emote_collector/extensions/db.py:609
+#: emote_collector/extensions/db.py:603
 msgid ""
 "You may not set this emote as SFW because it was set NSFW by an emote "
 "moderator."
@@ -226,88 +226,107 @@ msgstr "Incapaz reaccionar. Discord esta travieso"
 msgid "OK! I've reacted to that message. Please add your reaction now."
 msgstr "¡Bueno! Reaccionaba a ese mensaje. Por favor añade tu reaccion ahora."
 
-#: emote_collector/extensions/emote.py:570
-#: emote_collector/extensions/emote.py:625
+#: emote_collector/extensions/emote.py:573
+#: emote_collector/extensions/emote.py:639
+msgid "No emotes have been created yet. Be the first!"
+msgstr "Cero emotes ha sido creado. ¡Sé el primero!"
+
+#: emote_collector/extensions/emote.py:574
+#: emote_collector/extensions/emote.py:640
 msgid "No emotes have been created yet, or all emotes are NSFW."
 msgstr ""
 
-#: emote_collector/extensions/emote.py:573
-#: emote_collector/extensions/emote.py:627
+#: emote_collector/extensions/emote.py:578
+#: emote_collector/extensions/emote.py:643
+msgid "You have not created any emotes yet."
+msgstr "Tu no has creado ninguna emotes."
+
+#: emote_collector/extensions/emote.py:579
+#: emote_collector/extensions/emote.py:644
 msgid "You have not created any emotes yet, or all your emotes are NSFW."
 msgstr ""
 
-#: emote_collector/extensions/emote.py:575
-#: emote_collector/extensions/emote.py:629
+#: emote_collector/extensions/emote.py:582
+#: emote_collector/extensions/emote.py:647
+msgid "That person has not created any emotes yet."
+msgstr "El no ha creado ninguna emotes."
+
+#: emote_collector/extensions/emote.py:584
+#: emote_collector/extensions/emote.py:648
 msgid ""
 "That person has not created any emotes yet, or all their emotes are NSFW."
 msgstr ""
 
-#: emote_collector/extensions/emote.py:582
+#: emote_collector/extensions/emote.py:591
 #, python-brace-format
 msgid "Also check out the list website at {website}."
 msgstr "Tambien comproba el sitio web de lista a {website}."
 
-#: emote_collector/extensions/emote.py:596
+#: emote_collector/extensions/emote.py:606
+msgid "No results matched your query."
+msgstr "Cero resultados emparejado tu consulta."
+
+#: emote_collector/extensions/emote.py:607
 msgid "No results matched your query, or your query only found NSFW emotes."
 msgstr ""
 
-#: emote_collector/extensions/emote.py:645
+#: emote_collector/extensions/emote.py:664
 msgid "Logger cog not loaded."
 msgstr "La rueda dentada de log no esta cargado."
 
-#: emote_collector/extensions/emote.py:650
+#: emote_collector/extensions/emote.py:669
 #: emote_collector/utils/converter.py:96
 msgid "Message not found."
 msgstr "Mensaje no encontrado."
 
-#: emote_collector/extensions/emote.py:655
+#: emote_collector/extensions/emote.py:674
 msgid "No embeds were found in that message."
 msgstr "Cero embedes fueron encontrados en ese mensaje."
 
-#: emote_collector/extensions/emote.py:662
+#: emote_collector/extensions/emote.py:681
 msgid "No description was found in that embed."
 msgstr "Cero descripción fueron encontrados en ese embed."
 
-#: emote_collector/extensions/emote.py:668
+#: emote_collector/extensions/emote.py:687
 msgid "No custom emotes were found in that embed's description."
 msgstr ""
 "Cero emtoes personalizido fueron encontrados en la descripción de ese embed."
 
-#: emote_collector/extensions/emote.py:675
+#: emote_collector/extensions/emote.py:694
 msgid "No author IDs were found in that embed."
 msgstr "Cero identificaciones de autoras fueron encontrados en ese embed."
 
-#: emote_collector/extensions/emote.py:691
+#: emote_collector/extensions/emote.py:710
 msgid "Opted in to the emote auto response."
 msgstr "Optado en a el repuesto automático de emotes."
 
-#: emote_collector/extensions/emote.py:693
+#: emote_collector/extensions/emote.py:712
 msgid "Opted out of the emote auto response."
 msgstr "Optado por salir de a el repuesto automático de emotes."
 
-#: emote_collector/extensions/emote.py:710
+#: emote_collector/extensions/emote.py:729
 msgid "Emote auto response is now opt-out for this server."
 msgstr ""
 "El repuesto automático de emotes es ahora optar por no en este servidor."
 
-#: emote_collector/extensions/emote.py:712
+#: emote_collector/extensions/emote.py:731
 msgid "Emote auto response is now opt-in for this server."
 msgstr "El repuesto automático de emotes es ahora optar en para este servidor."
 
-#: emote_collector/extensions/emote.py:727
+#: emote_collector/extensions/emote.py:746
 msgid "User un-blacklisted."
 msgstr "Usario eliminado de la lista negra"
 
-#: emote_collector/extensions/emote.py:729
+#: emote_collector/extensions/emote.py:748
 #, python-brace-format
 msgid "User blacklisted with reason \"{reason}\"."
 msgstr "Usario añadido a la lista negra con razón \"{reason}\"."
 
-#: emote_collector/extensions/emote.py:738
+#: emote_collector/extensions/emote.py:757
 msgid "**Succesfully preserved:**"
 msgstr "**Preservado exitosamente:**"
 
-#: emote_collector/extensions/emote.py:740
+#: emote_collector/extensions/emote.py:759
 msgid "**Succesfully un-preserved:**"
 msgstr "**Un-Preservado exitosamente:**"
 
@@ -649,15 +668,3 @@ msgstr ""
 "Esto significa que puedas tener multiples argumentos.\n"
 "Ahora que sabes lo básico, debes tener en cuenta que...\n"
 "__**¡No escribir a máquina los paréntesis!**__"
-
-#~ msgid "No emotes have been created yet. Be the first!"
-#~ msgstr "Cero emotes ha sido creado. ¡Sé el primero!"
-
-#~ msgid "You have not created any emotes yet."
-#~ msgstr "Tu no has creado ninguna emotes."
-
-#~ msgid "That person has not created any emotes yet."
-#~ msgstr "El no ha creado ninguna emotes."
-
-#~ msgid "No results matched your query."
-#~ msgstr "Cero resultados emparejado tu consulta."
