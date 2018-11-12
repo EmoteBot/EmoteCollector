@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-12 02:51+0000\n"
+"POT-Creation-Date: 2018-11-12 02:52+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Capn#0001\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -352,6 +352,7 @@ msgid "Invite to the server that has {emote}: {invite.url}"
 msgstr "El invitación a el servidor que tiene {emote}: {invite.url}"
 
 #: emote_collector/extensions/gimme.py:37
+#: emote_collector/extensions/meta.py:210
 msgid "Unable to send invite in DMs. Please allow DMs from server members."
 msgstr ""
 "No puedo enviar el invitación en DMs. Por favor permite DMs de miembros "

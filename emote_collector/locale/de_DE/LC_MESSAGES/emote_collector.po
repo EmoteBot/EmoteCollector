@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-12 02:51+0000\n"
+"POT-Creation-Date: 2018-11-12 02:52+0000\n"
 "PO-Revision-Date: 2018-10-31 12:03+0100\n"
 "Last-Translator: Adrian#1337\n"
 "Language-Team: \n"
@@ -362,6 +362,7 @@ msgid "Invite to the server that has {emote}: {invite.url}"
 msgstr "Auf den Server mit {emote} einladen: {invite.url}"
 
 #: emote_collector/extensions/gimme.py:37
+#: emote_collector/extensions/meta.py:210
 msgid "Unable to send invite in DMs. Please allow DMs from server members."
 msgstr ""
 "Einladung konnte nicht in direkte Nachrichten gesendet werden. Bitte "

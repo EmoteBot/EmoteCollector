@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-12 02:51+0000\n"
+"POT-Creation-Date: 2018-11-12 02:52+0000\n"
 "PO-Revision-Date: 2018-08-13 17:05-0500\n"
 "Last-Translator: diniboy <diniboy@protonmail.com>\n"
 "Language-Team: Hungarian\n"
@@ -352,6 +352,7 @@ msgid "Invite to the server that has {emote}: {invite.url}"
 msgstr "Meghívó a szerverhez, ahol a {emote} megtalálható: {invite.url}"
 
 #: emote_collector/extensions/gimme.py:37
+#: emote_collector/extensions/meta.py:210
 msgid "Unable to send invite in DMs. Please allow DMs from server members."
 msgstr ""
 "Sikertelen a meghívó elküldése privát üzenetben. Kérlek engedélyezd a "

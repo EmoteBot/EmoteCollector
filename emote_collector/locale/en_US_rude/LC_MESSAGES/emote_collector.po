@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-12 02:51+0000\n"
+"POT-Creation-Date: 2018-11-12 02:52+0000\n"
 "PO-Revision-Date: 2018-10-29 22:20+0000\n"
 "Last-Translator: Weblate Admin <bmintz@protonmail.com>\n"
 "Language-Team: English (United States) <http://example.com/weblate/projects/"
@@ -355,6 +355,7 @@ msgstr ""
 "I swear to god if you send hentai in that server I will blow your brains out."
 
 #: emote_collector/extensions/gimme.py:37
+#: emote_collector/extensions/meta.py:210
 msgid "Unable to send invite in DMs. Please allow DMs from server members."
 msgstr "Hey dumbass! Allow DMs from server members!"
 

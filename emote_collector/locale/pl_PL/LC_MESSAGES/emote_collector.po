@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-12 02:51+0000\n"
+"POT-Creation-Date: 2018-11-12 02:52+0000\n"
 "PO-Revision-Date: 2018-11-01 18:52+0100\n"
 "Last-Translator: @!CsSkrouble <3#2681 (ID: 397074329688342539)>\n"
 "Language-Team: \n"
@@ -353,6 +353,7 @@ msgid "Invite to the server that has {emote}: {invite.url}"
 msgstr "Zaproszenie do tego serwera posiada {emote}: {invite.url}"
 
 #: emote_collector/extensions/gimme.py:37
+#: emote_collector/extensions/meta.py:210
 msgid "Unable to send invite in DMs. Please allow DMs from server members."
 msgstr ""
 "Niezdolny do wysłania zaproszenia w wiadomości na Discordzie. Prosze "
