@@ -90,9 +90,13 @@ class Database:
 		self._process_decay_config()
 		self._process_support_server_config()
 
-		self.tasks = []
-		for meth in self.find_backend_guilds, self.update_emote_guilds, self.update_moderator_list, self.decay_loop:
-			self.tasks.append(self.bot.loop.create_task(meth()))
+		self.tasks = [
+			self.bot.loop.create_task(meth())
+			for meth in (
+				self.find_backend_guilds,
+				self.update_emote_guilds,
+				self.update_moderator_list,
+				self.decay_loop)]
 
 		self.logger = self.bot.get_cog('Logger')
 
@@ -393,7 +397,7 @@ class Database:
 		else, return the argument.
 
 		This is mostly useful for database functions which take in either a bool or channel and need to convert to
-		something that can be passed into postgres.
+		something that can be passed into a SQL WHERE clause.
 		"""
 		if isinstance(allow_nsfw, (discord.DMChannel, discord.TextChannel)):
 			allow_nsfw = utils.channel_is_nsfw(allow_nsfw)
@@ -413,6 +417,8 @@ class Database:
 		cutoff_time = datetime.datetime.utcnow() - self.bot.config['decay']['cutoff']['time']
 		usage_threshold = self.bot.config['decay']['cutoff']['usage']
 
+		# don't touch this query please
+		# i don't really understand it and it took a few DAYS to get right
 		return self._database_emote_cursor("""
 			SELECT e.*, COUNT(euh.id) AS usage
 			FROM emotes AS e

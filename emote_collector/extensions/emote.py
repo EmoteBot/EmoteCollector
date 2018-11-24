@@ -553,23 +553,8 @@ class Emotes:
 			emote.status(linked=True)
 			async for emote in self.db.all_emotes(*args, allow_nsfw=context.channel)]
 
-		nsfw = utils.channel_is_nsfw(context.channel)
-
 		if not processed:
-			if not user:
-				if nsfw:
-					return await context.send(_('No emotes have been created yet. Be the first!'))
-				return await context.send(_('No emotes have been created yet, or all emotes are NSFW.'))
-
-			if user == context.author:
-				if nsfw:
-					return await context.send(_('You have not created any emotes yet.'))
-				return await context.send(_('You have not created any emotes yet, or all your emotes are NSFW.'))
-
-			if nsfw:
-				return await context.send(_('That person has not created any emotes yet.'))
-			return await context.send(
-				_('That person has not created any emotes yet, or all their emotes are NSFW.'))
+			return await context.send(self.no_emotes_found_error(context, user))
 
 		paginator = Pages(context, entries=processed)
 		self.paginators.add(paginator)
@@ -619,25 +604,34 @@ class Emotes:
 				f'{emote.with_linked_name()} '
 				f'— used {c} time{multiple}')
 
-		nsfw = utils.channel_is_nsfw(context.channel)
-
 		if not processed:
-			if not user:
-				if nsfw:
-					return await context.send(_('No emotes have been created yet. Be the first!'))
-				return await context.send(_('No emotes have been created yet, or all emotes are NSFW.'))
-			if user == context.author:
-				if nsfw:
-					return await context.send(_('You have not created any emotes yet.'))
-				return await context.send(_('You have not created any emotes yet, or all your emotes are NSFW.'))
-
-			if nsfw:
-				return await context.send(_('That person has not created any emotes yet.'))
-			return await context.send(_('That person has not created any emotes yet, or all their emotes are NSFW.'))
+			return await context.send(self.no_emotes_found_error(context, user))
 
 		paginator = Pages(context, entries=processed)
 		self.paginators.add(paginator)
 		await paginator.begin()
+
+	@staticmethod
+	def no_emotes_found_error(context, user):
+		nsfw = utils.channel_is_nsfw(context.channel)
+
+		# we use else after return because there's three of these and it's easier to read that way
+		if not user:
+			if nsfw:
+				return _('No emotes have been created yet. Be the first!')
+			else:
+				return _('No emotes have been created yet, or all emotes are NSFW.')
+
+		if user == context.author:
+			if nsfw:
+				return _('You have not created any emotes yet.')
+			else:
+				return _('You have not created any emotes yet, or all your emotes are NSFW.')
+
+		if nsfw:  # another person, sfw
+			return _('That person has not created any emotes yet.')
+		else:  # another person, nsfw
+			return _('That person has not created any emotes yet, or all their emotes are NSFW.')
 
 	@commands.command()
 	async def recover(self, context, message_id: Snowflake):
@@ -649,6 +643,8 @@ class Emotes:
 		try:
 			channel = self.bot.get_cog('Logger').channel
 		except AttributeError:
+			# Translator's note: this message is pretty rare, so don't worry if it's hard to translate "cog"
+			# to your language.
 			return await context.send(_('Logger cog not loaded.'))
 
 		try:
