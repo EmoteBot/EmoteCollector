@@ -65,7 +65,7 @@ class Emotes:
 		embed = discord.Embed()
 		embed.url = emote.url
 
-		embed.title = self.emote_status(emote)
+		embed.title = emote.status()
 
 		if emote.description is not None:
 			embed.description = emote.description
@@ -93,18 +93,6 @@ class Emotes:
 		embed.add_field(name='Usage count', value=await self.db.get_emote_usage(emote))
 
 		await context.send(embed=embed)
-
-	@staticmethod
-	def emote_status(emote, *, linked=False):
-		formatted = emote.with_linked_name() if linked else emote.with_name()
-
-		if emote.preserve and emote.is_nsfw:
-			return _('{emote} (Preserved, NSFW)').format(emote=formatted)
-		if emote.preserve and not emote.is_nsfw:
-			return _('{emote} (Preserved)').format(emote=formatted)
-		if not emote.preserve and emote.is_nsfw:
-			return _('{emote} (NSFW)').format(emote=formatted)
-		return formatted
 
 	@commands.command()
 	@checks.not_blacklisted()
@@ -562,7 +550,7 @@ class Emotes:
 			args.append(user.id)
 
 		processed = [
-			self.emote_status(emote, linked=True)
+			emote.status(linked=True)
 			async for emote in self.db.all_emotes(*args, allow_nsfw=context.channel)]
 
 		nsfw = utils.channel_is_nsfw(context.channel)
@@ -598,7 +586,7 @@ class Emotes:
 		"""Search for emotes whose name contains "query"."""
 
 		processed = [
-			emote.with_linked_name()
+			emote.status(linked=True)
 			async for emote in self.db.search(query, allow_nsfw=context.channel)]
 
 		if not processed:

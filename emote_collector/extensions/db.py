@@ -65,6 +65,17 @@ class DatabaseEmote:
 		"""return this emote as a string suitable for displaying in a list form or embed"""
 		return f'{self} {separator} [{self.escaped_name()}]({self.url})'
 
+	def status(self, *, linked=False):
+		formatted = self.with_linked_name() if linked else self.with_name()
+
+		if self.preserve and self.is_nsfw:
+			return _('{emote} (Preserved, NSFW)').format(emote=formatted)
+		if self.preserve and not self.is_nsfw:
+			return _('{emote} (Preserved)').format(emote=formatted)
+		if not self.preserve and self.is_nsfw:
+			return _('{emote} (NSFW)').format(emote=formatted)
+		return formatted
+
 	@property
 	def url(self):
 		return utils.emote.url(self.id, animated=self.animated)
