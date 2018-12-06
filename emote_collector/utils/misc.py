@@ -229,23 +229,17 @@ def clean_content(bot, message, content, *, fix_channel_mentions=False, use_nick
 	# Completely ensure no mentions escape:
 	return re.sub(r'@(everyone|here|[!&]?[0-9]{17,21})', '@\u200b\\1', result)
 
-def asyncexecutor(*, timeout=None, loop=None, executor=None):
-	"""decorator that turns a synchronous function into an async one
-
-	Created by @Arqm#9302 (ID 325012556940836864). XXX Unknown license
-	"""
+def asyncexecutor(*, timeout=None):
+	"""decorator that turns a synchronous function into an async one"""
 	def decorator(func):
 		@functools.wraps(func)
-		def wrapper(*args, **kwargs):
-			nonlocal loop  # have to do this to fix the `loop = loop or` UnboundLocalError
+		def decorated(*args, **kwargs):
+			f = functools.partial(func, *args, **kwargs)
 
-			partial = functools.partial(func, *args, **kwargs)
-			loop = loop or asyncio.get_event_loop()
-
-			coro = loop.run_in_executor(executor, partial)
-			# don't need to check if timeout is None since wait_for will just "block" in that case anyway
+			loop = asyncio.get_event_loop()
+			coro = loop.run_in_executor(None, f)
 			return asyncio.wait_for(coro, timeout=timeout, loop=loop)
-		return wrapper
+		return decorated
 	return decorator
 
 async def timeit(coro, _timer=time.perf_counter):
