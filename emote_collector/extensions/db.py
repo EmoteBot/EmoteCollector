@@ -260,21 +260,29 @@ class Database:
 	async def sql_execute_command(self, context, *, query):
 		"""Execute a SQL query."""
 		elapsed, result = await utils.timeit(self.bot.pool.execute(query.strip('`')))
-		await context.send(f'`{result}`\n*Executed in {elapsed:.2f} seconds.*')
+		elapsed = round(elapsed * 1000, 2)
+
+		await context.send(f'`{result}`\n*Executed in {elapsed}ms.*')
 
 	@sql_command.command(name='fetch', aliases=['f'])
 	async def sql_fetch_command(self, context, *, query):
-		"""Gets the rows of a SQL query."""
+		"""Get the rows of a SQL query."""
 		elapsed, results = await utils.timeit(self.bot.pool.fetch(query.strip('`')))
+		elapsed = round(elapsed * 1000, 2)
+
 		message = utils.codeblock(str(utils.PrettyTable(results)))
-		await context.send(f'{message}*{len(results)} rows retrieved in {elapsed:.2f} seconds.*')
+		await context.send(f'{message}\n*{len(results)} rows retrieved in {elapsed}ms.*')
 
 	@sql_command.command(name='fetchval', aliases=['fv'])
 	async def sql_fetchval_command(self, context, *, query):
 		"""Get a single value from a SQL query."""
 		elapsed, result = await utils.timeit(self.bot.pool.fetchval(query.strip('`')))
-		message = utils.codeblock(repr(result), lang='py')
-		await context.send(f'{message}*Retrieved in {elapsed:.2f} seconds.*')
+		elapsed = round(elapsed * 1000, 2)
+
+		# fetchval returns a native python result
+		# so its repr is probably python code
+		message = utils.codeblock(repr(result), lang='python')
+		await context.send(f'{message}\n*Retrieved in {elapsed}ms.*')
 
 	## Informational
 
