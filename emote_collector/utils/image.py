@@ -7,7 +7,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 try:
-	from wand.image import Image
+	import wand.image
 except ImportError:
 	logger.warn('Failed to import wand.image. Image manipulation functions will be unavailable.')
 
