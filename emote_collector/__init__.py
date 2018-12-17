@@ -218,7 +218,7 @@ class EmoteCollector(commands.AutoShardedBot):
 			'emote_collector.extensions.meta',
 			'emote_collector.extensions.stats',
 			'emote_collector.extensions.meme',
-			'ben_cogs.ie_jishaku',
+			'jishaku',
 			'ben_cogs.misc',
 			'ben_cogs.debug',
 		):
