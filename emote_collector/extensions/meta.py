@@ -177,7 +177,7 @@ class Meta:
 
 		embed.add_field(name='Servers', value=await self.bot.get_cog('Stats').guild_count())
 
-		debug_cog = self.bot.get_cog('Debug')
+		debug_cog = self.bot.get_cog('BenCogsDebug')
 		cpu_usage = self.process.cpu_percent() / psutil.cpu_count()
 		embed.add_field(name='Process', value=f'{debug_cog.memory_usage()}\n{cpu_usage:.2f}% CPU')
 
