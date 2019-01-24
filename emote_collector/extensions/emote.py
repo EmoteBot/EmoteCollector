@@ -105,7 +105,7 @@ class Emotes:
 			'Animated emotes: **{animated} ⁄ {animated_cap}**\n'
 			'**Total: {total} ⁄ {total_cap}**').format(**locals()))
 
-	@commands.command()
+	@commands.command(aliases=['embiggen'])
 	@checks.not_blacklisted()
 	async def big(self, context, emote: DatabaseEmoteConverter()):
 		"""Shows the original image for the given emote."""
@@ -260,12 +260,24 @@ class Emotes:
 
 		animated = image_utils.is_animated(image_data.getvalue())
 
-		try:
-			image_data = await image_utils.resize_until_small(image_data)
-		except asyncio.TimeoutError:
-			raise errors.ImageResizeTimeoutError
+		proc = await asyncio.create_subprocess_exec(
+			(sys.executable, '-m', 'emote_collector.utils.image'),
+			stdin=image_data,
+			stdout=subprocess.PIPE,
+			stderr=subprocess.PIPE)
 
-		emote = await self.db.create_emote(name, author_id, animated, image_data.read())
+		try:
+			image_data, err = await asyncio.wait_for(proc.communicate(), timeout=30)
+		except asyncio.TimeoutError:
+			proc.kill()
+			raise errors.ImageResizeTimeoutError
+		else:
+			if proc.returncode == 1:
+				raise errors.InvalidImageError
+			elif proc.returncode != 0:
+				raise ConnoisseurError
+
+		emote = await self.db.create_emote(name, author_id, animated, image_data)
 		self.bot.dispatch('emote_add', emote)
 		return emote
 

@@ -1,8 +1,12 @@
+#!/usr/bin/env python3
+# encoding: utf-8
+
 import contextlib
 import imghdr
 import itertools
 import io
 import logging
+import typing
 
 logger = logging.getLogger(__name__)
 
@@ -10,12 +14,12 @@ try:
 	import wand.image
 except ImportError:
 	logger.warn('Failed to import wand.image. Image manipulation functions will be unavailable.')
+else:
+	import wand.exceptions
 
-from . import asyncexecutor
 from . import errors
 from . import size
 
-@asyncexecutor(timeout=30)
 def resize_until_small(image_data: io.BytesIO) -> io.BytesIO:
 	"""If the image_data is bigger than 256KB, resize it until it's not.
 
@@ -33,7 +37,7 @@ def resize_until_small(image_data: io.BytesIO) -> io.BytesIO:
 
 		try:
 			image_data = thumbnail(image_data, (max_resolution, max_resolution))
-		except wand.CoderError:
+		except wand.exceptions.CoderError:
 			raise InvalidImageError
 
 		image_size = size(image_data)
@@ -85,3 +89,31 @@ def is_animated(image_data: bytes):
 		return False
 	else:
 		raise errors.InvalidImageError
+
+def main() -> typing.NoReturn:
+	"""called in a subprocess so that threads properly die on timeout"""
+	import sys
+
+	input = sys.stdin.buffer
+	try:
+		output = resize_until_small(input)
+	except InvalidImageError:
+		sys.exit(1)
+	except BaseException:
+		import traceback
+		traceback.print_exc()
+		sys.exit(2)
+
+	stdout_write = sys.stdout.buffer.write  # getattr optimization
+
+	while True:
+		buf = output.read(16 * 1024)
+		if not buf:
+			break
+
+		stdout_write(buf)
+
+	sys.exit(0)
+
+if __name__ == '__main__':
+	main()
