@@ -272,19 +272,13 @@ class Emotes:
 			image_data, err = await asyncio.wait_for(proc.communicate(image_data.read()), timeout=30)
 		except asyncio.TimeoutError:
 			proc.kill()
-			print(3)
 			raise errors.ImageResizeTimeoutError
 		else:
 			if proc.returncode == 1:
-				print(1)
-				print(err.decode('utf-8'))
 				raise errors.InvalidImageError
 			elif proc.returncode != 0:
-				print(-1, proc.returncode)
-				print(err.decode('utf-8'))
-				raise errors.ConnoisseurError
+				raise errors.ConnoisseurError(err.decode('utf-8'))
 
-		print(0)
 		emote = await self.db.create_emote(name, author_id, animated, image_data)
 		self.bot.dispatch('emote_add', emote)
 		return emote
