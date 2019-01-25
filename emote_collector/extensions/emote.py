@@ -9,6 +9,7 @@ import getopt
 import io
 import logging
 import re
+import sys
 import traceback
 import weakref
 
@@ -261,22 +262,29 @@ class Emotes:
 		animated = image_utils.is_animated(image_data.getvalue())
 
 		proc = await asyncio.create_subprocess_exec(
-			(sys.executable, '-m', 'emote_collector.utils.image'),
-			stdin=image_data,
-			stdout=subprocess.PIPE,
-			stderr=subprocess.PIPE)
+			sys.executable, '-m', 'emote_collector.utils.image',
+
+			stdin=asyncio.subprocess.PIPE,
+			stdout=asyncio.subprocess.PIPE,
+			stderr=asyncio.subprocess.PIPE)
 
 		try:
-			image_data, err = await asyncio.wait_for(proc.communicate(), timeout=30)
+			image_data, err = await asyncio.wait_for(proc.communicate(image_data.read()), timeout=30)
 		except asyncio.TimeoutError:
 			proc.kill()
+			print(3)
 			raise errors.ImageResizeTimeoutError
 		else:
 			if proc.returncode == 1:
+				print(1)
+				print(err.decode('utf-8'))
 				raise errors.InvalidImageError
 			elif proc.returncode != 0:
-				raise ConnoisseurError
+				print(-1, proc.returncode)
+				print(err.decode('utf-8'))
+				raise errors.ConnoisseurError
 
+		print(0)
 		emote = await self.db.create_emote(name, author_id, animated, image_data)
 		self.bot.dispatch('emote_add', emote)
 		return emote

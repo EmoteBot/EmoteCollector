@@ -38,7 +38,7 @@ def resize_until_small(image_data: io.BytesIO) -> io.BytesIO:
 		try:
 			image_data = thumbnail(image_data, (max_resolution, max_resolution))
 		except wand.exceptions.CoderError:
-			raise InvalidImageError
+			raise errors.InvalidImageError
 
 		image_size = size(image_data)
 		max_resolution //= 2
@@ -94,10 +94,10 @@ def main() -> typing.NoReturn:
 	"""called in a subprocess so that threads properly die on timeout"""
 	import sys
 
-	input = sys.stdin.buffer
+	input = io.BytesIO(sys.stdin.buffer.read())
 	try:
 		output = resize_until_small(input)
-	except InvalidImageError:
+	except errors.InvalidImageError:
 		sys.exit(1)
 	except BaseException:
 		import traceback
