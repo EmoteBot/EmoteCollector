@@ -773,7 +773,11 @@ class Emotes:
 		if not has_emotes:
 			return
 
-		reply = await message.channel.send(reply)
+		try:
+			reply = await message.channel.send(reply)
+		except discord.HTTPException:
+			return
+
 		await self.bot.pool.execute("""
 			INSERT INTO replies (invoking_message, type, reply_message)
 			VALUES ($1, 'AUTO', $2)
