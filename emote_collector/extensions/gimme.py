@@ -15,6 +15,7 @@ class Gimme:
 
 	def __init__(self, bot):
 		self.bot = bot
+		self.db_cog = self.bot.get_cog('Database')
 
 	@commands.command()
 	async def gimme(self, context, emote: DatabaseEmoteConverter(check_nsfw=False)):
@@ -45,8 +46,9 @@ class Gimme:
 			with contextlib.suppress(discord.HTTPException):
 				await message.delete()
 
-	async def on_backend_guild_enumeration(self, guilds):
-		self.guilds = guilds
+	async def _init(self):
+		await self.db_cog.have_guilds.wait()
+		self.guilds = self.db_cog.guilds
 		await self.delete_backend_guild_messages()
 
 	async def delete_backend_guild_messages(self):

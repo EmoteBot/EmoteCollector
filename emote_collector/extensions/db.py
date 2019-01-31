@@ -105,6 +105,9 @@ class Database:
 
 		self.logger = self.bot.get_cog('Logger')
 
+		self.guilds = set()
+		self.have_guilds = asyncio.Event()
+
 	def _process_decay_config(self):
 		# example: {'enabled': True, 'cutoff': {'time': datetime.timedelta(...), 'usage': 3}}
 		decay_settings = self.bot.config.get('decay', False)
@@ -132,27 +135,28 @@ class Database:
 	async def find_backend_guilds(self):
 		"""Find all the guilds used to store emotes"""
 
-		if getattr(self, 'guilds', None):
+		if self.have_guilds.is_set():
 			return
 
 		await self.bot.wait_until_ready()
 
-		guilds = {
-			guild
-			for guild in self.bot.guilds
-			if guild.name.startswith(('EmojiBackend', 'EmoteBackend')) and await self.bot.is_owner(guild.owner)}
+		guilds = {guild for guild in self.bot.guilds if await self.is_backend_guild(guild)}
 
-		self.guilds = guilds
+		self.guilds.update(guilds)
+		self.have_guilds.set()
 		await self.bot.pool.executemany("""
 			INSERT INTO _guilds
 			VALUES ($1)
 			ON CONFLICT (id) DO NOTHING
-		""", map(lambda x: (x.id,), guilds))
+		""", map(lambda x: (x.id,), self.guilds))
 
 		logger.info('In %s backend guilds.', len(self.guilds))
 
 		# allow other cogs that depend on the list of backend guilds to know when they've been found
 		self.bot.dispatch('backend_guild_enumeration', self.guilds)
+
+	async def is_backend_guild(self, guild):
+		return guild.name.startswith(('EmojiBackend', 'EmoteBackend')) and await self.bot.is_owner(guild.owner)
 
 	async def update_emote_guilds(self):
 		"""update the guild column in the emotes table
@@ -224,10 +228,15 @@ class Database:
 
 	## Events
 
-	async def on_guild_leave(self, guild):
+	async def on_guild_remove(self, guild):
 		await self.bot.pool.execute('DELETE FROM _guilds WHERE id = $1', guild.id)
 		with contextlib.suppress(AttributeError):
 			self.guilds.discard(guild)
+
+	async def on_guild_join(self, guild):
+		if await self.is_backend_guild(guild):
+			await self.bot.pool.execute('INSERT INTO _guilds (id) VALUES $1 ON CONFLICT DO NOTHING', guild.id)
+			self.guilds.add(guild)
 
 	async def on_member_update(self, before, after):
 		if before.guild.id != self.bot.config['support_server'].get('id') or after.bot:
@@ -243,7 +252,7 @@ class Database:
 		elif mod_role not in before.roles and mod_role in after.roles:
 			self.moderators.add(after)
 			await self.bot.pool.execute("""
-				INSERT INTO moderators
+				INSERT INTO moderators (id)
 				VALUES ($1)
 				ON CONFLICT (id) DO NOTHING
 			""", after.id)
