@@ -4,6 +4,7 @@
 import asyncio
 import contextlib
 import datetime
+import enum
 import logging
 import random
 import re
@@ -18,6 +19,10 @@ from .. import utils
 from ..utils import errors
 
 logger = logging.getLogger(__name__)
+
+class MessageReplyType(enum.Enum):
+	auto = 'AUTO'
+	quote = 'QUOTE'
 
 class DatabaseEmote:
 	__slots__ = frozenset((
@@ -345,6 +350,19 @@ class Database:
 			  AND time > $2
 		""", emote.id, cutoff_time)
 
+	async def get_reply_message(self, invoking_message):
+		"""return a tuple of message_type, reply_message_id for the given invoking message ID
+		or None, None if not found"""
+		row = await self.bot.pool.fetchrow("""
+			SELECT type, reply_message
+			FROM replies
+			WHERE invoking_message = $1
+		""", invoking_message)
+		if row is None:
+			return None, None
+
+		return MessageReplyType(row['type']), row['reply_message']
+
 	## Iterators
 
 	# if a channel, acts based on whether the channel is NSFW
@@ -665,6 +683,32 @@ class Database:
 				logger.error('decaying %s failed due to %s', emote.name, ex)
 				with contextlib.suppress(AttributeError):
 					await removal_message.delete()
+
+	def add_reply_message(self, invoking_message, reply_type: MessageReplyType, reply_message):
+		"""add a record to indicate that the message with ID invoking_message is a reply_type message and that
+		the bot replied with message ID reply_message
+		"""
+		return self.bot.pool.execute("""
+			INSERT INTO replies (invoking_message, type, reply_message)
+			VALUES ($1, $2, $3)
+		""", invoking_message, reply_type.value, reply_message)
+
+	def delete_reply_by_invoking_message(self, invoking_message):
+		"""remove and return one reply message ID for the given invoking message ID
+		return None if no reply message was found.
+		"""
+		return self.bot.pool.fetchval("""
+			DELETE FROM replies
+			WHERE invoking_message = $1
+			RETURNING reply_message
+		""", invoking_message)
+
+	def delete_reply_by_reply_message(self, reply_message):
+		"""remove one reply message entry for the given reply message ID"""
+		return self.bot.pool.execute("""
+			DELETE FROM replies
+			WHERE reply_message = $1
+		""", reply_message)
 
 	## User / Guild Options
 

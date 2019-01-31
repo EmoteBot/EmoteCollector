@@ -17,6 +17,7 @@ import asyncpg
 import discord
 from discord.ext import commands
 
+from .db import MessageReplyType
 from .. import utils
 from ..utils import image as image_utils
 from ..utils import checks
@@ -133,10 +134,7 @@ class Emotes:
 
 		reply = await context.send(message)
 		if should_track_reply:
-			await self.bot.pool.execute("""
-				INSERT INTO replies (invoking_message, type, reply_message)
-				VALUES ($1, 'QUOTE', $2)
-			""", context.message.id, reply.id)
+			await self.db.add_reply_message(context.message.id, MessageReplyType.quote, reply.id)
 
 	@commands.command(aliases=['create'], usage='[name] <image URL or custom emote>')
 	@checks.not_blacklisted()
@@ -778,10 +776,7 @@ class Emotes:
 		except discord.HTTPException:
 			return
 
-		await self.bot.pool.execute("""
-			INSERT INTO replies (invoking_message, type, reply_message)
-			VALUES ($1, 'AUTO', $2)
-		""", message.id, reply.id)
+		await self.db.add_reply_message(message.id, MessageReplyType.auto, reply.id)
 
 	async def _should_auto_reply(self, message: discord.Message):
 		"""return whether the bot should send an emote auto response to message"""
@@ -816,14 +811,11 @@ class Emotes:
 		if 'content' not in payload.data:
 			return
 
-		reply = await self.bot.pool.fetchrow("""
-			SELECT type, reply_message
-			FROM replies
-			WHERE invoking_message = $1
-		""", payload.message_id)
-		if not reply:
-			return
+		reply = await self.db.get_reply_message(payload.message_id)
 		type, reply_message_id = reply
+
+		if reply_message_id is None:
+			return
 
 		channel_id = int(payload.data['channel_id'])
 		message = discord.Message(
@@ -832,8 +824,8 @@ class Emotes:
 			data=payload.data)
 
 		handlers = {
-			'AUTO': self._handle_extracted_edit,
-			'QUOTE': self._handle_quoted_edit}
+			MessageReplyType.auto: self._handle_extracted_edit,
+			MessageReplyType.quote: self._handle_quoted_edit}
 
 		await handlers[type](message, reply_message_id)
 
@@ -949,17 +941,11 @@ class Emotes:
 
 	async def delete_reply(self, channel_id, message_id):
 		"""Delete our reply to a message containing emotes."""
-		reply_message = await self.bot.pool.fetchval("""
-			DELETE FROM replies
-			WHERE invoking_message = $1
-			RETURNING reply_message
-		""", message_id)
+		reply_message = await self.db.delete_reply_by_invoking_message(message_id)
 		if not reply_message:
 			# if there's no reply, it's possible that our reply itself was deleted directly
-			return await self.bot.pool.execute("""
-				DELETE FROM replies
-				WHERE reply_message = $1
-			""", message_id)
+			await self.db.delete_reply_by_reply_message(message_id)
+			return
 
 		with contextlib.suppress(discord.HTTPException):
 			await self.bot.http.delete_message(channel_id, reply_message)
