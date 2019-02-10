@@ -7,14 +7,17 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-04-26 22:00+0000\n"
-"PO-Revision-Date: 2018-11-03 22:34+0000\n"
-"Last-Translator: Benjamin Mintz <bmintz@protonmail.com>\n"
-"Language-Team: Language 😃\n"
+"POT-Creation-Date: 2018-11-12 02:52+0000\n"
+"PO-Revision-Date: 2019-02-11 08:09+0000\n"
+"Last-Translator: Liam H. <dudeicorn@gmail.com>\n"
+"Language-Team: 😃 (generated) <https://hosted.weblate.org/projects/"
+"emote-collector/bot/%F0%9F%98%83/>\n"
 "Language: 😃\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 3.5-dev\n"
 
 #: emote_collector/__init__.py:123
 msgid "This command cannot be used in private messages."
@@ -133,7 +136,7 @@ msgstr "➕{emote}👌"
 
 #: emote_collector/extensions/emote.py:319
 msgid "Error: only emote moderators may forcibly remove emotes."
-msgstr ""
+msgstr "❌  👮✅ 🙍❌"
 
 #: emote_collector/extensions/emote.py:328
 msgid "Error: you must provide the name of at least one emote to remove"
