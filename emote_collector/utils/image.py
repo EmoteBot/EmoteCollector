@@ -50,8 +50,6 @@ def thumbnail(image_data: io.BytesIO, max_size=(128, 128)) -> io.BytesIO:
 
 	Return the new image.
 	"""
-	# Credit to @Liara#0001 (ID 136900814408122368)
-	# https://gitlab.com/Pandentia/element-zero/blob/47bc8eeeecc7d353ec66e1ef5235adab98ca9635/element_zero/cogs/emoji.py#L243-247
 	with wand.image.Image(blob=image_data) as image:
 		new_resolution = scale_resolution((image.width, image.height), max_size)
 		image.resize(*new_resolution)
