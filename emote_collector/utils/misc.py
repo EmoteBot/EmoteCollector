@@ -19,6 +19,7 @@ import discord
 from discord.ext import commands
 from prettytable import PrettyTable
 
+from . import errors
 
 """miscellaneous utility functions and constants"""
 
@@ -61,8 +62,12 @@ def codeblock(message, *, lang=''):
 
 async def get_message_by_offset(channel, index: int) -> discord.Message:
 	"""Gets channel[-index]. For instance get_message(channel, -2) == second to last message.
-	Requires channel history permissions"""
-	return await channel.history(limit=-index, reverse=True).next()
+	Requires channel history permissions
+	"""
+	try:
+		return await channel.history(limit=-index, reverse=True).next()
+	except discord.NoMoreItems:
+		raise commands.BadArgument(_('Message not found.'))
 
 def fix_first_line(message: str) -> str:
 	"""In compact mode, prevent the first line from being misaligned because of the bot's username"""
