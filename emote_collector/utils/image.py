@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # encoding: utf-8
 
+import base64
 import contextlib
 import imghdr
 import itertools
@@ -82,16 +83,34 @@ def scale_resolution(old_res, new_res):
 
 def is_animated(image_data: bytes):
 	"""Return whether the image data is animated, or raise InvalidImageError if it's not an image."""
-	type = imghdr.what(None, image_data)
-	if type == 'gif':
+	type = mime_type_for_image(image_data)
+	if type == 'image/gif':
 		return True
-	elif type in {'png', 'jpeg'}:
+	elif type in {'image/png', 'image/jpeg'}:
 		return False
 	else:
 		raise errors.InvalidImageError
 
+def mime_type_for_image(data):
+	if data.startswith(b'\x89PNG\r\n\x1a\n'):
+		return 'image/png'
+	elif data.startswith(b'\xFF\xD8') and data.rstrip(b'\0').endswith(b'\xFF\xD9'):
+		return 'image/jpeg'
+	elif data.startswith((b'GIF87a', b'GIF89a')):
+		return 'image/gif'
+	elif data.startswith(b'RIFF') and data[8:12] == b'WEBP':
+		return 'image/webp'
+	else:
+		raise errors.InvalidImageError
+
+def image_to_base64_url(data):
+	fmt = 'data:{mime};base64,{data}'
+	mime = mime_type_for_image(data)
+	b64 = base64.b64encode(data).decode('ascii')
+	return fmt.format(mime=mime, data=b64)
+
 def main() -> typing.NoReturn:
-	"""called in a subprocess so that threads properly die on timeout"""
+	"""resize an image from stdin and write the resized version to stdout."""
 	import sys
 
 	input = io.BytesIO(sys.stdin.buffer.read())

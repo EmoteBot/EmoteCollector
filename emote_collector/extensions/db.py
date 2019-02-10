@@ -17,6 +17,7 @@ from discord.ext import commands
 
 from .. import utils
 from ..utils import errors
+from ..utils import image as image_utils
 
 logger = logging.getLogger(__name__)
 
@@ -525,8 +526,8 @@ class Database:
 		await self.ensure_emote_does_not_exist(name)
 
 		guild_id = await self.free_guild(animated)
+		image = image_utils.image_to_base64_url(image_data)
 
-		image = discord.utils._bytes_to_base64_data(image_data)
 		emote_data = await self.bot.http.create_custom_emoji(guild_id=guild_id, name=name, image=image)
 		return DatabaseEmote(await self.bot.pool.fetchrow("""
 			INSERT INTO emotes (name, id, author, animated, guild)
