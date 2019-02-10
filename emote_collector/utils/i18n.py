@@ -26,6 +26,7 @@ gettext_translations = {
 # we don't use default_locale as the key here
 # because the default locale for this installation may not be en_US
 gettext_translations['en_US'] = gettext.NullTranslations()
+locales = locales | {'en_US'}
 
 def use_current_gettext(*args, **kwargs):
 	if not gettext_translations:
