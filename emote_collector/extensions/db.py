@@ -740,7 +740,12 @@ class Database:
 
 	def _toggle_state(self, table_name, id, default):
 		"""toggle the state for a user or guild. If there's no entry already, new state = default."""
-		# see _get_state for why string formatting is OK here
+		# unfortunately, using $1 for table_name is a syntax error
+		# however, since table name is always hardcoded input from other functions in this module,
+		# it's ok to use string formatting here
+
+		# TODO consider using one table, with an attribute for whether the state applies to a guild or a user
+
 		return self.bot.pool.fetchval(f"""
 			INSERT INTO {table_name} (id, state)
 			VALUES ($1, $2)
@@ -758,9 +763,7 @@ class Database:
 		return self._toggle_state('guild_opt', guild_id, False)
 
 	def _get_state(self, table_name, id):
-		# unfortunately, using $1 for table_name is a syntax error
-		# however, since table name is always hardcoded input from other functions in this module,
-		# it's ok to use string formatting here
+		# see _toggle_state for why string formatting is OK here
 		return self.bot.pool.fetchval(f'SELECT state FROM {table_name} WHERE id = $1', id)
 
 	def get_user_state(self, user_id):
@@ -772,7 +775,8 @@ class Database:
 		return self._get_state('guild_opt', guild_id)
 
 	def get_state(self, guild_id, user_id):
-		# TODO investigate whether this obviates get_guild_state and get_user_state (probably does)
+		"""return whether emote auto replies should be sent for the given user in the given guild"""
+		# TODO investigate whether this obviates get_guild_state and get_user_state
 		return self.bot.pool.fetchval("""
 			SELECT COALESCE(
 				CASE WHEN (SELECT blacklist_reason FROM user_opt WHERE id = $2)
@@ -781,7 +785,7 @@ class Database:
 				END,
 				(SELECT state FROM user_opt  WHERE id = $2),
 				(SELECT state FROM guild_opt WHERE id = $1),
-				true
+				true -- not opted in in the guild or the user table, default behavior is ENABLED
 			)
 		""", guild_id, user_id)
 
