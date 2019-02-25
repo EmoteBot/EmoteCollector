@@ -34,7 +34,7 @@ def Locale(argument):
 		raise InvalidLocaleError
 	return argument
 
-class Locales:
+class Locales(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
 

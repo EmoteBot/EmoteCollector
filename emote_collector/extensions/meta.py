@@ -17,7 +17,7 @@ from discord.ext import commands
 from ..utils import asyncexecutor
 from ..utils.paginator import HelpPaginator, CannotPaginate
 
-class Meta:
+class Meta(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
 
@@ -28,7 +28,7 @@ class Meta:
 		self.paginators = weakref.WeakSet()
 		self.process = psutil.Process()
 
-	def __unload(self):
+	def cog_unload(self):
 		async def stop_all():
 			for paginator in self.paginators:
 				await paginator.stop(delete=False)
@@ -62,15 +62,10 @@ class Meta:
 
 		async with context.typing():
 			for cog_name in 'Database', 'Locales', 'API':
-				await self.delete_user_account_from_cog(cog_name, context.author.id)
+				await self.bot.get_cog(cog_name).delete_user_account(user_id)
 
 		await status_message.delete()
 		await context.send(_("{context.author.mention} I've deleted your account successfully.").format(**locals()))
-
-	async def delete_user_account_from_cog(self, cog_name, user_id):
-		cog = self.bot.get_cog(cog_name)
-		deleter = getattr(cog, 'delete_user_account')
-		await deleter(user_id)
 
 	async def confirm(self, context, prompt, required_phrase, *, timeout=30):
 		await context.send(prompt)

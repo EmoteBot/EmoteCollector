@@ -29,9 +29,12 @@ setuptools.setup(
 	install_requires=[
 		'aiocontextvars==0.1.2',
 		'asyncpg',
-		'ben_cogs>=0.0.15',
+		'ben_cogs>=0.8.0',
+		# apparently the following two requirements can't be combined
+		# per the grammar (https://www.python.org/dev/peps/pep-0508/#grammar)
 		'discord.py @ git+https://github.com/Rapptz/discord.py@rewrite',
-		'jishaku>0.1.1',
+		'discord.py>=1.0.0a1691',
+		'jishaku>=1.6.1,<2.0.0',
 		'ply',
 		'prettytable',
 		'wand',

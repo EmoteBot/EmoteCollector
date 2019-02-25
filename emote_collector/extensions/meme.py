@@ -10,7 +10,7 @@ from .. import utils
 
 MEMES_FILE = os.path.join(BASE_DIR, 'data', 'memes.py')
 
-class Meme:
+class Meme(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
 		self.memes = utils.load_json_compat(MEMES_FILE)

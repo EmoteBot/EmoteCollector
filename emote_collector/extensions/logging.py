@@ -2,6 +2,7 @@ import datetime
 import logging
 
 import discord
+from discord.ext import commands
 
 from .. import utils
 
@@ -37,7 +38,7 @@ LogColour = LogColor
 # https://gitlab.com/Pandentia/element-zero/blob/dbc695bc9ea7ba2a553e26db1f5fabcba600ef98/element_zero/util/logging.py
 # Copyright © 2017–2018 Pandentia
 
-class Logger:
+class Logger(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
 
@@ -103,18 +104,22 @@ class Logger:
 
 		return await self._log(title=action, description=description, footer=footer, timestamp=timestamp, color=color)
 
+	@commands.Cog.listener()
 	async def on_emote_add(self, emote):
 		if self.settings['add']:
 			return await self.log_emote_action(emote, 'Add', LogColor.add)
 
+	@commands.Cog.listener()
 	async def on_emote_remove(self, emote):
 		if self.settings['remove']:
 			return await self.log_emote_action(emote, 'Remove', LogColor.remove)
 
+	@commands.Cog.listener()
 	async def on_emote_decay(self, emote):
 		if self.settings['decay']:
 			return await self.log_emote_action(emote, 'Decay', LogColor.decay)
 
+	@commands.Cog.listener()
 	async def on_emote_force_remove(self, emote, responsible_moderator: discord.User):
 		if not self.settings['force_remove']:
 			return
@@ -125,18 +130,22 @@ class Logger:
 			LogColor.force_remove,
 			by=responsible_moderator)
 
+	@commands.Cog.listener()
 	async def on_emote_preserve(self, emote):
 		if self.settings['preserve']:
 			await self.log_emote_action(emote, 'Preservation', LogColor.preserve)
 
+	@commands.Cog.listener()
 	async def on_emote_unpreserve(self, emote):
 		if self.settings['unpreserve']:
 			await self.log_emote_action(emote, 'Un-preservation', LogColor.unpreserve)
 
+	@commands.Cog.listener()
 	async def on_emote_nsfw(self, emote, responsible_moderator: discord.User):
 		if self.settings.get('nsfw'):  # .get cause it's new
 			await self.log_emote_action(emote, 'Marked NSFW', LogColor.nsfw, by=responsible_moderator)
 
+	@commands.Cog.listener()
 	async def on_emote_sfw(self, emote, responsible_moderator: discord.User):
 		if self.settings.get('sfw'):
 			await self.log_emote_action(emote, 'Marked SFW', LogColor.sfw, by=responsible_moderator)

@@ -28,7 +28,7 @@ from ..utils.paginator import CannotPaginate, Pages
 
 logger = logging.getLogger(__name__)
 
-class Emotes:
+class Emotes(commands.Cog):
 	"""Commands related to the main functionality of the bot"""
 
 	def __init__(self, bot):
@@ -44,8 +44,8 @@ class Emotes:
 		# keep track of created paginators so that we can remove their reaction buttons on unload
 		self.paginators = weakref.WeakSet()
 
-	def __unload(self):
-		async def task():
+	def cog_unload(self):
+		async def emotes_cog_unload():
 			# aiohttp can't decide if this should be a coroutine...
 			# i think it shouldn't be, since it never awaits
 			await self.http.close()
@@ -53,7 +53,7 @@ class Emotes:
 			for paginator in self.paginators:
 				await paginator.stop(delete=False)
 
-		self.bot.loop.create_task(task())
+		self.bot.loop.create_task(emotes_cog_unload())
 
 	## Commands
 
@@ -768,11 +768,12 @@ class Emotes:
 
 	## Events
 
-	@staticmethod
-	async def on_command_error(context, error):
+	@commands.Cog.listener()
+	async def on_command_error(self, context, error):
 		if isinstance(error, (errors.ConnoisseurError, CannotPaginate)):
 			await context.send(error)
 
+	@commands.Cog.listener()
 	async def on_message(self, message):
 		"""Reply to messages containing :name: or ;name; with the corresponding emotes.
 		This is like half the functionality of the bot
@@ -819,6 +820,7 @@ class Emotes:
 
 		return True
 
+	@commands.Cog.listener()
 	async def on_raw_message_edit(self, payload):
 		"""Ensure that when a message containing emotes is edited, the corresponding emote reply is, too."""
 		# data = https://discordapp.com/developers/docs/resources/channel#message-object
@@ -964,10 +966,12 @@ class Emotes:
 		with contextlib.suppress(discord.HTTPException):
 			await self.bot.http.delete_message(channel_id, reply_message)
 
+	@commands.Cog.listener()
 	async def on_raw_message_delete(self, payload):
 		"""Ensure that when a message containing emotes is deleted, the emote reply is, too."""
 		await self.delete_reply(payload.channel_id, payload.message_id)
 
+	@commands.Cog.listener()
 	async def on_raw_bulk_message_delete(self, payload):
 		# TODO use bot.delete_messages
 		for message_id in payload.message_ids:

@@ -11,7 +11,7 @@ from discord.ext import commands
 
 from .. import utils
 
-class API:
+class API(commands.Cog):
 	TOKEN_DELIMITER = b';'
 
 	def __init__(self, bot):
@@ -25,13 +25,13 @@ class API:
 			command = command.parent
 		return False
 
-	async def __local_check(self, context):
+	async def cog_check(self, context):
+		# we're doing this as a local check because
+		# A) if invoke_without_command=True, checks don't propagate to subcommands
+		# B) even if invoke_without_command=False, checks still don't propagate to sub-sub-commands
+		# AFAIK
 		if self.any_parent_command_is(context.command, self.token_command):
 			# bots may not have API tokens
-			# we're doing this as a local check because
-			# A) if invoke_without_command=True, checks don't propagate to subcommands
-			# B) even if invoke_without_command=False, checks still don't propagate to sub-sub-commands
-			# AFAIK
 			return not context.author.bot
 		return True
 

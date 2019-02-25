@@ -9,7 +9,7 @@ class Stats(Stats):
 		self.db_cog = self.bot.get_cog('Database')
 		self._init_task = self.bot.loop.create_task(self._init())
 
-	def __unload(self):
+	def cog_unload(self):
 		self._init_task.cancel()
 
 	async def _init(self):

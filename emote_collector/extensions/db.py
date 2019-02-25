@@ -90,7 +90,7 @@ class DatabaseEmote:
 	def is_nsfw(self):
 		return self.nsfw.endswith('NSFW')
 
-class Database:
+class Database(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
 		self._process_decay_config()
@@ -127,7 +127,7 @@ class Database:
 			self.bot.config.setdefault('support_server', {})['invite_code'] \
 			= self.bot.config['support_server_invite_code']
 
-	def __unload(self):
+	def cog_unload(self):
 		for task in self.tasks:
 			task.cancel()
 
@@ -229,16 +229,19 @@ class Database:
 
 	## Events
 
+	@commands.Cog.listener()
 	async def on_guild_remove(self, guild):
 		await self.bot.pool.execute('DELETE FROM _guilds WHERE id = $1', guild.id)
 		with contextlib.suppress(AttributeError):
 			self.guilds.discard(guild)
 
+	@commands.Cog.listener()
 	async def on_guild_join(self, guild):
 		if await self.is_backend_guild(guild):
 			await self.bot.pool.execute('INSERT INTO _guilds (id) VALUES $1 ON CONFLICT DO NOTHING', guild.id)
 			self.guilds.add(guild)
 
+	@commands.Cog.listener()
 	async def on_member_update(self, before, after):
 		if before.guild.id != self.bot.config['support_server'].get('id') or after.bot:
 			return
@@ -258,7 +261,7 @@ class Database:
 				ON CONFLICT (id) DO NOTHING
 			""", after.id)
 
-	async def __error(self, context, error):
+	async def cog_command_error(self, context, error):
 		error = getattr(error, 'original', error)
 		if isinstance(error, asyncpg.PostgresError):
 			return await context.send(f'{type(error).__name__}: {error}')

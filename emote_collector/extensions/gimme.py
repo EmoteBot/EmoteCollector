@@ -10,7 +10,7 @@ from ..utils.converter import DatabaseEmoteConverter
 
 logger = logging.getLogger(__name__)
 
-class Gimme:
+class Gimme(commands.Cog):
 	guilds = frozenset()
 
 	def __init__(self, bot):
@@ -40,6 +40,7 @@ class Gimme:
 			with contextlib.suppress(discord.HTTPException):
 				await context.message.add_reaction('📬')
 
+	@commands.Cog.listener()
 	async def on_message(self, message):
 		if message.guild in self.guilds:
 			await asyncio.sleep(5)
