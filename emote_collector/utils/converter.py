@@ -58,7 +58,7 @@ async def convert_id(context, channel, id: str):
 	id = Snowflake(id)
 
 	try:
-		return await channel.get_message(id)
+		return await channel.fetch_message(id)
 	except discord.NotFound:
 		raise commands.BadArgument(_(
 			'Message not found! Make sure your message ID is correct.')) from None

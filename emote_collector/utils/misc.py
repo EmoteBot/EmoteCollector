@@ -65,7 +65,7 @@ async def get_message_by_offset(channel, index: int) -> discord.Message:
 	Requires channel history permissions
 	"""
 	try:
-		return await channel.history(limit=-index, reverse=True).next()
+		return await channel.history(limit=-index, oldest_first=True).next()
 	except discord.NoMoreItems:
 		raise commands.BadArgument(_('Message not found.'))
 

@@ -65,7 +65,7 @@ class Emotes(commands.Cog):
 		The emote must be in the database.
 		"""
 		embed = discord.Embed()
-		embed.url = emote.url
+		embed.url = str(emote.url)
 
 		embed.title = emote.status()
 
@@ -660,7 +660,7 @@ class Emotes(commands.Cog):
 			return await context.send(_('Logger cog not loaded.'))
 
 		try:
-			message = await channel.get_message(message_id)
+			message = await channel.fetch_message(message_id)
 		except discord.NotFound:
 			return await context.send(_('Message not found.'))
 

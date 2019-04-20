@@ -18,4 +18,5 @@ del f
 
 def url(id, *, animated: bool = False):
 	"""Convert an emote ID to the image URL for that emote."""
-	return discord.PartialEmoji(animated=animated, name='', id=id).url
+	return str(discord.PartialEmoji(animated=animated, name='', id=id).url)
+
