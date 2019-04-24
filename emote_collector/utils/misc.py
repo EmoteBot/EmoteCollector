@@ -64,10 +64,14 @@ async def get_message_by_offset(channel, index: int) -> discord.Message:
 	"""Gets channel[-index]. For instance get_message(channel, -2) == second to last message.
 	Requires channel history permissions
 	"""
-	try:
-		return await channel.history(limit=-index, oldest_first=True).next()
-	except discord.NoMoreItems:
+	m = None
+	async for m in channel.history(limit=abs(index)):
+		pass
+
+	if not m:
 		raise commands.BadArgument(_('Message not found.'))
+
+	return m
 
 def fix_first_line(message: str) -> str:
 	"""In compact mode, prevent the first line from being misaligned because of the bot's username"""
