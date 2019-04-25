@@ -21,7 +21,7 @@ else:
 from . import errors
 from . import size
 
-def resize_until_small(image_data: io.BytesIO) -> io.BytesIO:
+def resize_until_small(image_data: io.BytesIO) -> None:
 	"""If the image_data is bigger than 256KB, resize it until it's not.
 
 	If resizing takes more than 30 seconds, raise asyncio.TimeoutError.
@@ -37,34 +37,25 @@ def resize_until_small(image_data: io.BytesIO) -> io.BytesIO:
 		logger.debug('attempting resize to at most%s*%s pixels', max_resolution, max_resolution)
 
 		try:
-			image_data = thumbnail(image_data, (max_resolution, max_resolution))
+			thumbnail(image_data, (max_resolution, max_resolution))
 		except wand.exceptions.CoderError:
 			raise errors.InvalidImageError
 
 		image_size = size(image_data)
 		max_resolution //= 2
-	return image_data
 
-def thumbnail(image_data: io.BytesIO, max_size=(128, 128)) -> io.BytesIO:
+def thumbnail(image_data: io.BytesIO, max_size=(128, 128)) -> None:
 	"""Resize an image in place to no more than max_size pixels, preserving aspect ratio.
-
-	Return the new image.
 	"""
 	with wand.image.Image(blob=image_data) as image:
 		new_resolution = scale_resolution((image.width, image.height), max_size)
 		image.resize(*new_resolution)
-		# we create a new buffer here because there's wand errors otherwise.
-		# specific error:
-		# MissingDelegateError: no decode delegate for this image format `' @ error/blob.c/BlobToImage/353
-		out = io.BytesIO()
-		image.save(file=out)
+		image_data.truncate(0)
+		image_data.seek(0)
+		image.save(file=image_data)
 
 	# allow resizing the original image more than once for memory profiling
 	image_data.seek(0)
-	# allow reading the resized image data
-	out.seek(0)
-
-	return out
 
 def scale_resolution(old_res, new_res):
 	"""Resize a resolution, preserving aspect ratio. Returned w,h will be <= new_res"""
@@ -111,9 +102,9 @@ def main() -> typing.NoReturn:
 	"""resize an image from stdin and write the resized version to stdout."""
 	import sys
 
-	input = io.BytesIO(sys.stdin.buffer.read())
+	data = io.BytesIO(sys.stdin.buffer.read())
 	try:
-		output = resize_until_small(input)
+		resize_until_small(data)
 	except errors.InvalidImageError:
 		sys.exit(1)
 	except BaseException:
@@ -124,7 +115,7 @@ def main() -> typing.NoReturn:
 	stdout_write = sys.stdout.buffer.write  # getattr optimization
 
 	while True:
-		buf = output.read(16 * 1024)
+		buf = data.read(16 * 1024)
 		if not buf:
 			break
 
