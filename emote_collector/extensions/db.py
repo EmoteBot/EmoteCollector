@@ -674,17 +674,8 @@ class Database(commands.Cog):
 	async def log_emote_use(self, emote_id, user_id):
 		await self.bot.pool.execute("""
 			INSERT INTO emote_usage_history (id)
-			-- this is SELECT ... WHERE NOT EXISTS, not INSERT INTO ... WHERE NOT EXISTS
-			-- https://stackoverflow.com/a/15710598
-			SELECT ($1)
-			WHERE NOT EXISTS (
-				-- restrict emote logging to non-owners
-				-- this should reduce some spam and stats-inflation
-				SELECT 1
-				FROM emotes
-				WHERE id = $1
-				  AND author = $2)
-		""", emote_id, user_id)
+			VALUES ($1)
+		""", emote_id)
 
 	async def decay(self):
 		async for emote in self.decayable_emotes():

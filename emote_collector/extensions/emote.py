@@ -535,7 +535,7 @@ class Emotes(commands.Cog):
 		except asyncio.TimeoutError:
 			pass
 		else:
-			await self.db.log_emote_use(emote.id, context.author.id)
+			await self.db.log_emote_use(emote.id)
 		finally:
 			# if we don't sleep, it would appear that the bot never un-reacted
 			# i.e. the reaction button would still say "2" even after we remove our reaction
@@ -903,7 +903,7 @@ class Emotes(commands.Cog):
 
 		if log_usage:
 			for emote in emotes_used:
-				await self.db.log_emote_use(emote, message.author.id)
+				await self.db.log_emote_use(emote)
 
 		return utils.clean_content(self.bot, message, result), bool(emotes_used)
 
