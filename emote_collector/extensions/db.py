@@ -671,7 +671,7 @@ class Database(commands.Cog):
 				# we don't need to perform another ownership check
 				await self.remove_emote(emote, user_id=None)
 
-	async def log_emote_use(self, emote_id, user_id):
+	async def log_emote_use(self, emote_id):
 		await self.bot.pool.execute("""
 			INSERT INTO emote_usage_history (id)
 			VALUES ($1)
