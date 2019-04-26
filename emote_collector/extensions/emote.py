@@ -4,10 +4,11 @@
 import asyncio
 import collections
 import contextlib
-import enum
 import getopt
 import io
+import json
 import logging
+import os.path
 import re
 import sys
 import traceback
@@ -19,6 +20,7 @@ import discord
 from discord.ext import commands
 
 from .db import MessageReplyType
+from .. import BASE_DIR
 from .. import utils
 from ..utils import image as image_utils
 from ..utils import checks
@@ -40,6 +42,9 @@ class Emotes(commands.Cog):
 				self.bot.config['user_agent'] + ' '
 				+ self.bot.http.user_agent
 		})
+
+		with open(os.path.join(BASE_DIR, 'data', 'e0-final-emojis.json')) as f:
+			self.e0_emojis = json.load(f)
 
 		# keep track of created paginators so that we can remove their reaction buttons on unload
 		self.paginators = weakref.WeakSet()
@@ -161,6 +166,19 @@ class Emotes(commands.Cog):
 		async with context.typing():
 			message = await self.add_safe(name.strip(':;'), url, context.message.author.id)
 		await context.send(message)
+
+	@commands.command(name='add-from-e0', aliases=['addfrome0'])
+	@checks.not_blacklisted()
+	async def add_from_e0(self, context, name):
+		"""Copy an emote from an archive of Element Zero's emote database."""
+		name = name.strip(':;')
+		try:
+			id, animated = self.e0_emojis[name.lower()]
+		except KeyError:
+			await context.send(_("Emote not found in Element Zero's database."))
+			return
+
+		await context.invoke(self.add, name, utils.emote.url(id, animated=animated))
 
 	def parse_add_command_args(self, context, args):
 		if context.message.attachments:
