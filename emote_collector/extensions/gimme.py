@@ -16,6 +16,10 @@ class Gimme(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
 		self.db_cog = self.bot.get_cog('Database')
+		self._init_task = self.bot.loop.create_task(self._init())
+
+	async def cog_unload(self):
+		self._init_task.cancel()
 
 	@commands.command()
 	async def gimme(self, context, emote: DatabaseEmoteConverter(check_nsfw=False)):
