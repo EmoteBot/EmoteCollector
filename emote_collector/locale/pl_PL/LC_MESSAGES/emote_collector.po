@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-12 02:52+0000\n"
+"POT-Creation-Date: 2019-05-05 06:49+0000\n"
 "PO-Revision-Date: 2019-02-23 08:17+0000\n"
 "Last-Translator: Allan Nordhøy <epost@anotheragency.no>\n"
 "Language-Team: Polish <https://hosted.weblate.org/projects/emote-collector/"
@@ -345,17 +345,12 @@ msgstr ""
 msgid "Way too long. Message attached."
 msgstr ""
 
-#: emote_collector/extensions/gimme.py:31
-#, python-brace-format
-msgid "Created for {user}"
-msgstr "Utworzono dla {user}"
-
-#: emote_collector/extensions/gimme.py:36
+#: emote_collector/extensions/gimme.py:40
 #, python-brace-format
 msgid "Invite to the server that has {emote}: {invite.url}"
 msgstr "Zaproszenie do tego serwera posiada {emote}: {invite.url}"
 
-#: emote_collector/extensions/gimme.py:38
+#: emote_collector/extensions/gimme.py:42
 #: emote_collector/extensions/meta.py:206
 msgid "Unable to send invite in DMs. Please allow DMs from server members."
 msgstr ""
@@ -681,6 +676,9 @@ msgstr ""
 "To znaczy że masz wiele argumentów.\n"
 "Teraz znacz podstawy, należy zauważyć że...\n"
 "__**Nie wpisujesz w nawiasach!**__"
+
+#~ msgid "Created for {user}"
+#~ msgstr "Utworzono dla {user}"
 
 #~ msgid "The image supplied was not a GIF, PNG, or JPG."
 #~ msgstr "Dostarczony obraz nie jest GIFem, plikiem PNG lub JPG."

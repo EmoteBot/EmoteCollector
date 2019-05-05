@@ -32,7 +32,7 @@ class Gimme(commands.Cog):
 		invite = await guild.text_channels[0].create_invite(
 			max_age=600,
 			max_uses=2,
-			reason=_('Created for {user}').format(
+			reason='Created for {user}'.format(
 				user=utils.format_user(self.bot, context.author, mention=False)))
 
 		try:

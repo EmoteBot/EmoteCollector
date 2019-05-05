@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-11-12 02:52+0000\n"
+"POT-Creation-Date: 2019-05-05 06:49+0000\n"
 "PO-Revision-Date: 2019-02-23 08:17+0000\n"
 "Last-Translator: Allan Nordhøy <epost@anotheragency.no>\n"
 "Language-Team: English (United States) <https://hosted.weblate.org/projects/"
@@ -344,19 +344,14 @@ msgstr "Way too fucking long lmao"
 msgid "Way too long. Message attached."
 msgstr "Way too fucking long. Message attached."
 
-#: emote_collector/extensions/gimme.py:31
-#, python-brace-format
-msgid "Created for {user}"
-msgstr "Created for {user}"
-
-#: emote_collector/extensions/gimme.py:36
+#: emote_collector/extensions/gimme.py:40
 #, python-brace-format
 msgid "Invite to the server that has {emote}: {invite.url}"
 msgstr ""
 "Invite to the server that has {emote}: {invite.url}.\n"
 "I swear to god if you send hentai in that server I will blow your brains out."
 
-#: emote_collector/extensions/gimme.py:38
+#: emote_collector/extensions/gimme.py:42
 #: emote_collector/extensions/meta.py:206
 msgid "Unable to send invite in DMs. Please allow DMs from server members."
 msgstr "Hey dumbass! Allow DMs from server members!"
@@ -674,6 +669,9 @@ msgstr ""
 "This means you can have multiple arguments.\n"
 "Now that you know the basics, it should be noted that...\n"
 "__**You do not type in the brackets!**__"
+
+#~ msgid "Created for {user}"
+#~ msgstr "Created for {user}"
 
 #~ msgid "The image supplied was not a GIF, PNG, or JPG."
 #~ msgstr ""
