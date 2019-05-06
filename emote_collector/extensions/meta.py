@@ -111,7 +111,7 @@ class Meta(commands.Cog):
 				paginator = await HelpPaginator.from_bot(context)
 				self.paginators.add(paginator)
 				return await paginator.begin()
-			return await context.invoke(self.old_help[0])
+			return await context.send_help()
 
 		# derived from R.Danny's help command
 		# https://github.com/Rapptz/RoboDanny/blob/8919ec0a455f957848ef77b479fe3494e76f0aa7/cogs/meta.py
@@ -134,7 +134,7 @@ class Meta(commands.Cog):
 					--no-embed display output without an embed
 				```""")).format(**locals()))
 		elif not embed:
-			return await context.invoke(self.old_help[0], *args)
+			return await context.send_help(command)
 
 		if entity is None:
 			command_name = command.replace('@', '@\N{zero width non-joiner}')
