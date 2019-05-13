@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-04-26 22:00+0000\n"
+"POT-Creation-Date: 2019-05-05 06:49+0000\n"
 "PO-Revision-Date: 2018-08-13 17:05-0500\n"
 "Last-Translator: diniboy <diniboy@protonmail.com>\n"
 "Language-Team: Hungarian\n"
@@ -343,17 +343,12 @@ msgstr ""
 msgid "Way too long. Message attached."
 msgstr ""
 
-#: emote_collector/extensions/gimme.py:31
-#, python-brace-format
-msgid "Created for {user}"
-msgstr "Létrehozva {user} számára"
-
-#: emote_collector/extensions/gimme.py:36
+#: emote_collector/extensions/gimme.py:40
 #, python-brace-format
 msgid "Invite to the server that has {emote}: {invite.url}"
 msgstr "Meghívó a szerverhez, ahol a {emote} megtalálható: {invite.url}"
 
-#: emote_collector/extensions/gimme.py:38
+#: emote_collector/extensions/gimme.py:42
 #: emote_collector/extensions/meta.py:206
 msgid "Unable to send invite in DMs. Please allow DMs from server members."
 msgstr ""
@@ -679,6 +674,9 @@ msgstr ""
 "Tehát ebben az esetben használhatsz több paramétert is.\n"
 "Most hogy tudod az alapokat, érdemes még megjegyezni...\n"
 "__**A zárójelek kirakása nem szükséges!**__"
+
+#~ msgid "Created for {user}"
+#~ msgstr "Létrehozva {user} számára"
 
 #~ msgid "The image supplied was not a GIF, PNG, or JPG."
 #~ msgstr "A hozzáadni kívánt kép nem GIF, PNG vagy JPG."

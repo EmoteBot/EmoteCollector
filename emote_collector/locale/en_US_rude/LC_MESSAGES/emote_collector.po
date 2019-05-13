@@ -7,17 +7,17 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-04-26 22:00+0000\n"
-"PO-Revision-Date: 2018-10-29 22:20+0000\n"
-"Last-Translator: Weblate Admin <bmintz@protonmail.com>\n"
-"Language-Team: English (United States) <http://example.com/weblate/projects/"
-"EmoteCollector/bot/en_US@rude/>\n"
+"POT-Creation-Date: 2019-05-05 06:49+0000\n"
+"PO-Revision-Date: 2019-02-23 08:17+0000\n"
+"Last-Translator: Allan Nordhøy <epost@anotheragency.no>\n"
+"Language-Team: English (United States) <https://hosted.weblate.org/projects/"
+"emote-collector/bot/en_US@rude/>\n"
 "Language: en_US_rude\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 3.2.2\n"
+"X-Generator: Weblate 3.5-dev\n"
 
 #: emote_collector/__init__.py:123
 msgid "This command cannot be used in private messages."
@@ -344,19 +344,14 @@ msgstr "Way too fucking long lmao"
 msgid "Way too long. Message attached."
 msgstr "Way too fucking long. Message attached."
 
-#: emote_collector/extensions/gimme.py:31
-#, python-brace-format
-msgid "Created for {user}"
-msgstr "Created for {user}"
-
-#: emote_collector/extensions/gimme.py:36
+#: emote_collector/extensions/gimme.py:40
 #, python-brace-format
 msgid "Invite to the server that has {emote}: {invite.url}"
 msgstr ""
 "Invite to the server that has {emote}: {invite.url}.\n"
 "I swear to god if you send hentai in that server I will blow your brains out."
 
-#: emote_collector/extensions/gimme.py:38
+#: emote_collector/extensions/gimme.py:42
 #: emote_collector/extensions/meta.py:206
 msgid "Unable to send invite in DMs. Please allow DMs from server members."
 msgstr "Hey dumbass! Allow DMs from server members!"
@@ -472,14 +467,14 @@ msgid "Unable to react: you and I both need permission to use external emotes."
 msgstr ""
 
 #: emote_collector/utils/errors.py:13
-#, python-brace-format
+#, fuzzy, python-brace-format
 msgid ""
 "Sorry, you have been blacklisted with the reason `{reason}`. To appeal, "
 "please join the support server with `{prefix}support`."
 msgstr ""
 "You're such a little shit that a moderator decided to blacklist you from "
-"using this bot. To try and appeal, join the support server with `{prefix}"
-"support`."
+"using this bot due to {reason}. To try and appeal, join the support server "
+"with `{prefix}support`."
 
 #: emote_collector/utils/errors.py:20
 #, python-brace-format
@@ -674,6 +669,9 @@ msgstr ""
 "This means you can have multiple arguments.\n"
 "Now that you know the basics, it should be noted that...\n"
 "__**You do not type in the brackets!**__"
+
+#~ msgid "Created for {user}"
+#~ msgstr "Created for {user}"
 
 #~ msgid "The image supplied was not a GIF, PNG, or JPG."
 #~ msgstr ""

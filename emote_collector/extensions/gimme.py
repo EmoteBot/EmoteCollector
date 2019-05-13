@@ -16,6 +16,10 @@ class Gimme(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
 		self.db_cog = self.bot.get_cog('Database')
+		self._init_task = self.bot.loop.create_task(self._init())
+
+	async def cog_unload(self):
+		self._init_task.cancel()
 
 	@commands.command()
 	async def gimme(self, context, emote: DatabaseEmoteConverter(check_nsfw=False)):
@@ -28,7 +32,7 @@ class Gimme(commands.Cog):
 		invite = await guild.text_channels[0].create_invite(
 			max_age=600,
 			max_uses=2,
-			reason=_('Created for {user}').format(
+			reason='Created for {user}'.format(
 				user=utils.format_user(self.bot, context.author, mention=False)))
 
 		try:
@@ -60,7 +64,8 @@ class Gimme(commands.Cog):
 			await guild.default_role.edit(permissions=permissions)
 
 			for channel in guild.text_channels:
-				await channel.delete()
+				with contextlib.suppress(discord.HTTPException):
+					await channel.delete()
 
 			await guild.create_text_channel(name='just-created-so-i-can-invite-you')
 

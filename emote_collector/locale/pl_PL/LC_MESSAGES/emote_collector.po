@@ -7,17 +7,18 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-04-26 22:00+0000\n"
-"PO-Revision-Date: 2018-11-01 18:52+0100\n"
-"Last-Translator: @!CsSkrouble <3#2681 (ID: 397074329688342539)>\n"
-"Language-Team: \n"
+"POT-Creation-Date: 2019-05-05 06:49+0000\n"
+"PO-Revision-Date: 2019-02-23 08:17+0000\n"
+"Last-Translator: Allan Nordhøy <epost@anotheragency.no>\n"
+"Language-Team: Polish <https://hosted.weblate.org/projects/emote-collector/"
+"bot/pl/>\n"
 "Language: pl_PL\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 2.2\n"
-"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 "
-"|| n%100>14) ? 1 : 2);\n"
+"Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
+"|| n%100>=20) ? 1 : 2;\n"
+"X-Generator: Weblate 3.5-dev\n"
 
 #: emote_collector/__init__.py:123
 msgid "This command cannot be used in private messages."
@@ -37,7 +38,7 @@ msgid ""
 "I have a RESTful API available. The docs for it are located at {docs_url}."
 msgstr ""
 "Posiadam dostępne API. Dokumenty dla tego przedmiotu będą znajdowały się w "
-"{docs.url}."
+"{docs_url}."
 
 #: emote_collector/extensions/api.py:63
 msgid "Your new API token is:\n"
@@ -344,17 +345,12 @@ msgstr ""
 msgid "Way too long. Message attached."
 msgstr ""
 
-#: emote_collector/extensions/gimme.py:31
-#, python-brace-format
-msgid "Created for {user}"
-msgstr "Utworzono dla {user}"
-
-#: emote_collector/extensions/gimme.py:36
+#: emote_collector/extensions/gimme.py:40
 #, python-brace-format
 msgid "Invite to the server that has {emote}: {invite.url}"
 msgstr "Zaproszenie do tego serwera posiada {emote}: {invite.url}"
 
-#: emote_collector/extensions/gimme.py:38
+#: emote_collector/extensions/gimme.py:42
 #: emote_collector/extensions/meta.py:206
 msgid "Unable to send invite in DMs. Please allow DMs from server members."
 msgstr ""
@@ -680,6 +676,9 @@ msgstr ""
 "To znaczy że masz wiele argumentów.\n"
 "Teraz znacz podstawy, należy zauważyć że...\n"
 "__**Nie wpisujesz w nawiasach!**__"
+
+#~ msgid "Created for {user}"
+#~ msgstr "Utworzono dla {user}"
 
 #~ msgid "The image supplied was not a GIF, PNG, or JPG."
 #~ msgstr "Dostarczony obraz nie jest GIFem, plikiem PNG lub JPG."

@@ -7,16 +7,17 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-04-26 22:00+0000\n"
-"PO-Revision-Date: 2018-10-31 12:01+0100\n"
-"Last-Translator: Adrian#1337\n"
-"Language-Team: \n"
-"Language: de\n"
+"POT-Creation-Date: 2019-05-05 06:49+0000\n"
+"PO-Revision-Date: 2019-03-18 18:03+0000\n"
+"Last-Translator: Andreas Kleinert <Andy.Kleinert@gmail.com>\n"
+"Language-Team: German <https://hosted.weblate.org/projects/emote-collector/"
+"bot/de_DE@rude/>\n"
+"Language: de_DE_rude\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 2.2\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 3.6-dev\n"
 
 #: emote_collector/__init__.py:123
 msgid "This command cannot be used in private messages."
@@ -48,7 +49,7 @@ msgstr "Dein API-Token ist:\n"
 
 #: emote_collector/extensions/api.py:70
 msgid "Do **not** share it with anyone!"
-msgstr "Teil es mit **niemandem**"
+msgstr "Teil es mit **niemandem**!"
 
 #: emote_collector/extensions/api.py:75
 msgid "Error: I could not send you your token via DMs."
@@ -125,7 +126,7 @@ msgstr ""
 
 #: emote_collector/extensions/emote.py:213
 msgid "Your message had no emotes and no name!"
-msgstr "Gib mir n paar Emotes und nen Namen"
+msgstr "Ihre Nachricht enthielt keine Emotes und keinen Namen!"
 
 #: emote_collector/extensions/emote.py:232
 msgid "An error occurred while creating the emote:\n"
@@ -348,17 +349,12 @@ msgstr "Zu lang, lol"
 msgid "Way too long. Message attached."
 msgstr "Viel zu lang. Nachricht angefügt."
 
-#: emote_collector/extensions/gimme.py:31
-#, python-brace-format
-msgid "Created for {user}"
-msgstr "Für {user} erstellt"
-
-#: emote_collector/extensions/gimme.py:36
+#: emote_collector/extensions/gimme.py:40
 #, python-brace-format
 msgid "Invite to the server that has {emote}: {invite.url}"
 msgstr "Auf den Server mit {emote} einladen: {invite.url}"
 
-#: emote_collector/extensions/gimme.py:38
+#: emote_collector/extensions/gimme.py:42
 #: emote_collector/extensions/meta.py:206
 msgid "Unable to send invite in DMs. Please allow DMs from server members."
 msgstr "Wie immer haste keine DMs an."
@@ -401,9 +397,7 @@ msgstr ""
 
 #: emote_collector/extensions/meta.py:62
 msgid "Deleting your account…"
-msgstr ""
-"Lösche deinen Account... Fertig\n"
-"Suche dein Discord-Passwort... Fertig!"
+msgstr "Konto wird gelöscht …"
 
 #: emote_collector/extensions/meta.py:69
 #, python-brace-format
@@ -510,12 +504,12 @@ msgstr "Fehler: Das Bild zuzuschneiden dauerte zu lange."
 #: emote_collector/utils/errors.py:47
 #, python-brace-format
 msgid "An emote called `{name}` already exists in my database."
-msgstr "`{name}` gibt es schon. Kannst du überhaupt lesen?"
+msgstr "Ein Emote mit dem Namen „{name}” existiert bereits in meiner Datenbank"
 
 #: emote_collector/utils/errors.py:52
 #, python-brace-format
 msgid "An emote called `{name}` does not exist in my database."
-msgstr "`{name}` gibt es nicht. Warum muss ich mich mit dir abgeben?"
+msgstr "Ein Emote mit dem Namen „{name}” existiert nicht in meiner Datenbank."
 
 #: emote_collector/utils/errors.py:57
 #, python-brace-format
@@ -685,6 +679,9 @@ msgstr ""
 "Das heißt, dass du mehrere Parameter haben kannst..\n"
 "Jetzt, da Du die Grundlagen weißt, sollte man anmerken...\n"
 "__**Lass die Klammern weg!**__"
+
+#~ msgid "Created for {user}"
+#~ msgstr "Für {user} erstellt"
 
 #~ msgid "The image supplied was not a GIF, PNG, or JPG."
 #~ msgstr "Gib mir n GIF, PNG oder JPG."
