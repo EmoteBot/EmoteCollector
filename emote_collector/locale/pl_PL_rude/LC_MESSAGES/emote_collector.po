@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-05-14 22:26+0000\n"
+"POT-Creation-Date: 2019-05-14 22:29+0000\n"
 "PO-Revision-Date: 2019-02-23 08:17+0000\n"
 "Last-Translator: Allan Nordhøy <epost@anotheragency.no>\n"
 "Language-Team: Polish <https://hosted.weblate.org/projects/emote-collector/"
@@ -485,12 +485,13 @@ msgstr "Komenda lub kategoria \"{command_name}\" nie została znaleziona."
 
 #: emote_collector/extensions/meta.py:207
 #, python-brace-format
-msgid "Command \"{0.qualified_name}\" has no subcommand named {subcommand}"
+msgid ""
+"Command \"{command.qualified_name}\" has no subcommand named {subcommand}"
 msgstr ""
 
 #: emote_collector/extensions/meta.py:208
 #, python-brace-format
-msgid "Command \"{0.qualified_name}\" has no subcommands."
+msgid "Command \"{command.qualified_name}\" has no subcommands."
 msgstr ""
 
 #: emote_collector/extensions/meta.py:243

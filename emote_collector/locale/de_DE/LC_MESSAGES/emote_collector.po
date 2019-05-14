@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-05-14 22:26+0000\n"
+"POT-Creation-Date: 2019-05-14 22:29+0000\n"
 "PO-Revision-Date: 2018-10-31 12:03+0100\n"
 "Last-Translator: Adrian#1337\n"
 "Language-Team: \n"
@@ -493,12 +493,13 @@ msgstr "Befehl oder Kategorie \"{command_name}\" nicht gefunden."
 
 #: emote_collector/extensions/meta.py:207
 #, python-brace-format
-msgid "Command \"{0.qualified_name}\" has no subcommand named {subcommand}"
+msgid ""
+"Command \"{command.qualified_name}\" has no subcommand named {subcommand}"
 msgstr ""
 
 #: emote_collector/extensions/meta.py:208
 #, python-brace-format
-msgid "Command \"{0.qualified_name}\" has no subcommands."
+msgid "Command \"{command.qualified_name}\" has no subcommands."
 msgstr ""
 
 #: emote_collector/extensions/meta.py:243
