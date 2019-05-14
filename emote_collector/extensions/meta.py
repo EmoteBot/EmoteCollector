@@ -30,8 +30,8 @@ class HelpPaginator(Pages):
 		self.is_bot = False
 
 	def get_bot_page(self, page):
-		cog, description, commands = self.entries[page - 1]
-		self.title = f'{cog} Commands'
+		cog_name, description, commands = self.entries[page - 1]
+		self.title = _('{cog_name} Commands').format(**locals())
 		self.description = description
 		return commands
 
@@ -169,7 +169,8 @@ class PaginatedHelpCommand(commands.HelpCommand):
 	async def send_cog_help(self, cog):
 		entries = await self.filter_commands(cog.get_commands(), sort=True)
 		pages = HelpPaginator(self, self.context, entries)
-		pages.title = _('{cog.qualified_name} Commands').format(**locals())
+		cog_name = cog.qualified_name  # preserve i18n'd strings which use this var name
+		pages.title = _('{cog_name} Commands').format(**locals())
 		pages.description = cog.description
 
 		await pages.begin()
