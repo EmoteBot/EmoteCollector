@@ -184,7 +184,7 @@ class PaginatedHelpCommand(commands.HelpCommand):
 
 	async def send_command_help(self, command):
 		# No pagination necessary for a single command.
-		embed = discord.Embed(	)
+		embed = discord.Embed()
 		self.common_command_formatting(embed, command)
 		await self.context.send(embed=embed)
 
@@ -198,6 +198,14 @@ class PaginatedHelpCommand(commands.HelpCommand):
 		self.common_command_formatting(pages, group)
 
 		await pages.begin()
+
+	def command_not_found(self, command_name):
+		return _('Command or category "{command_name}" not found.').format(**locals())
+
+	def subcommand_not_found(self, command, subcommand):
+		if isinstance(command, Group) and len(command.all_commands) > 0:
+			return _('Command "{0.qualified_name}" has no subcommand named {subcommand}').format(command, subcommand)
+		return _('Command "{0.qualified_name}" has no subcommands.').format(command)
 
 class Meta(commands.Cog):
 	def __init__(self, bot):
