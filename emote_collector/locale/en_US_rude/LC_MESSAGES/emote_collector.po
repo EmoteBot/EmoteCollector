@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-05-05 06:49+0000\n"
+"POT-Creation-Date: 2019-05-14 04:24+0000\n"
 "PO-Revision-Date: 2019-02-23 08:17+0000\n"
 "Last-Translator: Allan Nordhøy <epost@anotheragency.no>\n"
 "Language-Team: English (United States) <https://hosted.weblate.org/projects/"
@@ -70,7 +70,7 @@ msgstr "{emote} (Preserved)"
 msgid "{emote} (NSFW)"
 msgstr ""
 
-#: emote_collector/extensions/db.py:659
+#: emote_collector/extensions/db.py:654
 msgid ""
 "You may not set this emote as SFW because it was set NSFW by an emote "
 "moderator."
@@ -352,7 +352,7 @@ msgstr ""
 "I swear to god if you send hentai in that server I will blow your brains out."
 
 #: emote_collector/extensions/gimme.py:42
-#: emote_collector/extensions/meta.py:206
+#: emote_collector/extensions/meta.py:321
 msgid "Unable to send invite in DMs. Please allow DMs from server members."
 msgstr "Hey dumbass! Allow DMs from server members!"
 
@@ -378,11 +378,109 @@ msgstr "The current locale for that channel is: {channel_or_guild_locale}"
 msgid "The current locale for this server is: {guild_locale}"
 msgstr "The current locale for this server is: {guild_locale}"
 
-#: emote_collector/extensions/meta.py:53
+#. preserve i18n'd strings which use this var name
+#: emote_collector/extensions/meta.py:34 emote_collector/extensions/meta.py:173
+#, python-brace-format
+msgid "{cog_name} Commands"
+msgstr "{cog_name} Commands"
+
+#: emote_collector/extensions/meta.py:46
+#, python-brace-format
+msgid "For more help, join the official bot support server: {invite}"
+msgstr "For more help, join the official bot support server: {invite}"
+
+#: emote_collector/extensions/meta.py:47
+msgid "Support"
+msgstr ""
+
+#: emote_collector/extensions/meta.py:50
+#, python-brace-format
+msgid "Use \"{self.prefix}help command\" for more info on a command."
+msgstr "Use \"{self.prefix}help command\" for more info on a command."
+
+#: emote_collector/extensions/meta.py:54
+msgid "No help given"
+msgstr ""
+
+#: emote_collector/extensions/meta.py:58
+#, python-brace-format
+msgid "Page {page}⁄{self.maximum_pages} ({self.total} commands)"
+msgstr "Page {page}⁄{self.maximum_pages} ({self.total} commands)"
+
+#: emote_collector/extensions/meta.py:63
+msgid "Paginator help"
+msgstr "Paginator help"
+
+#: emote_collector/extensions/meta.py:64 emote_collector/extensions/meta.py:84
+msgid "Hello! Welcome to the help page."
+msgstr "Hello! Welcome to the help page."
+
+#: emote_collector/extensions/meta.py:68
+msgid "What are these reactions for?"
+msgstr "What are these reactions for?"
+
+#: emote_collector/extensions/meta.py:71 emote_collector/extensions/meta.py:106
+#: emote_collector/utils/paginator.py:231
+#, python-brace-format
+msgid "We were on page {self.current_page} before this message."
+msgstr "We were on page {self.current_page} before this message."
+
+#: emote_collector/extensions/meta.py:83
+msgid "Using the bot"
+msgstr ""
+
+#: emote_collector/extensions/meta.py:87
+msgid "How do I use this bot?"
+msgstr "How do I use this shit?"
+
+#: emote_collector/extensions/meta.py:87
+msgid "Reading the bot signature is pretty simple."
+msgstr "Reading the bot signature is pretty simple."
+
+#: emote_collector/extensions/meta.py:89
+msgid "argument"
+msgstr "argument"
+
+#: emote_collector/extensions/meta.py:92
+msgid "This means the argument is __**required**__."
+msgstr "This means the argument is __**required**__."
+
+#: emote_collector/extensions/meta.py:93
+msgid "This means the argument is __**optional**__."
+msgstr "This means the argument is __**optional**__."
+
+#: emote_collector/extensions/meta.py:94
+msgid "This means the it can be __**either A or B**__."
+msgstr ""
+
+#: emote_collector/extensions/meta.py:97
+msgid ""
+"This means you can have multiple arguments.\n"
+"Now that you know the basics, it should be noted that...\n"
+"__**You do not type in the brackets!**__"
+msgstr ""
+"This means you can have multiple arguments.\n"
+"Now that you know the basics, it should be noted that...\n"
+"__**You do not type in the brackets!**__"
+
+#: emote_collector/extensions/meta.py:119
+msgid "Shows help about the bot, a command, or a category"
+msgstr ""
+
+#. zero width space so that "No Category" gets sorted first
+#: emote_collector/extensions/meta.py:141
+msgid "No Category"
+msgstr ""
+
+#: emote_collector/extensions/meta.py:183
+msgid "No help given."
+msgstr "the developer was too lazy to document this command."
+
+#: emote_collector/extensions/meta.py:235
 msgid "Yes, delete my account."
 msgstr "Yes, delete my fucking account pl0x kthbai"
 
-#: emote_collector/extensions/meta.py:55
+#: emote_collector/extensions/meta.py:237
 #, python-brace-format
 msgid ""
 "Are you sure you want to delete your account? To confirm, please say "
@@ -391,25 +489,20 @@ msgstr ""
 "lol are you sure you wanna delete your whole account? Say "
 "“{confirmation_phrase}” to confirm."
 
-#: emote_collector/extensions/meta.py:62
+#: emote_collector/extensions/meta.py:244
 msgid "Deleting your account…"
 msgstr "Deleting your account 👌😂"
 
-#: emote_collector/extensions/meta.py:69
+#: emote_collector/extensions/meta.py:251
 #, python-brace-format
 msgid "{context.author.mention} I've deleted your account successfully."
 msgstr "{context.author.mention} I've deleted your account lmao"
 
-#: emote_collector/extensions/meta.py:83
+#: emote_collector/extensions/meta.py:265
 msgid "Confirmation phrase not received in time. Please try again."
 msgstr "Baka! You didn't say the confirmation phrase. Try again."
 
-#: emote_collector/extensions/meta.py:141
-#, python-brace-format
-msgid "Command or category \"{command_name}\" not found."
-msgstr "Do I look like I have a command or category called \"{command_name}\"?"
-
-#: emote_collector/extensions/meta.py:196
+#: emote_collector/extensions/meta.py:311
 msgid "Could not fetch changes due to memory error. Sorry."
 msgstr "lol I ran out of RAM to display changes"
 
@@ -538,40 +631,40 @@ msgstr "Bot does not have add reactions permission."
 msgid "Bot does not have Read Message History permission."
 msgstr "Bot does not have Read Message History permission."
 
-#: emote_collector/utils/paginator.py:116
-#: emote_collector/utils/paginator.py:313
+#: emote_collector/utils/paginator.py:121
+#: emote_collector/utils/paginator.py:321
 #, python-brace-format
 msgid "Page {page}⁄{self.maximum_pages} ({num_entries} entries)"
 msgstr "Page {page}⁄{self.maximum_pages} ({num_entries} entries)"
 
-#: emote_collector/utils/paginator.py:120
-#: emote_collector/utils/paginator.py:317
+#: emote_collector/utils/paginator.py:125
+#: emote_collector/utils/paginator.py:325
 #, python-brace-format
 msgid "Page {page}⁄{self.maximum_pages}"
 msgstr "Page {page}⁄{self.maximum_pages}"
 
-#: emote_collector/utils/paginator.py:138
+#: emote_collector/utils/paginator.py:131
 msgid "Confused? React with \\N{INFORMATION SOURCE} for more info."
 msgstr "Confused? React with \\N{INFORMATION SOURCE} for more info."
 
-#: emote_collector/utils/paginator.py:182
+#: emote_collector/utils/paginator.py:190
 msgid "What page do you want to go to?"
 msgstr "What page do you want to go to?"
 
-#: emote_collector/utils/paginator.py:192
+#: emote_collector/utils/paginator.py:200
 msgid "You took too long."
 msgstr "You took too long, dumbass."
 
-#: emote_collector/utils/paginator.py:201
+#: emote_collector/utils/paginator.py:209
 #, python-brace-format
 msgid "Invalid page given. ({page}/{self.maximum_pages})"
 msgstr "Invalid page given. ({page}/{self.maximum_pages})"
 
-#: emote_collector/utils/paginator.py:213
+#: emote_collector/utils/paginator.py:221
 msgid "Welcome to the interactive paginator!\n"
 msgstr "Welcome to the interactive paginator!\n"
 
-#: emote_collector/utils/paginator.py:214
+#: emote_collector/utils/paginator.py:222
 msgid ""
 "This interactively allows you to see pages of text by navigating with "
 "reactions. They are as follows:\n"
@@ -579,96 +672,21 @@ msgstr ""
 "This interactively allows you to see pages of text by navigating with "
 "reactions. They are as follows:\n"
 
-#: emote_collector/utils/paginator.py:223
-#: emote_collector/utils/paginator.py:525
-#: emote_collector/utils/paginator.py:559
-#, python-brace-format
-msgid "We were on page {self.current_page} before this message."
-msgstr "We were on page {self.current_page} before this message."
+#~ msgid "Command or category \"{command_name}\" not found."
+#~ msgstr ""
+#~ "Do I look like I have a command or category called \"{command_name}\"?"
 
-#: emote_collector/utils/paginator.py:406
-#, python-brace-format
-msgid "{cog_name} Commands"
-msgstr "{cog_name} Commands"
+#~ msgid "Misc"
+#~ msgstr "Misc"
 
-#: emote_collector/utils/paginator.py:427
-#: emote_collector/utils/paginator.py:497
-msgid "No help given."
-msgstr "the developer was too lazy to document this command."
+#~ msgid "{cog} Commands"
+#~ msgstr "{cog} Commands"
 
-#: emote_collector/utils/paginator.py:435
-msgid "Misc"
-msgstr "Misc"
+#~ msgid "[A|B]"
+#~ msgstr "[A|B]"
 
-#: emote_collector/utils/paginator.py:471
-#, python-brace-format
-msgid "{cog} Commands"
-msgstr "{cog} Commands"
-
-#: emote_collector/utils/paginator.py:486
-#, python-brace-format
-msgid "For more help, join the official bot support server: {invite}"
-msgstr "For more help, join the official bot support server: {invite}"
-
-#: emote_collector/utils/paginator.py:490
-#, python-brace-format
-msgid "Use \"{self.prefix}help command\" for more info on a command."
-msgstr "Use \"{self.prefix}help command\" for more info on a command."
-
-#: emote_collector/utils/paginator.py:502
-#, python-brace-format
-msgid "Page {page}⁄{self.maximum_pages} ({self.total} commands)"
-msgstr "Page {page}⁄{self.maximum_pages} ({self.total} commands)"
-
-#: emote_collector/utils/paginator.py:517
-msgid "Paginator help"
-msgstr "Paginator help"
-
-#: emote_collector/utils/paginator.py:518
-msgid "Hello! Welcome to the help page."
-msgstr "Hello! Welcome to the help page."
-
-#: emote_collector/utils/paginator.py:522
-msgid "What are these reactions for?"
-msgstr "What are these reactions for?"
-
-#: emote_collector/utils/paginator.py:541
-msgid "argument"
-msgstr "argument"
-
-#: emote_collector/utils/paginator.py:544
-msgid "How do I use this bot?"
-msgstr "How do I use this shit?"
-
-#: emote_collector/utils/paginator.py:544
-msgid "Reading the bot signature is pretty simple."
-msgstr "Reading the bot signature is pretty simple."
-
-#: emote_collector/utils/paginator.py:547
-msgid "This means the argument is __**required**__."
-msgstr "This means the argument is __**required**__."
-
-#: emote_collector/utils/paginator.py:548
-msgid "This means the argument is __**optional**__."
-msgstr "This means the argument is __**optional**__."
-
-#: emote_collector/utils/paginator.py:549
-msgid "[A|B]"
-msgstr "[A|B]"
-
-#: emote_collector/utils/paginator.py:549
-msgid "This means that it can be __**either A or B**__."
-msgstr "This means that it can be __**either A or B**__."
-
-#: emote_collector/utils/paginator.py:550
-msgid ""
-"This means you can have multiple arguments.\n"
-"Now that you know the basics, it should be noted that...\n"
-"__**You do not type in the brackets!**__"
-msgstr ""
-"This means you can have multiple arguments.\n"
-"Now that you know the basics, it should be noted that...\n"
-"__**You do not type in the brackets!**__"
+#~ msgid "This means that it can be __**either A or B**__."
+#~ msgstr "This means that it can be __**either A or B**__."
 
 #~ msgid "Created for {user}"
 #~ msgstr "Created for {user}"
