@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-05-14 04:24+0000\n"
+"POT-Creation-Date: 2019-05-14 22:26+0000\n"
 "PO-Revision-Date: 2019-02-23 08:17+0000\n"
 "Last-Translator: Allan Nordhøy <epost@anotheragency.no>\n"
 "Language-Team: Polish <https://hosted.weblate.org/projects/emote-collector/"
@@ -351,7 +351,7 @@ msgid "Invite to the server that has {emote}: {invite.url}"
 msgstr "Zaproszenie do tego serwera posiada {emote}: {invite.url}"
 
 #: emote_collector/extensions/gimme.py:42
-#: emote_collector/extensions/meta.py:321
+#: emote_collector/extensions/meta.py:329
 msgid "Unable to send invite in DMs. Please allow DMs from server members."
 msgstr ""
 "Niezdolny do wysłania zaproszenia w wiadomości na Discordzie. Prosze "
@@ -477,11 +477,26 @@ msgstr ""
 msgid "No help given."
 msgstr "Nie otrzymano żadnej pomocy."
 
-#: emote_collector/extensions/meta.py:235
+#: emote_collector/extensions/meta.py:203
+#, python-brace-format
+msgid "Command or category \"{command_name}\" not found."
+msgstr "Nie znaleziono komendy lub kategorii \"{command_name}\"."
+
+#: emote_collector/extensions/meta.py:207
+#, python-brace-format
+msgid "Command \"{0.qualified_name}\" has no subcommand named {subcommand}"
+msgstr ""
+
+#: emote_collector/extensions/meta.py:208
+#, python-brace-format
+msgid "Command \"{0.qualified_name}\" has no subcommands."
+msgstr ""
+
+#: emote_collector/extensions/meta.py:243
 msgid "Yes, delete my account."
 msgstr "Tak, usuń moje konto."
 
-#: emote_collector/extensions/meta.py:237
+#: emote_collector/extensions/meta.py:245
 #, python-brace-format
 msgid ""
 "Are you sure you want to delete your account? To confirm, please say "
@@ -490,21 +505,21 @@ msgstr ""
 "Aby napewno chcesz usunąć twoje konto? Aby potwierdzić, proszę napisz "
 "\"{confirmation_phrase}\" exactly."
 
-#: emote_collector/extensions/meta.py:244
+#: emote_collector/extensions/meta.py:252
 msgid "Deleting your account…"
 msgstr "Usuwanie twojego konta…"
 
-#: emote_collector/extensions/meta.py:251
+#: emote_collector/extensions/meta.py:259
 #, python-brace-format
 msgid "{context.author.mention} I've deleted your account successfully."
 msgstr "{context.author.mention} Pomyślnie usunąłem twoje konto."
 
-#: emote_collector/extensions/meta.py:265
+#: emote_collector/extensions/meta.py:273
 msgid "Confirmation phrase not received in time. Please try again."
 msgstr ""
 "Nie otrzymano wyrażenia potwierdzającego w podanym czasie. Spróbuj ponownie."
 
-#: emote_collector/extensions/meta.py:311
+#: emote_collector/extensions/meta.py:319
 msgid "Could not fetch changes due to memory error. Sorry."
 msgstr "Nie można pobrać zmian z powodu błędu pamięci. Przepraszam."
 
@@ -678,9 +693,6 @@ msgid ""
 msgstr ""
 "Umożliwia to interaktywne przeglądanie stron tekstu poprzez nawigowanie z "
 "reakcjami. Są one następujące:\n"
-
-#~ msgid "Command or category \"{command_name}\" not found."
-#~ msgstr "Nie znaleziono komendy lub kategorii \"{command_name}\"."
 
 #~ msgid "Misc"
 #~ msgstr "Różne"
