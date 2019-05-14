@@ -204,8 +204,8 @@ class PaginatedHelpCommand(commands.HelpCommand):
 
 	def subcommand_not_found(self, command, subcommand):
 		if isinstance(command, Group) and len(command.all_commands) > 0:
-			return _('Command "{0.qualified_name}" has no subcommand named {subcommand}').format(command, subcommand)
-		return _('Command "{0.qualified_name}" has no subcommands.').format(command)
+			return _('Command "{command.qualified_name}" has no subcommand named {subcommand}').format(**locals())
+		return _('Command "{command.qualified_name}" has no subcommands.').format(**locals())
 
 class Meta(commands.Cog):
 	def __init__(self, bot):
