@@ -13,7 +13,7 @@ import typing
 
 import asyncpg
 import discord
-from discord.ext import commands
+from discord.ext import tasks, commands
 
 from .. import utils
 from ..utils import errors
@@ -98,11 +98,11 @@ class Database(commands.Cog):
 
 		self.tasks = [
 			self.bot.loop.create_task(meth())
-			for meth in (
+			for meth in [
 				self.find_backend_guilds,
 				self.update_emote_guilds,
-				self.update_moderator_list,
-				self.decay_loop)]
+				self.update_moderator_list]]
+		self.tasks.append(self.decay_loop.start())
 
 		self.logger = self.bot.get_cog('Logger')
 
@@ -212,20 +212,15 @@ class Database(commands.Cog):
 		role = guild.get_role(role)
 		return role
 
+	@tasks.loop(minutes=10.0)
 	async def decay_loop(self):
-		poll_interval = 60 * 10
-		while True:
-			if not self.bot.config['decay']['enabled']:
-				# allow the user to enable the decay for next loop
-				await asyncio.sleep(poll_interval)
-				continue
+		if not self.bot.config['decay']['enabled']:
+			return
 
-			await self.bot.wait_until_ready()
-			await self.bot.db_ready.wait()
+		await self.bot.wait_until_ready()
+		await self.bot.db_ready.wait()
 
-			await self.decay()
-
-			await asyncio.sleep(poll_interval)
+		await self.decay()
 
 	## Events
 

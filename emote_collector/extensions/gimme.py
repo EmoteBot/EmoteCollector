@@ -18,7 +18,7 @@ class Gimme(commands.Cog):
 		self.db_cog = self.bot.get_cog('Database')
 		self._init_task = self.bot.loop.create_task(self._init())
 
-	async def cog_unload(self):
+	def cog_unload(self):
 		self._init_task.cancel()
 
 	@commands.command()

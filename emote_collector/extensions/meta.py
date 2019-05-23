@@ -1,9 +1,7 @@
-#!/usr/bin/env python3
-# encoding: utf-8
-
 import asyncio
 import getopt
 import inspect
+import itertools
 import shlex
 import os
 import pkg_resources
@@ -16,17 +14,207 @@ import discord
 from discord.ext import commands
 
 from ..utils import asyncexecutor
-from ..utils.paginator import HelpPaginator, CannotPaginate
+from ..utils.paginator import Pages, CannotPaginate
+
+# Using code provided by Rapptz under the MIT License
+# Copyright ©︎ 2015 Rapptz
+# https://github.com/Rapptz/RoboDanny/blob/915c8721c899caadfc902e2b8557d3693f3fd866/cogs/meta.py
+
+class HelpPaginator(Pages):
+	def __init__(self, help_command, ctx, entries, *, per_page=4):
+		super().__init__(ctx, entries=entries, per_page=per_page)
+		self.reaction_emojis['\N{WHITE QUESTION MARK ORNAMENT}'] = self.show_bot_help
+		self.total = len(entries)
+		self.help_command = help_command
+		self.prefix = help_command.clean_prefix
+		self.is_bot = False
+
+	def get_bot_page(self, page):
+		cog_name, description, commands = self.entries[page - 1]
+		self.title = _('{cog_name} Commands').format(**locals())
+		self.description = description
+		return commands
+
+	def prepare_embed(self, entries, page, *, first=False):
+		self.embed.clear_fields()
+		self.embed.description = self.description
+		self.embed.title = self.title
+
+		invite_code = self.bot.config['support_server'].get('invite_code')
+		if self.is_bot and invite_code:
+			invite = f'https://discord.gg/{invite_code}'
+			value = _('For more help, join the official bot support server: {invite}').format(**locals())
+			self.embed.add_field(name=_('Support'), value=value, inline=False)
+
+		self.embed.set_footer(
+			text=_('Use "{self.prefix}help command" for more info on a command.').format(**locals()))
+
+		for entry in entries:
+			signature = f'{entry.qualified_name} {entry.signature}'
+			self.embed.add_field(name=signature, value=entry.short_doc or _('No help given'), inline=False)
+
+		if self.maximum_pages:
+			self.embed.set_footer(
+				text=_('Page {page}⁄{self.maximum_pages} ({self.total} commands)').format(**locals()))
+
+	async def show_help(self):
+		"""shows this message"""
+
+		self.embed.title = _('Paginator help')
+		self.embed.description = _('Hello! Welcome to the help page.')
+
+		messages = [f'{emoji} {func.__doc__}' for emoji, func in self.reaction_emojis.items()]
+		self.embed.clear_fields()
+		self.embed.add_field(name=_('What are these reactions for?'), value='\n'.join(messages), inline=False)
+
+		self.embed.set_footer(
+			text=_('We were on page {self.current_page} before this message.').format(**locals()))
+		await self.message.edit(embed=self.embed)
+
+		async def go_back_to_current_page():
+			await asyncio.sleep(30.0)
+			await self.show_current_page()
+
+		self.bot.loop.create_task(go_back_to_current_page())
+
+	async def show_bot_help(self):
+		"""shows how to use the bot"""
+
+		self.embed.title = _('Using the bot')
+		self.embed.description = _('Hello! Welcome to the help page.')
+		self.embed.clear_fields()
+
+		self.embed.add_field(name=_('How do I use this bot?'), value=_('Reading the bot signature is pretty simple.'))
+
+		argument = _('argument')
+
+		entries = (
+			(f'<{argument}>', _('This means the argument is __**required**__.')),
+			(f'[{argument}]', _('This means the argument is __**optional**__.')),
+			(f'[A|B]', _('This means the it can be __**either A or B**__.')),
+			(
+				f'[{argument}...]',
+				_('This means you can have multiple arguments.\n'
+				'Now that you know the basics, it should be noted that...\n'
+				'__**You do not type in the brackets!**__')
+			)
+		)
+
+		for name, value in entries:
+			self.embed.add_field(name=name, value=value, inline=False)
+
+		self.embed.set_footer(text=_('We were on page {self.current_page} before this message.').format(**locals()))
+		await self.message.edit(embed=self.embed)
+
+		async def go_back_to_current_page():
+			await asyncio.sleep(30.0)
+			await self.show_current_page()
+
+		self.bot.loop.create_task(go_back_to_current_page())
+
+class PaginatedHelpCommand(commands.HelpCommand):
+	def __init__(self):
+		super().__init__(command_attrs={
+			'cooldown': commands.Cooldown(1, 3.0, commands.BucketType.member),
+			'help': _('Shows help about the bot, a command, or a category')
+		})
+
+	async def on_help_command_error(self, ctx, error):
+		if isinstance(error, commands.CommandInvokeError):
+			await ctx.send(str(error.original))
+
+	def get_command_signature(self, command):
+		parent = command.full_parent_name
+		if len(command.aliases) > 0:
+			aliases = '|'.join(command.aliases)
+			fmt = f'[{command.name}|{aliases}]'
+			if parent:
+				fmt = f'{parent} {fmt}'
+			alias = fmt
+		else:
+			alias = command.name if not parent else f'{parent} {command.name}'
+		return f'{alias} {command.signature}'
+
+	async def send_bot_help(self, mapping):
+		def key(c):
+			# zero width space so that "No Category" gets sorted first
+			return c.cog_name or '\N{zero width space}' + _('No Category')
+
+		bot = self.context.bot
+		entries = await self.filter_commands(bot.commands, sort=True, key=key)
+		nested_pages = []
+		per_page = 9
+		total = 0
+
+		for cog, commands in itertools.groupby(entries, key=key):
+			commands = sorted(commands, key=lambda c: c.name)
+			if len(commands) == 0:
+				continue
+
+			total += len(commands)
+			actual_cog = bot.get_cog(cog)
+			# get the description if it exists (and the cog is valid) or return Empty embed.
+			description = (actual_cog and actual_cog.description) or discord.Embed.Empty
+			nested_pages.extend((cog, description, commands[i:i + per_page]) for i in range(0, len(commands), per_page))
+
+		# a value of 1 forces the pagination session
+		pages = HelpPaginator(self, self.context, nested_pages, per_page=1)
+
+		# swap the get_page implementation to work with our nested pages.
+		pages.get_page = pages.get_bot_page
+		pages.is_bot = True
+		pages.total = total
+		await pages.begin()
+
+	async def send_cog_help(self, cog):
+		entries = await self.filter_commands(cog.get_commands(), sort=True)
+		pages = HelpPaginator(self, self.context, entries)
+		cog_name = cog.qualified_name  # preserve i18n'd strings which use this var name
+		pages.title = _('{cog_name} Commands').format(**locals())
+		pages.description = cog.description
+
+		await pages.begin()
+
+	def common_command_formatting(self, page_or_embed, command):
+		page_or_embed.title = self.get_command_signature(command)
+		if command.description:
+			page_or_embed.description = f'{command.description}\n\n{command.help}'
+		else:
+			page_or_embed.description = command.help or _('No help given.')
+
+	async def send_command_help(self, command):
+		# No pagination necessary for a single command.
+		embed = discord.Embed()
+		self.common_command_formatting(embed, command)
+		await self.context.send(embed=embed)
+
+	async def send_group_help(self, group):
+		subcommands = group.commands
+		if len(subcommands) == 0:
+			return await self.send_command_help(group)
+
+		entries = await self.filter_commands(subcommands, sort=True)
+		pages = HelpPaginator(self, self.context, entries)
+		self.common_command_formatting(pages, group)
+
+		await pages.begin()
+
+	def command_not_found(self, command_name):
+		return _('Command or category "{command_name}" not found.').format(**locals())
+
+	def subcommand_not_found(self, command, subcommand):
+		if isinstance(command, Group) and len(command.all_commands) > 0:
+			return _('Command "{command.qualified_name}" has no subcommand named {subcommand}').format(**locals())
+		return _('Command "{command.qualified_name}" has no subcommands.').format(**locals())
 
 class Meta(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
 
-		# setting a Command as an attribute of a cog causes it to be added to the bot
-		# prevent this by wrapping it in a tuple
-		self.old_help = (self.bot.remove_command('help'),)
+		self.old_help = self.bot.help_command
+		self.bot.help_command = PaginatedHelpCommand()
+		self.bot.help_command.cog = self
 
-		self.paginators = weakref.WeakSet()
 		self.process = psutil.Process()
 
 	def cog_unload(self):
@@ -35,6 +223,8 @@ class Meta(commands.Cog):
 				await paginator.stop(delete=False)
 
 		self.bot.loop.create_task(stop_all())
+
+		self.bot.help_command = self.old_help
 
 	@commands.command(name='delete-my-account')
 	async def delete_my_account(self, context):
@@ -84,73 +274,6 @@ class Meta(commands.Cog):
 			return False
 		else:
 			return True
-
-	@commands.command()
-	async def help(self, context, *, args: str=None):
-		if args is None:
-			paginator = await HelpPaginator.from_bot(context)
-			self.paginators.add(paginator)
-			return await paginator.begin()
-
-		args = shlex.split(args)
-		try:
-			opts, args = getopt.gnu_getopt(args, '', ['embed', 'no-embed'])
-		except getopt.GetoptError:
-			opts = []
-
-		# since opts is a list of two-tuples, we can't use frozenset on it directly
-		# so we have to call dict first
-		opts = frozenset(dict(opts))
-		if len(opts) == 2:
-			raise commands.BadArgument('Only one of --embed, --no-embed is expected.')
-
-		embed = True if '--embed' in opts else False if '--no-embed' in opts else True
-
-		if not args:
-			if embed:
-				paginator = await HelpPaginator.from_bot(context)
-				self.paginators.add(paginator)
-				return await paginator.begin()
-			return await context.invoke(self.old_help[0])
-
-		# derived from R.Danny's help command
-		# https://github.com/Rapptz/RoboDanny/blob/8919ec0a455f957848ef77b479fe3494e76f0aa7/cogs/meta.py
-		# MIT Licensed, Copyright © 2015 Rapptz
-
-		# it came from getopt so it's still a bunch of args
-		command = ' '.join(args)
-
-		entity = self.bot.get_cog(command) or self.bot.get_command(command)
-
-		if entity is self.help:
-			return await context.send(_(textwrap.dedent("""
-				```
-				{context.prefix}help [commands...]
-
-				Shows help about a command, category, or the bot.
-
-				Optional arguments:
-					--embed    display output with an embed
-					--no-embed display output without an embed
-				```""")).format(**locals()))
-		elif not embed:
-			return await context.invoke(self.old_help[0], *args)
-
-		if entity is None:
-			command_name = command.replace('@', '@\N{zero width non-joiner}')
-			return await context.send(_('Command or category "{command_name}" not found.').format(**locals()))
-		elif isinstance(entity, commands.Command):
-			paginator = await HelpPaginator.from_command(context, entity)
-		else:
-			paginator = await HelpPaginator.from_cog(context, entity)
-
-		self.paginators.add(paginator)
-		await paginator.begin()
-
-	@help.error
-	async def help_error(self, context, error):
-		if isinstance(error, CannotPaginate):
-			await context.send(error)
 
 	@commands.command()
 	async def about(self, context):
