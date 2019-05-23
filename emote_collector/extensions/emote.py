@@ -4,6 +4,7 @@
 import asyncio
 import collections
 import contextlib
+import cgi
 import getopt
 import io
 import json
@@ -257,8 +258,9 @@ class Emotes(commands.Cog):
 		def validate_headers(response):
 			if response.reason != 'OK':
 				raise errors.HTTPException(response.status)
-			content_type = response.headers.get('Content-Type')
-			if content_type and content_type not in {'image/png', 'image/jpeg', 'image/gif'}:
+			# some dumb servers also send '; charset=UTF-8' which we should ignore
+			mimetype, options = cgi.parse_header(response.headers.get('Content-Type', ''))
+			if mimetype not in {'image/png', 'image/jpeg', 'image/gif'}:
 				raise errors.InvalidImageError
 
 		try:
