@@ -142,7 +142,7 @@ async def resize_in_subprocess(image_data: bytes):
 		if proc.returncode == 1:
 			raise errors.InvalidImageError
 		if proc.returncode != 0:
-			raise errors.ConnoisseurError(err.decode('utf-8'))
+			raise RuntimeError(err.decode('utf-8') + f'Return code: {proc.returncode}')
 
 	return image_data
 
