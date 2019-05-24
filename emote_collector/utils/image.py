@@ -127,7 +127,7 @@ def main() -> typing.NoReturn:
 
 async def resize_in_subprocess(image_data: bytes):
 	proc = await asyncio.create_subprocess_exec(
-		sys.executable, '-m', 'emote_collector.utils.image',
+		sys.executable, '-m', __name__,
 
 		stdin=asyncio.subprocess.PIPE,
 		stdout=asyncio.subprocess.PIPE,
