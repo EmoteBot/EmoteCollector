@@ -551,7 +551,7 @@ class Database(commands.Cog):
 		except discord.NotFound:
 			# sometimes the database and the backend get out of sync
 			# but we don't really care if there's an entry in the database and not the backend
-			logger.warn(f'emote {emote.name} found in the database but not the backend! removing anyway.')
+			logger.warning(f'emote {emote.name} found in the database but not the backend! removing anyway.')
 
 		await self.bot.pool.execute('DELETE FROM emotes WHERE id = $1', emote.id)
 		return emote

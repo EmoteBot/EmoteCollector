@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 try:
 	import wand.image
 except (ImportError, OSError):
-	logger.warn('Failed to import wand.image. Image manipulation functions will be unavailable.')
+	logger.warning('Failed to import wand.image. Image manipulation functions will be unavailable.')
 else:
 	import wand.exceptions
 
