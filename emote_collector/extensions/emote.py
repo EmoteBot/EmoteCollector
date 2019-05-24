@@ -873,8 +873,7 @@ class Emotes(commands.Cog):
 		if not message_has_emotes:
 			return await self.delete_reply(message.channel.id, message.id)
 
-		# gah! why is the parameter order message_id, channel_id?
-		await self.bot.http.edit_message(reply_message_id, message.channel.id, content=emotes)
+		await self.bot.http.edit_message(message.channel.id, reply_message_id, content=emotes)
 
 	async def _handle_quoted_edit(self, message, reply_message_id):
 		"""handle the case when the user edits an ec/quote invocation"""
@@ -888,7 +887,7 @@ class Emotes(commands.Cog):
 			content,
 			log_usage=False)
 
-		await self.bot.http.edit_message(reply_message_id, message.channel.id, content=emotes)
+		await self.bot.http.edit_message(message.channel.id, reply_message_id, content=emotes)
 
 	async def _extract_emotes(self,
 		message: discord.Message,
