@@ -11,7 +11,6 @@ import json
 import logging
 import os.path
 import re
-import sys
 import traceback
 import weakref
 
@@ -278,25 +277,7 @@ class Emotes(commands.Cog):
 			await self.db.ensure_emote_does_not_exist(name)
 
 		animated = image_utils.is_animated(image_data.getvalue())
-
-		proc = await asyncio.create_subprocess_exec(
-			sys.executable, '-m', 'emote_collector.utils.image',
-
-			stdin=asyncio.subprocess.PIPE,
-			stdout=asyncio.subprocess.PIPE,
-			stderr=asyncio.subprocess.PIPE)
-
-		try:
-			image_data, err = await asyncio.wait_for(proc.communicate(image_data.read()), timeout=30)
-		except asyncio.TimeoutError:
-			proc.kill()
-			raise errors.ImageResizeTimeoutError
-		else:
-			if proc.returncode == 1:
-				raise errors.InvalidImageError
-			elif proc.returncode != 0:
-				raise errors.ConnoisseurError(err.decode('utf-8'))
-
+		image_data = await image_utils.resize_in_subprocess(image_data.read())
 		emote = await self.db.create_emote(name, author_id, animated, image_data)
 		self.bot.dispatch('emote_add', emote)
 		return emote

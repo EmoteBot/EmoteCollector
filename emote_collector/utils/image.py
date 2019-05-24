@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 # encoding: utf-8
 
+import asyncio
 import base64
 import contextlib
 import imghdr
 import itertools
 import io
 import logging
+import sys
 import typing
 
 logger = logging.getLogger(__name__)
@@ -122,6 +124,27 @@ def main() -> typing.NoReturn:
 		stdout_write(buf)
 
 	sys.exit(0)
+
+async def resize_in_subprocess(image_data: bytes):
+	proc = await asyncio.create_subprocess_exec(
+		sys.executable, '-m', 'emote_collector.utils.image',
+
+		stdin=asyncio.subprocess.PIPE,
+		stdout=asyncio.subprocess.PIPE,
+		stderr=asyncio.subprocess.PIPE)
+
+	try:
+		image_data, err = await asyncio.wait_for(proc.communicate(image_data), timeout=30)
+	except asyncio.TimeoutError:
+		proc.kill()
+		raise errors.ImageResizeTimeoutError
+	else:
+		if proc.returncode == 1:
+			raise errors.InvalidImageError
+		if proc.returncode != 0:
+			raise errors.ConnoisseurError(err.decode('utf-8'))
+
+	return image_data
 
 if __name__ == '__main__':
 	main()
