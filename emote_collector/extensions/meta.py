@@ -218,12 +218,6 @@ class Meta(commands.Cog):
 		self.process = psutil.Process()
 
 	def cog_unload(self):
-		async def stop_all():
-			for paginator in self.paginators:
-				await paginator.stop(delete=False)
-
-		self.bot.loop.create_task(stop_all())
-
 		self.bot.help_command = self.old_help
 
 	@commands.command(name='delete-my-account')
