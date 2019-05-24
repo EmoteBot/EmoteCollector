@@ -108,10 +108,7 @@ def main() -> typing.NoReturn:
 	try:
 		resize_until_small(data)
 	except errors.InvalidImageError:
-		sys.exit(1)
-	except BaseException:
-		import traceback
-		traceback.print_exc()
+		# 2 is used because 1 is already used by python's default error handler
 		sys.exit(2)
 
 	stdout_write = sys.stdout.buffer.write  # getattr optimization
@@ -139,7 +136,7 @@ async def resize_in_subprocess(image_data: bytes):
 		proc.kill()
 		raise errors.ImageResizeTimeoutError
 	else:
-		if proc.returncode == 1:
+		if proc.returncode == 2:
 			raise errors.InvalidImageError
 		if proc.returncode != 0:
 			raise RuntimeError(err.decode('utf-8') + f'Return code: {proc.returncode}')
