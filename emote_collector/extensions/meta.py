@@ -365,7 +365,7 @@ class Meta(commands.Cog):
 		if module.startswith(self.__module__.split('.')[0]):
 			# not a built-in command
 			location = os.path.relpath(inspect.getfile(src)).replace('\\', '/')
-			at = await self._current_revision()
+			at = self._current_revision()
 		elif module.startswith('discord'):
 			source_url = 'https://github.com/Rapptz/discord.py'
 			at = self._discord_revision()
