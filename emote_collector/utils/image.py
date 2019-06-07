@@ -4,8 +4,6 @@
 import asyncio
 import base64
 import contextlib
-import imghdr
-import itertools
 import io
 import logging
 import sys
