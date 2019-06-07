@@ -13,7 +13,6 @@ from discord.ext import commands
 import pygit2
 import psutil
 
-from .. import BASE_DIR
 from ..utils import asyncexecutor
 from ..utils.paginator import Pages, CannotPaginate
 
@@ -386,7 +385,7 @@ class Meta(commands.Cog):
 
 	@staticmethod
 	def _current_revision(*, default='master'):
-		repo = pygit2.Repository(os.path.join(BASE_DIR, '.git'))
+		repo = pygit2.Repository('.git')
 		c = next(repo.walk(repo.head.target, pygit2.GIT_SORT_TOPOLOGICAL))
 		return c.hex[:10]
 
