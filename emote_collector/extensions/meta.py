@@ -8,10 +8,10 @@ import pkg_resources
 import textwrap
 import weakref
 
-import psutil
-
 import discord
 from discord.ext import commands
+import pygit2
+import psutil
 
 from .. import BASE_DIR
 from ..utils import asyncexecutor
