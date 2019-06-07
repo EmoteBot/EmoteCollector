@@ -13,6 +13,7 @@ import psutil
 import discord
 from discord.ext import commands
 
+from .. import BASE_DIR
 from ..utils import asyncexecutor
 from ..utils.paginator import Pages, CannotPaginate
 
@@ -362,13 +363,14 @@ class Meta(commands.Cog):
 		src = obj.callback
 		lines, firstlineno = inspect.getsourcelines(src)
 		module = inspect.getmodule(src).__name__
-		if module.startswith(self.__module__.split('.')[0]):  # XXX dunno if this branch works
+		if module.startswith(self.__module__.split('.')[0]):
 			# not a built-in command
 			location = os.path.relpath(inspect.getfile(src)).replace('\\', '/')
 			at = await self._current_revision()
 		elif module.startswith('discord'):
 			source_url = 'https://github.com/Rapptz/discord.py'
 			at = self._discord_revision()
+			location = module.replace('.', '/') + '.py'
 		else:
 			if module.startswith('jishaku'):
 				source_url = 'https://github.com/Gorialis/jishaku'
@@ -383,21 +385,16 @@ class Meta(commands.Cog):
 		await context.send(final_url)
 
 	@staticmethod
-	@asyncexecutor()
 	def _current_revision(*, default='master'):
-		try:
-			return os.popen('git rev-parse HEAD').read().strip()
-		except OSError:
-			return default
+		repo = pygit2.Repository(os.path.join(BASE_DIR, '.git'))
+		c = next(repo.walk(repo.head.target, pygit2.GIT_SORT_TOPOLOGICAL))
+		return c.hex[:10]
 
 	@classmethod
-	def _discord_revision(cls, *, default='rewrite'):
-		ver = cls._pkg_version('discord', default=default)
-		if ver == default:
-			return default
-
-		version, sep, commit = ver.rpartition('+g')
-		return commit or default
+	def _discord_revision(cls):
+		version = cls._pkg_version('discord.py')
+		version, sep, commit = version.partition('+g')
+		return commit or 'v' + version
 
 	@classmethod
 	def _ben_cogs_revision(cls, *, default='master'):
