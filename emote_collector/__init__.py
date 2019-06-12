@@ -34,7 +34,6 @@ class EmoteCollector(commands.AutoShardedBot):
 	def __init__(self, *args, **kwargs):
 		self.config = kwargs.pop('config')
 		self.process_config()
-		self.db_ready = asyncio.Event()
 		self._fallback_prefix = str(uuid.uuid4())
 
 		super().__init__(
@@ -185,26 +184,20 @@ class EmoteCollector(commands.AutoShardedBot):
 
 	### Init / Shutdown
 
-	async def start(self):
-		await self._init_db()
+	async def login(self, token=None, **kwargs):
+		await self.init_db()
 		self._load_extensions()
 
-		await super().start(self.config['tokens'].pop('discord'))
+		await super().login(self.config['tokens'].pop('discord'))
 
-	async def logout(self):
+	async def close(self):
 		with contextlib.suppress(AttributeError):
 			await self.pool.close()
-		await super().logout()
+		await super().close()
 
-	async def _init_db(self):
+	async def init_db(self):
 		credentials = self.config['database']
-		pool = await asyncpg.create_pool(**credentials)
-
-		with open(os.path.join(BASE_DIR, 'data', 'schema.sql')) as f:
-			await pool.execute(f.read())
-
-		self.pool = pool
-		self.db_ready.set()
+		self.pool = await asyncpg.create_pool(**credentials)
 
 	def _load_extensions(self):
 		for extension in (

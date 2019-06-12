@@ -814,8 +814,6 @@ class Emotes(commands.Cog):
 		else:
 			guild = None
 
-		await self.bot.db_ready.wait()
-
 		if not await self.db.get_state(guild, message.author.id):
 			return False
 
