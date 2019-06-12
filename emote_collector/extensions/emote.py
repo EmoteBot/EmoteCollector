@@ -270,14 +270,14 @@ class Emotes(commands.Cog):
 
 		async with self.http.get(url) as response:
 			validate_headers(response)
-			return io.BytesIO(await response.read())
+			return await response.read()
 
-	async def create_emote_from_bytes(self, name, author_id, image_data: io.BytesIO, *, verify=True):
+	async def create_emote_from_bytes(self, name, author_id, image_data: bytes, *, verify=True):
 		if verify:
 			await self.db.ensure_emote_does_not_exist(name)
 
-		animated = image_utils.is_animated(image_data.getvalue())
-		image_data = await image_utils.resize_in_subprocess(image_data.read())
+		animated = image_utils.is_animated(image_data)
+		image_data = await image_utils.resize_in_subprocess(image_data)
 		emote = await self.db.create_emote(name, author_id, animated, image_data)
 		self.bot.dispatch('emote_add', emote)
 		return emote
