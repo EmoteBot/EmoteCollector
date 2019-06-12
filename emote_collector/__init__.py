@@ -184,11 +184,11 @@ class EmoteCollector(commands.AutoShardedBot):
 
 	### Init / Shutdown
 
-	async def login(self, token=None, **kwargs):
+	async def start(self, token=None, **kwargs):
 		await self.init_db()
 		self._load_extensions()
 
-		await super().login(self.config['tokens'].pop('discord'))
+		await super().start(self.config['tokens'].pop('discord'), **kwargs)
 
 	async def close(self):
 		with contextlib.suppress(AttributeError):
