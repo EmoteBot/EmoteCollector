@@ -377,21 +377,35 @@ class Database(commands.Cog):
 	# if a bool, allow NSFW emotes if True
 	AllowNsfwType = typing.Union[discord.DMChannel, discord.TextChannel, bool]
 
-	def all_emotes(self, author_id=None, *, allow_nsfw: AllowNsfwType = False):
+	async def all_emotes(self, author_id=None, *, allow_nsfw: AllowNsfwType = False):
 		"""return an async iterator that gets emotes from the database.
 		If author id is provided, get only emotes from them.
 		"""
+		batch = await self.all_emotes_keyset(author_id, allow_nsfw=allow_nsfw)
+		while batch:
+			for emote in batch:
+				yield emote
+			batch = await self.all_emotes_keyset(author_id, allow_nsfw=allow_nsfw, after=batch[-1].name)
+
+	async def all_emotes_keyset(self, author_id=None, *, allow_nsfw: AllowNsfwType = False, after: str = None):
 		# it's times like these i wish i had mongo tbh
 		query = 'SELECT * FROM emotes WHERE nsfw = ANY ($1) '
 		args = [self.allowed_nsfw_types(allow_nsfw)]
 
+		arg_counter = 2
+
+		if after is not None:
+			query += f'AND LOWER(name) > LOWER(${arg_counter}) '
+			args.append(after)
+			arg_counter += 1
+
 		if author_id is not None:
-			query += 'AND author = $2 '
+			query += f'AND author = ${arg_counter} '
 			args.append(author_id)
+			arg_counter += 1
 
-		query += 'ORDER BY LOWER(name)'
-
-		return self._database_emote_cursor(query, *args)
+		query += 'ORDER BY LOWER(name) LIMIT 100'
+		return list(map(DatabaseEmote, await self.bot.pool.fetch(query, *args)))
 
 	def popular_emotes(self, author_id=None, *, limit=200, allow_nsfw: AllowNsfwType = False):
 		"""return an async iterator that gets emotes from the db sorted by popularity"""
