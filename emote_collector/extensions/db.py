@@ -218,8 +218,6 @@ class Database(commands.Cog):
 			return
 
 		await self.bot.wait_until_ready()
-		await self.bot.db_ready.wait()
-
 		await self.decay()
 
 	## Events
