@@ -18,11 +18,10 @@ setuptools.setup(
 	install_requires=[
 		'aiocontextvars==0.1.2',
 		'asyncpg',
-		'ben_cogs>=0.8.0',
+		'ben_cogs[sql]>=0.11.0',
 		'discord.py>=1.1.1,<2.0.0',
 		'jishaku>=1.6.1,<2.0.0',
 		'ply',
-		'prettytable',
 		'wand',
 	],
 )

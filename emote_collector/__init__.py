@@ -214,6 +214,7 @@ class EmoteCollector(commands.AutoShardedBot):
 			'jishaku',
 			'ben_cogs.misc',
 			'ben_cogs.debug',
+			'ben_cogs.sql',
 		):
 			self.load_extension(extension)
 			logger.info('Successfully loaded %s', extension)

@@ -17,7 +17,6 @@ import urllib.parse
 import asyncpg
 import discord
 from discord.ext import commands
-from prettytable import PrettyTable
 
 from . import errors
 
@@ -27,27 +26,6 @@ from . import errors
 This is useful to test whether a number is a snowflake:
 if it's greater than this number, it probably is"""
 SMALLEST_SNOWFLAKE = 21154535154122752
-
-class PrettyTable(PrettyTable):
-	"""an extension of PrettyTable that works with asyncpg's Records and looks better"""
-	def __init__(self, rows: Sequence[Union[asyncpg.Record, collections.OrderedDict]], **options):
-		defaults = dict(
-			# super()'s default is ASCII | - +, which don't join seamlessly and look p bad
-			vertical_char='│',
-			horizontal_char='─',
-			junction_char='┼')
-		for option, default in defaults.items():
-			options.setdefault(option, default)
-
-		if rows:
-			super().__init__(rows[0].keys(), **options)
-		else:
-			super().__init__()
-		# PrettyTable's constructor does not set this property for some reason
-		self.align = options.get('align', 'l')	# left align
-
-		for row in rows:
-			self.add_row(row)
 
 def bytes_to_int(x):
 	return int.from_bytes(x, byteorder='big')
