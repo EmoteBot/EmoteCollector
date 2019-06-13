@@ -42,8 +42,6 @@ class EmoteCollector(commands.AutoShardedBot):
 			activity=self.activity,
 			*args, **kwargs)
 
-		utils.i18n.setup(self.loop)
-
 	def process_config(self):
 		self.owners = set(self.config.get('extra_owners', ()))
 		if self.config.get('primary_owner'):
