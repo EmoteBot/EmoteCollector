@@ -313,7 +313,7 @@ class Emotes(commands.Cog):
 
 		async with context.typing():
 			for name in names:
-				arg = f'\\:{name}:'
+				arg = fr'\:{name}:'
 
 				try:
 					emote = await self.db.get_emote(name)
@@ -354,7 +354,7 @@ class Emotes(commands.Cog):
 			animated, name, id = match.groups()
 			image_url = utils.emote.url(id, animated=animated)
 			async with context.typing():
-				arg = f'\\:{name}:'
+				arg = fr'\:{name}:'
 
 				try:
 					emote = await self.add_from_url(name, image_url, context.author.id)
@@ -409,7 +409,7 @@ class Emotes(commands.Cog):
 
 	@commands.command(aliases=['mv'])
 	async def rename(self, context, *args):
-		"""Renames an emote. You must own it.
+		r"""Renames an emote. You must own it.
 
 		Example:
 		ec/rename a b
@@ -686,7 +686,7 @@ class Emotes(commands.Cog):
 		try:
 			author = int((
 				re.search(r'<@!?(\d{17,})>', description)
-				or re.search('Unknown user with ID (\d{17,})', description))[1])
+				or re.search(r'Unknown user with ID (\d{17,})', description))[1])
 		except AttributeError:
 			return await context.send(_('No author IDs were found in that embed.'))
 
@@ -758,7 +758,7 @@ class Emotes(commands.Cog):
 			try:
 				emote = await self.db.set_emote_preservation(name, should_preserve)
 			except errors.EmoteNotFoundError as ex:
-				messages.setdefault(self._humanize_errors(ex), []).append(f'\\:{name}:')
+				messages.setdefault(self._humanize_errors(ex), []).append(fr'\:{name}:')
 			else:
 				messages.setdefault((0, success_message), []).append(str(emote))
 				self.bot.dispatch(f'emote_{"un" if not should_preserve else ""}preserve', emote)

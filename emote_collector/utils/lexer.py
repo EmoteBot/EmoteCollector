@@ -14,7 +14,7 @@ tokens = (
 """Matches code blocks, which should be ignored."""
 t_CODE = '(?su)(?P<code>`{1,3}).+?(?P=code)'
 
-"""Matches \:foo: and \;foo;, allowing one to prevent the emote auto response for one emote."""
+r"""Matches \:foo: and \;foo;, allowing one to prevent the emote auto response for one emote."""
 # we don't need to match :foo\:, since "foo\" is not a valid emote name anyway
 t_ESCAPED_EMOTE = r'(?a)\\(?P<colon>:|;)\w{2,32}(?P=colon)'
 
@@ -39,7 +39,7 @@ def main():
 
 	lexer = new()
 
-	test = textwrap.dedent("""
+	test = textwrap.dedent(r"""
 		You're mom gay
 		haha lol xd
 		:hahaYes: :notlikeblob: ;cruz;
