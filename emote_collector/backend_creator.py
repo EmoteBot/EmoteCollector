@@ -57,7 +57,7 @@ async def wipe_guilds():
 	for guild in bot.guilds:
 		await guild.delete()
 
-def format_guild_name(prefix='EmoteBackend', n, max_n):
+def format_guild_name(n, max_n, prefix='EmoteBackend'):
 	pad_length = len(str(max_n)) - 1
 	# space out the number so that the icon for each guild in the sidebar shows the full number
 	# e.g. 3 -> '0 3' if the limit is 100
@@ -70,7 +70,7 @@ async def create_guilds(prefix, start=0, limit=100):
 	pad_length = len(str(limit)) - 1
 
 	for i in range(start, limit):
-		await bot.create_guild(format_guild_name(prefix, i, limit)
+		await bot.create_guild(format_guild_name(prefix, i, limit))
 
 @print_status('Clearing default channels')
 async def clear_guilds():
