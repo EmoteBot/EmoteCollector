@@ -344,16 +344,31 @@ class Database(commands.Cog):
 				yield emote
 			batch = await self.all_emotes_keyset(author_id, allow_nsfw=allow_nsfw, after=batch[-1].name)
 
-	async def all_emotes_keyset(self, author_id=None, *, allow_nsfw: AllowNsfwType = False, after: str = None):
+	async def all_emotes_keyset(
+		self,
+		author_id=None,
+		*,
+		allow_nsfw: AllowNsfwType = False,
+		after: str = None,
+		before: str = None
+	):
+		if after is not None and before is not None:
+			raise TypeError('only one of after, before may be specified')
+
 		# it's times like these i wish i had mongo tbh
 		query = 'SELECT * FROM emotes WHERE nsfw = ANY ($1) '
 		args = [self.allowed_nsfw_types(allow_nsfw)]
 
 		arg_counter = 2
 
-		if after is not None:
-			query += f'AND LOWER(name) > LOWER(${arg_counter}) '
-			args.append(after)
+		if after is not None or before is not None:
+			if after is not None:
+				op = '>'
+				args.append(after)
+			elif before is not None:
+				op = '<'
+				args.append(before)
+			query += f'AND LOWER(name) {op} LOWER(${arg_counter}) '
 			arg_counter += 1
 
 		if author_id is not None:
