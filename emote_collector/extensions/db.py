@@ -364,9 +364,11 @@ class Database(commands.Cog):
 		if after is not None or before is not None:
 			if after is not None:
 				op = '>'
+				sort_order = 'ASC'
 				args.append(after)
 			elif before is not None:
 				op = '<'
+				sort_order = 'DESC'
 				args.append(before)
 			query += f'AND LOWER(name) {op} LOWER(${arg_counter}) '
 			arg_counter += 1
@@ -376,8 +378,11 @@ class Database(commands.Cog):
 			args.append(author_id)
 			arg_counter += 1
 
-		query += 'ORDER BY LOWER(name) LIMIT 100'
-		return list(map(DatabaseEmote, await self.bot.pool.fetch(query, *args)))
+		query += f'ORDER BY LOWER(name) {sort_order} LIMIT 100'
+		results = list(map(DatabaseEmote, await self.bot.pool.fetch(query, *args)))
+		if before is not None:
+			results.reverse()
+		return results
 
 	def popular_emotes(self, author_id=None, *, limit=200, allow_nsfw: AllowNsfwType = False):
 		"""return an async iterator that gets emotes from the db sorted by popularity"""
