@@ -101,7 +101,7 @@ class Emotes(commands.Cog):
 
 		await context.send(embed=embed)
 
-	@commands.command()
+	@commands.command(aliases=['stats'])
 	@checks.not_blacklisted()
 	async def count(self, context):
 		"""Tells you how many emotes are in my database."""
