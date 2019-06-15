@@ -105,7 +105,7 @@ class Pages:
 		return self.entries[base:base + self.per_page]
 
 	def get_content(self, entries, page, *, first=False):
-		return None
+		return self.text_message
 
 	def get_embed(self, entries, page, *, first=False):
 		self.prepare_embed(entries, page, first=first)
