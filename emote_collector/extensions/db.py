@@ -361,10 +361,10 @@ class Database(commands.Cog):
 
 		arg_counter = 2
 
+		sort_order = 'ASC'
 		if after is not None or before is not None:
 			if after is not None:
 				op = '>'
-				sort_order = 'ASC'
 				args.append(after)
 			elif before is not None:
 				op = '<'
