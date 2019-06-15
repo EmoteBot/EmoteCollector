@@ -184,6 +184,7 @@ class EmoteCollector(commands.AutoShardedBot):
 
 	async def start(self, token=None, **kwargs):
 		await self.init_db()
+		utils.i18n.current_locale.set(utils.i18n.default_locale)
 		self._load_extensions()
 
 		await super().start(self.config['tokens'].pop('discord'), **kwargs)
