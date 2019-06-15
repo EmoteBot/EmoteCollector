@@ -101,15 +101,21 @@ class Emotes(commands.Cog):
 
 		await context.send(embed=embed)
 
-	@commands.command(aliases=['stats'])
+	@commands.command(aliases=['count'])
 	@checks.not_blacklisted()
-	async def count(self, context):
-		"""Tells you how many emotes are in my database."""
-		static, animated, total = await self.db.count()
+	async def stats(self, context):
+		"""Some stats about the emotes in my database"""
+		static, animated, nsfw, total = await self.db.count()
 		static_cap, animated_cap, total_cap = self.db.capacity()
+
+		static_percentage = round(static / total * 100, 2)
+		animated_percentage = round(animated / total * 100, 2)
+		nsfw_percentage = round(nsfw / total * 100, 2)
+
 		await context.send(_(
-			'Static emotes: **{static} ⁄ {static_cap}**\n'
-			'Animated emotes: **{animated} ⁄ {animated_cap}**\n'
+			'Static emotes: **{static} ⁄ {static_cap}** ({static_percentage}%)\n'
+			'Animated emotes: **{animated} ⁄ {animated_cap}** ({animated_percentage}%)\n'
+			'NSFW emotes: **{nsfw}** ({nsfw_percentage}%)\n'
 			'**Total: {total} ⁄ {total_cap}**').format(**locals()))
 
 	@commands.command(aliases=['embiggen'])

@@ -279,12 +279,13 @@ class Database(commands.Cog):
 
 		return guild_id
 
-	def count(self) -> asyncpg.Record:
+	async def count(self) -> asyncpg.Record:
 		"""Return (not animated count, animated count, total)"""
-		return self.bot.pool.fetchrow("""
+		return await self.bot.pool.fetchrow("""
 			SELECT
 				COUNT(*) FILTER (WHERE NOT animated) AS static,
 				COUNT(*) FILTER (WHERE animated) AS animated,
+				COUNT(*) FILTER (WHERE nsfw != 'SFW') AS nsfw,
 				COUNT(*) AS total
 			FROM emotes
 		""")
