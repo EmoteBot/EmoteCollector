@@ -42,4 +42,5 @@ def use_current_gettext(*args, **kwargs):
 current_locale = aiocontextvars.ContextVar('i18n')
 builtins._ = use_current_gettext
 
-current_locale.set(default_locale)
+def set_default_locale(): current_locale.set(default_locale)
+set_default_locale()

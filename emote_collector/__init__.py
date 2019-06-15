@@ -184,7 +184,6 @@ class EmoteCollector(commands.AutoShardedBot):
 
 	async def start(self, token=None, **kwargs):
 		await self.init_db()
-		utils.i18n.current_locale.set(utils.i18n.default_locale)
 		self._load_extensions()
 
 		await super().start(self.config['tokens'].pop('discord'), **kwargs)
@@ -199,6 +198,7 @@ class EmoteCollector(commands.AutoShardedBot):
 		self.pool = await asyncpg.create_pool(**credentials)
 
 	def _load_extensions(self):
+		utils.i18n.set_default_locale()
 		for extension in (
 			'emote_collector.extensions.locale',
 			'emote_collector.extensions.file_upload_hook',

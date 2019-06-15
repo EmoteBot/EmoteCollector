@@ -779,6 +779,7 @@ class Emotes(commands.Cog):
 		"""Reply to messages containing :name: or ;name; with the corresponding emotes.
 		This is like half the functionality of the bot
 		"""
+		await self.bot.set_locale(message)
 
 		if not await self._should_auto_reply(message):
 			return
@@ -837,6 +838,8 @@ class Emotes(commands.Cog):
 			state=self.bot._connection,
 			channel=self.bot.get_channel(channel_id),
 			data=payload.data)
+
+		await self.bot.set_locale(message)
 
 		handlers = {
 			MessageReplyType.auto: self._handle_extracted_edit,
