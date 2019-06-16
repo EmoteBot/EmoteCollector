@@ -203,7 +203,7 @@ class PaginatedHelpCommand(commands.HelpCommand):
 		return _('Command or category "{command_name}" not found.').format(**locals())
 
 	def subcommand_not_found(self, command, subcommand):
-		if isinstance(command, Group) and len(command.all_commands) > 0:
+		if isinstance(command, commands.Group) and len(command.all_commands) > 0:
 			return _('Command "{command.qualified_name}" has no subcommand named {subcommand}').format(**locals())
 		return _('Command "{command.qualified_name}" has no subcommands.').format(**locals())
 
