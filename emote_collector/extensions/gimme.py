@@ -59,17 +59,20 @@ class Gimme(commands.Cog):
 	async def delete_backend_guild_messages(self):
 		# ensure there's no messages left over from last run
 		for guild in self.guilds:
-			permissions = guild.default_role.permissions
-			permissions.send_messages = True
-			await guild.default_role.edit(permissions=permissions)
-
-			for channel in guild.text_channels:
-				with contextlib.suppress(discord.HTTPException):
-					await channel.delete()
-
-			await guild.create_text_channel(name='just-created-so-i-can-invite-you')
-
+			await self.clear_guild(guild)
 		logger.info('all backend guild text channels have been cleared')
+
+	@commands.Cog.listener(name='on_backend_guild_join')
+	async def clear_guild(self, guild):
+		permissions = guild.default_role.permissions
+		permissions.send_messages = True
+		await guild.default_role.edit(permissions=permissions)
+
+		for channel in guild.text_channels:
+			with contextlib.suppress(discord.HTTPException):
+				await channel.delete()
+
+		await guild.create_text_channel(name='just-created-so-i-can-invite-you')
 
 def setup(bot):
 	bot.add_cog(Gimme(bot))

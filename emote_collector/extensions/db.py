@@ -233,6 +233,7 @@ class Database(commands.Cog):
 		if await self.is_backend_guild(guild):
 			await self.bot.pool.execute('INSERT INTO _guilds (id) VALUES $1 ON CONFLICT DO NOTHING', guild.id)
 			self.guilds.add(guild)
+			self.bot.dispatch('backend_guild_join', guild)
 
 	@commands.Cog.listener()
 	async def on_member_update(self, before, after):
