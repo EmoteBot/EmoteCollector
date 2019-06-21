@@ -73,6 +73,10 @@
 	'extra_owners': [
 	],
 
+	# User IDs of accounts that own the backend guilds
+	'backend_user_accounts': [
+	],
+
 	# postgresql connection info
 	# any fields left None will use defaults or environment variables
 	'database': {

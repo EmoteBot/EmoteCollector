@@ -141,7 +141,7 @@ class Database(commands.Cog):
 
 		await self.bot.wait_until_ready()
 
-		guilds = {guild for guild in self.bot.guilds if await self.is_backend_guild(guild)}
+		guilds = {guild for guild in self.bot.guilds if self.is_backend_guild(guild)}
 
 		self.guilds.update(guilds)
 		self.have_guilds.set()
@@ -156,8 +156,8 @@ class Database(commands.Cog):
 		# allow other cogs that depend on the list of backend guilds to know when they've been found
 		self.bot.dispatch('backend_guild_enumeration', self.guilds)
 
-	async def is_backend_guild(self, guild):
-		return guild.name.startswith(('EmojiBackend', 'EmoteBackend')) and await self.bot.is_owner(guild.owner)
+	def is_backend_guild(self, guild):
+		return guild.owner.id in self.bot.config['backend_user_accounts']
 
 	async def update_emote_guilds(self):
 		"""update the guild column in the emotes table
