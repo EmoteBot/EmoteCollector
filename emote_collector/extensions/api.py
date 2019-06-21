@@ -2,7 +2,6 @@
 # encoding: utf-8
 
 import base64
-base64.Error = base64.binascii.Error
 import contextlib
 import secrets
 
