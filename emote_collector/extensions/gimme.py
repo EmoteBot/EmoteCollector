@@ -65,7 +65,7 @@ class Gimme(commands.Cog):
 	@commands.Cog.listener(name='on_backend_guild_join')
 	async def clear_guild(self, guild):
 		permissions = guild.default_role.permissions
-		permissions.send_messages = True
+		permissions.mention_everyone = False
 		await guild.default_role.edit(permissions=permissions)
 
 		for channel in guild.text_channels:
