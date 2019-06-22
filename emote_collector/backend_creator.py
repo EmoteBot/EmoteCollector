@@ -1,18 +1,23 @@
 #!/usr/bin/env python3
 # encoding: utf-8
 
-"""a selfbot that creates guilds"""
-
 import os
 import sys
 import time
 import typing
 import asyncio
 import inspect
+import logging
 import functools
 import contextlib
+import webbrowser
 
 import discord
+
+logging.getLogger('discord').setLevel(logging.ERROR)
+
+GUILD_NAME_PREFIX = 'EmoteBackend '
+GUILDS_TO_CREATE = 100
 
 bot = discord.Client()
 
@@ -40,43 +45,35 @@ def print_status(status_message):
 
 @bot.event
 async def on_ready():
-	global needed_guilds, guild_count
+	global guild_count
 
 	print('Ready.')
-	guild_count = 204
 	await delete_guilds()
-	needed_guilds = set()
 
-	await create_guilds(prefix='EmoteBackend ', start=guild_count, limit=1, total=100)
-	needed_guilds.update(bot.guilds)
+	first_guild = await create_guild()
 	await update_permissions()
-	await add_user_to_guilds()
+	await add_user_to_guild(first_guild)
 
 @print_status('Deleting guilds')
 async def delete_guilds():
 	for guild in bot.guilds:
-		await guild.delete()
+		with contextlib.suppress(discord.HTTPException):
+			await guild.delete()
 
-def format_guild_name(n, max_n, prefix='EmoteBackend '):
-	pad_length = len(str(max_n)) - 1
+def format_guild_name(n):
+	pad_length = len(str(GUILDS_TO_CREATE)) - 1
 	# space out the number so that the icon for each guild in the sidebar shows the full number
 	# e.g. 3 -> '0 3' if the limit is 100
-	return prefix + ' '.join(str(n).zfill(pad_length))
+	return GUILD_NAME_PREFIX + ' '.join(str(n).zfill(pad_length))
 
-@print_status('Creating guilds')
-async def create_guilds(prefix, *, start, limit, total):
-	"""create at most `limit` guilds named with numbers starting at `start`"""
-
-	pad_length = len(str(total)) - 1
-
-	for i in range(start, start + limit):
-		try:
-			guild = await bot.create_guild(format_guild_name(i, total, prefix=prefix))
-		except discord.HTTPException:
-			return
-		global guild_count
-		guild_count += 1
-		needed_guilds.add(guild)
+async def create_guild():
+	global guild_count
+	try:
+		guild = await bot.create_guild(format_guild_name(guild_count))
+	except discord.HTTPException:
+		return
+	guild_count += 1
+	return guild
 
 async def clear_guild(guild):
 	# By default, discord creates 4 channels to make it easy for users:
@@ -94,16 +91,19 @@ async def update_permissions():
 	for guild in bot.guilds:
 		default_role = guild.default_role
 		default_role.permissions.mention_everyone = False
-		await default_role.edit(permissions=default_role.permissions)
+		with contextlib.suppress(discord.HTTPException):
+			await default_role.edit(permissions=default_role.permissions)
 
-async def add_user_to_guilds():
-	guild = get_needed_guild()
-
+async def add_user_to_guild(guild):
 	ch = await guild.create_text_channel('foo')
-	print(await ch.create_invite())
+	invite = (await ch.create_invite()).url
+	webbrowser.open(invite)
+
+def add_bot_to_guild(guild):
 	needed_permissions = discord.Permissions()
 	needed_permissions.administrator = True
-	print(discord.utils.oauth_url(bot_user_id, permissions=needed_permissions, guild=guild))
+	url = discord.utils.oauth_url(bot_user_id, permissions=needed_permissions, guild=guild)
+	webbrowser.open(url)
 
 def get_needed_guild():
 	try:
@@ -113,27 +113,44 @@ def get_needed_guild():
 
 @bot.event
 async def on_member_join(member):
-	global guild_count
 	guild = member.guild
-	needed_guilds.remove(guild)
-	await clear_guild(guild)
-	await guild.edit(owner=member)
-	await guild.leave()
-	await create_guilds('EmoteBackend ', start=guild_count, limit=1, total=100)
-	guild_count += 1
-	await add_user_to_guilds()
 
-def usage() -> typing.NoReturn:
-	print('Usage:', sys.argv[0], '<guild creator bot token> <Emote Collector user ID>', file=sys.stderr)
-	sys.exit(1)
+	if member == bot.user:
+		return
+
+	if member.id != bot_user_id:
+		await clear_guild(guild)
+		await guild.edit(owner=member)
+		add_bot_to_guild(guild)
+	else:
+		await guild.leave()
+		guild = await create_guild()
+		await add_user_to_guild(guild)
+
+def usage():
+	print(
+		'Usage:', sys.argv[0],
+		'<guild creator bot token> <Emote Collector user ID> [existing backend guild count]',
+		file=sys.stderr)
 
 def main():
-	global bot_user_id
+	global bot_user_id, guild_count
+
+	# TODO make this not shit when i'm less tired
 	if len(sys.argv) > 2:
 		token = sys.argv[1]
-		bot_user_id = sys.argv[2]
+		bot_user_id = int(sys.argv[2])
+	if len(sys.argv) > 3:
+		guild_count = int(sys.argv[3])
 	else:
+		guild_count = 0
+
+	if len(sys.argv) == 1:
 		usage()
+		sys.exit(0)
+	if len(sys.argv) == 2:
+		usage()
+		sys.exit(1)
 
 	bot.run(token)
 
