@@ -100,7 +100,7 @@ async def on_member_join(member):
 		add_bot_to_guild(guild)
 	else:
 		await guild.leave()
-		if original_guild_count % GUILDS_TO_CREATE == 0 and guild_count > original_guild_count:
+		if guild_count > original_guild_count and guild_count % GUILDS_TO_CREATE == 0:
 			await bot.close()
 			return
 
