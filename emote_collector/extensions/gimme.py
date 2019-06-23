@@ -15,11 +15,7 @@ class Gimme(commands.Cog):
 
 	def __init__(self, bot):
 		self.bot = bot
-		self.db_cog = self.bot.get_cog('Database')
-		self._init_task = self.bot.loop.create_task(self._init())
-
-	def cog_unload(self):
-		self._init_task.cancel()
+		self.guilds = bot.cogs['Database'].guilds
 
 	@commands.command()
 	async def gimme(self, context, emote: DatabaseEmoteConverter(check_nsfw=False)):
@@ -50,11 +46,6 @@ class Gimme(commands.Cog):
 			await asyncio.sleep(5)
 			with contextlib.suppress(discord.HTTPException):
 				await message.delete()
-
-	async def _init(self):
-		await self.db_cog.have_guilds.wait()
-		self.guilds = self.db_cog.guilds
-		await self.delete_backend_guild_messages()
 
 	async def delete_backend_guild_messages(self):
 		# ensure there's no messages left over from last run
