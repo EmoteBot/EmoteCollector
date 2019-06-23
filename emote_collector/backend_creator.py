@@ -131,6 +131,10 @@ async def on_member_join(member):
 		add_bot_to_guild(guild)
 	else:
 		await guild.leave()
+		if original_guild_count % GUILDS_TO_CREATE == 0 and guild_count > original_guild_count:
+			await bot.close()
+			return
+
 		guild = await create_guild()
 		await add_user_to_guild(guild)
 
@@ -141,14 +145,14 @@ def usage():
 		file=sys.stderr)
 
 def main():
-	global bot_user_id, guild_count
+	global bot_user_id, guild_count, original_guild_count
 
 	# TODO make this not shit when i'm less tired
 	if len(sys.argv) > 2:
 		token = sys.argv[1]
 		bot_user_id = int(sys.argv[2])
 	if len(sys.argv) > 3:
-		guild_count = int(sys.argv[3])
+		guild_count = original_guild_count = int(sys.argv[3])
 	else:
 		guild_count = 0
 
