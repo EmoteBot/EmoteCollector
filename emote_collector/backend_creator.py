@@ -52,6 +52,13 @@ async def on_ready():
 
 	first_guild = await create_guild()
 	await update_permissions()
+
+	print('You will have to fill out a lot of CAPTCHAs, so it is recommended to install the Buster captcha solver.')
+	print('For Firefox: https://addons.mozilla.org/en-US/firefox/addon/buster-captcha-solver/')
+	print('For Chrome: https://chrome.google.com/webstore/detail/buster-captcha-solver-for/mpbjkejclgfgadiemmefgebjfooflfhl')
+	print("I also needed to install the user input simulation, which you can install by enabling it in the extension's settings.")
+	print("If you can't or don't want to install the add-on, you should still do the audio CAPTCHAs, as they're way easier.")
+
 	await add_user_to_guild(first_guild)
 
 @print_status('Deleting guilds')
