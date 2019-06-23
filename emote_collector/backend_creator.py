@@ -21,33 +21,10 @@ GUILDS_TO_CREATE = 100
 
 bot = discord.Client()
 
-def print_status(status_message):
-	class print_messages:
-		def __enter__(self):
-			print(status_message + '...', end=' ', file=sys.stderr, flush=True)
-		def __exit__(self, *excinfo):
-			print('done.', file=sys.stderr)
-
-	def wrapper(func):
-		if inspect.iscoroutinefunction(func):
-			async def wrapped(*args, **kwargs):
-				with print_messages():
-					return await func(*args, **kwargs)
-			# @wraps doesn't work on coros
-			functools.update_wrapper(wrapped, func)
-		else:
-			@wraps(func)
-			def wrapped(*args, **kwargs):
-				with print_messages():
-					return func(*args, **kwargs)
-		return wrapped
-	return wrapper
-
 @bot.event
 async def on_ready():
 	global guild_count
 
-	print('Ready.')
 	await delete_guilds()
 
 	first_guild = await create_guild()
@@ -61,7 +38,6 @@ async def on_ready():
 
 	await add_user_to_guild(first_guild)
 
-@print_status('Deleting guilds')
 async def delete_guilds():
 	for guild in bot.guilds:
 		with contextlib.suppress(discord.HTTPException):
@@ -93,7 +69,6 @@ async def clear_guild(guild):
 administrator = discord.Permissions()
 administrator.administrator = True
 
-@print_status('Updating permissions')
 async def update_permissions():
 	for guild in bot.guilds:
 		default_role = guild.default_role
@@ -111,12 +86,6 @@ def add_bot_to_guild(guild):
 	needed_permissions.administrator = True
 	url = discord.utils.oauth_url(bot_user_id, permissions=needed_permissions, guild=guild)
 	webbrowser.open(url)
-
-def get_needed_guild():
-	try:
-		return next(iter(needed_guilds))
-	except StopIteration:
-		raise ValueError('no more guilds') from None
 
 @bot.event
 async def on_member_join(member):
