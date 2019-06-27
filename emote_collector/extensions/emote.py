@@ -109,13 +109,15 @@ class Emotes(commands.Cog):
 		static_cap, animated_cap, total_cap = self.db.capacity()
 
 		static_percentage = round(static / total * 100, 2)
+		static_full = round(static / static_cap * 100, 2)
 		animated_percentage = round(animated / total * 100, 2)
+		animated_full = round(animated / animated_cap * 100, 2)
 		nsfw_percentage = round(nsfw / total * 100, 2)
 
 		await context.send(_(
-			'Static emotes: **{static} ⁄ {static_cap}** ({static_percentage}%)\n'
-			'Animated emotes: **{animated} ⁄ {animated_cap}** ({animated_percentage}%)\n'
-			'NSFW emotes: **{nsfw}** ({nsfw_percentage}%)\n'
+			'Static emotes: **{static} ⁄ {static_cap}** ({static_percentage}% of total, {static_full}% full)\n'
+			'Animated emotes: **{animated} ⁄ {animated_cap}** ({animated_percentage}% of total, {animated_full}% full)\n'
+			'NSFW emotes: **{nsfw}** ({nsfw_percentage}% of total)\n'
 			'**Total: {total} ⁄ {total_cap}**').format(**locals()))
 
 	@commands.command(aliases=['embiggen'])
