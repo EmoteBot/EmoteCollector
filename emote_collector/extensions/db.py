@@ -94,7 +94,6 @@ class Database(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
 		self._process_decay_config()
-		self._process_support_server_config()
 
 		self.tasks = [
 			self.bot.loop.create_task(meth())
@@ -121,11 +120,6 @@ class Database(commands.Cog):
 		cutoff_settings = decay_settings.setdefault('cutoff', {})
 		cutoff_settings.setdefault('time', datetime.timedelta(weeks=4))
 		cutoff_settings.setdefault('usage', 2)
-
-	def _process_support_server_config(self):
-		with contextlib.suppress(KeyError):
-			self.bot.config.setdefault('support_server', {})['invite_code'] \
-			= self.bot.config['support_server_invite_code']
 
 	def cog_unload(self):
 		for task in self.tasks:
@@ -205,7 +199,7 @@ class Database(commands.Cog):
 		if not guild:
 			return
 
-		role = self.bot.config['support_server'].get('moderator_role')
+		role = self.bot.config['support_server'].get('moderator_role_id')
 		if not role:
 			return
 

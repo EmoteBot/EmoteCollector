@@ -30,10 +30,11 @@
 	'copyright_license_file': 'data/short-license.txt',
 
 	'support_server': {  # a guild where users can get help using the bot
+		'id': None,  # the ID of the guild itself
 		# where should users be invited to when they need help? the bot must have Create Instant Invites permission
 		# for this channel
-		'invite_channel_id': 473721685959245825,  # if set to None, the ec/support command will be disabled
-		'moderator_role': None,  # users with this role will be allowed to modify or remove other people's emotes
+		'invite_channel_id': None,  # if set to None, the ec/support command will be disabled
+		'moderator_role_id': None,  # users with this role will be allowed to modify or remove other people's emotes
 	},
 
 	# a user ID of someone to send logs to
