@@ -39,7 +39,7 @@
 
 	# a user ID of someone to send logs to
 	# note: currently nothing is sent except a notification of the bot's guild count being a power of 2
-	'send_logs_to': 140516693242937345,
+	'send_logs_to': None,
 
 	'ignore_bots': {
 		'default': True,
