@@ -208,6 +208,10 @@ class PaginatedHelpCommand(commands.HelpCommand):
 		return _('Command "{command.qualified_name}" has no subcommands.').format(**locals())
 
 class Meta(commands.Cog):
+	# TODO does this need to be configurable?
+	INVITE_DURATION_SECONDS = 60 * 60 * 3
+	MAX_INVITE_USES = 5
+
 	def __init__(self, bot):
 		self.bot = bot
 
@@ -315,9 +319,16 @@ class Meta(commands.Cog):
 	@commands.command()
 	async def support(self, context):
 		"""Directs you to the support server."""
+		ch = self.bot.get_channel(self.bot.config['support_server'].get('invite_channel_id'))
+		if ch is None:
+			await context.send(_('This command is temporarily unavailable. Try again later?'))
+			return
+
+		invite = await ch.create_invite(max_age=self.INVITE_DURATION_SECONDS, max_uses=self.MAX_INVITE_USES)
+
 		try:
-			await context.author.send('https://discord.gg/' + self.bot.config['support_server']['invite_code'])
-		except discord.HTTPException:
+			await context.author.send(f'Official support server invite: {invite}')
+		except discord.Forbidden:
 			await context.try_add_reaction(utils.SUCCESS_EMOJIS[False])
 			with contextlib.suppress(discord.HTTPException):
 				await context.send(_('Unable to send invite in DMs. Please allow DMs from server members.'))
@@ -414,5 +425,5 @@ def setup(bot):
 	bot.add_cog(Meta(bot))
 	if not bot.config.get('repo'):
 		bot.remove_command('source')
-	if not bot.config['support_server'].get('invite_code'):
+	if not bot.config['support_server'].get('invite_channel_id'):
 		bot.remove_command('support')

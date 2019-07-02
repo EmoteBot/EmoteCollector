@@ -29,9 +29,10 @@
 	# as provided by ben_cogs
 	'copyright_license_file': 'data/short-license.txt',
 
-	'support_server': {
-		'id': None,  # the ID of the server itself
-		'invite_code': None,  # make this a permanent invite to a guild where users can get help using the bot
+	'support_server': {  # a guild where users can get help using the bot
+		# where should users be invited to when they need help? the bot must have Create Instant Invites permission
+		# for this channel
+		'invite_channel_id': 473721685959245825,  # if set to None, the ec/support command will be disabled
 		'moderator_role': None,  # users with this role will be allowed to modify or remove other people's emotes
 	},
 
