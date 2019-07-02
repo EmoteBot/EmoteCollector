@@ -1,13 +1,11 @@
 venv/
 .venv/
 
+.mypy_cache/
 __pycache__/
 *.egg-info/
 *.py[cod]
 *.swp
-
-# selenium
-geckodriver.log
 
 emote_collector/data/config.py
 emote_collector/data/memes.py
