@@ -133,15 +133,24 @@ class EmoteCollector(commands.AutoShardedBot):
 			await context.send(error)
 		elif (
 			isinstance(error, commands.CommandInvokeError)
-			and type(context.cog).cog_command_error is commands.Cog.cog_command_error  # abort if it's overridden
-			and not isinstance(error, discord.HTTPException)
+			# abort if it's overridden
+			and
+				getattr(
+					type(context.cog),
+					'cog_command_error',
+					# treat ones with no cog (e.g. eval'd ones) as being in a cog that did not override
+					commands.Cog.cog_command_error)
+				is commands.Cog.cog_command_error
 		):
-			logger.error('"%s" caused an exception', context.message.content)
-			logger.error(''.join(traceback.format_tb(error.original.__traceback__)))
-			# pylint: disable=logging-format-interpolation
-			logger.error('{0.__class__.__name__}: {0}'.format(error.original))
+			if not isinstance(error.original, discord.HTTPException):
+				logger.error('"%s" caused an exception', context.message.content)
+				logger.error(''.join(traceback.format_tb(error.original.__traceback__)))
+				# pylint: disable=logging-format-interpolation
+				logger.error('{0.__class__.__name__}: {0}'.format(error.original))
 
-			await context.send(_('An internal error occured while trying to run that command.'))
+				await context.send(_('An internal error occurred while trying to run that command.'))
+			elif isinstance(error.original, discord.Forbidden):
+				await context.send(_("I'm missing permissions to perform that action."))
 
 	### Utility functions
 
