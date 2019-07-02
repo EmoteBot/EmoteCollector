@@ -327,7 +327,7 @@ class Meta(commands.Cog):
 		invite = await ch.create_invite(max_age=self.INVITE_DURATION_SECONDS, max_uses=self.MAX_INVITE_USES)
 
 		try:
-			await context.author.send(f'Official support server invite: {invite}')
+			await context.author.send(_('Official support server invite: {invite}').format(invite=invite))
 		except discord.Forbidden:
 			await context.try_add_reaction(utils.SUCCESS_EMOJIS[False])
 			with contextlib.suppress(discord.HTTPException):
