@@ -178,7 +178,10 @@ class Emotes(commands.Cog):
 	@commands.command(name='add-from-e0', aliases=['addfrome0'])
 	@checks.not_blacklisted()
 	async def add_from_e0(self, context, name):
-		"""Copy an emote from an archive of Element Zero's emote database."""
+		"""Copy an emote from an archive of Element Zero's emote database.
+
+		You can find a full list of them at https://emote-collector.python-for.life/e0-list.
+		"""
 		name = name.strip(':;')
 		try:
 			id, animated = self.e0_emojis[name.lower()]
