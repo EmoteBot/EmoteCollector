@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-06-15 06:12+0000\n"
+"POT-Creation-Date: 2019-07-02 10:21+0000\n"
 "PO-Revision-Date: 2018-08-13 17:05-0500\n"
 "Last-Translator: diniboy <diniboy@protonmail.com>\n"
 "Language-Team: Hungarian\n"
@@ -17,19 +17,23 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: emote_collector/__init__.py:120
+#: emote_collector/__init__.py:121
 msgid "This command cannot be used in private messages."
 msgstr ""
 
-#: emote_collector/__init__.py:122
+#: emote_collector/__init__.py:123
 msgid "Sorry. This command is disabled and cannot be used."
 msgstr ""
 
-#: emote_collector/__init__.py:142
-msgid "An internal error occured while trying to run that command."
+#: emote_collector/__init__.py:151
+msgid "An internal error occurred while trying to run that command."
 msgstr ""
 
-#: emote_collector/extensions/api.py:46
+#: emote_collector/__init__.py:153
+msgid "I'm missing permissions to perform that action."
+msgstr ""
+
+#: emote_collector/extensions/api.py:45
 #, python-brace-format
 msgid ""
 "I have a RESTful API available. The docs for it are located at {docs_url}."
@@ -37,19 +41,19 @@ msgstr ""
 "A bot rendelkezik egy RESTful API-al. A hozzá csatolt dokumentáció "
 "megtalálható a {docs_url} címen."
 
-#: emote_collector/extensions/api.py:63
+#: emote_collector/extensions/api.py:62
 msgid "Your new API token is:\n"
 msgstr "Az új API kulcsod:\n"
 
-#: emote_collector/extensions/api.py:65
+#: emote_collector/extensions/api.py:64
 msgid "Your API token is:\n"
 msgstr "Az API kulcsod:\n"
 
-#: emote_collector/extensions/api.py:70
+#: emote_collector/extensions/api.py:69
 msgid "Do **not** share it with anyone!"
 msgstr "**Ne** oszd meg senkivel!"
 
-#: emote_collector/extensions/api.py:75
+#: emote_collector/extensions/api.py:74
 msgid "Error: I could not send you your token via DMs."
 msgstr "Hiba: Nem tudtam elküldeni a kulcsod privát üzenetben."
 
@@ -68,7 +72,7 @@ msgstr "{emote} (Tartós)"
 msgid "{emote} (NSFW)"
 msgstr ""
 
-#: emote_collector/extensions/db.py:646
+#: emote_collector/extensions/db.py:641
 msgid ""
 "You may not set this emote as SFW because it was set NSFW by an emote "
 "moderator."
@@ -82,22 +86,24 @@ msgstr "Létrehozva"
 msgid "Last modified"
 msgstr "Utoljára módosítva"
 
-#: emote_collector/extensions/emote.py:116
-#, python-brace-format
+#: emote_collector/extensions/emote.py:118
+#, python-format, python-brace-format
 msgid ""
-"Static emotes: **{static} ⁄ {static_cap}** ({static_percentage}%)\n"
-"Animated emotes: **{animated} ⁄ {animated_cap}** ({animated_percentage}%)\n"
-"NSFW emotes: **{nsfw}** ({nsfw_percentage}%)\n"
+"Static emotes: **{static} ⁄ {static_cap}** ({static_percentage}% of total, "
+"{static_full}% full)\n"
+"Animated emotes: **{animated} ⁄ {animated_cap}** ({animated_percentage}% of "
+"total, {animated_full}% full)\n"
+"NSFW emotes: **{nsfw}** ({nsfw_percentage}% of total)\n"
 "**Total: {total} ⁄ {total_cap}**"
 msgstr ""
 
 #. no space because rest_is_raw preserves the space after "ec/quote"
-#: emote_collector/extensions/emote.py:139
+#: emote_collector/extensions/emote.py:141
 #, python-brace-format
 msgid "{context.author.mention} said:"
 msgstr "{context.author.mention} mondta:"
 
-#: emote_collector/extensions/emote.py:168
+#: emote_collector/extensions/emote.py:170
 msgid ""
 "Sorry, webhooks and bots may not add emotes. Go find a human to do it for "
 "you."
@@ -105,11 +111,11 @@ msgstr ""
 "Sajnálatos módon webhookok és botok nem hozhatnak létre hangulatjeleket. "
 "Keress egy embert erre a célra!"
 
-#: emote_collector/extensions/emote.py:184
+#: emote_collector/extensions/emote.py:186
 msgid "Emote not found in Element Zero's database."
 msgstr ""
 
-#: emote_collector/extensions/emote.py:198
+#: emote_collector/extensions/emote.py:200
 msgid ""
 "Error: I expected a custom emote as the first argument, but I got something "
 "else. If you're trying to add an emote using an image URL, you need to "
@@ -121,212 +127,212 @@ msgstr ""
 "hangulatjelet, meg kell adnod a nevét, mint első argumentum, így:\n"
 "`{}add NÉV_IDE URL_IDE`"
 
-#: emote_collector/extensions/emote.py:219
+#: emote_collector/extensions/emote.py:221
 msgid "Your message had no emotes and no name!"
 msgstr "Az üzeneted nem tartalmazott hangulatjeleket és neveket!"
 
-#: emote_collector/extensions/emote.py:238
+#: emote_collector/extensions/emote.py:240
 msgid "An error occurred while creating the emote:\n"
 msgstr "Hiba történt a hangulatjel létrehozása során:\n"
 
-#: emote_collector/extensions/emote.py:241
+#: emote_collector/extensions/emote.py:243
 msgid "Error: Invalid URL."
 msgstr "Hiba: Helytelen URL."
 
-#: emote_collector/extensions/emote.py:243
+#: emote_collector/extensions/emote.py:245
 #, python-brace-format
 msgid "Emote {emote} successfully created."
 msgstr "A hangulatjel {emote} sikeresen létrehozva."
 
-#: emote_collector/extensions/emote.py:308
+#: emote_collector/extensions/emote.py:310
 msgid "Error: only emote moderators may forcibly remove emotes."
 msgstr ""
 
-#: emote_collector/extensions/emote.py:317
+#: emote_collector/extensions/emote.py:319
 msgid "Error: you must provide the name of at least one emote to remove"
 msgstr "HIba: Minimum egy hangulatjel nevét meg kell adnod a törléshez!"
 
-#: emote_collector/extensions/emote.py:341
+#: emote_collector/extensions/emote.py:343
 msgid "**Successfully deleted:**"
 msgstr ""
 
-#: emote_collector/extensions/emote.py:370
+#: emote_collector/extensions/emote.py:372
 msgid "**Successfully created:**"
 msgstr ""
 
-#: emote_collector/extensions/emote.py:373
+#: emote_collector/extensions/emote.py:375
 msgid "Error: no existing custom emotes were provided."
 msgstr "Hiba: egyetlen, már létező egyedi hangulatjel sem lett megadva."
 
 #. translator's note: the next five strings are displayed as errors
 #. when the user tries to add/remove an emote
-#: emote_collector/extensions/emote.py:384
+#: emote_collector/extensions/emote.py:386
 msgid "**Already exists:**"
 msgstr ""
 
 #. same priority as EmoteExists
-#: emote_collector/extensions/emote.py:387
+#: emote_collector/extensions/emote.py:389
 msgid "**Not found:**"
 msgstr ""
 
-#: emote_collector/extensions/emote.py:389
+#: emote_collector/extensions/emote.py:391
 #, python-brace-format
 msgid "**Server returned error code {error.status}:**"
 msgstr ""
 
-#: emote_collector/extensions/emote.py:391
+#: emote_collector/extensions/emote.py:393
 msgid "**Took too long to retrieve or resize:**"
 msgstr ""
 
-#: emote_collector/extensions/emote.py:393
+#: emote_collector/extensions/emote.py:395
 msgid "**Failed because I ran out of backend servers:**"
 msgstr ""
 
-#: emote_collector/extensions/emote.py:426
+#: emote_collector/extensions/emote.py:428
 msgid "You must specify an old name and a new name."
 msgstr "Mindenképpen adj meg egy régi, illetve egy új nevet is!"
 
-#: emote_collector/extensions/emote.py:432
+#: emote_collector/extensions/emote.py:434
 msgid "Error: you must provide a new name for the emote."
 msgstr "Hiba: meg kell adnod a hangulatjel nevét."
 
-#: emote_collector/extensions/emote.py:443
+#: emote_collector/extensions/emote.py:445
 msgid "Emote successfully renamed."
 msgstr "A hangulatjel sikeresen átnevezve!"
 
-#: emote_collector/extensions/emote.py:472
+#: emote_collector/extensions/emote.py:474
 msgid ""
 "You may not change the NSFW status of this emote because you do not own it, "
 "or you are not an emote moderator."
 msgstr ""
 
-#: emote_collector/extensions/emote.py:477
+#: emote_collector/extensions/emote.py:479
 msgid "Emote is now NSFW."
 msgstr ""
 
-#: emote_collector/extensions/emote.py:480
+#: emote_collector/extensions/emote.py:482
 msgid "Emote is now SFW."
 msgstr ""
 
-#: emote_collector/extensions/emote.py:517
+#: emote_collector/extensions/emote.py:519
 msgid "You can already react to that message with that emote."
 msgstr "Már tudsz reagálni a hangulatjel segítségével az üzenetre."
 
-#: emote_collector/extensions/emote.py:524
+#: emote_collector/extensions/emote.py:526
 msgid "Unable to react: there's too many reactions on that message already"
 msgstr ""
 
-#: emote_collector/extensions/emote.py:525
+#: emote_collector/extensions/emote.py:527
 msgid "Unable to react: permission denied."
 msgstr "A reakció sikertelen: hozzáférés megtagadva."
 
-#: emote_collector/extensions/emote.py:527
+#: emote_collector/extensions/emote.py:529
 msgid "Unable to react. Discord must be acting up."
 msgstr "A reakció sikertelen. Valószínűsíthetően Discord probléma áll fenn."
 
-#: emote_collector/extensions/emote.py:532
+#: emote_collector/extensions/emote.py:534
 msgid "OK! I've reacted to that message. Please add your reaction now."
 msgstr "Ok! Ragáltam az üzenetre. Kérlek reagálj te is most!"
 
-#: emote_collector/extensions/emote.py:583
+#: emote_collector/extensions/emote.py:585
 #, python-brace-format
 msgid "Also check out the list website at {website}."
 msgstr "Ne felejtsd el megtekinteni a listázó weboldalt: {website}."
 
-#: emote_collector/extensions/emote.py:598
+#: emote_collector/extensions/emote.py:600
 msgid "No results matched your query."
 msgstr "Egyetlen találat sincs a keresésre."
 
-#: emote_collector/extensions/emote.py:599
+#: emote_collector/extensions/emote.py:601
 msgid "No results matched your query, or your query only found NSFW emotes."
 msgstr ""
 
-#: emote_collector/extensions/emote.py:640
+#: emote_collector/extensions/emote.py:642
 msgid "No emotes have been created yet. Be the first!"
 msgstr "Nincs egyetlen létrehozott hangulatjel sem. Légy te az első!"
 
-#: emote_collector/extensions/emote.py:642
+#: emote_collector/extensions/emote.py:644
 msgid "No emotes have been created yet, or all emotes are NSFW."
 msgstr ""
 
-#: emote_collector/extensions/emote.py:646
+#: emote_collector/extensions/emote.py:648
 msgid "You have not created any emotes yet."
 msgstr "Még nem hoztál létre egyetlen hangulatjelet sem."
 
-#: emote_collector/extensions/emote.py:648
+#: emote_collector/extensions/emote.py:650
 msgid "You have not created any emotes yet, or all your emotes are NSFW."
 msgstr ""
 
 #. another person, sfw
-#: emote_collector/extensions/emote.py:651
+#: emote_collector/extensions/emote.py:653
 msgid "That person has not created any emotes yet."
 msgstr "Ez a személy még nem hozott létre egyetlen hangulatjelet sem."
 
 #. another person, nsfw
-#: emote_collector/extensions/emote.py:653
+#: emote_collector/extensions/emote.py:655
 msgid ""
 "That person has not created any emotes yet, or all their emotes are NSFW."
 msgstr ""
 
 #. Translator's note: this message is pretty rare, so don't worry if it's hard to translate "cog"
 #. to your language.
-#: emote_collector/extensions/emote.py:667
+#: emote_collector/extensions/emote.py:669
 msgid "Logger cog not loaded."
 msgstr "A logolásért felelős cog nincs betöltve."
 
-#: emote_collector/extensions/emote.py:672
+#: emote_collector/extensions/emote.py:674
 #: emote_collector/utils/converter.py:96
 msgid "Message not found."
 msgstr "Az üzenet nem létezik."
 
-#: emote_collector/extensions/emote.py:677
+#: emote_collector/extensions/emote.py:679
 msgid "No embeds were found in that message."
 msgstr "Egyetlen beágyazott rész sincs ebben az üzenetben."
 
-#: emote_collector/extensions/emote.py:684
+#: emote_collector/extensions/emote.py:686
 msgid "No description was found in that embed."
 msgstr "Nincs leírása a beágyazott üzenetnek."
 
-#: emote_collector/extensions/emote.py:690
+#: emote_collector/extensions/emote.py:692
 msgid "No custom emotes were found in that embed's description."
 msgstr ""
 "Egyetlen egyedi hangulatjelet sem sikerült találni a beágyazott üzenet "
 "leírásában."
 
-#: emote_collector/extensions/emote.py:697
+#: emote_collector/extensions/emote.py:699
 msgid "No author IDs were found in that embed."
 msgstr "Egyetlen birtokos azonosítója sem szerepel a beágyazott üzenetben."
 
-#: emote_collector/extensions/emote.py:713
+#: emote_collector/extensions/emote.py:715
 msgid "Opted in to the emote auto response."
 msgstr "A hangulatjelekre automatikus válaszolás bekapcsolva."
 
-#: emote_collector/extensions/emote.py:715
+#: emote_collector/extensions/emote.py:717
 msgid "Opted out of the emote auto response."
 msgstr "A hangulatjelekre automatikus válaszolás kikapcsolva."
 
-#: emote_collector/extensions/emote.py:732
+#: emote_collector/extensions/emote.py:734
 msgid "Emote auto response is now opt-out for this server."
 msgstr ""
 
-#: emote_collector/extensions/emote.py:734
+#: emote_collector/extensions/emote.py:736
 msgid "Emote auto response is now opt-in for this server."
 msgstr ""
 
-#: emote_collector/extensions/emote.py:749
+#: emote_collector/extensions/emote.py:751
 msgid "User un-blacklisted."
 msgstr "Felhasználó felszabadítva a feketelistáról."
 
-#: emote_collector/extensions/emote.py:751
+#: emote_collector/extensions/emote.py:753
 #, python-brace-format
 msgid "User blacklisted with reason \"{reason}\"."
 msgstr "Felhasználó feketelistázva a következő indokkal: `{reason}`."
 
-#: emote_collector/extensions/emote.py:760
+#: emote_collector/extensions/emote.py:762
 msgid "**Succesfully preserved:**"
 msgstr ""
 
-#: emote_collector/extensions/emote.py:762
+#: emote_collector/extensions/emote.py:764
 msgid "**Succesfully un-preserved:**"
 msgstr ""
 
@@ -341,13 +347,13 @@ msgstr ""
 msgid "Way too long. Message attached."
 msgstr ""
 
-#: emote_collector/extensions/gimme.py:40
+#: emote_collector/extensions/gimme.py:36
 #, python-brace-format
 msgid "Invite to the server that has {emote}: {invite.url}"
 msgstr "Meghívó a szerverhez, ahol a {emote} megtalálható: {invite.url}"
 
-#: emote_collector/extensions/gimme.py:42
-#: emote_collector/extensions/meta.py:323
+#: emote_collector/extensions/gimme.py:38
+#: emote_collector/extensions/meta.py:334
 msgid "Unable to send invite in DMs. Please allow DMs from server members."
 msgstr ""
 "Sikertelen a meghívó elküldése privát üzenetben. Kérlek engedélyezd a "
@@ -494,32 +500,41 @@ msgstr ""
 msgid "Command \"{command.qualified_name}\" has no subcommands."
 msgstr ""
 
-#: emote_collector/extensions/meta.py:237
+#: emote_collector/extensions/meta.py:241
 msgid "Yes, delete my account."
 msgstr ""
 
-#: emote_collector/extensions/meta.py:239
+#: emote_collector/extensions/meta.py:243
 #, python-brace-format
 msgid ""
 "Are you sure you want to delete your account? To confirm, please say "
 "“{confirmation_phrase}” exactly."
 msgstr ""
 
-#: emote_collector/extensions/meta.py:246
+#: emote_collector/extensions/meta.py:250
 msgid "Deleting your account…"
 msgstr ""
 
-#: emote_collector/extensions/meta.py:253
+#: emote_collector/extensions/meta.py:257
 #, python-brace-format
 msgid "{context.author.mention} I've deleted your account successfully."
 msgstr ""
 
-#: emote_collector/extensions/meta.py:267
+#: emote_collector/extensions/meta.py:271
 msgid "Confirmation phrase not received in time. Please try again."
 msgstr ""
 
-#: emote_collector/extensions/meta.py:313
+#: emote_collector/extensions/meta.py:317
 msgid "Could not fetch changes due to memory error. Sorry."
+msgstr ""
+
+#: emote_collector/extensions/meta.py:324
+msgid "This command is temporarily unavailable. Try again later?"
+msgstr ""
+
+#: emote_collector/extensions/meta.py:330
+#, python-brace-format
+msgid "Official support server invite: {invite}"
 msgstr ""
 
 #: emote_collector/utils/checks.py:24
