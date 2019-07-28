@@ -126,7 +126,7 @@ class Emotes(commands.Cog):
 		"""Shows the original image for the given emote."""
 		await context.send(f'{emote.name}: {emote.url}')
 
-	@commands.command(rest_is_raw=True)
+	@commands.command(aliases=['say'], rest_is_raw=True)
 	@checks.not_blacklisted()
 	async def quote(self, context, *, message):
 		"""Quotes your message, with :foo: and ;foo; replaced with their emote forms"""
