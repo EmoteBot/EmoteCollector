@@ -11,11 +11,13 @@ from ..utils.converter import DatabaseEmoteConverter
 logger = logging.getLogger(__name__)
 
 class Gimme(commands.Cog):
-	guilds = frozenset()
-
 	def __init__(self, bot):
 		self.bot = bot
 		self.guilds = bot.cogs['Database'].guilds
+		self.task = self.bot.loop.create_task(self.delete_backend_guild_messages())
+
+	def cog_unload(self):
+		self.task.cancel()
 
 	@commands.command()
 	async def gimme(self, context, emote: DatabaseEmoteConverter(check_nsfw=False)):
@@ -47,6 +49,7 @@ class Gimme(commands.Cog):
 			with contextlib.suppress(discord.HTTPException):
 				await message.delete()
 
+	@commands.Cog.listener(name='on_ready')
 	async def delete_backend_guild_messages(self):
 		# ensure there's no messages left over from last run
 		for guild in self.guilds:
