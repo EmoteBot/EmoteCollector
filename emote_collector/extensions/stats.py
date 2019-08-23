@@ -1,5 +1,3 @@
-# encoding: utf-8
-
 from ben_cogs.stats import Stats
 
 from ..utils import ObjectProxy
