@@ -22,6 +22,7 @@ setuptools.setup(
 		'discord.py>=1.1.1,<2.0.0',
 		'jishaku>=1.6.1,<2.0.0',
 		'ply',
+		'psutil',
 		'pygit2',
 		'wand',
 	],
