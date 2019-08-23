@@ -25,6 +25,7 @@ from .. import utils
 from ..utils import image as image_utils
 from ..utils import checks
 from ..utils import errors
+from ..utils import ObjectProxy
 from ..utils.converter import DatabaseEmoteConverter, Snowflake, UserOrMember
 from ..utils.paginator import CannotPaginate, Pages
 
@@ -35,8 +36,8 @@ class Emotes(commands.Cog):
 
 	def __init__(self, bot):
 		self.bot = bot
-		self.db = self.bot.get_cog('Database')
-		self.logger = self.bot.get_cog('Logger')
+		self.db = ObjectProxy(lambda: bot.cogs['Database'])
+		self.logger = ObjectProxy(lambda: bot.cogs['Logger'])
 		self.http = aiohttp.ClientSession(loop=self.bot.loop, read_timeout=30, headers={
 			'User-Agent':
 				self.bot.config['user_agent'] + ' '
@@ -664,9 +665,7 @@ class Emotes(commands.Cog):
 		message_id is the ID of the log message. To get it you can use developer mode.
 		"""
 
-		try:
-			channel = self.bot.get_cog('Logger').channel
-		except AttributeError:
+		if self.logger.channel is None:
 			# Translator's note: this message is pretty rare, so don't worry if it's hard to translate "cog"
 			# to your language.
 			return await context.send(_('Logger cog not loaded.'))

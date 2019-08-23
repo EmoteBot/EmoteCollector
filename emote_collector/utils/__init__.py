@@ -1,6 +1,3 @@
-#!/usr/bin/env python3
-# encoding: utf-8
-
 # these imports comes first, as later imports depend on it
 from .misc import *
 
@@ -13,4 +10,5 @@ from . import emote
 from . import errors
 from . import i18n
 from . import lexer
+from .proxy import ObjectProxy
 from . import paginator

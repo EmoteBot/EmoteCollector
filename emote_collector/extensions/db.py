@@ -18,6 +18,7 @@ from discord.ext import tasks, commands
 from .. import utils
 from ..utils import errors
 from ..utils import image as image_utils
+from ..utils import ObjectProxy
 
 logger = logging.getLogger(__name__)
 
@@ -103,7 +104,7 @@ class Database(commands.Cog):
 				self.update_moderator_list]]
 		self.tasks.append(self.decay_loop.start())
 
-		self.logger = self.bot.get_cog('Logger')
+		self.logger = ObjectProxy(lambda: bot.cogs['Logger'])
 
 		self.guilds = set()
 		self.have_guilds = asyncio.Event()

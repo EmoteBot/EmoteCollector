@@ -6,6 +6,7 @@ import discord
 from discord.ext import commands
 
 from .. import utils
+from ..utils import ObjectProxy
 from ..utils.converter import DatabaseEmoteConverter
 
 logger = logging.getLogger(__name__)
@@ -13,7 +14,7 @@ logger = logging.getLogger(__name__)
 class Gimme(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
-		self.guilds = bot.cogs['Database'].guilds
+		self.guilds = ObjectProxy(lambda: bot.cogs['Database'].guilds)
 		self.task = self.bot.loop.create_task(self.delete_backend_guild_messages())
 
 	def cog_unload(self):

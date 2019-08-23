@@ -41,14 +41,16 @@ LogColour = LogColor
 class Logger(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
+		self.channel = None
 
-		self.bot.loop.create_task(self.init_channel())
+		self.task = self.bot.loop.create_task(self.init_channel())
 		self.init_settings()
+
+	def cog_unload(self):
+		self.task.cancel()
 
 	async def init_channel(self):
 		await self.bot.wait_until_ready()
-
-		self.channel = None
 
 		try:
 			channel_id = self.bot.config['logs']['emotes']['channel']
