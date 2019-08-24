@@ -684,7 +684,7 @@ class Emotes(commands.Cog):
 			return await context.send(_('Logger cog not loaded.'))
 
 		try:
-			message = await channel.fetch_message(message_id)
+			message = await self.logger.channel.fetch_message(message_id)
 		except discord.NotFound:
 			return await context.send(_('Message not found.'))
 
