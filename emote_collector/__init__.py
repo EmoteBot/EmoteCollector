@@ -66,7 +66,7 @@ class EmoteCollector(commands.AutoShardedBot):
 		self._setup_success_emojis()
 
 	def _setup_success_emojis(self):
-		utils.SUCCESS_EMOJIS = utils.misc.SUCCESS_EMOJIS = (
+		utils.SUCCESS_EMOJIS = (
 			self.config.get('success_or_failure_emojis', ('❌', '✅')))
 
 	@property
