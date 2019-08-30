@@ -396,22 +396,22 @@ class Emotes(commands.Cog):
 		await context.send(message)
 
 	@staticmethod
-	def _humanize_errors(error=None):
+	def _humanize_errors(error):
 		if isinstance(error, errors.PermissionDeniedError):
-			return 0, _('**Not authorized:**')
+			return 1, _('**Not authorized:**')
 		if isinstance(error, errors.EmoteExistsError):
 			# translator's note: the next five strings are displayed as errors
 			# when the user tries to add/remove an emote
-			return 1, _('**Already exists:**')
+			return 2, _('**Already exists:**')
 		if isinstance(error, errors.EmoteNotFoundError):
 			# same priority as EmoteExists
-			return 1, _('**Not found:**')
+			return 2, _('**Not found:**')
 		if isinstance(error, (discord.HTTPException, errors.HTTPException)):
-			return 2, _('**Server returned error code {error.status}:**').format(error=error)
+			return 3, _('**Server returned error code {error.status}:**').format(error=error)
 		if isinstance(error, asyncio.TimeoutError):
-			return 3, _('**Took too long to retrieve or resize:**')
+			return 4, _('**Took too long to retrieve or resize:**')
 		if isinstance(error, errors.NoMoreSlotsError):
-			return 4, _('**Failed because I ran out of backend servers:**')
+			return 5, _('**Failed because I ran out of backend servers:**')
 
 		# unhandled errors are still errors
 		raise error
