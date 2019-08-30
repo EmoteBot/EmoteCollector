@@ -350,7 +350,7 @@ class Emotes(commands.Cog):
 				# the emote would not display (since it's already removed)
 				removal_message = await logger(emote)
 				try:
-					await self.db.remove_emote(emote, context.author.id)
+					await self.db.remove_emote(emote, context.author.id, force=force)
 				except (errors.ConnoisseurError, errors.DiscordError) as error:
 					messages.setdefault(self._humanize_errors(error), []).append(arg)
 					# undo the log
@@ -397,6 +397,8 @@ class Emotes(commands.Cog):
 
 	@staticmethod
 	def _humanize_errors(error=None):
+		if isinstance(error, errors.PermissionDeniedError):
+			return 0, _('**Not authorized:**')
 		if isinstance(error, errors.EmoteExistsError):
 			# translator's note: the next five strings are displayed as errors
 			# when the user tries to add/remove an emote

@@ -502,8 +502,10 @@ class Database(commands.Cog):
 			or await self.bot.is_owner(discord.Object(user_id))
 			or await self.bot.pool.fetchval('SELECT true FROM moderators WHERE id = $1', user_id))
 
-	async def is_owner(self, emote, user_id):
-		"""return whether the user has permissions to modify this emote"""
+	async def is_owner(self, emote, user_id, *, force=False):
+		"""return whether the user has permissions to modify this emote
+		if force is True, return True as long as they are a moderator
+		"""
 
 		if user_id is None:
 			return True
@@ -511,12 +513,12 @@ class Database(commands.Cog):
 		if not emote:  # you can't own an emote that doesn't exist
 			raise errors.EmoteNotFoundError(emote.name)
 
-		return await self.is_moderator(user_id) or emote.author == user_id
+		return (force and await self.is_moderator(user_id)) or emote.author == user_id
 
-	async def owner_check(self, emote, user_id):
+	async def owner_check(self, emote, user_id, *, force=False):
 		"""like is_owner but fails with an exception if the user is not authorized.
 		this is to reduce duplicated exception raising code."""
-		if not await self.is_owner(emote, user_id):
+		if not await self.is_owner(emote, user_id, force=force):
 			raise errors.PermissionDeniedError(emote.name)
 
 	## Actions
@@ -534,18 +536,20 @@ class Database(commands.Cog):
 			RETURNING *
 		""", name, int(emote_data['id']), author_id, animated, guild_id))
 
-	async def remove_emote(self, emote, user_id):
+	async def remove_emote(self, emote, user_id, *, force=False):
 		"""Remove an emote given by name or DatabaseEmote object.
-		- user_id: the user trying to remove this emote,
-		  or None if their ownership should not
-		  be verified
+		-	user_id: the user trying to remove this emote,
+			or None if their ownership should not
+			be verified
+		-	force: whether to remove the emote regardless of ownership status,
+			as long as the user is a moderator
 
 		returns the emote that was deleted
 		"""
 		if isinstance(emote, str):
 			emote = await self.get_emote(name=emote)
 
-		await self.owner_check(emote, user_id)
+		await self.owner_check(emote, user_id, force=force)
 
 		try:
 			await self.bot.http.delete_custom_emoji(emote.guild, emote.id)
