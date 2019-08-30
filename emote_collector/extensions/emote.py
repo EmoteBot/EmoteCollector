@@ -667,10 +667,16 @@ class Emotes(commands.Cog):
 
 	@commands.command()
 	async def recover(self, context, message: discord.Message):
-		"""recovers a decayed or removed emote from the log channel.
+		"""Recovers a decayed or removed emote from a log channel.
 
-		message_id is the ID of the log message. To get it you can use developer mode.
+		message is the channel and message ID of the log message. To get it you can use developer mode.
+		Either pass it as channel_id-message_id (shift click on "Copy ID"), or pass a jump link.
+
+		The emote will be owned by you, so that you can edit it.
 		"""
+
+		if message.channel not in self.logger.channels:
+			return await context.send(_('That message is not from a log channel.'))
 
 		try:
 			embed = message.embeds[0]
@@ -679,25 +685,11 @@ class Emotes(commands.Cog):
 
 		description = embed.description
 
-		try:
-			emote = re.match(utils.lexer.t_CUSTOM_EMOTE, description)
-		except TypeError:
-			return await context.send(_('No description was found in that embed.'))
+		emote = re.match(utils.lexer.t_CUSTOM_EMOTE, description)
 		name = emote['name']
+		url = utils.emote.url(emote['id'], animated=emote['animated'])
 
-		try:
-			url = utils.emote.url(emote['id'], animated=emote['animated'])
-		except AttributeError:
-			return await context.send(_("No custom emotes were found in that embed's description."))
-
-		try:
-			author = int((
-				re.search(r'<@!?(\d{17,})>', description)
-				or re.search(r'Unknown user with ID (\d{17,})', description))[1])
-		except AttributeError:
-			return await context.send(_('No author IDs were found in that embed.'))
-
-		message = await self.add_safe(name, url, author)
+		message = await self.add_safe(name, url, context.author.id)
 		await context.send(message)
 
 	@commands.command()
