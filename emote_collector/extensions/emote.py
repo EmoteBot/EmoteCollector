@@ -360,7 +360,7 @@ class Emotes(commands.Cog):
 					message = _('**Successfully deleted:**')
 					messages.setdefault((0, message), []).append(emote.escaped_name())
 
-		messages = self._sort_errors(messages)
+		messages = sorted(messages.items())
 		message = self._format_errors(messages)
 		await context.send(message)
 
@@ -391,7 +391,7 @@ class Emotes(commands.Cog):
 		if not messages:
 			return await context.send(_('Error: no existing custom emotes were provided.'))
 
-		messages = self._sort_errors(messages)
+		messages = sorted(messages.items())
 		message = self._format_errors(messages)
 		await context.send(message)
 
@@ -415,15 +415,6 @@ class Emotes(commands.Cog):
 
 		# unhandled errors are still errors
 		raise error
-
-	@staticmethod
-	def _sort_errors(errors: collections.abc.Mapping):
-		# order by success first then errors
-		def sort_key(pair):
-			(sort_order, message), arguments = pair
-			return sort_order
-
-		return sorted(errors.items(), key=sort_key)
 
 	@staticmethod
 	def _format_errors(messages):
@@ -788,7 +779,7 @@ class Emotes(commands.Cog):
 				messages.setdefault((0, success_message), []).append(str(emote))
 				self.bot.dispatch(f'emote_{"un" if not should_preserve else ""}preserve', emote)
 
-		messages = self._sort_errors(messages)
+		messages = sorted(messages.items())
 		message = self._format_errors(messages)
 		await context.send(message)
 
