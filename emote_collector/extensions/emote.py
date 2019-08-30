@@ -39,7 +39,7 @@ from ..utils import image as image_utils
 from ..utils import checks
 from ..utils import errors
 from ..utils import ObjectProxy
-from ..utils.converter import DatabaseEmoteConverter, Snowflake, UserOrMember
+from ..utils.converter import DatabaseEmoteConverter, UserOrMember
 from ..utils.paginator import CannotPaginate, Pages
 
 logger = logging.getLogger(__name__)
@@ -485,12 +485,13 @@ class Emotes(commands.Cog):
 				'or you are not an emote moderator.'))
 
 		new_emote = await self.db.toggle_emote_nsfw(emote, by_mod=by_mod)
+		responsible_moderator = context.author if by_mod else None
 		if new_emote.is_nsfw:
 			await context.send(_('Emote is now NSFW.'))
-			await self.logger.on_emote_nsfw(emote, context.author)
+			self.bot.dispatch('emote_nsfw', emote, responsible_moderator)
 			return
 		await context.send(_('Emote is now SFW.'))
-		await self.logger.on_emote_sfw(emote, context.author)
+		self.bot.dispatch('emote_sfw', emote, responsible_moderator)
 
 	@commands.command()
 	@checks.not_blacklisted()
@@ -665,21 +666,11 @@ class Emotes(commands.Cog):
 			return _('That person has not created any emotes yet, or all their emotes are NSFW.')
 
 	@commands.command()
-	async def recover(self, context, message_id: Snowflake):
+	async def recover(self, context, message: discord.Message):
 		"""recovers a decayed or removed emote from the log channel.
 
 		message_id is the ID of the log message. To get it you can use developer mode.
 		"""
-
-		if self.logger.channel is None:
-			# Translator's note: this message is pretty rare, so don't worry if it's hard to translate "cog"
-			# to your language.
-			return await context.send(_('Logger cog not loaded.'))
-
-		try:
-			message = await self.logger.channel.fetch_message(message_id)
-		except discord.NotFound:
-			return await context.send(_('Message not found.'))
 
 		try:
 			embed = message.embeds[0]

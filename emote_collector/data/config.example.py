@@ -53,20 +53,24 @@
 		}
 	},
 
+	# this is a dict mapping log channel IDs to settings for that channel
+	# each settings dict looks like this:
+	# {
+	# 	'include_nsfw_emotes': True,  # optional, if not specified, it defaults to False
+	# 	'actions': {  # a set of actions to log to this channel
+	# 		# possible action strings:
+	# 		'add',
+	# 		'remove',
+	# 		'force_remove',  # when an emote is removed by a moderator
+	# 		'preserve',  # when an emote is preserved (excluded from the emote decay)
+	# 		'unpreserve',  # when an emote is un-preserved (included in the emote decay)
+	# 		'nsfw',  # when an emote is marked as NSFW
+	# 		'sfw',  # when an emote is marked as SFW
+	# 		'decay',  # when an emote is removed by the automatic emote decay
+	# 	}
+	# }
+	# multiple channels can be configured. all of them will be used for logging.
 	'logs': {
-		'emotes': {  # log changes to emotes
-			'channel': None,
-			'settings': {
-				'add': False,  # whether to log whenever an emote is added
-				'preserve': True,  # whether to log whenever an emote is preserved
-				'unpreserve': True,  # ditto, but for marking an emote as "not preserved" / decayable
-				'remove': False,  # whether to log whenever an emote is removed by the author
-				'force_remove': True,  # whether to log whenever an emote is removed by a moderator
-				'decay': True,  # whether to log decayed emotes
-				'nsfw': True,  # whether to log when a moderator marks an emote as NSFW
-				'sfw': True,  # whether to log when a moderator marks an emote as SFW
-			}
-		}
 	},
 
 	'primary_owner': 140516693242937345,
