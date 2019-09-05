@@ -1,6 +1,6 @@
 {
 	'description': 'Emote Collector curates emotes from any server and lets you use them without Nitro.',
-	'prefix': 'ec/',
+	'prefixes': ['ec/'],
 
 	'decay': {
 		'enabled': False,  # whether to enable the deletion of old emotes
@@ -26,7 +26,7 @@
 	},
 
 	# the contents of this file will be sent to the user when they run the "copyright" command
-	# as provided by ben_cogs
+	# as provided by bot_bin
 	'copyright_license_file': 'data/short-license.txt',
 
 	'support_server': {  # a guild where users can get help using the bot

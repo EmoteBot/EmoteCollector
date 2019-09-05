@@ -1,8 +1,8 @@
-from ben_cogs.stats import Stats
+from bot_bin.stats import BotBinStats
 
 from ..utils import ObjectProxy
 
-class Stats(Stats):
+class Stats(BotBinStats):
 	def __init__(self, bot):
 		super().__init__(bot)
 		self.guilds = ObjectProxy(lambda: bot.cogs['Database'].guilds)

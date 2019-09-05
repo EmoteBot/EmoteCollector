@@ -401,9 +401,9 @@ class Meta(commands.Cog):
 			if module.startswith('jishaku'):
 				source_url = 'https://github.com/Gorialis/jishaku'
 				at = self._pkg_version('jishaku')
-			elif module.startswith('ben_cogs'):
-				source_url = 'https://github.com/bmintz/cogs'
-				at = self._ben_cogs_revision()
+			elif module.startswith('bot_bin'):
+				source_url = 'https://github.com/bmintz/bot-bin'
+				at = self._bot_bin_revision()
 
 			location = module.replace('.', '/') + '.py'
 
@@ -423,8 +423,8 @@ class Meta(commands.Cog):
 		return commit or 'v' + version
 
 	@classmethod
-	def _ben_cogs_revision(cls, *, default='master'):
-		ver = cls._pkg_version('ben_cogs', default=default)
+	def _bot_bin_revision(cls, *, default='master'):
+		ver = cls._pkg_version('bot_bin', default=default)
 		if ver == default:
 			return default
 
