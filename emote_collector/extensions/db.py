@@ -325,9 +325,6 @@ class Database(commands.Cog):
 			kwargs['filter_author'] = True
 			args.append(author_id)
 
-		print(self.queries.all_emotes_keyset(**kwargs), end='')
-		print(args)
-
 		results = list(map(DatabaseEmote, await self.bot.pool.fetch(
 			self.queries.all_emotes_keyset(**kwargs),
 			*args)))
