@@ -57,7 +57,7 @@ class Emotes(commands.Cog):
 				+ self.bot.http.user_agent
 		})
 
-		with open(os.path.join(BASE_DIR, 'data', 'e0-final-emojis.json')) as f:
+		with open(BASE_DIR / 'data' / 'e0-final-emojis.json') as f:
 			self.e0_emojis = json.load(f)
 
 		# keep track of created paginators so that we can remove their reaction buttons on unload

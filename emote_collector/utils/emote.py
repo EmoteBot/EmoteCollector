@@ -25,7 +25,7 @@ import discord
 
 from .. import BASE_DIR
 
-with open(os.path.join(BASE_DIR, 'data', 'discord-emoji-shortcodes.json')) as f:
+with open(BASE_DIR / 'data' / 'discord-emoji-shortcodes.json') as f:
 	emoji_shortcodes = frozenset(json.load(f))
 del f
 

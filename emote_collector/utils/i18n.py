@@ -25,11 +25,7 @@ from .. import BASE_DIR
 
 default_locale = 'en_US'
 locale_dir = 'locale'
-locales = frozenset(
-	map(os.path.basename,
-	filter(
-		os.path.isdir,
-		glob(os.path.join(BASE_DIR, locale_dir, '*')))))
+locales = frozenset(p.name for p in (BASE_DIR / locale_dir).iterdir() if p.is_dir())
 
 gettext_translations = {
 	locale: gettext.translation(

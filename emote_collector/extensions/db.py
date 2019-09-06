@@ -108,13 +108,10 @@ class Database(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
 		self._process_decay_config()
+		self.queries = self.bot.jinja_env.get_template('emotes.sql')
 
 		self.tasks = [
-			self.bot.loop.create_task(meth())
-			for meth in [
-				self.find_backend_guilds,
-				self.update_emote_guilds,
-				self.update_moderator_list]]
+			self.bot.loop.create_task(meth()) for meth in (self.find_backend_guilds, self.update_moderator_list)]
 		self.tasks.append(self.decay_loop.start())
 
 		self.logger = ObjectProxy(lambda: bot.cogs['Logger'])
@@ -153,11 +150,9 @@ class Database(commands.Cog):
 
 		self.guilds.update(guilds)
 		self.have_guilds.set()
-		await self.bot.pool.executemany("""
-			INSERT INTO _guilds
-			VALUES ($1)
-			ON CONFLICT (id) DO NOTHING
-		""", map(lambda x: (x.id,), self.guilds))
+		async with self.bot.pool.acquire() as conn, conn.transaction():
+			await conn.execute(self.queries.delete_all_guilds())
+			await conn.copy_records_to_table('_guilds', records=map(lambda x: (x.id,), self.guilds), columns=('id',))
 
 		logger.info('In %s backend guilds.', len(self.guilds))
 
@@ -166,23 +161,6 @@ class Database(commands.Cog):
 
 	def is_backend_guild(self, guild):
 		return guild.owner.id in self.bot.config['backend_user_accounts']
-
-	async def update_emote_guilds(self):
-		"""update the guild column in the emotes table
-
-		it's null in a former installation without the guild column
-		"""
-
-		await self.bot.wait_until_ready()
-
-		emotes = []
-		async for db_emote in self.all_emotes():
-			discord_emote = self.bot.get_emoji(db_emote.id)
-			if discord_emote is None:
-				continue
-			emotes.append((db_emote.id, discord_emote.guild_id))
-
-		await self.bot.pool.executemany('UPDATE emotes SET guild = $2 WHERE id = $1', emotes)
 
 	async def update_moderator_list(self):
 		self.moderators = set()
@@ -197,12 +175,8 @@ class Database(commands.Cog):
 		self.moderators.update(members)
 
 		async with self.bot.pool.acquire() as connection, connection.transaction():
-			await self.bot.pool.execute('DELETE FROM moderators')
-			await self.bot.pool.executemany("""
-				INSERT INTO moderators
-				VALUES ($1)
-				ON CONFLICT (id) DO NOTHING
-			""", members)
+			await connection.execute(self.queries.delete_all_moderators())
+			await connection.copy_records_to_table('moderators', records=members, columns=('id',))
 
 	def _moderator_role(self):
 		guild = self.bot.config['support_server'].get('id')
@@ -232,14 +206,14 @@ class Database(commands.Cog):
 
 	@commands.Cog.listener()
 	async def on_guild_remove(self, guild):
-		await self.bot.pool.execute('DELETE FROM _guilds WHERE id = $1', guild.id)
+		await self.bot.pool.execute(self.queries.delete_guild(), guild.id)
 		with contextlib.suppress(AttributeError):
 			self.guilds.discard(guild)
 
 	@commands.Cog.listener()
 	async def on_guild_join(self, guild):
 		if self.is_backend_guild(guild):
-			await self.bot.pool.execute('INSERT INTO _guilds (id) VALUES ($1) ON CONFLICT DO NOTHING', guild.id)
+			await self.bot.pool.execute(self.queries.add_guild(), guild.id)
 			self.guilds.add(guild)
 			self.bot.dispatch('backend_guild_join', guild)
 
@@ -254,14 +228,10 @@ class Database(commands.Cog):
 
 		if mod_role in before.roles and mod_role not in after.roles:
 			self.moderators.discard(after)
-			await self.bot.pool.execute('DELETE FROM moderators WHERE id = $1', after.id)
+			await self.bot.pool.execute(self.queries.delete_moderator(), after.id)
 		elif mod_role not in before.roles and mod_role in after.roles:
 			self.moderators.add(after)
-			await self.bot.pool.execute("""
-				INSERT INTO moderators (id)
-				VALUES ($1)
-				ON CONFLICT (id) DO NOTHING
-			""", after.id)
+			await self.bot.pool.execute(self.queries.add_moderator(), after.id)
 
 	## Informational
 
@@ -275,13 +245,7 @@ class Database(commands.Cog):
 		# random() hopefully lets us bypass emote rate limits
 		# otherwise if we always pick the first available gulid,
 		# we might reuse it often and get rate limited.
-		guild_id = await self.bot.pool.fetchval(f"""
-			SELECT id
-			FROM guilds
-			WHERE {'animated' if animated else 'static'}_usage < 50
-			ORDER BY random()
-			LIMIT 1
-		""")
+		guild_id = await self.bot.pool.fetchval(self.queries.free_guild(animated))
 
 		if guild_id is None:
 			raise errors.NoMoreSlotsError
@@ -290,14 +254,7 @@ class Database(commands.Cog):
 
 	async def count(self) -> asyncpg.Record:
 		"""Return (not animated count, animated count, total)"""
-		return await self.bot.pool.fetchrow("""
-			SELECT
-				COUNT(*) FILTER (WHERE NOT animated) AS static,
-				COUNT(*) FILTER (WHERE animated) AS animated,
-				COUNT(*) FILTER (WHERE nsfw != 'SFW') AS nsfw,
-				COUNT(*) AS total
-			FROM emotes
-		""")
+		return await self.bot.pool.fetchrow(self.queries.count())
 
 	def capacity(self):
 		"""return a three-tuple of static capacity, animated, total"""
@@ -309,7 +266,7 @@ class Database(commands.Cog):
 		# that we don't want
 		# probably LOWER(name) = $1, name.lower() would also work, but this looks cleaner
 		# and keeps the lowercasing behavior consistent
-		result = await self.bot.pool.fetchrow('SELECT * FROM emotes WHERE LOWER(name) = LOWER($1)', name)
+		result = await self.bot.pool.fetchrow(self.queries.get_emote(), name)
 		if result:
 			return DatabaseEmote(result)
 		else:
@@ -318,21 +275,12 @@ class Database(commands.Cog):
 	def get_emote_usage(self, emote) -> int:
 		"""return how many times this emote was used"""
 		cutoff_time = datetime.datetime.utcnow() - self.bot.config['decay']['cutoff']['time']
-		return self.bot.pool.fetchval("""
-			SELECT COUNT(*)
-			FROM emote_usage_history
-			WHERE id = $1
-			  AND time > $2
-		""", emote.id, cutoff_time)
+		return self.bot.pool.fetchval(self.queries.get_emote_usage(), emote.id, cutoff_time)
 
 	async def get_reply_message(self, invoking_message):
 		"""return a tuple of message_type, reply_message_id for the given invoking message ID
 		or None, None if not found"""
-		row = await self.bot.pool.fetchrow("""
-			SELECT type, reply_message
-			FROM replies
-			WHERE invoking_message = $1
-		""", invoking_message)
+		row = await self.bot.pool.fetchrow(self.queries.get_reply_message(), invoking_message)
 		if row is None:
 			return None, None
 
@@ -365,31 +313,24 @@ class Database(commands.Cog):
 		if after is not None and before is not None:
 			raise TypeError('only one of after, before may be specified')
 
-		# it's times like these i wish i had mongo tbh
-		query = 'SELECT * FROM emotes WHERE nsfw = ANY ($1) '
 		args = [self.allowed_nsfw_types(allow_nsfw)]
 
-		arg_counter = 2
-
-		sort_order = 'ASC'
+		sort_order = 'DESC' if before is not None else 'ASC'
+		kwargs = {}
 		if after is not None or before is not None:
-			if after is not None:
-				op = '>'
-				args.append(after)
-			elif before is not None:
-				op = '<'
-				sort_order = 'DESC'
-				args.append(before)
-			query += f'AND LOWER(name) {op} LOWER(${arg_counter}) '
-			arg_counter += 1
+			kwargs['sort_order'] = sort_order
+			args.append(after or before)
 
 		if author_id is not None:
-			query += f'AND author = ${arg_counter} '
+			kwargs['filter_author'] = True
 			args.append(author_id)
-			arg_counter += 1
 
-		query += f'ORDER BY LOWER(name) {sort_order} LIMIT 100'
-		results = list(map(DatabaseEmote, await self.bot.pool.fetch(query, *args)))
+		print(self.queries.all_emotes_keyset(**kwargs), end='')
+		print(args)
+
+		results = list(map(DatabaseEmote, await self.bot.pool.fetch(
+			self.queries.all_emotes_keyset(**kwargs),
+			*args)))
 		if before is not None:
 			results.reverse()
 		return results
@@ -399,31 +340,13 @@ class Database(commands.Cog):
 		cutoff_time = datetime.datetime.utcnow() - self.bot.config['decay']['cutoff']['time']
 
 		extra_args = [] if author_id is None else [author_id]
-		return self._database_emote_cursor(f"""
-			SELECT e.*, COUNT(euh.id) AS usage
-			FROM emotes AS e
-			LEFT JOIN emote_usage_history AS euh
-			    ON euh.id = e.id
-			   AND euh.time > $1
-			WHERE
-				nsfw = ANY ($3)
-				{"AND author = $4" if author_id is not None else ""}
-			GROUP BY e.id
-			ORDER BY usage DESC, LOWER(e.name)
-			LIMIT $2
-		""", cutoff_time, limit, self.allowed_nsfw_types(allow_nsfw), *extra_args)
+		return self._database_emote_cursor(
+			self.queries.popular_emotes(filter_author=bool(extra_args)),
+			cutoff_time, limit, self.allowed_nsfw_types(allow_nsfw), *extra_args)
 
 	def search(self, query, *, allow_nsfw: AllowNsfwType = False):
 		"""return an async iterator that gets emotes from the db whose name is similar to `query`."""
-
-		return self._database_emote_cursor("""
-			SELECT *
-			FROM emotes
-			WHERE name % $1
-			AND nsfw = ANY ($2)
-			ORDER BY similarity(name, $1) DESC, LOWER(name)
-			LIMIT 100
-		""", query, self.allowed_nsfw_types(allow_nsfw))
+		return self._database_emote_cursor(self.queries.search(), query, self.allowed_nsfw_types(allow_nsfw))
 
 	@classmethod
 	def allowed_nsfw_types(cls, allow_nsfw: AllowNsfwType):
@@ -451,20 +374,7 @@ class Database(commands.Cog):
 		"""
 		cutoff_time = datetime.datetime.utcnow() - self.bot.config['decay']['cutoff']['time']
 		usage_threshold = self.bot.config['decay']['cutoff']['usage']
-
-		# don't touch this query please
-		# i don't really understand it and it took a few DAYS to get right
-		return self._database_emote_cursor("""
-			SELECT e.*, COUNT(euh.id) AS usage
-			FROM emotes AS e
-			LEFT JOIN emote_usage_history AS euh
-			    ON euh.id = e.id
-			   AND time > $1
-			WHERE created < $1
-			      AND NOT preserve
-			GROUP BY e.id
-			HAVING COUNT(euh.id) < $2
-		""", cutoff_time, usage_threshold)
+		return self._database_emote_cursor(self.queries.decayable_emotes(), cutoff_time, usage_threshold)
 
 	async def _database_emote_cursor(self, query, *args):
 		"""like _cursor, but wraps results in DatabaseEmote objects"""

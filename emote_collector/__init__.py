@@ -19,9 +19,11 @@ import contextlib
 import inspect
 import itertools
 import logging
-import os.path
+import traceback
+from pathlib import Path
 
 import discord
+import querypp
 from bot_bin.bot import Bot
 from discord.ext import commands
 try:
@@ -32,7 +34,7 @@ else:
 	asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 
 # set BASE_DIR before importing utils because utils.i18n depends on it
-BASE_DIR = os.path.dirname(__file__)
+BASE_DIR = Path(__file__).parent
 
 from . import utils
 from . import extensions
@@ -43,12 +45,13 @@ logger = logging.getLogger('bot')
 class EmoteCollector(Bot):
 	def __init__(self, **kwargs):
 		super().__init__(setup_db=True, **kwargs)
+		self.jinja_env = querypp.QueryEnvironment(BASE_DIR / 'sql')
 
 	def process_config(self):
 		super().process_config()
 		self.config['backend_user_accounts'] = set(self.config['backend_user_accounts'])
 		with contextlib.suppress(KeyError):
-			self.config['copyright_license_file'] = os.path.join(BASE_DIR, self.config['copyright_license_file'])
+			self.config['copyright_license_file'] = BASE_DIR / self.config['copyright_license_file']
 
 	def _setup_success_emojis(self):
 		utils.SUCCESS_EMOJIS = self.config.get('success_or_failure_emojis', ('❌', '✅'))

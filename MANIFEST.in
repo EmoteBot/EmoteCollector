@@ -11,3 +11,4 @@ include emote_collector/data/decay_test.sql
 include emote_collector/data/schema.sql
 include emote_collector/data/short-license.txt
 include emote_collector/locale/*
+include emote_collector/sql/*
