@@ -52,8 +52,6 @@ class EmoteCollector(Bot):
 		self.config['backend_user_accounts'] = set(self.config['backend_user_accounts'])
 		with contextlib.suppress(KeyError):
 			self.config['copyright_license_file'] = BASE_DIR / self.config['copyright_license_file']
-
-	def _setup_success_emojis(self):
 		utils.SUCCESS_EMOJIS = self.config.get('success_or_failure_emojis', ('❌', '✅'))
 
 	### Events
