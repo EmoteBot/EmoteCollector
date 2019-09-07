@@ -22,6 +22,7 @@ import getopt
 import io
 import json
 import logging
+import operator
 import os.path
 import re
 import traceback
@@ -342,20 +343,19 @@ class Emotes(commands.Cog):
 
 				try:
 					emote = await self.db.get_emote(name)
-				except BaseException as error:
+				except BaseException as error:  # XXX
 					messages.setdefault(self._humanize_errors(error), []).append(arg)
 					continue
 
 				# log the emote removal *first* because if we were to do it afterwards,
 				# the emote would not display (since it's already removed)
-				removal_message = await logger(emote)
+				removal_messages = await logger(emote)
 				try:
 					await self.db.remove_emote(emote, context.author.id, force=force)
 				except (errors.ConnoisseurError, errors.DiscordError) as error:
 					messages.setdefault(self._humanize_errors(error), []).append(arg)
 					# undo the log
-					with contextlib.suppress(AttributeError):
-						await removal_message.delete()
+					await asyncio.gather(*map(operator.methodcaller('delete'), removal_messages), return_exceptions=True)
 				else:
 					message = _('**Successfully deleted:**')
 					messages.setdefault((0, message), []).append(emote.escaped_name())

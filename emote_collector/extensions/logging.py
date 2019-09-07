@@ -17,6 +17,7 @@
 import asyncio
 import datetime
 import logging
+import typing
 
 import discord
 from discord.ext import commands
@@ -83,7 +84,7 @@ class Logger(commands.Cog):
 
 		self.configured.set()
 
-	async def _log(self, *, event, nsfw, embed):
+	async def _log(self, *, event, nsfw, embed) -> typing.List[discord.Message]:
 		await self.configured.wait()  # don't let people bypass logging by taking actions before logging is set up
 
 		async def send(channel):
@@ -93,13 +94,19 @@ class Logger(commands.Cog):
 				logging.error(f'Sending a log ({embed}) to {channel!r} failed:')
 				logging.error(utils.format_http_exception(exception))
 
-		await asyncio.gather(*(
-			send(channel)
-			for channel, settings
-			in self.channels.items()
-			if
-				(not nsfw or settings.get('include_nsfw_emotes', False))
-				and event in settings['actions']))
+		coros = []
+		for channel, settings in self.channels.items():
+			if event not in settings['actions']:
+				continue
+			if nsfw and not settings.get('include_nsfw_emotes', False):
+				continue
+			coros.append(send(channel))
+		return [
+			result
+			# ignore all exceptions in sending to any of the channels,
+			# and don't cancel sending messages if one of the channels fails
+			for result in await asyncio.gather(*coros, return_exceptions=True)
+			if isinstance(result, discord.Message)]
 
 	async def log_emote_action(self, *, event, emote, title=None, by: discord.User = None):
 		e = discord.Embed()
@@ -115,23 +122,23 @@ class Logger(commands.Cog):
 		e.color = getattr(LogColor, event)
 		e.title = title or event.title()
 
-		await self._log(event=event, nsfw=emote.is_nsfw, embed=e)
+		return await self._log(event=event, nsfw=emote.is_nsfw, embed=e)
 
 	@commands.Cog.listener()
 	async def on_emote_add(self, emote):
-		await self.log_emote_action(event='add', emote=emote)
+		return await self.log_emote_action(event='add', emote=emote)
 
 	@commands.Cog.listener()
 	async def on_emote_remove(self, emote):
-		await self.log_emote_action(event='remove', emote=emote)
+		return await self.log_emote_action(event='remove', emote=emote)
 
 	@commands.Cog.listener()
 	async def on_emote_decay(self, emote):
-		await self.log_emote_action(event='decay', emote=emote)
+		return await self.log_emote_action(event='decay', emote=emote)
 
 	@commands.Cog.listener()
 	async def on_emote_force_remove(self, emote, responsible_moderator: discord.User):
-		await self.log_emote_action(
+		return await self.log_emote_action(
 			event='force_remove',
 			emote=emote,
 			title='Removal by a moderator',
@@ -139,19 +146,19 @@ class Logger(commands.Cog):
 
 	@commands.Cog.listener()
 	async def on_emote_preserve(self, emote):
-		await self.log_emote_action(event='preserve', emote=emote, title='Preservation')
+		return await self.log_emote_action(event='preserve', emote=emote, title='Preservation')
 
 	@commands.Cog.listener()
 	async def on_emote_unpreserve(self, emote):
-		await self.log_emote_action(event='unpreserve', emote=emote, title='Un-preservation')
+		return await self.log_emote_action(event='unpreserve', emote=emote, title='Un-preservation')
 
 	@commands.Cog.listener()
 	async def on_emote_nsfw(self, emote, responsible_moderator: discord.User = None):
-		await self.log_emote_action(event='nsfw', emote=emote, title='Marked NSFW', by=responsible_moderator)
+		return await self.log_emote_action(event='nsfw', emote=emote, title='Marked NSFW', by=responsible_moderator)
 
 	@commands.Cog.listener()
 	async def on_emote_sfw(self, emote, responsible_moderator: discord.User = None):
-		await self.log_emote_action(event='sfw', emote=emote, title='Marked SFW', by=responsible_moderator)
+		return await self.log_emote_action(event='sfw', emote=emote, title='Marked SFW', by=responsible_moderator)
 
 def setup(bot):
 	bot.add_cog(Logger(bot))
