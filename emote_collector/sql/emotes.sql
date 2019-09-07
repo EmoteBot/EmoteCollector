@@ -133,3 +133,131 @@ GROUP BY e.id
 HAVING COUNT(euh.id) < $2
 -- :endquery
 
+--- ACTIONS
+
+-- :query create_emote
+-- params: name, id, author, animated, guild
+INSERT INTO emotes (name, id, author, animated, guild)
+VALUES ($1, $2, $3, $4, $5)
+RETURNING *
+-- :endquery
+
+-- :query remove_emote
+-- params: id
+DELETE FROM emotes
+WHERE id = $1
+-- :endquery
+
+-- :query rename_emote
+-- params: id, new_name
+UPDATE emotes
+SET name = $2
+WHERE id = $1
+RETURNING *
+-- :endquery
+
+-- :query set_emote_creation
+-- params: name, time
+UPDATE EMOTES
+SET created = $2
+WHERE LOWER(name) = LOWER($1)
+-- :endquery
+
+-- :query set_emote_description
+-- params: id, description
+UPDATE emotes
+SET description = $2
+WHERE id = $1
+RETURNING *
+-- :endquery
+
+-- :query set_emote_preservation
+-- params: name, should_preserve
+UPDATE emotes
+SET preserve = $2
+WHERE LOWER(name) = LOWER($1)
+-- :endquery
+
+-- :query set_emote_nsfw
+-- params: id, new_status
+UPDATE emotes
+SET nsfw = $2
+WHERE id = $1
+RETURNING *
+-- :endquery
+
+-- :query log_emote_use
+-- params: id
+INSERT INTO emote_usage_history (id)
+VALUES ($1)
+-- :endquery
+
+-- :query add_reply_message
+-- params: invoking_message_id, reply_type, reply_message_id
+INSERT INTO replies (invoking_message, type, reply_message)
+VALUES ($1, $2, $3)
+-- :endquery
+
+-- :query delete_reply_by_invoking_message
+-- params: reply_message_id
+DELETE FROM replies
+WHERE invoking_message = $1
+RETURNING reply_message
+-- :endquery
+
+-- :query delete_reply_by_reply_message
+-- params: reply_message_id
+DELETE FROM replies
+WHERE reply_message = $1
+-- :endquery
+
+--- USER / GUILD OPTIONS
+
+-- :query delete_all_user_state
+-- params: user_id
+DELETE FROM user_opt
+WHERE id = $1
+-- :endquery
+
+-- :macro _toggle_state(table)
+-- params: id, default
+INSERT INTO {{ table }} (id, state)
+VALUES ($1, $2)
+ON CONFLICT (id) DO UPDATE
+	SET state = NOT {{ table }}.state
+RETURNING state
+-- :endmacro
+
+-- :macro _get_state(table)
+-- params: id
+SELECT state
+FROM {{ table }}
+WHERE id = $1
+-- :endmacro
+
+-- :query get_state
+-- params: guild_id, user_id
+SELECT COALESCE(
+	CASE WHEN (SELECT blacklist_reason FROM user_opt WHERE id = $2) IS NOT NULL THEN FALSE END,
+	(SELECT state FROM user_opt  WHERE id = $2),
+	(SELECT state FROM guild_opt WHERE id = $1),
+	true -- not opted in in the guild or the user table, default behavior is ENABLED
+)
+-- :endquery
+
+--- BLACKLISTS
+
+-- :query get_user_blacklist
+-- params: user_id
+SELECT blacklist_reason
+FROM user_opt
+WHERE id = $1
+-- :endquery
+
+-- :query set_user_blacklist
+-- params: user_id, reason
+INSERT INTO user_opt (id, blacklist_reason)
+VALUES ($1, $2)
+ON CONFLICT (id) DO UPDATE
+	SET blacklist_reason = EXCLUDED.blacklist_reason
+-- :endquery

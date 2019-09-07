@@ -438,11 +438,8 @@ class Database(commands.Cog):
 		image = image_utils.image_to_base64_url(image_data)
 
 		emote_data = await self.bot.http.create_custom_emoji(guild_id=guild_id, name=name, image=image)
-		return DatabaseEmote(await self.bot.pool.fetchrow("""
-			INSERT INTO emotes (name, id, author, animated, guild)
-			VALUES ($1, $2, $3, $4, $5)
-			RETURNING *
-		""", name, int(emote_data['id']), author_id, animated, guild_id))
+		return DatabaseEmote(await self.bot.pool.fetchrow(
+			self.queries.create_emote(), name, int(emote_data['id']), author_id, animated, guild_id))
 
 	async def remove_emote(self, emote, user_id, *, force=False):
 		"""Remove an emote given by name or DatabaseEmote object.
@@ -466,7 +463,7 @@ class Database(commands.Cog):
 			# but we don't really care if there's an entry in the database and not the backend
 			logger.warning(f'emote {emote.name} found in the database but not the backend! removing anyway.')
 
-		await self.bot.pool.execute('DELETE FROM emotes WHERE id = $1', emote.id)
+		await self.bot.pool.execute(self.queries.remove_emote(), emote.id)
 		return emote
 
 	async def rename_emote(self, old_name, new_name, user_id):
@@ -480,20 +477,13 @@ class Database(commands.Cog):
 		await self.owner_check(emote, user_id)
 
 		await self.bot.http.edit_custom_emoji(emote.guild, emote.id, name=new_name)
-		return DatabaseEmote(await self.bot.pool.fetchrow("""
-			UPDATE emotes
-			SET name = $2
-			WHERE id = $1
-			RETURNING *
-		""", emote.id, new_name))
+		return DatabaseEmote(await self.bot.pool.fetchrow(self.queries.set_emote_creation(), emote.id, new_name))
 
 	async def set_emote_creation(self, name, time: datetime):
 		"""Set the creation time of an emote."""
-		await self.bot.pool.execute("""
-			UPDATE emotes
-			SET created = $2
-			WHERE LOWER(name) = LOWER($1)
-		""", name, time)
+		tag = await self.bot.pool.execute(self.queries.set_emote_creation(), name, time)
+		if tag == 'UPDATE 0':
+			raise errors.EmoteNotFoundError(name)
 
 	async def set_emote_description(self, name, description=None, user_id=None):
 		"""Set an emote's description.
@@ -509,14 +499,10 @@ class Database(commands.Cog):
 		await self.owner_check(emote, user_id)
 
 		try:
-			return DatabaseEmote(await self.bot.pool.fetchrow("""
-				UPDATE emotes
-				SET DESCRIPTION = $2
-				WHERE id = $1
-				RETURNING *
-			""",emote.id, description))
+			return DatabaseEmote(await self.bot.pool.fetchrow(
+				self.queries.set_emote_preservation(), emote.id, description))
 		except asyncpg.StringDataRightTruncationError as exception:
-			# XXX dumb way to do it but it's the only way i've got
+			# dumb way to do it but it's the only way i've got
 			limit = int(re.search(r'character varying\((\d+)\)', exception.message)[1])
 			raise errors.EmoteDescriptionTooLongError(emote.name, len(description), limit)
 
@@ -524,12 +510,7 @@ class Database(commands.Cog):
 		"""change the preservation status of an emote.
 		if an emote is preserved, it should not be decayed due to lack of use
 		"""
-		emote = await self.bot.pool.fetchrow("""
-			UPDATE emotes
-			SET preserve = $1
-			WHERE LOWER(name) = LOWER($2)
-			RETURNING *
-		""", should_preserve, name)
+		emote = await self.bot.pool.fetchrow(self.queries.set_emote_preservation(), name, should_preserve)
 
 		# why are we doing this "if not emote" checking, when we could just call get_emote
 		# before update?
@@ -546,12 +527,7 @@ class Database(commands.Cog):
 	async def set_emote_nsfw(self, emote: DatabaseEmote, new_state: bool, *, by_mod=False):
 		new_status = self.new_nsfw_status(emote, new_state, by_mod=by_mod)
 
-		return DatabaseEmote(await self.bot.pool.fetchrow("""
-			UPDATE emotes
-			SET nsfw = $2
-			WHERE id = $1
-			RETURNING *
-		""", emote.id, new_status))
+		return DatabaseEmote(await self.bot.pool.fetchrow(self.queries.set_emote_nsfw(), emote.id, new_status))
 
 	@staticmethod
 	def new_nsfw_status(emote, desired_status: bool, *, by_mod=False):
@@ -577,50 +553,38 @@ class Database(commands.Cog):
 			with contextlib.suppress(errors.EmoteError):
 				# since we're only listing emotes by user_id,
 				# we don't need to perform another ownership check
+				# TODO use DELETE FROM
 				await self.remove_emote(emote, user_id=None)
 
 	async def log_emote_use(self, emote_id):
-		await self.bot.pool.execute("""
-			INSERT INTO emote_usage_history (id)
-			VALUES ($1)
-		""", emote_id)
+		await self.bot.pool.execute(self.queries.log_emote_use(), emote_id)
 
 	async def decay(self):
 		async for emote in self.decayable_emotes():
 			logger.debug('decaying %s', emote.name)
-			removal_message = await self.logger.on_emote_decay(emote)
+			removal_messages = await self.logger.on_emote_decay(emote)
 			try:
 				await self.remove_emote(emote, user_id=None)
 			except (errors.ConnoisseurError, errors.DiscordError) as ex:
 				logger.error('decaying %s failed due to %s', emote.name, ex)
-				with contextlib.suppress(AttributeError):
-					await removal_message.delete()
+				await asyncio.gather(*map(operator.methodcaller('delete'), removal_messages), return_exceptions=True)
 
 	def add_reply_message(self, invoking_message, reply_type: MessageReplyType, reply_message):
 		"""add a record to indicate that the message with ID invoking_message is a reply_type message and that
 		the bot replied with message ID reply_message
 		"""
-		return self.bot.pool.execute("""
-			INSERT INTO replies (invoking_message, type, reply_message)
-			VALUES ($1, $2, $3)
-		""", invoking_message, reply_type.value, reply_message)
+		return self.bot.pool.execute(
+			self.queries.add_reply_message(), invoking_message, reply_type.value, reply_message)
 
 	def delete_reply_by_invoking_message(self, invoking_message):
 		"""remove and return one reply message ID for the given invoking message ID
 		return None if no reply message was found.
 		"""
-		return self.bot.pool.fetchval("""
-			DELETE FROM replies
-			WHERE invoking_message = $1
-			RETURNING reply_message
-		""", invoking_message)
+		return self.bot.pool.fetchval(self.queries.delete_reply_by_invoking_message(), invoking_message)
 
 	def delete_reply_by_reply_message(self, reply_message):
 		"""remove one reply message entry for the given reply message ID"""
-		return self.bot.pool.execute("""
-			DELETE FROM replies
-			WHERE reply_message = $1
-		""", reply_message)
+		return self.bot.pool.execute(self.queries.delete_reply_by_reply_message(), reply_message)
 
 	## User / Guild Options
 
@@ -642,19 +606,8 @@ class Database(commands.Cog):
 
 	def _toggle_state(self, table_name, id, default):
 		"""toggle the state for a user or guild. If there's no entry already, new state = default."""
-		# unfortunately, using $1 for table_name is a syntax error
-		# however, since table name is always hardcoded input from other functions in this module,
-		# it's ok to use string formatting here
-
 		# TODO consider using one table, with an attribute for whether the state applies to a guild or a user
-
-		return self.bot.pool.fetchval(f"""
-			INSERT INTO {table_name} (id, state)
-			VALUES ($1, $2)
-			ON CONFLICT (id) DO UPDATE
-				SET state = NOT {table_name}.state
-			RETURNING state
-		""", id, default)
+		return self.bot.pool.fetchval(self.queries._toggle_state(table_name), id, default)
 
 	def toggle_guild_state(self, guild_id):
 		"""Togle whether this guild is opt out.
@@ -665,8 +618,7 @@ class Database(commands.Cog):
 		return self._toggle_state('guild_opt', guild_id, False)
 
 	def _get_state(self, table_name, id):
-		# see _toggle_state for why string formatting is OK here
-		return self.bot.pool.fetchval(f'SELECT state FROM {table_name} WHERE id = $1', id)
+		return self.bot.pool.fetchval(self.queries.get_state(), id)
 
 	def get_user_state(self, user_id):
 		"""return this user's global preference for the emote auto response"""
@@ -679,39 +631,21 @@ class Database(commands.Cog):
 	def get_state(self, guild_id, user_id):
 		"""return whether emote auto replies should be sent for the given user in the given guild"""
 		# TODO investigate whether this obviates get_guild_state and get_user_state
-		return self.bot.pool.fetchval("""
-			SELECT COALESCE(
-				CASE WHEN (SELECT blacklist_reason FROM user_opt WHERE id = $2)
-					IS NULL THEN NULL
-					ELSE FALSE
-				END,
-				(SELECT state FROM user_opt  WHERE id = $2),
-				(SELECT state FROM guild_opt WHERE id = $1),
-				true -- not opted in in the guild or the user table, default behavior is ENABLED
-			)
-		""", guild_id, user_id)
+		return self.bot.pool.fetchval(self.queries.get_state(), guild_id, user_id)
 
 	## Blacklists
 
 	def get_user_blacklist(self, user_id):
 		"""return a reason for the user's blacklist, or None if not blacklisted"""
-		return self.bot.pool.fetchval("""
-			SELECT blacklist_reason
-			FROM user_opt
-			WHERE id = $1
-		""", user_id)
+		return self.bot.pool.fetchval(self.queries.get_user_blacklist(), user_id)
 
 	async def set_user_blacklist(self, user_id, reason=None):
 		"""make user_id blacklisted
-		setting reason to None removes the user's blacklist"""
+		setting reason to None removes the user's blacklist
+		"""
 		# insert regardless of whether it exists
 		# and if it does exist, update
-		await self.bot.pool.execute("""
-			INSERT INTO user_opt (id, blacklist_reason)
-			VALUES ($1, $2)
-			ON CONFLICT (id) DO UPDATE
-				SET blacklist_reason = EXCLUDED.blacklist_reason
-		""", user_id, reason)
+		await self.bot.pool.execute(self.queries.set_user_blacklist(), user_id, reason)
 
 def setup(bot):
 	bot.add_cog(Database(bot))
