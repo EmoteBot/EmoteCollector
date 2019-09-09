@@ -83,7 +83,7 @@ class Locales(commands.Cog):
 		"""
 
 		if channel is None:
-			user_locale = await self.locale(context.message)
+			user_locale = i18n.current_locale.get()
 			await context.send(_('Your current locale is: {user_locale}').format(**locals()))
 
 		else:
