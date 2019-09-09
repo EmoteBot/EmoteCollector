@@ -24,7 +24,7 @@ setuptools.setup(
 		'ply',
 		'psutil',
 		'pygit2',
-		'querypp>=1.0.1,<2.0.0',
+		'querypp>=0.1.1,<1.0.0',
 		'wand',
 	],
 )
