@@ -87,11 +87,8 @@ CREATE TABLE locales(
 		OR channel IS NOT NULL
 		OR "user" IS NOT NULL));
 
-CREATE INDEX locales_guild_idx ON locales (guild);
-CREATE INDEX locales_channel_idx ON locales (channel);
+CREATE UNIQUE INDEX locales_guild_channel_uniq_index ON locales (channel, guild);
 CREATE INDEX locales_user_idx ON locales ("user");
-
-CREATE UNIQUE INDEX locales_guild_channel_unique_index ON locales (guild, channel);
 
 CREATE TYPE message_reply_type AS ENUM ('AUTO', 'QUOTE');
 

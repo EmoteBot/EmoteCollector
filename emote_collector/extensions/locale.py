@@ -156,19 +156,19 @@ class Locales(commands.Cog):
 			SELECT COALESCE(
 				(
 					SELECT locale
-					FROM   locales
-					WHERE  "user" = $1),
+					FROM locales
+					WHERE "user" = $1),
 				(
 					SELECT locale
-					FROM   locales
-					WHERE  channel = $2),
+					FROM locales
+					WHERE channel = $2),
 				(
 					SELECT locale
-					FROM   locales
-					WHERE      guild = $3
-					       AND channel IS NULL
-					       AND "user" IS NULL)
-			)
+					FROM locales
+					WHERE
+						guild = $3
+						AND channel IS NULL
+						AND "user" IS NULL))
 		""", user, channel, guild)
 
 	async def channel_or_guild_locale(self, channel):
@@ -176,24 +176,26 @@ class Locales(commands.Cog):
 			SELECT COALESCE(
 				(
 					SELECT locale
-					FROM   locales
-					WHERE  channel = $1),
+					FROM locales
+					WHERE channel = $2),
 				(
 					SELECT locale
-					FROM   locales
-					WHERE      guild = $2
-					       AND channel IS NULL
-					       AND "user" IS NULL)
+					FROM locales
+					WHERE
+						guild = $1
+						AND channel IS NULL
+						AND "user" IS NULL)
 			)
-		""", channel.id, channel.guild.id)
+		""", channel.guild.id, channel.id)
 
 	async def guild_locale(self, guild):
 		return await self.bot.pool.fetchval("""
 			SELECT locale
-			FROM   locales
-			WHERE      guild = $1
-			       AND channel IS NULL
-			       AND "user" IS NULL
+			FROM locales
+			WHERE
+				guild = $1
+				AND channel IS NULL
+				AND "user" IS NULL
 		""", guild)
 
 	async def set_guild_locale(self, guild, locale):
@@ -201,9 +203,10 @@ class Locales(commands.Cog):
 		await self.bot.pool.execute("""
 			DELETE FROM
 			locales
-			WHERE     guild = $1
-			      AND channel IS NULL
-			      AND "user"  IS NULL;
+			WHERE
+				guild = $1
+				AND channel IS NULL
+				AND "user"  IS NULL;
 		""", guild)
 		await self.bot.pool.execute("""
 			INSERT INTO locales (guild, locale)
