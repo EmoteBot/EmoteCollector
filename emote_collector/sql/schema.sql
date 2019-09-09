@@ -52,12 +52,12 @@ BEFORE UPDATE ON emotes
 FOR EACH ROW EXECUTE PROCEDURE update_modified_column();
 
 CREATE TABLE user_opt(
-	id BIGINT NOT NULL UNIQUE,
+	id BIGINT PRIMARY KEY,
 	state BOOLEAN,
 	blacklist_reason VARCHAR(500));
 
 CREATE TABLE guild_opt(
-	id BIGINT NOT NULL UNIQUE,
+	id BIGINT PRIMARY KEY,
 	state BOOLEAN NOT NULL);
 
 CREATE TABLE moderators(
