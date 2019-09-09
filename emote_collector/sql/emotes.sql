@@ -1,9 +1,5 @@
 --- CACHE SYNCHRONIZATION
 
--- :query delete_all_guilds
-DELETE FROM _guilds
--- :endquery
-
 -- :query add_guild
 -- params: guild_id
 INSERT INTO _guilds (id)

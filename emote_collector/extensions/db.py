@@ -141,7 +141,6 @@ class Database(commands.Cog):
 
 	async def find_backend_guilds(self):
 		"""Find all the guilds used to store emotes"""
-
 		if self.have_guilds.is_set():
 			return
 
@@ -151,9 +150,7 @@ class Database(commands.Cog):
 
 		self.guilds.update(guilds)
 		self.have_guilds.set()
-		async with self.bot.pool.acquire() as conn, conn.transaction():
-			await conn.execute(self.queries.delete_all_guilds())
-			await conn.copy_records_to_table('_guilds', records=map(lambda x: (x.id,), self.guilds), columns=('id',))
+		await self.bot.pool.executemany(self.queries.add_guild(), ((x.id,) for x in self.guilds))
 
 		logger.info('In %s backend guilds.', len(self.guilds))
 
