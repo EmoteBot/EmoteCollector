@@ -120,7 +120,7 @@ class API(commands.Cog):
 	async def validate_token(self, token, user_id=None):
 		try:
 			token_user_id, secret = self.decode_token(token)
-		except:
+		except:  # XXX
 			secrets.compare_digest(token, token)
 			return False
 

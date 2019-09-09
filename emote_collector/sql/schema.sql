@@ -20,18 +20,20 @@ CREATE TABLE emotes(
 CREATE UNIQUE INDEX emotes_lower_idx ON emotes (LOWER(name));
 CREATE INDEX emotes_name_trgm_idx ON emotes USING GIN (name gin_trgm_ops);
 CREATE INDEX emotes_author_idx ON emotes (author);
-CREATE INDEX emotes_created_idx ON emotes (created) WHERE NOT preserve;
+CREATE INDEX emotes_created_idx ON emotes (created);
 CREATE INDEX emotes_nsfw_idx ON emotes (nsfw);
 
 CREATE VIEW guilds AS
-	-- thanks to ysch on freenode/#postgresql for helping me with this query
-	SELECT g.id,
-	COUNT(e.guild) AS usage,
-	COUNT(e.guild) FILTER (WHERE NOT e.animated) AS static_usage,
-	COUNT(e.guild) FILTER (WHERE e.animated) AS animated_usage
-	FROM _guilds AS g
-	LEFT JOIN emotes AS e
-		ON e.guild = g.id
+	SELECT
+		g.id,
+		COUNT(e.guild) AS usage,
+		COUNT(e.guild) FILTER (WHERE NOT e.animated) AS static_usage,
+		COUNT(e.guild) FILTER (WHERE e.animated) AS animated_usage,
+		MAX(e.created) AS last_creation
+	FROM
+		_guilds AS g
+		LEFT JOIN emotes AS e
+			ON e.guild = g.id
 	GROUP BY g.id;
 
 -- https://stackoverflow.com/a/26284695/1378440
@@ -72,7 +74,6 @@ CREATE TABLE api_tokens(
 	id BIGINT PRIMARY KEY,
 	secret BYTEA NOT NULL);
 
-CREATE INDEX api_token_secret_idx ON api_tokens (secret);
 CREATE INDEX api_token_id_secret_idx ON api_tokens (id, secret);
 
 CREATE TABLE locales(

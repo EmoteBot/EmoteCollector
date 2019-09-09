@@ -36,7 +36,7 @@ WHERE id = $1
 SELECT id
 FROM guilds
 WHERE {{ 'animated' if animated else 'static' }}_usage < 50
-ORDER BY random()
+ORDER BY last_creation
 LIMIT 1
 -- :endmacro
 
