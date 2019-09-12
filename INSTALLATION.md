@@ -80,4 +80,6 @@ If this happens to you, you must use an actual physical phone number, rather tha
 8) *Optional*: run an instance of the [list website](https://github.com/EmoteCollector/website)
 and set up its information in config.py.
 
+Confused about how the backend creator works? Watch this [video demo of it in action](https://streamable.com/mjtfu).
+
 If you need any help, DM @lambda#0987 or file a GitHub issue.
