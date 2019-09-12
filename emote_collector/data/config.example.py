@@ -73,13 +73,7 @@
 	'logs': {
 	},
 
-	'primary_owner': 140516693242937345,
-
-	# User IDs of people authorized to run privileged commands on the bot
-	'extra_owners': [
-	],
-
-	# User IDs of accounts that own the backend guilds
+	# User IDs of accounts that own the backend guilds. This is required for the bot to function.
 	'backend_user_accounts': [
 	],
 
