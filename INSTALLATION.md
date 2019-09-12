@@ -64,20 +64,23 @@ pip install -e .
 ```
 2) Run these sql commands in `sudo -u postgres psql`:
 ```sql
+-- for ease of use, you can name the role you use after your system user account to use peer authentication
+-- then you won't have to specify a username or password in the config file.
 CREATE DATABASE ec WITH OWNER my_postgres_role;  -- or whatever you want to call the database
 CREATE EXTENSION pg_trgm;  -- used for searching for emotes by name
 ```
-3) Copy `emote_collector/data/config.example.py` to `emote_collector/data/config.py`,
+3) `psql ec -f emote_collector/sql/schema.sql`
+4) Copy `emote_collector/data/config.example.py` to `emote_collector/data/config.py`,
 and edit accordingly. Make sure you touch the database and tokens, and backend_user_accounts sections.
-4) Create a brand new Discord user account. This is to hold the servers that will store the emotes.
+5) Create a brand new Discord user account. This is to hold the servers that will store the emotes.
 Unfortunately, every time I make a new alt, discord requires me to verify it by phone.
 If this happens to you, you must use an actual physical phone number, rather than a VoIP number, and it can't be used to verify another discord account within 24 hours.
-5) Create two bot applications under any Discord user account. One will be the backend server creation bot and one will be the public-facing Emote Collector bot. Preferably create these under your main account, rather than your backend account, so that your main has admin access to the bot (or use Teams).
-6) Run `emote_collector/backend_creator.py <server creator bot token> <Emote Collector bot user ID> [existing backend server count]`. Make sure you are signed in to the emote backend user account in your web browser. The optional last parameter is in case you need to stop the script and resume it later.
+6) Create two bot applications under any Discord user account. One will be the backend server creation bot and one will be the public-facing Emote Collector bot. Preferably create these under your main account, rather than your backend account, so that your main has admin access to the bot (or use Teams).
+7) Run `emote_collector/backend_creator.py <server creator bot token> <Emote Collector bot user ID> [existing backend server count]`. Make sure you are signed in to the emote backend user account in your web browser. The optional last parameter is in case you need to stop the script and resume it later.
    - It'll create one server at a time, each time opening an invite link so that you can join the server. Then it will transfer ownership to you (your emote backend account) and open Emote Collector's invite link in your web browser.
    - After Emote Collector is invited to the server, the backend creator leaves the server so that it can make another one (bots are only allowed to create servers if they are in at most 10 servers total).
-7) Run `python -m emote_collector`.
-8) *Optional*: run an instance of the [list website](https://github.com/EmoteCollector/website)
+8) Run `python -m emote_collector`.
+9) *Optional*: run an instance of the [list website](https://github.com/EmoteCollector/website)
 and set up its information in config.py.
 
 Confused about how the backend creator works? Watch this [video demo of it in action](https://streamable.com/mjtfu).
