@@ -67,6 +67,7 @@ pip install -e .
 -- for ease of use, you can name the role you use after your system user account to use peer authentication
 -- then you won't have to specify a username or password in the config file.
 CREATE DATABASE ec WITH OWNER my_postgres_role;  -- or whatever you want to call the database
+\c ec
 CREATE EXTENSION pg_trgm;  -- used for searching for emotes by name
 ```
 3) `psql ec -f emote_collector/sql/schema.sql`
