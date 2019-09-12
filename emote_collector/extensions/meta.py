@@ -15,19 +15,16 @@
 # along with Emote Collector. If not, see <https://www.gnu.org/licenses/>.
 
 import asyncio
-import getopt
 import inspect
 import itertools
-import shlex
 import os
 import pkg_resources
-import textwrap
-import weakref
 
 import discord
-from discord.ext import commands
+import humanize
 import pygit2
 import psutil
+from discord.ext import commands
 
 from ..utils import asyncexecutor
 from ..utils.paginator import Pages, CannotPaginate
@@ -310,11 +307,11 @@ class Meta(commands.Cog):
 
 		embed.add_field(name='Servers', value=await self.bot.get_cog('Stats').guild_count())
 
-		debug_cog = self.bot.get_cog('BenCogsDebug')
 		cpu_usage = self.process.cpu_percent() / psutil.cpu_count()
-		embed.add_field(name='Process', value=f'{debug_cog.memory_usage()}\n{cpu_usage:.2f}% CPU')
+		mem_usage = humanize.naturalsize(self.process.memory_full_info().uss)
+		embed.add_field(name='Process', value=f'{mem_usage}\n{cpu_usage:.2f}% CPU')
 
-		embed.add_field(name='Uptime', value=self.bot.get_cog('BenCogsMisc').uptime(brief=True))
+		embed.add_field(name='Uptime', value=self.bot.cogs['BotBinMisc'].uptime(brief=True))
 		embed.set_footer(text='Made with discord.py', icon_url='https://i.imgur.com/5BFecvA.png')
 
 		await context.send(embed=embed)
