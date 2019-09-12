@@ -97,9 +97,7 @@ async def add_user_to_guild(guild):
 	webbrowser.open(invite)
 
 def add_bot_to_guild(guild):
-	needed_permissions = discord.Permissions()
-	needed_permissions.administrator = True
-	url = discord.utils.oauth_url(bot_user_id, permissions=needed_permissions, guild=guild)
+	url = discord.utils.oauth_url(bot_user_id, permissions=administrator, guild=guild)
 	webbrowser.open(url)
 
 @bot.event
