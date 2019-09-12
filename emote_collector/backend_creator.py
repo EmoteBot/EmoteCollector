@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # Emote Collector collects emotes from other servers for use by people without Nitro
 # Copyright © 2018–2019 lambda#0987
 #
