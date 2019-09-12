@@ -365,7 +365,9 @@ class Meta(commands.Cog):
 			'embed_links')
 		permissions = discord.Permissions()
 		permissions.update(**dict.fromkeys(permission_names, True))
-		await context.send('<%s>' % discord.utils.oauth_url(self.bot.config['client_id'], permissions))
+		# XXX technically this will fail if the bot's client ID is not the same as its user ID
+		# but fuck old apps just make a new one
+		await context.send('<%s>' % discord.utils.oauth_url(self.bot.user.id, permissions))
 
 	# heavily based on code provided by Rapptz, © 2015 Rapptz
 	# https://github.com/Rapptz/RoboDanny/blob/8919ec0a455f957848ef77b479fe3494e76f0aa7/cogs/meta.py#L162-L190
