@@ -55,9 +55,11 @@ When a user adds a new emote:
 
 1)
 ```
+git clone https://github.com/EmoteCollector/EmoteCollector.git ec
+cd ec
 python3 -m venv .venv
 source .venv/bin/activate
-pip install --upgrade pip wheel
+pip install -U pip wheel
 pip install -e .
 ```
 2) Make two new bot apps at https://discordapp.com/developers/applications/me. One will be the backend server creation bot and one will be the public-facing Emote Collector bot.
