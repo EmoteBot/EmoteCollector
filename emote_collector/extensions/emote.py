@@ -38,6 +38,7 @@ from .. import BASE_DIR
 from .. import utils
 from ..utils import image as image_utils
 from ..utils import checks
+from ..utils import compose
 from ..utils import errors
 from ..utils import ObjectProxy
 from ..utils.converter import DatabaseEmoteConverter, UserOrMember
@@ -134,6 +135,17 @@ class Emotes(commands.Cog):
 			'Animated emotes: **{animated} ⁄ {animated_cap}** ({animated_percentage}% of total, {animated_full}% full)\n'
 			'NSFW emotes: **{nsfw}** ({nsfw_percentage}% of total)\n'
 			'**Total: {total} ⁄ {total_cap}**').format(**locals()))
+
+	@commands.command(hidden=True)
+	async def desync(self, context):
+		"""Gives the difference between emotes in the database and emotes in the backend servers."""
+		*__, db_total = await self.db.count()
+		backend_total = sum(map(compose(len, operator.attrgetter('emojis')), self.db.guilds))
+		diff = abs(db_total - backend_total)
+		await context.send(_(
+			'Backend server emotes: **{backend_count}**\n'
+			'Database emotes: **{db_total}**\n'
+			'**Difference: {diff}**').format(**locals()))
 
 	@commands.command(aliases=['embiggen'])
 	@checks.not_blacklisted()

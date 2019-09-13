@@ -248,11 +248,15 @@ async def timeit(coro, _timer=time.perf_counter):
 	t1 = _timer()
 	return t1 - t0, result
 
-def mangle(obj, attr):
-	cls = obj if isinstance(obj, type) else type(obj)
-	return '_' + cls.__name__.lstrip('_') + attr
-
 def channel_is_nsfw(channel):
 	return (
 		not channel  # if not specified, allow NSFW
 		or getattr(channel, 'nsfw', True))  # otherwise, allow NSFW if DMs or the guild channel is NSFW
+
+def compose(*funcs):
+	@functools.wraps(funcs[0])
+	def f(x):
+		for f in reversed(funcs):
+			x = f(x)
+		return x
+	return f
