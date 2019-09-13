@@ -143,7 +143,7 @@ class Emotes(commands.Cog):
 		backend_total = sum(map(compose(len, operator.attrgetter('emojis')), self.db.guilds))
 		diff = abs(db_total - backend_total)
 		await context.send(_(
-			'Backend server emotes: **{backend_count}**\n'
+			'Backend server emotes: **{backend_total}**\n'
 			'Database emotes: **{db_total}**\n'
 			'**Difference: {diff}**').format(**locals()))
 
