@@ -604,7 +604,7 @@ class Database(commands.Cog):
 	def _toggle_state(self, table_name, id, default):
 		"""toggle the state for a user or guild. If there's no entry already, new state = default."""
 		# TODO consider using one table, with an attribute for whether the state applies to a guild or a user
-		return self.bot.pool.fetchval(self.queries._toggle_state(table_name), id, default)
+		return self.bot.pool.fetchval(self.queries.toggle_state(table_name), id, default)
 
 	def toggle_guild_state(self, guild_id):
 		"""Togle whether this guild is opt out.
@@ -615,7 +615,7 @@ class Database(commands.Cog):
 		return self._toggle_state('guild_opt', guild_id, False)
 
 	def _get_state(self, table_name, id):
-		return self.bot.pool.fetchval(self.queries.get_state(), id)
+		return self.bot.pool.fetchval(self.queries.get_individual_state(table_name), id)
 
 	def get_user_state(self, user_id):
 		"""return this user's global preference for the emote auto response"""

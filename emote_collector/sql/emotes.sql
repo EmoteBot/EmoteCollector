@@ -172,6 +172,7 @@ RETURNING *
 UPDATE emotes
 SET preserve = $2
 WHERE LOWER(name) = LOWER($1)
+RETURNING *
 -- :endquery
 
 -- :query set_emote_nsfw
@@ -215,7 +216,7 @@ DELETE FROM user_opt
 WHERE id = $1
 -- :endquery
 
--- :macro _toggle_state(table)
+-- :macro toggle_state(table)
 -- params: id, default
 INSERT INTO {{ table }} (id, state)
 VALUES ($1, $2)
@@ -224,7 +225,7 @@ ON CONFLICT (id) DO UPDATE
 RETURNING state
 -- :endmacro
 
--- :macro _get_state(table)
+-- :macro get_individual_state(table)
 -- params: id
 SELECT state
 FROM {{ table }}
