@@ -244,17 +244,23 @@ SELECT COALESCE(
 
 --- BLACKLISTS
 
--- :query get_user_blacklist
--- params: user_id
+-- :macro get_blacklist(table_name)
+-- params: id
 SELECT blacklist_reason
-FROM user_opt
+FROM {{ table_name }}
 WHERE id = $1
--- :endquery
+-- :endmacro
 
--- :query set_user_blacklist
--- params: user_id, reason
-INSERT INTO user_opt (id, blacklist_reason)
+-- :macro set_blacklist(table_name)
+-- params: id, reason
+INSERT INTO {{ table_name }} (id, blacklist_reason)
 VALUES ($1, $2)
 ON CONFLICT (id) DO UPDATE
 	SET blacklist_reason = EXCLUDED.blacklist_reason
+-- :endmacro
+
+-- :query blacklisted_guilds
+SELECT id
+FROM guild_opt
+WHERE blacklist_reason IS NOT NULL
 -- :endquery

@@ -26,8 +26,8 @@ class BlacklistedError(ConnoisseurError):
 	"""The user tried to use a command but they were blacklisted."""
 	def __init__(self, prefix, reason):
 		super().__init__(_(
-			'Sorry, you have been blacklisted with the reason `{reason}`. '
-			'To appeal, please join the support server with `{prefix}support`.').format(**locals()))
+			'Sorry, you have been blacklisted for “{reason}”. '
+			'To appeal, please join the support server by running __{prefix}support__.').format(**locals()))
 
 class HTTPException(ConnoisseurError):
 	"""The server did not respond with an OK status code."""
@@ -60,17 +60,17 @@ class EmoteExistsError(EmoteError):
 	"""An emote with that name already exists"""
 	def __init__(self, emote):
 		self.emote = emote
-		super().__init__(_('An emote called `{name}` already exists in my database.'), self.emote.name)
+		super().__init__(_('An emote called “{name}” already exists in my database.'), self.emote.name)
 
 class EmoteNotFoundError(EmoteError):
 	"""An emote with that name was not found"""
 	def __init__(self, name):
-		super().__init__(_('An emote called `{name}` does not exist in my database.'), name)
+		super().__init__(_('An emote called “{name}” does not exist in my database.'), name)
 
 class PermissionDeniedError(EmoteError):
 	"""Raised when a user tries to modify an emote they don't own"""
 	def __init__(self, name):
-		super().__init__(_("You're not authorized to modify `{name}`."), name)
+		super().__init__(_("You're not authorized to modify “{name}”."), name)
 
 class EmoteDescriptionTooLongError(EmoteError):
 	"""Raised when a user tries to set a description that's too long"""

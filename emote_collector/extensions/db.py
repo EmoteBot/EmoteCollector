@@ -112,7 +112,8 @@ class Database(commands.Cog):
 		self.queries = self.bot.jinja_env.get_template('emotes.sql')
 
 		self.tasks = [
-			self.bot.loop.create_task(meth()) for meth in (self.find_backend_guilds, self.update_moderator_list)]
+			self.bot.loop.create_task(meth()) for meth in (
+				self.find_backend_guilds, self.update_moderator_list, self.leave_blacklisted_guilds)]
 		self.tasks.append(self.decay_loop.start())
 
 		self.logger = ObjectProxy(lambda: bot.cogs['Logger'])
@@ -192,6 +193,13 @@ class Database(commands.Cog):
 		role = guild.get_role(role)
 		return role
 
+	async def leave_blacklisted_guilds(self):
+		await self.bot.wait_until_ready()
+		async for guild in self.blacklisted_guilds():
+			if type(guild) is int:
+				continue
+			await guild.leave()
+
 	@tasks.loop(minutes=10.0)
 	async def decay_loop(self):
 		if not self.bot.config['decay']['enabled']:
@@ -214,6 +222,8 @@ class Database(commands.Cog):
 			await self.bot.pool.execute(self.queries.add_guild(), guild.id)
 			self.guilds.add(guild)
 			self.bot.dispatch('backend_guild_join', guild)
+		elif await self.get_guild_blacklist(guild.id):
+			await guild.leave()
 
 	@commands.Cog.listener()
 	async def on_member_update(self, before, after):
@@ -370,6 +380,10 @@ class Database(commands.Cog):
 		cutoff_time = datetime.datetime.utcnow() - self.bot.config['decay']['cutoff']['time']
 		usage_threshold = self.bot.config['decay']['cutoff']['usage']
 		return self._database_emote_cursor(self.queries.decayable_emotes(), cutoff_time, usage_threshold)
+
+	async def blacklisted_guilds(self):
+		async for guild_id, in self._cursor(self.queries.blacklisted_guilds()):
+			yield self.bot.get_guild(guild_id) or guild_id
 
 	async def _database_emote_cursor(self, query, *args):
 		"""like _cursor, but wraps results in DatabaseEmote objects"""
@@ -634,15 +648,19 @@ class Database(commands.Cog):
 
 	def get_user_blacklist(self, user_id):
 		"""return a reason for the user's blacklist, or None if not blacklisted"""
-		return self.bot.pool.fetchval(self.queries.get_user_blacklist(), user_id)
+		return self.bot.pool.fetchval(self.queries.get_blacklist('user_opt'), user_id)
 
 	async def set_user_blacklist(self, user_id, reason=None):
 		"""make user_id blacklisted
 		setting reason to None removes the user's blacklist
 		"""
-		# insert regardless of whether it exists
-		# and if it does exist, update
-		await self.bot.pool.execute(self.queries.set_user_blacklist(), user_id, reason)
+		await self.bot.pool.execute(self.queries.set_blacklist('user_opt'), user_id, reason)
+
+	async def get_guild_blacklist(self, guild_id):
+		return await self.bot.pool.fetchval(self.queries.get_blacklist('guild_opt'), guild_id)
+
+	async def set_guild_blacklist(self, guild_id, reason=None):
+		await self.bot.pool.execute(self.queries.set_blacklist('guild_opt'), guild_id, reason)
 
 def setup(bot):
 	bot.add_cog(Database(bot))

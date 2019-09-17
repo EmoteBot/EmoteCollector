@@ -157,3 +157,17 @@ class Message(commands.Converter):
 			raise commands.CheckFailure(_('Unable to react: you and I both need permission to add reactions.'))
 		if not sender_permissions.external_emojis or not permissions.external_emojis:
 			raise commands.CheckFailure(_('Unable to react: you and I both need permission to use external emotes.'))
+
+class Guild(commands.Converter):
+	async def convert(self, ctx, argument):
+		try:
+			guild_id = int(argument)
+		except ValueError:
+			guild = discord.utils.get(ctx.bot.guilds, name=argument)
+		else:
+			guild = ctx.bot.get_guild(guild_id)
+
+		if guild is None:
+			raise commands.BadArgument(_('Server not found.'))
+
+		return guild

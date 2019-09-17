@@ -54,11 +54,14 @@ FOR EACH ROW EXECUTE PROCEDURE update_modified_column();
 CREATE TABLE user_opt(
 	id BIGINT PRIMARY KEY,
 	state BOOLEAN,
-	blacklist_reason VARCHAR(500));
+	blacklist_reason TEXT);
 
 CREATE TABLE guild_opt(
 	id BIGINT PRIMARY KEY,
-	state BOOLEAN NOT NULL);
+	state BOOLEAN,
+	blacklist_reason TEXT);
+
+CREATE INDEX blacklisted_guild_idx ON guild_opt (id) WHERE blacklist_reason IS NOT NULL;
 
 CREATE TABLE moderators(
 	id BIGINT PRIMARY KEY);

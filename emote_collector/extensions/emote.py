@@ -39,9 +39,11 @@ from .. import utils
 from ..utils import image as image_utils
 from ..utils import checks
 from ..utils import compose
+from ..utils import i18n
 from ..utils import errors
 from ..utils import ObjectProxy
-from ..utils.converter import DatabaseEmoteConverter, UserOrMember
+from ..utils.converter import DatabaseEmoteConverter, Guild, UserOrMember
+from ..utils.i18n import current_locale
 from ..utils.paginator import CannotPaginate, Pages
 
 logger = logging.getLogger(__name__)
@@ -738,9 +740,9 @@ class Emotes(commands.Cog):
 		else:
 			await context.send(_('Emote auto response is now opt-in for this server.'))
 
-	@commands.command()
+	@commands.command(aliases=['plonk'])
 	@checks.is_moderator()
-	async def blacklist(self, context, user: discord.Member, *,
+	async def blacklist(self, context, user: UserOrMember, *,
 		reason: commands.clean_content(
 			fix_channel_mentions=True,  # blacklist messages are global, so we don't want "#invalid-channel"
 			escape_markdown=True,
@@ -748,12 +750,34 @@ class Emotes(commands.Cog):
 		) = None
 	):
 		"""Prevent a user from using commands and the emote auto response.
-		If you don't provide a reason, the user will be un-blacklisted."""
+		If you don't provide a reason, the user will be un-blacklisted.
+		"""
 		await self.db.set_user_blacklist(user.id, reason)
 		if reason is None:
 			await context.send(_('User un-blacklisted.'))
 		else:
-			await context.send(_('User blacklisted with reason "{reason}".').format(**locals()))
+			await context.send(_('User blacklisted with reason “{reason}”.').format(**locals()))
+
+	@commands.command(name='blacklistserver', aliases=['plonkserver'], usage='<server> [reason]')
+	@commands.is_owner()  # TODO implement a moderator approval system
+	async def blacklist_server(self, context, guild: Guild, *, reason):
+		"""Prevent a server from using the bot. This is a last ditch effort. Only use it if you really must.
+		If you don't provide a reason, the server will be un-blacklisted.
+		"""
+		await self.db.set_guild_blacklist(guild.id, reason)
+		target = guild.system_channel if guild.system_channel.permissions_for(guild.me).send_messages else None
+		if target is None:
+			target = discord.utils.find(lambda c: c.permissions_for(guild.me).send_messages, guild.text_channels)
+		if target is None:
+			await context.send(_('Warning: no suitable channel found to notify the member of that server.'))
+		else:
+			current_locale.set(await self.bot.cogs['Locales'].guild_locale(guild.id) or i18n.default_locale)
+			await target.send(_(
+				'This server has been blacklisted for “{reason}”. '
+				'Server admins, use the {context.prefix}support command in DMs to appeal. '
+				'Now leaving…').format(**locals()))
+		await guild.leave()
+		await context.try_add_reaction(utils.SUCCESS_EMOJIS[True])
 
 	@commands.command(hidden=True)
 	@checks.is_moderator()
