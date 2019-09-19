@@ -654,7 +654,7 @@ class Emotes(commands.Cog):
 			emoji_roles, my_roles = self._roles, self.guild.me._roles
 			return any(my_roles.has(role_id) for role_id in emoji_roles)
 
-		for e in (e for e in self.bot.emojis if op(e.name.lower(), query) and emote_usable(e)):
+		for e in (e for e in self.bot.emojis if op(e.name.lower(), query) and is_usable(e)):
 			emotes.append(e)
 			if len(emotes) == 20:
 				await send()
