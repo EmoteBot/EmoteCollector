@@ -639,14 +639,21 @@ class Emotes(commands.Cog):
 		"""
 		emotes = []
 		op = operator.eq if exact else operator.contains
+		query = query.lower()
+
 		async def send():
-			if not emotes:
-				return
-			m = await context.send(''.join(map(str, emotes)))
-			if '<' not in m.content:
-				await m.delete()
-				await context.send('\n'.join(f'{e!r} available={e.available} roles={e.roles}' for e in emotes))
-		def emote_usable(e): return e.available and set(e.roles).issubset(e.guild.me.roles)
+			if emotes:
+				await context.send(''.join(map(str, emotes)))
+
+	    def is_usable(self):
+	        """:class:`bool`: Whether the bot can use this emoji."""
+	        if not self.available:
+	            return False
+	        if not self._roles:
+	            return True
+	        emoji_roles, my_roles = self._roles, self.guild.me._roles
+	        return any(my_roles.has(role_id) for role_id in emoji_roles)
+
 		for e in (e for e in self.bot.emojis if op(e.name.lower(), query) and emote_usable(e)):
 			emotes.append(e)
 			if len(emotes) == 20:
