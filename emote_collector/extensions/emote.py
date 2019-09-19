@@ -629,6 +629,25 @@ class Emotes(commands.Cog):
 		self.paginators.add(paginator)
 		await paginator.begin()
 
+	@commands.command(name='cache-search')
+	@checks.is_moderator()
+	async def cache_search(self, context, query, exact: bool = False):
+		"""Search all emotes that the bot can see.
+
+		This is useful for gauging the nsfw threshold for a certain kind of emote or seeing if an emote should be
+		preserved based on its name.
+		"""
+		emotes = []
+		op = operator.eq if exact else operator.contains
+		def send(): return context.send(''.join(map(str, emotes)))
+		for i, e in enumerate(e for e in self.bot.emojis if op(e.name.lower(), query)):
+			emotes.append(e)
+			if len(emotes) == 20:
+				await send()
+				emotes.clear()
+		await send()
+		await context.try_add_reaction(utils.SUCCESS_EMOJIS[True])
+
 	@commands.command()
 	async def popular(self, context, user: UserOrMember = None):
 		"""Lists popular emojis.
