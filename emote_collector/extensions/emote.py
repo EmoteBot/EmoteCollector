@@ -640,7 +640,12 @@ class Emotes(commands.Cog):
 		emotes = []
 		op = operator.eq if exact else operator.contains
 		async def send():
-			if emotes: await context.send(''.join(map(str, emotes)))
+			if not emotes:
+				return
+			m = await context.send(''.join(map(str, emotes)))
+			if '<' not in m.content:
+				await m.delete()
+				await context.send('\n'.join(f'{e!r} available={e.available} roles={e.roles}' for e in emotes))
 		for e in (e for e in self.bot.emojis if op(e.name.lower(), query)):
 			emotes.append(e)
 			if len(emotes) == 20:
