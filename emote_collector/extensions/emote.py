@@ -646,7 +646,8 @@ class Emotes(commands.Cog):
 			if '<' not in m.content:
 				await m.delete()
 				await context.send('\n'.join(f'{e!r} available={e.available} roles={e.roles}' for e in emotes))
-		for e in (e for e in self.bot.emojis if op(e.name.lower(), query)):
+		def emote_usable(e): return e.available and set(e.roles).issubset(e.guild.me.roles)
+		for e in (e for e in self.bot.emojis if op(e.name.lower(), query) and emote_usable(e)):
 			emotes.append(e)
 			if len(emotes) == 20:
 				await send()
