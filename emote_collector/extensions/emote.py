@@ -639,8 +639,9 @@ class Emotes(commands.Cog):
 		"""
 		emotes = []
 		op = operator.eq if exact else operator.contains
-		def send(): return context.send(''.join(map(str, emotes)))
-		for i, e in enumerate(e for e in self.bot.emojis if op(e.name.lower(), query)):
+		async def send():
+			if emotes: await context.send(''.join(map(str, emotes)))
+		for e in (e for e in self.bot.emojis if op(e.name.lower(), query)):
 			emotes.append(e)
 			if len(emotes) == 20:
 				await send()
