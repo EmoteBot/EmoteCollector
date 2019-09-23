@@ -32,6 +32,7 @@ import aiohttp
 import asyncpg
 import discord
 from discord.ext import commands
+from jishaku.codeblocks import codeblock_converter
 
 from .db import MessageReplyType
 from .. import BASE_DIR
@@ -631,22 +632,23 @@ class Emotes(commands.Cog):
 
 	@commands.command(name='cache-search')
 	@checks.is_moderator()
-	async def cache_search(self, context, query, exact: bool = False):
-		"""Search all emotes that the bot can see.
+	async def cache_search(self, context, query: (lambda arg: re.compile(codeblock_converter(arg).content))):
+		"""Search all emotes that the bot can see using a regular expression.
 
 		This is useful for gauging the nsfw threshold for a certain kind of emote or seeing if an emote should be
 		preserved based on its name.
 		"""
 		emotes = []
-		op = operator.eq if exact else operator.contains
-		async def send():
-			if emotes: await context.send(''.join(map(str, emotes)))
-		for e in (e for e in self.bot.emojis if op(e.name.lower(), query)):
+		for e in sorted(
+			(e for e in self.bot.emojis if e.is_usable() and query.search(e.name)),
+			key=lambda e: (e.name.lower(), e.name, 0 if e.animated else 1),
+		):
 			emotes.append(e)
 			if len(emotes) == 20:
-				await send()
+				await context.send(''.join(map(str, emotes)))
 				emotes.clear()
-		await send()
+		if emotes:
+			await context.send(''.join(map(str, emotes)))
 		await context.try_add_reaction(utils.SUCCESS_EMOJIS[True])
 
 	@commands.command()
