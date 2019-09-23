@@ -32,6 +32,7 @@ import aiohttp
 import asyncpg
 import discord
 from discord.ext import commands
+from jishaku.codeblocks import codeblock_converter
 
 from .db import MessageReplyType
 from .. import BASE_DIR
@@ -631,7 +632,7 @@ class Emotes(commands.Cog):
 
 	@commands.command(name='cache-search')
 	@checks.is_moderator()
-	async def cache_search(self, context, query: re.compile):
+	async def cache_search(self, context, query: (lambda arg: re.compile(codeblock_converter(arg).content))):
 		"""Search all emotes that the bot can see using a regular expression.
 
 		This is useful for gauging the nsfw threshold for a certain kind of emote or seeing if an emote should be
