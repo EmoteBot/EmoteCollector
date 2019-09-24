@@ -155,7 +155,7 @@ class EmoteCollector(Bot):
 			misc,
 			debug,
 			sql}}
-		""".replace('\t', '').replace('\n', '')))
+	""".replace('\t', '').replace('\n', '')))
 
 	def load_extensions(self):
 		utils.i18n.set_default_locale()
