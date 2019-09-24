@@ -125,7 +125,6 @@ class EmoteCollector(Bot):
 	### Init / Shutdown
 
 	async def init_db(self):
-		print('hi')
 		async def set_codec(conn):
 			await conn.set_type_codec(
 				'jsonb',
