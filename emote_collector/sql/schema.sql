@@ -1,5 +1,7 @@
 SET TIME ZONE UTC;
 
+--- EMOTES
+
 CREATE TYPE nsfw AS ENUM ('SFW', 'SELF_NSFW', 'MOD_NSFW');
 
 CREATE TABLE _guilds(
@@ -36,6 +38,13 @@ CREATE VIEW guilds AS
 			ON e.guild = g.id
 	GROUP BY g.id;
 
+CREATE TYPE message_reply_type AS ENUM ('AUTO', 'QUOTE');
+
+CREATE TABLE replies(
+	invoking_message BIGINT PRIMARY KEY,
+	type message_reply_type NOT NULL,
+	reply_message BIGINT NOT NULL);
+
 -- https://stackoverflow.com/a/26284695/1378440
 CREATE FUNCTION update_modified_column()
 RETURNS TRIGGER AS $$
@@ -51,6 +60,15 @@ CREATE TRIGGER update_emote_modtime
 BEFORE UPDATE ON emotes
 FOR EACH ROW EXECUTE PROCEDURE update_modified_column();
 
+CREATE TABLE emote_usage_history(
+	id BIGINT NOT NULL REFERENCES emotes ON DELETE CASCADE ON UPDATE CASCADE,
+	time TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT (CURRENT_TIMESTAMP));
+
+CREATE INDEX emote_usage_history_id_idx ON emote_usage_history (id);
+CREATE INDEX emote_usage_history_time_idx ON emote_usage_history (time);
+
+--- OPTIONS / PLONKS
+
 CREATE TABLE user_opt(
 	id BIGINT PRIMARY KEY,
 	state BOOLEAN,
@@ -65,13 +83,6 @@ CREATE INDEX blacklisted_guild_idx ON guild_opt (id) WHERE blacklist_reason IS N
 
 CREATE TABLE moderators(
 	id BIGINT PRIMARY KEY);
-
-CREATE TABLE emote_usage_history(
-	id BIGINT NOT NULL REFERENCES emotes ON DELETE CASCADE ON UPDATE CASCADE,
-	time TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT (CURRENT_TIMESTAMP));
-
-CREATE INDEX emote_usage_history_id_idx ON emote_usage_history (id);
-CREATE INDEX emote_usage_history_time_idx ON emote_usage_history (time);
 
 CREATE TABLE api_tokens(
 	id BIGINT PRIMARY KEY,
@@ -94,9 +105,10 @@ CREATE TABLE locales(
 CREATE UNIQUE INDEX locales_guild_channel_uniq_index ON locales (channel, guild);
 CREATE INDEX locales_user_idx ON locales ("user");
 
-CREATE TYPE message_reply_type AS ENUM ('AUTO', 'QUOTE');
+--- BINGO
 
-CREATE TABLE replies(
-	invoking_message BIGINT PRIMARY KEY,
-	type message_reply_type NOT NULL,
-	reply_message BIGINT NOT NULL);
+CREATE TABLE bingo_boards(
+	user_id BIGINT PRIMARY KEY,
+	value INTEGER NOT NULL,
+	categories TEXT[] NOT NULL,
+	marks JSONB NOT NULL);

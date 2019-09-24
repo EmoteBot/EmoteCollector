@@ -18,13 +18,16 @@ import asyncio
 import contextlib
 import inspect
 import itertools
+import json
 import logging
 import traceback
 from pathlib import Path
 
+import asyncpg
 import discord
 import querypp
 from bot_bin.bot import Bot
+from braceexpand import braceexpand
 from discord.ext import commands
 try:
 	import uvloop
@@ -121,22 +124,38 @@ class EmoteCollector(Bot):
 
 	### Init / Shutdown
 
-	startup_extensions = (
-		'emote_collector.extensions.locale',
-		'emote_collector.extensions.file_upload_hook',
-		'emote_collector.extensions.logging',
-		'emote_collector.extensions.db',
-		'emote_collector.extensions.emote',
-		'emote_collector.extensions.api',
-		'emote_collector.extensions.gimme',
-		'emote_collector.extensions.meta',
-		'emote_collector.extensions.stats',
-		'emote_collector.extensions.meme',
-		'jishaku',
-		'bot_bin.misc',
-		'bot_bin.debug',
-		'bot_bin.sql',
-	)
+	async def init_db(self):
+		print('hi')
+		async def set_codec(conn):
+			await conn.set_type_codec(
+				'jsonb',
+				schema='pg_catalog',
+				encoder=json.dumps,
+				decoder=json.loads,
+				format='text')
+		self.pool = await asyncpg.create_pool(init=set_codec, **self.config['database'])
+
+	startup_extensions = list(braceexpand("""{
+		emote_collector.extensions.{
+			locale,
+			file_upload_hook,
+			logging,
+			db,
+			emote,
+			api,
+			gimme,
+			meta,
+			stats,
+			meme,
+			bingo.{
+				db,
+				commands}},
+		jishaku,
+		bot_bin.{
+			misc,
+			debug,
+			sql}}
+		""".replace('\t', '').replace('\n', '')))
 
 	def load_extensions(self):
 		utils.i18n.set_default_locale()
