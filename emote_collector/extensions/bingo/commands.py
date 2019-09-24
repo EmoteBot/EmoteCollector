@@ -14,5 +14,34 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with Emote Collector. If not, see <https://www.gnu.org/licenses/>.
 
+import io
+
+import discord
+from discord.ext import commands
+
+from ...extensions.bingo.db import BoardError
+from ...utils import errors
+from ...utils import bingo
+from ...utils.proxy import ObjectProxy
+
+class BoardTooLewdError(BoardError):
+	def __init__(self):
+		super().__init__(_('An NSFW channel is required to display this board.'))
+
+class Bingo(commands.Cog):
+	def __init__(self, bot):
+		self.bot = bot
+		self.db = ObjectProxy(lambda: bot.cogs['BingoDatabase'])
+
+	@commands.group(invoke_without_command=True)
+	async def bingo(self, context):
+		"""Shows you your current bingo board. All other functionality is in subcommands."""
+		board = await self.db.get_board(context.author.id)
+		if board.is_nsfw() and not getattr(context.channel, 'nsfw', True):
+			raise BoardTooLewdError
+		async with context.typing():
+			f = discord.File(io.BytesIO(await bingo.render_in_subprocess(board)), f'{context.author.id}_board.png')
+		await context.send(file=f)
+
 def setup(bot):
-	pass
+	bot.add_cog(Bingo(bot))

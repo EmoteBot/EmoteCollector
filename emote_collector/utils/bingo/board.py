@@ -127,3 +127,6 @@ class EmoteCollectorBingoBoard(BingoBoard):
 		super().__init__(value=value)
 		self.categories = BingoItemWrapper(type(self), items=categories)
 		self.marks = BingoItemWrapper(type(self), items=marks)
+
+	def is_nsfw(self):
+		return any(nsfw for nsfw, name, id, image in filter(None, self.marks.items))

@@ -1,4 +1,5 @@
 import json
+import sys
 
 from . import EmoteCollectorBingoBoard, render
 

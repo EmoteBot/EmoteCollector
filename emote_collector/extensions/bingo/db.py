@@ -16,10 +16,16 @@
 
 import io
 
-import discord
 from discord.ext import commands
 
-from ...utils import bingo
+from ...utils import bingo, errors
+
+class BoardError(errors.ConnoisseurError):
+	pass
+
+class NoBoardError(BoardError):
+	def __init__(self):
+		super().__init__(_('You do not have a bingo board yet.'))
 
 class BingoDatabase(commands.Cog):
 	def __init__(self, bot):
@@ -29,7 +35,7 @@ class BingoDatabase(commands.Cog):
 	async def get_board(self, user_id, *, connection=None):
 		row = await (connection or self.bot.pool).fetchrow(self.queries.get_board(), user_id)
 		if row is None:
-			raise ValueError(_('You do not have a bingo board yet.'))
+			raise NoBoardError
 		return bingo.EmoteCollectorBingoBoard(**row)
 
 	async def update_board(self, user_id, board, *, connection=None):
@@ -40,12 +46,6 @@ class BingoDatabase(commands.Cog):
 	async def new_board(self, user_id, *, connection=None):
 		board = bingo.new()
 		return await self.update_board(user_id, board, connection=connection)
-
-	async def render(self, user_id):
-		board = await self.get_board(user_id)
-		if board is None:
-			raise ValueError(_('You do not have a bingo board yet.'))
-		return discord.File(io.BytesIO(await bingo.render_in_subprocess(board)), f'{user_id}.png')
 
 	async def mark(self, user_id, point, emote):
 		async with self.bot.pool.acquire() as conn, conn.transaction():
