@@ -297,11 +297,6 @@ class Meta(commands.Cog):
 
 		embed.add_field(name='Latest changes', value=await self._latest_changes(), inline=False)
 
-		embed.title = 'Official Bot Support Invite'
-		invite_code = self.bot.config['support_server'].get('invite_code')
-		if invite_code:
-			embed.url = 'https://discord.gg/' + invite_code
-
 		owner = self.bot.get_user(self.bot.config.get('primary_owner', self.bot.owner_id))
 		embed.set_author(name=str(owner), icon_url=owner.avatar_url)
 
@@ -330,6 +325,7 @@ class Meta(commands.Cog):
 			return _('Could not fetch changes due to memory error. Sorry.')
 
 	@commands.command()
+	@commands.cooldown(1, INVITE_DURATION_SECONDS, commands.BucketType.user)
 	async def support(self, context):
 		"""Directs you to the support server."""
 		ch = self.bot.get_channel(self.bot.config['support_server'].get('invite_channel_id'))
