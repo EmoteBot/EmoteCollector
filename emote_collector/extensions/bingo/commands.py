@@ -56,8 +56,7 @@ class Bingo(commands.Cog):
 				seen.add(pos)
 				board = await self.db.mark(context.author.id, pos, emote, connection=conn)
 
-		message = _('You win! Your new bingo board:') if board.has_won() else _('Your new bingo board:')
-		await self.send_board(context, message, board)
+		await self.send_board(context, _('Your new bingo board:'), board)
 
 	@bingo.command()
 	async def unmark(self, context, *positions: str.upper):
