@@ -1,7 +1,5 @@
 prune *.egg-info
 
-include requirements.txt
-
 include emote_collector/data/avatar.png
 include emote_collector/data/discord-emoji-shortcodes.json
 include emote_collector/data/e0-final-emojis.json
