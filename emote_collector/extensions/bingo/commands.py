@@ -34,35 +34,44 @@ class Bingo(commands.Cog):
 	async def bingo(self, context):
 		"""Shows you your current bingo board. All other functionality is in subcommands."""
 		board = await self.db.get_board(context.author.id)
-		if board.is_nsfw() and not getattr(context.channel, 'nsfw', True):
-			raise BoardTooLewdError
-		async with context.typing():
-			f = discord.File(io.BytesIO(await bingo.render_in_subprocess(board)), f'{context.author.id}_board.png')
-		await context.send(file=f)
+		await self.send_board(context, None, board)
 
 	@bingo.command()
 	async def new(self, context):
 		"""Creates a new bingo board or replaces your current one."""
-		board = await self.db.new_board(context.author.id)
-		img = await bingo.render_in_subprocess(board)
-		await context.send(_('Your new bingo board:'), file=discord.File(io.BytesIO(img), f'{context.author.id}.png'))
+		await self.send_board(context, _('Your new bingo board:'), await self.db.new_board(context.author.id))
 
 	@bingo.command(usage='<position> <emote>[, <position2> <emote2>...]')
-	async def mark(self, context, *, args: MultiConverter[str.upper, DatabaseEmoteConverter()]):
+	async def mark(self, context, *, args: MultiConverter[str.upper, DatabaseEmoteConverter]):
 		"""Adds one or more marks to your board."""
 		if not args:
 			raise commands.BadArgument(_('You must specify at least one position and emote name.'))
 
 		# TODO can this be done in parallel?
-		async with self.bot.pool.acquire() as conn, conn.transaction():
+		async with self.bot.pool.acquire() as conn, conn.transaction(), context.typing():
 			seen = set()
 			for pos, emote in args:
 				if pos in seen:
-					raise commands.BadArgument(_('Position {pos} was specified twice.').format(pos=pos))
+					raise commands.BadArgument(_('Position {pos} was specified more than once.').format(pos=pos))
 				seen.add(pos)
-				await self.db.mark(context.author.id, pos, emote, connection=conn)
+				board = await self.db.mark(context.author.id, pos, emote, connection=conn)
 
-		await context.try_add_reaction(utils.SUCCESS_EMOJIS[True])
+		message = _('You win! Your new bingo board:') if board.has_won() else _('Your new bingo board:')
+		await self.send_board(context, message, board)
+
+	@bingo.command()
+	async def unmark(self, context, *positions: str.upper):
+		async with self.bot.pool.acquire() as conn:
+			board = await self.db.unmark(context.author.id, positions, connection=conn)
+		await self.send_board(context, _('Your new bingo board:'), board)
+
+	@staticmethod
+	async def send_board(context, message, board):
+		if board.is_nsfw() and not getattr(context.channel, 'nsfw', True):
+			raise BoardTooLewdError
+		async with context.typing():
+			f = discord.File(io.BytesIO(await bingo.render_in_subprocess(board)), f'{context.author.id}_board.png')
+		await context.send(message, file=f)
 
 def setup(bot):
 	bot.add_cog(Bingo(bot))

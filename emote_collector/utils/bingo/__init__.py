@@ -82,7 +82,7 @@ async def mark(bot, board, pos, emote):
 	board[pos] = 1
 	board.marks[pos] = emote.is_nsfw, emote.name, emote.id, eimg
 
-def remove_mark(board, pos):
+def unmark(board, pos):
 	board[pos] = 0
 	del board.marks[pos]
 

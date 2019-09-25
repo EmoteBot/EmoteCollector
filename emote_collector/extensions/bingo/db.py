@@ -47,6 +47,13 @@ class BingoDatabase(commands.Cog):
 			await bingo.mark(self.bot, board, point, emote)
 			return await self.update_board(user_id, board, connection=connection)
 
+	async def unmark(self, user_id, points, *, connection):
+		async with connection.transaction():
+			board = await self.get_board(user_id, connection=connection)
+			for point in points:
+				bingo.unmark(board, point)
+			return await self.update_board(user_id, board, connection=connection)
+
 	async def check_win(self, user_id):
 		board = await self.get_board(user_id)
 		return board.has_won()

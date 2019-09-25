@@ -2,6 +2,8 @@
 
 import itertools
 
+from discord.ext import commands
+
 class BingoBoard:
 	WIDTH = 5
 	HEIGHT = 5
@@ -57,7 +59,7 @@ class BingoBoard:
 		try:
 			col, row = cls.COL_I[col], cls.FLIP_ROW[int(row) - 1]
 		except (KeyError, IndexError):
-			raise ValueError(_('Invalid position.'))
+			raise commands.BadArgument(_('Invalid position.'))
 		return col, row
 
 	@classmethod
@@ -102,7 +104,7 @@ class BingoItemWrapper:
 		col, row = pos
 		row = int(row)
 		if col == 'N' and row == 3:
-			raise ValueError(_('Position may not be the free space.'))
+			raise commands.BadArgument(_('Position may not be the free space.'))
 		col, row = self.cls.COL_I[col], row - 1
 		i = self.cls.HEIGHT * col + row
 		if col >= self.cls.COL_I['I'] and row > 2:

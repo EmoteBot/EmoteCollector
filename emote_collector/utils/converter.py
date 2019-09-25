@@ -14,6 +14,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with Emote Collector. If not, see <https://www.gnu.org/licenses/>.
 
+import inspect
 import re
 import typing
 
@@ -46,12 +47,12 @@ class _MultiConverter(commands.Converter):
 		return converted
 
 	async def _do_conversion(self, ctx, converter, arg):
-		if callable(converter):
-			return converter(arg)
+		if inspect.isclass(converter) and issubclass(converter, commands.Converter):
+			return await converter().convert(ctx, arg)
 		if isinstance(converter, commands.Converter):
 			return await converter.convert(ctx, arg)
-		if issubclass(converter, commands.Converter):
-			return await converter().convert(ctx, arg)
+		if callable(converter):
+			return converter(arg)
 		raise TypeError
 
 MultiConverter = _MultiConverter()
