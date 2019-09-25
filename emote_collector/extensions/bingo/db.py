@@ -18,14 +18,8 @@ import io
 
 from discord.ext import commands
 
-from ...utils import bingo, errors
-
-class BoardError(errors.ConnoisseurError):
-	pass
-
-class NoBoardError(BoardError):
-	def __init__(self):
-		super().__init__(_('You do not have a bingo board yet.'))
+from .errors import NoBoardError
+from ...utils import bingo
 
 class BingoDatabase(commands.Cog):
 	def __init__(self, bot):
@@ -47,11 +41,11 @@ class BingoDatabase(commands.Cog):
 		board = bingo.new()
 		return await self.update_board(user_id, board, connection=connection)
 
-	async def mark(self, user_id, point, emote):
-		async with self.bot.pool.acquire() as conn, conn.transaction():
-			board = await self.get_board(user_id, connection=conn)
+	async def mark(self, user_id, point, emote, *, connection):
+		async with connection.transaction():
+			board = await self.get_board(user_id, connection=connection)
 			await bingo.mark(self.bot, board, point, emote)
-			return await self.update_board(user_id, board, connection=conn)
+			return await self.update_board(user_id, board, connection=connection)
 
 	async def check_win(self, user_id):
 		board = await self.get_board(user_id)

@@ -80,7 +80,7 @@ async def mark(bot, board, pos, emote):
 		eimg = base64.b64encode(await resp.read()).decode('ascii')
 
 	board[pos] = 1
-	board.marks[pos] = emote.is_nsfwf(), emote.name, emote.id, eimg
+	board.marks[pos] = emote.is_nsfw, emote.name, emote.id, eimg
 
 def remove_mark(board, pos):
 	board[pos] = 0

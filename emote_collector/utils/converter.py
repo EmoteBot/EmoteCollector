@@ -19,14 +19,42 @@ import typing
 
 import discord
 from discord.ext import commands
+from discord.ext.commands.view import StringView
 
 from .. import utils
+from .errors import TooLewdError
 
-class TooLewdError(commands.BadArgument):
-	"""An NSFW emote was used in an SFW channel"""
-	def __init__(self, name):
-		self.name = name
-		super().__init__(_('`{name}` is NSFW, but this channel is SFW.').format(**locals()))
+class _MultiConverter(commands.Converter):
+	def __init__(self, *, converters=None):
+		self.converters = converters
+
+	def __getitem__(self, params):
+		return type(self)(converters=params)
+
+	async def convert(self, ctx, argument):
+		converted = []
+		view = StringView(argument)
+		while not view.eof:
+			args = []
+			for converter in self.converters:
+				view.skip_ws()
+				arg = view.get_quoted_word()
+				if arg is None:
+					raise commands.UserInputError(_('Not enough arguments.'))
+				args.append(await self._do_conversion(ctx, converter, arg))
+			converted.append(tuple(args))
+		return converted
+
+	async def _do_conversion(self, ctx, converter, arg):
+		if callable(converter):
+			return converter(arg)
+		if isinstance(converter, commands.Converter):
+			return await converter.convert(ctx, arg)
+		if issubclass(converter, commands.Converter):
+			return await converter().convert(ctx, arg)
+		raise TypeError
+
+MultiConverter = _MultiConverter()
 
 class DatabaseEmoteConverter(commands.Converter):
 	def __init__(self, *, check_nsfw=True):
@@ -34,7 +62,7 @@ class DatabaseEmoteConverter(commands.Converter):
 
 	async def convert(self, context, name: str):
 		name = name.strip().strip(':;')
-		cog = context.bot.get_cog('Database')
+		cog = context.bot.cogs['Database']
 		emote = await cog.get_emote(name)
 		if self.check_nsfw and emote.is_nsfw and not getattr(context.channel, 'nsfw', True):
 			raise TooLewdError(emote.name)

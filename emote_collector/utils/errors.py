@@ -16,9 +16,9 @@
 
 import asyncio
 
-from discord.ext.commands import CommandError
+from discord.ext import commands
 
-class ConnoisseurError(CommandError):
+class ConnoisseurError(commands.CommandError):
 	"""Generic error with the bot. This can be used to catch all bot errors."""
 	pass
 
@@ -92,3 +92,9 @@ class DiscordError(Exception):
 	"""Usually raised when the client cache is being baka"""
 	def __init__(self):
 		super().__init__(_('Discord seems to be having issues right now, please try again later.'))
+
+class TooLewdError(commands.BadArgument):
+	"""An NSFW emote was used in an SFW channel"""
+	def __init__(self, name):
+		self.name = name
+		super().__init__(_('“{name}” is NSFW, but this channel is SFW.').format(**locals()))

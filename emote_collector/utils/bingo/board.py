@@ -54,7 +54,10 @@ class BingoBoard:
 	@classmethod
 	def parse_pos(cls, pos):
 		col, row = pos
-		col, row = cls.COL_I[col], cls.FLIP_ROW[row - 1]
+		try:
+			col, row = cls.COL_I[col], cls.FLIP_ROW[int(row) - 1]
+		except (KeyError, IndexError):
+			raise ValueError(_('Invalid position.'))
 		return col, row
 
 	@classmethod
@@ -96,9 +99,10 @@ class BingoItemWrapper:
 		self.items = [None] * cls.SQUARES if items is None else items
 
 	def index(self, pos):
-		if pos == ('N', 3):
-			raise ValueError('pos may not be the free space')
 		col, row = pos
+		row = int(row)
+		if col == 'N' and row == 3:
+			raise ValueError(_('Position may not be the free space.'))
 		col, row = self.cls.COL_I[col], row - 1
 		i = self.cls.HEIGHT * col + row
 		if col >= self.cls.COL_I['I'] and row > 2:
