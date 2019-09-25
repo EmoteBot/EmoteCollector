@@ -98,7 +98,12 @@ class BingoBoard:
 class BingoItemWrapper:
 	def __init__(self, cls, *, items=None):
 		self.cls = cls
-		self.items = [None] * cls.SQUARES if items is None else items
+		items = [None] * cls.SQUARES if items is None else items
+		# set free space to None
+		items.append(None)
+		free_space = cls.HEIGHT * cls.COL_I['N'] + 2
+		items[free_space], items[-1] = items[-1], items[free_space]
+		self.items = items
 
 	def index(self, pos):
 		col, row = pos
@@ -107,8 +112,6 @@ class BingoItemWrapper:
 			raise commands.BadArgument(_('Position may not be the free space.'))
 		col, row = self.cls.COL_I[col], row - 1
 		i = self.cls.HEIGHT * col + row
-		if col >= self.cls.COL_I['I'] and row > 2:
-			i -= 1
 		return i
 
 	def __getitem__(self, pos):
