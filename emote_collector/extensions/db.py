@@ -488,7 +488,7 @@ class Database(commands.Cog):
 		await self.owner_check(emote, user_id)
 
 		await self.bot.http.edit_custom_emoji(emote.guild, emote.id, name=new_name)
-		return DatabaseEmote(await self.bot.pool.fetchrow(self.queries.set_emote_creation(), emote.id, new_name))
+		return DatabaseEmote(await self.bot.pool.fetchrow(self.queries.rename_emote(), emote.id, new_name))
 
 	async def set_emote_creation(self, name, time: datetime):
 		"""Set the creation time of an emote."""
