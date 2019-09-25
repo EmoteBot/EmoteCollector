@@ -45,43 +45,28 @@ def resize_until_small(image_data: io.BytesIO) -> None:
 	# so resizing sometimes does more harm than good.
 	max_resolution = 128  # pixels
 	image_size = size(image_data)
-	while image_size > 256 * 2**10 and max_resolution >= 32:  # don't resize past 32x32 or 256KiB
-		logger.debug('image size too big (%s bytes)', image_size)
-		logger.debug('attempting resize to at most%s*%s pixels', max_resolution, max_resolution)
+	if image_size <= 256 * 2**10:
+		return
 
-		try:
-			thumbnail(image_data, (max_resolution, max_resolution))
-		except wand.exceptions.CoderError:
-			raise errors.InvalidImageError
+	try:
+		with wand.image.Image(blob=image_data) as original_image:
+			while True:
+				logger.debug('image size too big (%s bytes)', image_size)
+				logger.debug('attempting resize to at most%s*%s pixels', max_resolution, max_resolution)
 
-		image_size = size(image_data)
-		max_resolution //= 2
+				with original_image.clone() as resized:
+					resized.transform(resize=f'{max_resolution}x{max_resolution}')
+					image_size = len(resized.make_blob())
+					if image_size <= 256 * 2**10 or max_resolution < 32:  # don't resize past 256KiB or 32×32
+						image_data.truncate(0)
+						image_data.seek(0)
+						resized.save(file=image_data)
+						image_data.seek(0)
+						break
 
-def thumbnail(image_data: io.BytesIO, max_size=(128, 128)) -> None:
-	"""Resize an image in place to no more than max_size pixels, preserving aspect ratio.
-	"""
-	with wand.image.Image(blob=image_data) as image:
-		new_resolution = scale_resolution((image.width, image.height), max_size)
-		image.resize(*new_resolution)
-		image_data.truncate(0)
-		image_data.seek(0)
-		image.save(file=image_data)
-
-	# allow resizing the original image more than once for memory profiling
-	image_data.seek(0)
-
-def scale_resolution(old_res, new_res):
-	"""Resize a resolution, preserving aspect ratio. Returned w,h will be <= new_res"""
-	# https://stackoverflow.com/a/6565988
-
-	old_width, old_height = old_res
-	new_width, new_height = new_res
-
-	old_ratio = old_width / old_height
-	new_ratio = new_width / new_height
-	if new_ratio > old_ratio:
-		return (old_width * new_height//old_height, new_height)
-	return new_width, old_height * new_width//old_width
+				max_resolution //= 2
+	except wand.exceptions.CoderError:
+		raise errors.InvalidImageError
 
 def is_animated(image_data: bytes):
 	"""Return whether the image data is animated, or raise InvalidImageError if it's not an image."""

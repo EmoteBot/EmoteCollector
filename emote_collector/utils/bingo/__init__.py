@@ -17,7 +17,6 @@ import aiohttp
 
 from ... import BASE_DIR
 from .board import EmoteCollectorBingoBoard
-from ..image import scale_resolution
 
 COORDS = {
 	c: [(x, y) for y in (327, 592, 857, 1121, 1387)]
@@ -67,7 +66,7 @@ def draw_marks(draw, img, marks):
 
 		half = SQUARE_SIZE // 2
 		with Image(blob=eimg) as eimg:
-			eimg.resize(*scale_resolution((img.width, img.height), (half, half)))
+			eimg.transform(resize=f'{half}x{half}')
 			draw.composite(
 				operator='over',
 				left=left+half-65, top=top+25,
