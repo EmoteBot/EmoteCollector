@@ -75,11 +75,12 @@ def draw_marks(draw, img, marks):
 
 async def mark(bot, board, pos, emote):
 	sess = bot.cogs['Emotes'].http
-	async with sess.get(emote.url) as resp:
+	async with sess.get(str(emote.url)) as resp:
 		eimg = base64.b64encode(await resp.read()).decode('ascii')
 
 	board[pos] = 1
-	board.marks[pos] = emote.is_nsfw, emote.name, emote.id, eimg
+	# TODO issue #60
+	board.marks[pos] = getattr(emote, 'is_nsfw', True), emote.name, emote.id, eimg
 
 def unmark(board, pos):
 	board[pos] = 0

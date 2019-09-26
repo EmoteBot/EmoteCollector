@@ -23,7 +23,7 @@ from discord.ext import commands
 from discord.ext.commands.view import StringView
 
 from .. import utils
-from .errors import TooLewdError
+from .errors import EmoteNotFoundError, TooLewdError
 
 class _MultiConverter(commands.Converter):
 	def __init__(self, *, converters=None):
@@ -186,6 +186,45 @@ class Message(commands.Converter):
 			raise commands.CheckFailure(_('Unable to react: you and I both need permission to add reactions.'))
 		if not sender_permissions.external_emojis or not permissions.external_emojis:
 			raise commands.CheckFailure(_('Unable to react: you and I both need permission to use external emotes.'))
+
+class LoggedEmote(commands.Converter):
+	async def convert(self, ctx, argument):
+		message = await commands.converter.MessageConverter().convert(ctx, argument)
+
+		if message.channel not in ctx.bot.cogs['Logger'].channels:
+			raise commands.BadArgument(_('That message is not from a log channel.'))
+
+		try:
+			embed = message.embeds[0]
+		except IndexError:
+			raise commands.BadArgument(_('No embeds were found in that message.'))
+
+		m = re.match(utils.lexer.t_CUSTOM_EMOTE, embed.description)
+		try:
+			return await ctx.bot.cogs['Database'].get_emote(m['name'])
+		except EmoteNotFoundError:
+			return discord.PartialEmoji(**m.groupdict())
+
+# because MultiConverter does not support Union
+class DatabaseOrLoggedEmote(commands.Converter):
+	def __init__(self, *, check_nsfw=True):
+		self.db_conv = DatabaseEmoteConverter(check_nsfw=check_nsfw)
+
+	async def convert(self, ctx, argument):
+		err = None
+		try:
+			logged_emote = await LoggedEmote().convert(ctx, argument)
+		except commands.CommandError as exc:
+			err = exc
+		else:
+			return logged_emote
+
+		try:
+			db_emote = await self.db_conv.convert(ctx, argument)
+		except commands.CommandError as exc:
+			raise err or exc
+
+		return db_emote
 
 class Guild(commands.Converter):
 	async def convert(self, ctx, argument):

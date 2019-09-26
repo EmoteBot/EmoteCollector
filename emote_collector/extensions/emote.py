@@ -43,7 +43,7 @@ from ..utils import compose
 from ..utils import i18n
 from ..utils import errors
 from ..utils import ObjectProxy
-from ..utils.converter import DatabaseEmoteConverter, Guild, UserOrMember
+from ..utils.converter import DatabaseEmoteConverter, Guild, LoggedEmote, UserOrMember
 from ..utils.i18n import current_locale
 from ..utils.paginator import CannotPaginate, Pages
 
@@ -702,7 +702,7 @@ class Emotes(commands.Cog):
 			return _('That person has not created any emotes yet, or all their emotes are NSFW.')
 
 	@commands.command()
-	async def recover(self, context, message: discord.Message):
+	async def recover(self, context, emote: LoggedEmote):
 		"""Recovers a decayed or removed emote from a log channel.
 
 		message is the channel and message ID of the log message. To get it you can use developer mode.
@@ -710,22 +710,7 @@ class Emotes(commands.Cog):
 
 		The emote will be owned by you, so that you can edit it.
 		"""
-
-		if message.channel not in self.logger.channels:
-			return await context.send(_('That message is not from a log channel.'))
-
-		try:
-			embed = message.embeds[0]
-		except IndexError:
-			return await context.send(_('No embeds were found in that message.'))
-
-		description = embed.description
-
-		emote = re.match(utils.lexer.t_CUSTOM_EMOTE, description)
-		name = emote['name']
-		url = utils.emote.url(emote['id'], animated=emote['animated'])
-
-		message = await self.add_safe(name, url, context.author.id)
+		message = await self.add_safe(emote.name, str(emote.url), context.author.id)
 		await context.send(message)
 
 	@commands.command()

@@ -22,7 +22,7 @@ from discord.ext import commands
 from .errors import BoardTooLewdError
 from ... import utils
 from ...utils import bingo
-from ...utils.converter import DatabaseEmoteConverter, MultiConverter
+from ...utils.converter import DatabaseOrLoggedEmote, MultiConverter
 from ...utils.proxy import ObjectProxy
 
 class Bingo(commands.Cog):
@@ -42,7 +42,7 @@ class Bingo(commands.Cog):
 		await self.send_board(context, _('Your new bingo board:'), await self.db.new_board(context.author.id))
 
 	@bingo.command(usage='<position> <emote>[, <position2> <emote2>...]')
-	async def mark(self, context, *, args: MultiConverter[str.upper, DatabaseEmoteConverter]):
+	async def mark(self, context, *, args: MultiConverter[str.upper, DatabaseOrLoggedEmote]):
 		"""Adds one or more marks to your board."""
 		if not args:
 			raise commands.BadArgument(_('You must specify at least one position and emote name.'))
