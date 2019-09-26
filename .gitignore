@@ -10,4 +10,8 @@ __pycache__/
 emote_collector/data/config.py
 emote_collector/data/memes.py
 
+*.png
+*.gif
+!emote_collector/data/bingo/bingo_board_base.png
+
 dist/
