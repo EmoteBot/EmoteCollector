@@ -215,14 +215,15 @@ class DatabaseOrLoggedEmote(commands.Converter):
 		try:
 			logged_emote = await LoggedEmote().convert(ctx, argument)
 		except commands.CommandError as exc:
-			err = exc
+			pass
 		else:
 			return logged_emote
 
 		try:
 			db_emote = await self.db_conv.convert(ctx, argument)
 		except commands.CommandError as exc:
-			raise err or exc
+			raise commands.BadArgument(_(
+				'Failed to interpret that as a logged emote message or an emote in my database.'))
 
 		return db_emote
 
