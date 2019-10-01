@@ -78,17 +78,19 @@ def is_animated(image_data: bytes):
 	else:
 		raise errors.InvalidImageError
 
+# the fewest bytes needed to identify an image
+MINIMUM_BYTES_NEEDED = 12
+
 def mime_type_for_image(data):
 	if data.startswith(b'\x89PNG\r\n\x1a\n'):
 		return 'image/png'
-	elif data.startswith(b'\xFF\xD8') and data.rstrip(b'\0').endswith(b'\xFF\xD9'):
+	if data.startswith(b'\xFF\xD8') and data[6:10] in (b'JFIF', b'Exif'):
 		return 'image/jpeg'
-	elif data.startswith((b'GIF87a', b'GIF89a')):
+	if data.startswith((b'GIF87a', b'GIF89a')):
 		return 'image/gif'
-	elif data.startswith(b'RIFF') and data[8:12] == b'WEBP':
+	if data.startswith(b'RIFF') and data[8:12] == b'WEBP':
 		return 'image/webp'
-	else:
-		raise errors.InvalidImageError
+	raise errors.InvalidImageError
 
 def image_to_base64_url(data):
 	fmt = 'data:{mime};base64,{data}'

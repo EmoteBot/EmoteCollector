@@ -266,14 +266,16 @@ class Emotes(commands.Cog):
 		"""Try to add an emote. Returns a string that should be sent to the user."""
 		try:
 			emote = await self.add_from_url(name, url, author_id)
-		except errors.ConnoisseurError as ex:
-			return str(ex)
 		except discord.HTTPException as ex:
 			return (
 				_('An error occurred while creating the emote:\n')
 				+ utils.format_http_exception(ex))
 		except ValueError:
 			return _('Error: Invalid URL.')
+		except aiohttp.ServerDisconnectedError:
+			return _('Error: The connection was closed early by the remote host.')
+		except aiohttp.ClientResponseError as exc:
+			raise errors.HTTPException(exc.status)
 		else:
 			return _('Emote {emote} successfully created.').format(emote=emote)
 
@@ -296,18 +298,17 @@ class Emotes(commands.Cog):
 		# https://gitlab.com/Pandentia/element-zero/blob/47bc8eeeecc7d353ec66e1ef5235adab98ca9635/element_zero/cogs/emoji.py#L217-228
 
 		def validate_headers(response):
-			if response.reason != 'OK':
-				raise errors.HTTPException(response.status)
+			response.raise_for_status()
 			# some dumb servers also send '; charset=UTF-8' which we should ignore
 			mimetype, options = cgi.parse_header(response.headers.get('Content-Type', ''))
 			if mimetype not in {'image/png', 'image/jpeg', 'image/gif'}:
 				raise errors.InvalidImageError
 
-		try:
-			async with self.http.head(url, timeout=5) as response:
-				validate_headers(response)
-		except aiohttp.ServerDisconnectedError as exception:
-			validate_headers(exception.message)
+		range_header = f'bytes=0-{image_utils.MINIMUM_BYTES_NEEDED}'
+		async with self.http.get(url, headers={'Range': range_header}, timeout=5) as response:
+			validate_headers(response)
+			# ensure it has a valid image header
+			image_utils.mime_type_for_image(await response.read())
 
 		async with self.http.get(url) as response:
 			validate_headers(response)
