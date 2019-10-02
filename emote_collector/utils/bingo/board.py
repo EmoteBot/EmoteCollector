@@ -73,8 +73,7 @@ class BingoBoard:
 
 	@classmethod
 	def mask(cls, pos):
-		col, row = cls.parse_pos(pos)
-		return 1 << (col * cls.HEIGHT + row)
+		return 1 << cls.index(pos)
 
 	def __str__(self):
 		from io import StringIO
@@ -152,6 +151,8 @@ class BingoItemWrapper:
 			if value is not None:
 				yield pos, value
 
+index = BingoItemWrapper(BingoBoard).index
+
 class EmoteCollectorBingoBoard(BingoBoard):
 	def __init__(self, *, value=None, categories=None, marks=None):
 		super().__init__(value=value)
@@ -159,4 +160,4 @@ class EmoteCollectorBingoBoard(BingoBoard):
 		self.marks = BingoItemWrapper(type(self), items=marks)
 
 	def is_nsfw(self):
-		return any(nsfw for nsfw, name, id, image in filter(None, self.marks.items))
+		return any(nsfw != 'SFW' for nsfw, name, id, image in filter(None, self.marks.items))

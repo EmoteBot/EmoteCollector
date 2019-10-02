@@ -32,7 +32,7 @@ from discord.ext import tasks, commands
 from .. import utils
 from ..utils import errors
 from ..utils import image as image_utils
-from ..utils import ObjectProxy
+from ..utils.proxy import ObjectProxy
 
 logger = logging.getLogger(__name__)
 

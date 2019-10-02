@@ -14,48 +14,66 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with Emote Collector. If not, see <https://www.gnu.org/licenses/>.
 
+import functools
 import io
+import itertools
+import operator
 
 from discord.ext import commands
 
 from .errors import NoBoardError
-from ...utils import bingo
+from ... import utils
+from ...utils import bingo, compose
 
 class BingoDatabase(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
 		self.queries = self.bot.jinja_env.get_template('bingo.sql')
 
-	async def get_board(self, user_id, *, connection=None):
-		row = await (connection or self.bot.pool).fetchrow(self.queries.get_board(), user_id)
-		if row is None:
-			raise NoBoardError
-		return bingo.EmoteCollectorBingoBoard(**row)
-
-	async def update_board(self, user_id, board, *, connection=None):
-		args = bingo.marshal(board)
-		row = await (connection or self.bot.pool).fetchrow(self.queries.upsert_board(), user_id, *args)
-		return bingo.EmoteCollectorBingoBoard(**row)
-
-	async def new_board(self, user_id, *, connection=None):
-		board = bingo.new()
-		return await self.update_board(user_id, board, connection=connection)
-
-	async def mark(self, user_id, point, emote, *, connection):
+	async def get_board(self, user_id, *, connection):
 		async with connection.transaction():
-			board = await self.get_board(user_id, connection=connection)
-			await bingo.mark(self.bot, board, point, emote)
-			return await self.update_board(user_id, board, connection=connection)
+			val = await connection.fetchval(self.queries.get_board_value(), user_id)
+			if val is None:
+				raise NoBoardError
+			categories = [cat for cat, in await connection.fetch(self.queries.get_board_categories(), user_id)]
+			board = bingo.EmoteCollectorBingoBoard(value=val, categories=categories)
+			for mark in await connection.fetch(self.queries.get_board_marks(), user_id):
+				board.marks.items[mark['pos']] = mark['nsfw'], mark['name'], mark['id'], mark['animated']
+			return board
+
+	async def new_board(self, user_id, *, connection):
+		async with connection.transaction(isolation='repeatable_read'):
+			board = bingo.new()
+			await connection.execute(self.queries.delete_board(), user_id)
+			await connection.execute(self.queries.set_board_value(), user_id, board.value)
+			categories = ((user_id, i, cat) for i, cat in enumerate(board.categories.items) if cat is not None)
+			await connection.executemany(self.queries.set_board_category(), categories)
+			return board
+
+	async def mark(self, user_id, marks, *, connection):
+		async with connection.transaction(isolation='repeatable_read'):
+			marks = list(marks)
+			params = (
+				(user_id, bingo.board.index(point), emote.nsfw, emote.name, emote.id, emote.animated)
+				for point, emote
+				in marks)
+			await connection.executemany(self.queries.set_board_mark(), params)
+			indices = map(compose(bingo.board.index, operator.itemgetter(0)), marks)
+			mask = functools.reduce(operator.or_, (1 << i for i in indices))
+			await connection.execute(self.queries.add_board_marks_by_mask(), user_id, mask)
 
 	async def unmark(self, user_id, points, *, connection):
-		async with connection.transaction():
-			board = await self.get_board(user_id, connection=connection)
-			for point in points:
-				bingo.unmark(board, point)
-			return await self.update_board(user_id, board, connection=connection)
+		indices = list(map(bingo.board.index, points))
+		mask = functools.reduce(operator.or_, (1 << i for i in indices))
+		async with connection.transaction(isolation='serializable'):
+			params = list(zip(itertools.repeat(user_id), indices))
+			print(params)
+			await connection.executemany(self.queries.delete_board_mark(), params)
+			await connection.execute(self.queries.delete_board_marks_by_mask(), user_id, mask)
 
-	async def check_win(self, user_id):
-		board = await self.get_board(user_id)
+	async def check_win(self, user_id, connection=None):
+		val = await (connection or self.bot.pool).fetchval(self.queries.get_board_value(), user_id)
+		board = bingo.EmoteCollectorBingoBoard(value=val)
 		return board.has_won()
 
 def setup(bot):

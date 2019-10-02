@@ -22,8 +22,9 @@ import discord
 from discord.ext import commands
 from discord.ext.commands.view import StringView
 
-from .. import utils
 from .errors import EmoteNotFoundError, TooLewdError
+from .. import utils
+from ..extensions.db import DatabaseEmote
 
 class _MultiConverter(commands.Converter):
 	def __init__(self, *, converters=None):
@@ -203,7 +204,7 @@ class LoggedEmote(commands.Converter):
 		try:
 			return await ctx.bot.cogs['Database'].get_emote(m['name'])
 		except EmoteNotFoundError:
-			return discord.PartialEmoji(**m.groupdict())
+			return DatabaseEmote(nsfw='MOD_NSFW', **m.groupdict())
 
 # because MultiConverter does not support Union
 class DatabaseOrLoggedEmote(commands.Converter):
@@ -222,8 +223,9 @@ class DatabaseOrLoggedEmote(commands.Converter):
 		try:
 			db_emote = await self.db_conv.convert(ctx, argument)
 		except commands.CommandError as exc:
-			raise commands.BadArgument(_(
-				'Failed to interpret that as a logged emote message or an emote in my database.'))
+			raise commands.BadArgument(
+				_('Failed to interpret {argument} as a logged emote message or an emote in my database.')
+				.format(argument=argument))
 
 		return db_emote
 
