@@ -46,7 +46,7 @@ def optional_connection(func):
 				return connection()
 		async def __aexit__(self, *excinfo):
 			with contextlib.suppress(AttributeError):
-				await self.connection.close()
+				await self.pool.release(self.connection)
 
 	if inspect.isasyncgenfunction(func):
 		@functools.wraps(func)
