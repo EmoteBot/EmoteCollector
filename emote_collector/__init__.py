@@ -124,16 +124,6 @@ class EmoteCollector(Bot):
 
 	### Init / Shutdown
 
-	async def init_db(self):
-		async def set_codec(conn):
-			await conn.set_type_codec(
-				'jsonb',
-				schema='pg_catalog',
-				encoder=json.dumps,
-				decoder=json.loads,
-				format='text')
-		self.pool = await asyncpg.create_pool(init=set_codec, **self.config['database'])
-
 	startup_extensions = list(braceexpand("""{
 		emote_collector.extensions.{
 			locale,
