@@ -206,6 +206,8 @@ class LoggedEmote(commands.Converter):
 		except EmoteNotFoundError:
 			d = m.groupdict()
 			d['nsfw'] = 'MOD_NSFW'
+			d['id'] = int(d['id'])
+			d['animated'] = bool(d['animated'])
 			return DatabaseEmote(d)
 
 # because MultiConverter does not support Union

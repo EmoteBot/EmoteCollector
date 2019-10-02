@@ -121,20 +121,45 @@ CREATE TABLE bingo_deleted_emotes(
 	deleted_emote_id BIGINT PRIMARY KEY,
 	animated BOOLEAN NOT NULL DEFAULT FALSE);
 
+CREATE TABLE bingo_board_marks(
+	user_id BIGINT NOT NULL REFERENCES bingo_boards ON DELETE CASCADE,
+	pos SMALLINT NOT NULL,
+	emote_id BIGINT REFERENCES emotes,
+	deleted_emote_id BIGINT REFERENCES bingo_deleted_emotes DEFERRABLE INITIALLY DEFERRED,
+
+	CHECK (num_nonnulls(emote_id, deleted_emote_id) = 1),
+	PRIMARY KEY (user_id, pos));
+
+CREATE INDEX "bingo_board_marks_emote_id_idx" ON bingo_board_marks (emote_id);
+
+CREATE FUNCTION bingo_archive_deleted_emote()
+RETURNS TRIGGER AS $$ BEGIN
+	IF (
+		SELECT 1
+		FROM bingo_board_marks
+		WHERE emote_id = OLD.id
+	) IS NOT NULL THEN
+		INSERT INTO bingo_deleted_emotes (nsfw, name, deleted_emote_id, animated)
+		VALUES (OLD.nsfw, OLD.name, OLD.id, OLD.animated);
+
+		UPDATE bingo_board_marks
+		SET
+			deleted_emote_id = emote_id,
+			emote_id = NULL
+		WHERE emote_id = OLD.id;
+	END IF;
+	RETURN NULL;
+END; $$ LANGUAGE plpgsql;
+
+CREATE TRIGGER bingo_archive_deleted_emotes
+BEFORE DELETE ON emotes
+FOR EACH ROW EXECUTE PROCEDURE bingo_archive_deleted_emote();
+
 CREATE TABLE bingo_board_categories(
 	user_id BIGINT NOT NULL REFERENCES bingo_boards ON DELETE CASCADE,
 	pos SMALLINT NOT NULL,
 	category_id SMALLINT NOT NULL REFERENCES bingo_categories,
 
-	PRIMARY KEY (user_id, pos));
-
-CREATE TABLE bingo_board_marks(
-	user_id BIGINT NOT NULL REFERENCES bingo_boards ON DELETE CASCADE,
-	pos SMALLINT NOT NULL,
-	emote_id BIGINT REFERENCES emotes,
-	deleted_emote_id BIGINT REFERENCES bingo_deleted_emotes,
-
-	CHECK (num_nonnulls(emote_id, deleted_emote_id) = 1),
 	PRIMARY KEY (user_id, pos));
 
 CREATE PROCEDURE bingo_mark(
@@ -153,7 +178,8 @@ CREATE PROCEDURE bingo_mark(
 		INSERT INTO bingo_board_marks (user_id, pos, emote_id)
 		VALUES (p_user_id, p_pos, p_emote_id)
 		ON CONFLICT (user_id, pos) DO UPDATE SET
-			emote_id = EXCLUDED.emote_id;
+			emote_id = EXCLUDED.emote_id,
+			deleted_emote_id = NULL;
 	ELSE
 		INSERT INTO bingo_deleted_emotes (nsfw, name, deleted_emote_id, animated)
 		VALUES (p_nsfw, p_name, p_emote_id, p_animated)
@@ -164,6 +190,7 @@ CREATE PROCEDURE bingo_mark(
 		INSERT INTO bingo_board_marks (user_id, pos, deleted_emote_id)
 		VALUES (p_user_id, p_pos, p_emote_id)
 		ON CONFLICT (user_id, pos) DO UPDATE SET
-			deleted_emote_id = EXCLUDED.deleted_emote_id;
+			deleted_emote_id = EXCLUDED.deleted_emote_id,
+			emote_id = NULL;
 	END IF;
 END; $$;
