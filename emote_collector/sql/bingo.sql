@@ -1,4 +1,4 @@
--- :query upsert_board
+-- :macro upsert_board()
 -- params: user_id, value, categories, marks
 INSERT INTO bingo_boards (user_id, value, categories, marks)
 VALUES ($1, $2, $3, $4)
@@ -7,30 +7,30 @@ ON CONFLICT (user_id) DO UPDATE SET
 	categories = EXCLUDED.categories,
 	marks = EXCLUDED.marks
 RETURNING value, categories, marks
--- :endquery
+-- :endmacro
 
--- :query delete_board
+-- :macro delete_board()
 -- params: user_id
 DELETE FROM bingo_boards
 WHERE user_id = $1
--- :endquery
+-- :endmacro
 
--- :query get_board_value
+-- :macro get_board_value()
 -- params: user_id
 SELECT value
 FROM bingo_boards
 WHERE user_id = $1
--- :endquery
+-- :endmacro
 
--- :query set_board_value
+-- :macro set_board_value()
 -- params: user_id, value
 INSERT INTO bingo_boards (user_id, value)
 VALUES ($1, $2)
 ON CONFLICT (user_id) DO UPDATE SET
 	value = EXCLUDED.value
--- :endquery
+-- :endmacro
 
--- :query get_board_categories
+-- :macro get_board_categories()
 -- params: user_id
 SELECT category
 FROM
@@ -39,15 +39,15 @@ FROM
 	INNER JOIN bingo_categories USING (category_id)
 WHERE user_id = $1
 ORDER BY pos
--- :endquery
+-- :endmacro
 
--- :query set_board_category
+-- :macro set_board_category()
 -- params: user_id, pos, category
 INSERT INTO bingo_board_categories (user_id, pos, category_id)
 VALUES ($1, $2, (SELECT category_id FROM bingo_categories WHERE category = $3))
--- :endquery
+-- :endmacro
 
--- :query get_board_marks
+-- :macro get_board_marks()
 -- params: user_id
 SELECT
 	pos,
@@ -61,30 +61,30 @@ FROM
 	LEFT JOIN emotes ON (marks.emote_id = emotes.id)
 WHERE user_id = $1
 ORDER BY pos
--- :endquery
+-- :endmacro
 
--- :query set_board_mark
+-- :macro set_board_mark()
 -- params: user_id, pos, nsfw, name, emote_id, animated
 -- required transaction isolation level: repeatable read
 CALL bingo_mark($1, $2, $3, $4, $5, $6);
--- :endquery
+-- :endmacro
 
--- :query delete_board_mark
+-- :macro delete_board_mark()
 -- params: user_id, pos
 DELETE FROM bingo_board_marks
 WHERE (user_id, pos) = ($1, $2)
--- :endquery
+-- :endmacro
 
--- :query delete_board_marks_by_mask
+-- :macro delete_board_marks_by_mask()
 -- params: user_id, mask
 UPDATE bingo_boards
 SET value = value & ~$2::INTEGER
 WHERE user_id = $1
--- :endquery
+-- :endmacro
 
--- :query add_board_marks_by_mask
+-- :macro add_board_marks_by_mask()
 -- params: user_id, mask
 UPDATE bingo_boards
 SET value = value | $2::INTEGER
 WHERE user_id = $1
--- :endquery
+-- :endmacro

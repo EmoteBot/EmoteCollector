@@ -28,7 +28,7 @@ from ...utils import bingo, compose, connection, optional_connection
 class BingoDatabase(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
-		self.queries = self.bot.jinja_env.get_template('bingo.sql')
+		self.queries = self.bot.queries('bingo.sql')
 
 	@optional_connection
 	async def get_board(self, user_id):

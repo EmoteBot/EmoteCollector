@@ -23,10 +23,10 @@ setuptools.setup(
 		'discord.py>=1.1.1,<2.0.0',
 		'humanize',
 		'jishaku>=1.6.1,<2.0.0',
+		'jinja2',
 		'ply',
 		'psutil',
 		'pygit2',
-		'querypp>=0.1.1,<1.0.0',
 		'wand',
 	],
 )

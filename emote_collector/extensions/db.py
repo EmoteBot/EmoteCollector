@@ -109,7 +109,7 @@ class Database(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
 		self._process_decay_config()
-		self.queries = self.bot.jinja_env.get_template('emotes.sql')
+		self.queries = self.bot.queries('emotes.sql')
 
 		self.tasks = [
 			self.bot.loop.create_task(meth()) for meth in (

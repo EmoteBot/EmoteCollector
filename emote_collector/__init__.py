@@ -25,7 +25,7 @@ from pathlib import Path
 
 import asyncpg
 import discord
-import querypp
+import jinja2
 from bot_bin.bot import Bot
 from braceexpand import braceexpand
 from discord.ext import commands
@@ -48,7 +48,9 @@ logger = logging.getLogger('bot')
 class EmoteCollector(Bot):
 	def __init__(self, **kwargs):
 		super().__init__(setup_db=True, **kwargs)
-		self.jinja_env = querypp.QueryEnvironment(BASE_DIR / 'sql')
+		self.jinja_env = jinja2.Environment(
+			loader=jinja2.FileSystemLoader(str(BASE_DIR / 'sql')),
+			line_statement_prefix='-- :')
 
 	def process_config(self):
 		super().process_config()
@@ -121,6 +123,9 @@ class EmoteCollector(Bot):
 				return False
 
 		return True
+
+	def queries(self, template_name):
+		return self.jinja_env.get_template(str(template_name)).module
 
 	### Init / Shutdown
 

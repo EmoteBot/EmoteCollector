@@ -1,34 +1,34 @@
 --- CACHE SYNCHRONIZATION
 
--- :query add_guild
+-- :macro add_guild()
 -- params: guild_id
 INSERT INTO _guilds (id)
 VALUES ($1)
 ON CONFLICT DO NOTHING
--- :endquery
+-- :endmacro
 
--- :query delete_guild
+-- :macro delete_guild()
 -- params: guild_id
 DELETE FROM _guilds
 WHERE id = $1
--- :endquery
+-- :endmacro
 
--- :query delete_all_moderators
+-- :macro delete_all_moderators()
 DELETE FROM moderators
--- :endquery
+-- :endmacro
 
--- :query add_moderator
+-- :macro add_moderator()
 -- params: moderator_id
 INSERT INTO moderators (id)
 VALUES ($1)
 ON CONFLICT (id) DO NOTHING
--- :endquery
+-- :endmacro
 
--- :query delete_moderator
+-- :macro delete_moderator()
 -- params: moderator_id
 DELETE FROM moderators
 WHERE id = $1
--- :endquery
+-- :endmacro
 
 --- INFORMATIONAL
 
@@ -40,36 +40,36 @@ ORDER BY last_creation
 LIMIT 1
 -- :endmacro
 
--- :query count
+-- :macro count()
 SELECT
 	COUNT(*) FILTER (WHERE NOT animated) AS static,
 	COUNT(*) FILTER (WHERE animated) AS animated,
 	COUNT(*) FILTER (WHERE nsfw != 'SFW') AS nsfw,
 	COUNT(*) AS total
 FROM emotes
--- :endquery
+-- :endmacro
 
--- :query get_emote
+-- :macro get_emote()
 -- params: name
 SELECT *
 FROM emotes
 WHERE LOWER(name) = LOWER($1)
--- :endquery
+-- :endmacro
 
--- :query get_emote_usage
+-- :macro get_emote_usage()
 -- params: id, cutoff_time
 SELECT COUNT(*)
 FROM emote_usage_history
 WHERE id = $1
   AND time > $2
--- :endquery
+-- :endmacro
 
--- :query get_reply_message
+-- :macro get_reply_message()
 -- params: invoking_message_id
 SELECT type, reply_message
 FROM replies
 WHERE invoking_message = $1
--- :endquery
+-- :endmacro
 
 --- ITERATORS
 
@@ -109,7 +109,7 @@ ORDER BY usage DESC, LOWER(e.name)
 LIMIT $2
 -- :endmacro
 
--- :query search
+-- :macro search()
 -- params: query, allowed_nsfw_types
 SELECT *
 FROM emotes
@@ -117,9 +117,9 @@ WHERE name % $1
 AND nsfw = ANY ($2)
 ORDER BY similarity(name, $1) DESC, LOWER(name)
 LIMIT 100
--- :endquery
+-- :endmacro
 
--- :query decayable_emotes
+-- :macro decayable_emotes()
 -- params: cutoff_time, usage_threshold
 {{ emote_usage_history_prelude }}
 WHERE
@@ -127,94 +127,94 @@ WHERE
 	AND NOT preserve
 GROUP BY e.id
 HAVING COUNT(euh.id) < $2
--- :endquery
+-- :endmacro
 
 --- ACTIONS
 
--- :query create_emote
+-- :macro create_emote()
 -- params: name, id, author, animated, guild
 INSERT INTO emotes (name, id, author, animated, guild)
 VALUES ($1, $2, $3, $4, $5)
 RETURNING *
--- :endquery
+-- :endmacro
 
--- :query remove_emote
+-- :macro remove_emote()
 -- params: id
 DELETE FROM emotes
 WHERE id = $1
--- :endquery
+-- :endmacro
 
--- :query rename_emote
+-- :macro rename_emote()
 -- params: id, new_name
 UPDATE emotes
 SET name = $2
 WHERE id = $1
 RETURNING *
--- :endquery
+-- :endmacro
 
--- :query set_emote_creation
+-- :macro set_emote_creation()
 -- params: name, time
 UPDATE EMOTES
 SET created = $2
 WHERE LOWER(name) = LOWER($1)
--- :endquery
+-- :endmacro
 
--- :query set_emote_description
+-- :macro set_emote_description()
 -- params: id, description
 UPDATE emotes
 SET description = $2
 WHERE id = $1
 RETURNING *
--- :endquery
+-- :endmacro
 
--- :query set_emote_preservation
+-- :macro set_emote_preservation()
 -- params: name, should_preserve
 UPDATE emotes
 SET preserve = $2
 WHERE LOWER(name) = LOWER($1)
 RETURNING *
--- :endquery
+-- :endmacro
 
--- :query set_emote_nsfw
+-- :macro set_emote_nsfw()
 -- params: id, new_status
 UPDATE emotes
 SET nsfw = $2
 WHERE id = $1
 RETURNING *
--- :endquery
+-- :endmacro
 
--- :query log_emote_use
+-- :macro log_emote_use()
 -- params: id
 INSERT INTO emote_usage_history (id)
 VALUES ($1)
--- :endquery
+-- :endmacro
 
--- :query add_reply_message
+-- :macro add_reply_message()
 -- params: invoking_message_id, reply_type, reply_message_id
 INSERT INTO replies (invoking_message, type, reply_message)
 VALUES ($1, $2, $3)
--- :endquery
+-- :endmacro
 
--- :query delete_reply_by_invoking_message
+-- :macro delete_reply_by_invoking_message()
 -- params: reply_message_id
 DELETE FROM replies
 WHERE invoking_message = $1
 RETURNING reply_message
--- :endquery
+-- :endmacro
 
--- :query delete_reply_by_reply_message
+-- :macro delete_reply_by_reply_message()
 -- params: reply_message_id
 DELETE FROM replies
 WHERE reply_message = $1
--- :endquery
+-- :endmacro
 
 --- USER / GUILD OPTIONS
 
--- :query delete_all_user_state
+-- :macro delete_all_user_state()
 -- params: user_id
 DELETE FROM user_opt
 WHERE id = $1
--- :endquery
+-- :endmacro
 
 -- :macro toggle_state(table)
 -- params: id, default
@@ -232,7 +232,7 @@ FROM {{ table }}
 WHERE id = $1
 -- :endmacro
 
--- :query get_state
+-- :macro get_state()
 -- params: guild_id, user_id
 SELECT COALESCE(
 	CASE WHEN (SELECT blacklist_reason FROM user_opt WHERE id = $2) IS NOT NULL THEN FALSE END,
@@ -240,7 +240,7 @@ SELECT COALESCE(
 	(SELECT state FROM guild_opt WHERE id = $1),
 	true -- not opted in in the guild or the user table, default behavior is ENABLED
 )
--- :endquery
+-- :endmacro
 
 --- BLACKLISTS
 
@@ -259,8 +259,8 @@ ON CONFLICT (id) DO UPDATE
 	SET blacklist_reason = EXCLUDED.blacklist_reason
 -- :endmacro
 
--- :query blacklisted_guilds
+-- :macro blacklisted_guilds()
 SELECT id
 FROM guild_opt
 WHERE blacklist_reason IS NOT NULL
--- :endquery
+-- :endmacro
