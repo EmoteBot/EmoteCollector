@@ -260,3 +260,16 @@ def compose(*funcs):
 			x = f(x)
 		return x
 	return f
+
+async def gather_or_cancel(*awaitables, loop=None):
+	"""run the awaitables in the sequence concurrently. If any of them raise an exception,
+	propagate the first exception raised and cancel all other awaitables.
+	"""
+	gather_task = asyncio.gather(*awaitables, loop=loop)
+	try:
+		return await gather_task
+	except asyncio.CancelledError:
+		raise
+	except:
+		gather_task.cancel()
+		raise

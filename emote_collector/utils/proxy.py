@@ -14,6 +14,11 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with Emote Collector. If not, see <https://www.gnu.org/licenses/>.
 
+import importlib
+import importlib.util
+import os
+import sys
+
 class ObjectProxy:
 	def __init__(self, thunk):
 		vars(self)[f'_{type(self).__name__}__thunk'] = thunk
@@ -41,3 +46,55 @@ class ObjectProxy:
 
 	def __repr__(self):
 		return f'<ObjectProxy for {self.__thunk!r}()>'
+
+class ModuleReloadObjectProxy:
+	def __init__(self, module_proxy):
+		vars(self)[f'_{type(self).__name__}__module_proxy'] = module_proxy
+
+	@classmethod
+	def __is_mangled(cls, name):
+		return name.startswith(f'_{cls.__name__}__')
+
+	def __getattr__(self, k):
+		if self.__is_mangled(k):
+			return vars(self)[k]
+		self.__module_proxy.reload()
+		return getattr(self.__module_proxy._module, k)
+
+	def __setattr__(self, k, v):
+		if self.__is_mangled(k):
+			vars(self)[k] = v
+		else:
+			setattr(self.__module_proxy._module, k, v)
+
+	def __delattr__(self, k):
+		if self.__is_mangled(k):
+			del vars(self)[k]
+		else:
+			delattr(self.__module_proxy._module, k)
+
+class _ModuleProxy:
+	def __init__(self, mod_name):
+		self.mod_name = mod_name
+		self.spec = spec = importlib.util.find_spec(mod_name)
+		if spec is None:
+			raise ModuleNotFoundError(f'No module named {mod_name!r}')
+		self.path = self.spec.origin
+		self._module = mod = importlib.util.module_from_spec(spec)
+		self.module = ModuleReloadObjectProxy(self)
+		spec.loader.exec_module(mod)
+		sys.modules[mod_name] = mod
+		self.last_mtime = self.mtime()
+
+	def mtime(self):
+		stat = os.stat(self.path)
+		return stat.st_mtime
+
+	def reload(self):
+		mtime = self.mtime()
+		if mtime > self.last_mtime:
+			self._module = importlib.reload(self._module)
+			self.last_mtime = mtime
+
+def ModuleProxy(mod_name):
+	return _ModuleProxy(mod_name).module

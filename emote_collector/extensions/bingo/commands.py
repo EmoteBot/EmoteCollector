@@ -21,7 +21,7 @@ from discord.ext import commands
 
 from .errors import BoardTooLewdError
 from ... import utils
-from ...utils import bingo
+from ...utils import bingo, connection, optional_connection
 from ...utils.converter import DatabaseOrLoggedEmote, MultiConverter
 from ...utils.proxy import ObjectProxy
 
@@ -42,19 +42,15 @@ class Bingo(commands.Cog):
 		await self.send_board(context, _('Your new bingo board:'), await self.db.new_board(context.author.id))
 
 	@bingo.command(usage='<position> <emote>[, <position2> <emote2>...]')
+	@optional_connection
 	async def mark(self, context, *, args: MultiConverter[str.upper, DatabaseOrLoggedEmote]):
 		"""Adds one or more marks to your board."""
 		if not args:
 			raise commands.BadArgument(_('You must specify at least one position and emote name.'))
 
-		# TODO can this be done in parallel?
-		async with self.bot.pool.acquire() as conn, conn.transaction(), context.typing():
-			seen = set()
-			for pos, emote in args:
-				if pos in seen:
-					raise commands.BadArgument(_('Position {pos} was specified more than once.').format(pos=pos))
-				seen.add(pos)
-				board = await self.db.mark(context.author.id, pos, emote, connection=conn)
+		async with connection().transaction(isolation='repeatable_read'):
+			await self.db.mark(context.author.id, args)
+			board = await self.db.get_board(context.author.id)
 
 		message = _('You win! Your new bingo board:') if board.has_won() else _('Your new bingo board:')
 		await self.send_board(context, message, board)
@@ -65,12 +61,13 @@ class Bingo(commands.Cog):
 			board = await self.db.unmark(context.author.id, positions, connection=conn)
 		await self.send_board(context, _('Your new bingo board:'), board)
 
-	@staticmethod
-	async def send_board(context, message, board):
+	async def send_board(self, context, message, board):
 		if board.is_nsfw() and not getattr(context.channel, 'nsfw', True):
 			raise BoardTooLewdError
 		async with context.typing():
-			f = discord.File(io.BytesIO(await bingo.render_in_subprocess(board)), f'{context.author.id}_board.png')
+			f = discord.File(
+				io.BytesIO(await bingo.render_in_subprocess(self.bot, board)),
+				f'{context.author.id}_board.png')
 		await context.send(message, file=f)
 
 def setup(bot):

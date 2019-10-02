@@ -2,6 +2,7 @@
 
 import asyncio
 import base64
+import collections
 import functools
 import io
 import itertools
@@ -16,6 +17,7 @@ from pathlib import Path
 import aiohttp
 
 from ... import BASE_DIR
+from ... import utils
 from .board import EmoteCollectorBingoBoard
 
 COORDS = {
@@ -73,19 +75,6 @@ def draw_marks(draw, img, marks):
 				width=eimg.width, height=eimg.height,
 				image=eimg)
 
-async def mark(bot, board, pos, emote):
-	sess = bot.cogs['Emotes'].http
-	async with sess.get(str(emote.url)) as resp:
-		eimg = base64.b64encode(await resp.read()).decode('ascii')
-
-	board[pos] = 1
-	# TODO issue #60
-	board.marks[pos] = getattr(emote, 'is_nsfw', True), emote.name, emote.id, eimg
-
-def unmark(board, pos):
-	board[pos] = 0
-	del board.marks[pos]
-
 def new():
 	with open(DATA_DIR / "bingo_categories.txt") as f:
 		cats = list(map(str.rstrip, f))
@@ -94,7 +83,31 @@ def new():
 	categories = cats[:EmoteCollectorBingoBoard.SQUARES]
 	return EmoteCollectorBingoBoard(categories=categories)
 
-async def render_in_subprocess(board):
+async def download_all(bot, urls):
+	sess = bot.cogs['Emotes'].http
+	async def read(url):
+		async with sess.get(url, raise_for_status=True) as resp:
+			return url, await resp.read()
+	tasks = (
+		bot.loop.create_task(read(url))
+		for url in urls)
+	return await utils.gather_or_cancel(*tasks)
+
+async def render_in_subprocess(bot, board):
+	url_index = collections.defaultdict(list)
+	for i, e in enumerate(board.marks.items):
+		if e is None:
+			continue
+		nsfw, name, id, animated = e
+		url_index[utils.emote.url(id, animated=animated)].append(i)
+
+	images = await download_all(bot, url_index)
+	marks = board.marks.items[:]
+	for url, image in images:
+		for i in url_index[url]:
+			marks[i] += (base64.b64encode(image).decode('ascii'),)
+	del images
+
 	proc = await asyncio.create_subprocess_exec(
 		# see __main__.py
 		sys.executable, '-m', __name__,
@@ -106,7 +119,7 @@ async def render_in_subprocess(board):
 	image_data, err = await proc.communicate(json.dumps({
 		'value': board.value,
 		'categories': board.categories.items,
-		'marks': board.marks.items}).encode())
+		'marks': marks}).encode())
 
 	if proc.returncode != 0:
 		raise RuntimeError(err.decode('utf-8') + f'Return code: {proc.returncode}')

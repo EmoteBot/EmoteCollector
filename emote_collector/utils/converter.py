@@ -204,7 +204,9 @@ class LoggedEmote(commands.Converter):
 		try:
 			return await ctx.bot.cogs['Database'].get_emote(m['name'])
 		except EmoteNotFoundError:
-			return DatabaseEmote(nsfw='MOD_NSFW', **m.groupdict())
+			d = m.groupdict()
+			d['nsfw'] = 'MOD_NSFW'
+			return DatabaseEmote(d)
 
 # because MultiConverter does not support Union
 class DatabaseOrLoggedEmote(commands.Converter):
