@@ -34,7 +34,7 @@ class Bingo(commands.Cog):
 	async def bingo(self, context):
 		"""Shows you your current bingo board. All other functionality is in subcommands."""
 		board = await self.db.get_board(context.author.id)
-		await self.send_board(context, None, board)
+		await self.send_board(context, _('You win!') if board.has_won() else None, board)
 
 	@bingo.command()
 	async def new(self, context):
