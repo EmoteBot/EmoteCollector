@@ -1,6 +1,6 @@
 # Contributing to Emote Collector
 
-1. Use tabs for indentation and limit your line length to 120 characters (inclusive, assuming 4-column-sized tabs).
+1. Use tabs for indentation and limit your line length to 120 columns (inclusive, assuming 4-column-sized tabs).
 2. If you *can* test your code, please do so [using your own instance of the bot](INSTALLATION.md),
 but since installation is so hard, just let me know in the pull request if you haven't tested your changes
 and I'll do it for you.
@@ -18,7 +18,7 @@ and a [jinja2](https://palletsprojects.com/p/jinja/) template file containing SQ
 Add its schema definitions (if any) to [emote_collector/sql/schema.sql](emote_collector/sql/schema.sql).
 
 Add its database abstraction cog to emote_collector/extensions/extname/db.py
-and queries to a new file in the [sql/](emote_collector/sql/) directory, named after the 
+and queries to a new file in the [sql/](emote_collector/sql/) directory, named after the
 extension that uses it (e.g. extensions/bingo/db.py → sql/bingo.sql).
 
 Finally, the commands cog should use the database cog in the following way:
