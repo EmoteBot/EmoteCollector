@@ -4,7 +4,7 @@ import itertools
 
 from discord.ext import commands
 
-__all__ = frozenset({'BingoBoard', 'index', 'EmoteCollectorBingoBoard'})
+__all__ = ('BingoBoard', 'index', 'EmoteCollectorBingoBoard')
 
 class BingoBoard:
 	WIDTH = 5
