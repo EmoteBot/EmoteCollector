@@ -1,3 +1,12 @@
+-- :macro get_categories()
+-- params: num_categories
+SELECT category_id, category
+FROM bingo_categories
+-- it is not assumed that there will be very many categories, so sorting the entire table is fine
+ORDER BY RANDOM()
+LIMIT $1
+-- :endmacro
+
 -- :macro upsert_board()
 -- params: user_id, value, categories, marks
 INSERT INTO bingo_boards (user_id, value, categories, marks)

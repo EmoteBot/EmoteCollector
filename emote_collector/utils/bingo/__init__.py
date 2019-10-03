@@ -18,7 +18,7 @@ import aiohttp
 
 from ... import BASE_DIR
 from ... import utils
-from .board import EmoteCollectorBingoBoard
+from .board import *
 
 COORDS = {
 	c: [(x, y) for y in (327, 592, 857, 1121, 1387)]
@@ -74,14 +74,6 @@ def draw_marks(draw, img, marks):
 				left=left+half-65, top=top+25,
 				width=eimg.width, height=eimg.height,
 				image=eimg)
-
-def new():
-	with open(DATA_DIR / "bingo_categories.txt") as f:
-		cats = list(map(str.rstrip, f))
-	random.shuffle(cats)
-
-	categories = cats[:EmoteCollectorBingoBoard.SQUARES]
-	return EmoteCollectorBingoBoard(categories=categories)
 
 async def download_all(bot, urls):
 	sess = bot.cogs['Emotes'].http

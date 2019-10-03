@@ -4,6 +4,8 @@ import itertools
 
 from discord.ext import commands
 
+__all__ = frozenset({'BingoBoard', 'index', 'EmoteCollectorBingoBoard'})
+
 class BingoBoard:
 	WIDTH = 5
 	HEIGHT = 5
@@ -13,6 +15,8 @@ class BingoBoard:
 
 	COL_I = {c: i for i, c in enumerate('BINGO')}
 	COL_NAMES = {i: c for c, i in COL_I.items()}
+
+	FREE_SPACE_I = HEIGHT * COL_I['N'] + 2
 
 	def __init__(self, *, value=None):
 		self.value = 0 if value is None else value
@@ -75,6 +79,14 @@ class BingoBoard:
 	def mask(cls, pos):
 		return 1 << cls.index(pos)
 
+	@classmethod
+	def skip_free_space(cls, items):
+		"""given a list SQUARES items long, return a list SIZE items long with a blank free space"""
+		# set free space to None
+		items.append(None)
+		items[cls.FREE_SPACE_I], items[-1] = items[-1], items[FREE_SPACE_I]
+		return items
+
 	def __str__(self):
 		from io import StringIO
 		buf = StringIO()
@@ -119,11 +131,7 @@ class BingoItemWrapper:
 	def __init__(self, cls, *, items=None):
 		self.cls = cls
 		items = [None] * cls.SQUARES if items is None else items
-		# set free space to None
-		items.append(None)
-		free_space = cls.HEIGHT * cls.COL_I['N'] + 2
-		items[free_space], items[-1] = items[-1], items[free_space]
-		self.items = items
+		self.items = cls.skip_free_space(items)
 
 	def index(self, pos):
 		col, row = pos

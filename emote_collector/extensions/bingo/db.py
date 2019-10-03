@@ -25,6 +25,8 @@ from .errors import NoBoardError
 from ... import utils
 from ...utils import bingo, compose, connection, optional_connection
 
+DEFAULT_BOARD_VALUE = bingo.EmoteCollectorBingoBoard().value
+
 class BingoDatabase(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
@@ -44,29 +46,35 @@ class BingoDatabase(commands.Cog):
 	@optional_connection
 	async def new_board(self, user_id):
 		async with connection().transaction(isolation='repeatable_read'):
-			board = bingo.new()
 			await connection().execute(self.queries.delete_board(), user_id)
-			await connection().execute(self.queries.set_board_value(), user_id, board.value)
-			categories = ((user_id, i, cat) for i, cat in enumerate(board.categories.items) if cat is not None)
-			await connection().executemany(self.queries.set_board_category(), categories)
-			return board
+			await connection().execute(self.queries.set_board_value(), user_id, DEFAULT_BOARD_VALUE)
+			rows = await connection().fetch(self.queries.get_categories(), bingo.BingoBoard.SQUARES)
+			to_insert = [
+				(user_id, pos + 1 if pos >= bingo.BingoBoard.FREE_SPACE_I else pos, category_id)  # skip free space
+				for pos, (category_id, category_text)
+				in enumerate(rows)]
+			await connection().copy_records_to_table(
+				'bingo_board_categories',
+				records=to_insert,
+				columns=('user_id', 'pos', 'category_id'))
+			return bingo.EmoteCollectorBingoBoard(categories=[category_text for __, category_text in rows])
 
 	@optional_connection
 	async def mark(self, user_id, marks):
 		async with connection().transaction(isolation='repeatable_read'):
 			marks = list(marks)
 			params = (
-				(user_id, bingo.board.index(point), emote.nsfw, emote.name, emote.id, emote.animated)
+				(user_id, bingo.index(point), emote.nsfw, emote.name, emote.id, emote.animated)
 				for point, emote
 				in marks)
 			await connection().executemany(self.queries.set_board_mark(), params)
-			indices = map(compose(bingo.board.index, operator.itemgetter(0)), marks)
+			indices = map(compose(bingo.index, operator.itemgetter(0)), marks)
 			mask = functools.reduce(operator.or_, (1 << i for i in indices))
 			await connection().execute(self.queries.add_board_marks_by_mask(), user_id, mask)
 
 	@optional_connection
 	async def unmark(self, user_id, points):
-		indices = list(map(bingo.board.index, points))
+		indices = list(map(bingo.index, points))
 		mask = functools.reduce(operator.or_, (1 << i for i in indices))
 		async with connection().transaction(isolation='serializable'):
 			params = list(zip(itertools.repeat(user_id), indices))
