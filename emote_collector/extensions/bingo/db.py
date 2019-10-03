@@ -19,11 +19,12 @@ import io
 import itertools
 import operator
 
+from bot_bin.sql import connection, optional_connection
 from discord.ext import commands
 
 from .errors import NoBoardError
 from ... import utils
-from ...utils import bingo, compose, connection, optional_connection
+from ...utils import bingo, compose
 
 DEFAULT_BOARD_VALUE = bingo.EmoteCollectorBingoBoard().value
 

@@ -9,5 +9,4 @@ from . import errors
 from . import i18n
 from . import lexer
 from . import paginator
-from .pg_connection import *
 from .proxy import ObjectProxy

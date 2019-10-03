@@ -17,11 +17,12 @@
 import io
 
 import discord
+from bot_bin.sql import connection, optional_connection
 from discord.ext import commands
 
 from .errors import BoardTooLewdError
 from ... import utils
-from ...utils import bingo, connection, optional_connection
+from ...utils import bingo
 from ...utils.converter import DatabaseOrLoggedEmote, MultiConverter
 from ...utils.proxy import ObjectProxy
 
