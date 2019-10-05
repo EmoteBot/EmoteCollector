@@ -148,7 +148,7 @@ RETURNS TRIGGER AS $$ BEGIN
 			emote_id = NULL
 		WHERE emote_id = OLD.id;
 	END IF;
-	RETURN NULL;
+	RETURN OLD;
 END; $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER bingo_archive_deleted_emotes

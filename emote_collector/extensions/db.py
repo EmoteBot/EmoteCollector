@@ -474,7 +474,9 @@ class Database(commands.Cog):
 			# but we don't really care if there's an entry in the database and not the backend
 			logger.warning(f'emote {emote.name} found in the database but not the backend! removing anyway.')
 
-		await self.bot.pool.execute(self.queries.remove_emote(), emote.id)
+		tag = await self.bot.pool.execute(self.queries.remove_emote(), emote.id)
+		if tag != 'DELETE 1':
+			raise AssertionError
 		return emote
 
 	async def rename_emote(self, old_name, new_name, user_id):
