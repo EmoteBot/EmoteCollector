@@ -240,12 +240,6 @@ def asyncexecutor(*, timeout=None):
 		return decorated
 	return decorator
 
-async def timeit(coro, _timer=time.perf_counter):
-	t0 = _timer()
-	result = await coro
-	t1 = _timer()
-	return t1 - t0, result
-
 def channel_is_nsfw(channel):
 	return (
 		not channel  # if not specified, allow NSFW
