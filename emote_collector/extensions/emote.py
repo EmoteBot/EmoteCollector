@@ -140,15 +140,25 @@ class Emotes(commands.Cog):
 			'**Total: {total} ⁄ {total_cap}**').format(**locals()))
 
 	@commands.command(hidden=True)
+	@commands.is_nsfw()
 	async def desync(self, context):
 		"""Gives the difference between emotes in the database and emotes in the backend servers."""
-		*__, db_total = await self.db.count()
-		backend_total = sum(map(compose(len, operator.attrgetter('emojis')), self.db.guilds))
-		diff = abs(db_total - backend_total)
-		await context.send(_(
-			'Backend server emotes: **{backend_total}**\n'
-			'Database emotes: **{db_total}**\n'
-			'**Difference: {diff}**').format(**locals()))
+		backend = {e.id: e for g in self.db.guilds for e in g.emojis}
+		db = {e.id: e async for e in self.db.all_emotes()}
+		# we have to have IDs in order to compute set difference because Emoji.__eq__ checks the class of other,
+		# so a backend emote is not equal to a cached emote with the same ID.
+		non_backend = set(map(db.get, db.keys() - backend.keys()))
+		non_db = set(map(backend.get, backend.keys() - db.keys()))
+		fmt = _(
+			'> Backend server emotes (**{non_db_total}** not in the database)\n'
+			'{non_db_emotes}\n'
+			'> Database emotes (**{non_backend_total}** not in the backend servers)\n'
+			'{non_backend_emotes}')
+		await context.send(fmt.format(
+			non_db_total=len(non_db),
+			non_backend_total=len(non_backend),
+			non_db_emotes=''.join(map(str, non_db)),
+			non_backend_emotes=''.join(map(operator.methodcaller('escaped_name'), non_backend))))
 
 	@commands.command(aliases=['embiggen'])
 	@checks.not_blacklisted()
