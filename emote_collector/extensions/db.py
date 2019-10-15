@@ -159,7 +159,7 @@ class Database(commands.Cog):
 		self.bot.dispatch('backend_guild_enumeration', self.guilds)
 
 	def is_backend_guild(self, guild):
-		return guild.owner.id in self.bot.config['backend_user_accounts']
+		return guild.owner_id in self.bot.config['backend_user_accounts']
 
 	async def update_moderator_list(self):
 		self.moderators = set()
