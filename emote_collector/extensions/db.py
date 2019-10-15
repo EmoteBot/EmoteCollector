@@ -62,6 +62,9 @@ class DatabaseEmote:
 	def __hash__(self):
 		return self.id >> 22
 
+	def __eq__(self, other):
+		return self.id == other.id and isinstance(other, (type(self), discord.PartialEmoji, discord.Emoji))
+
 	def __str__(self):
 		animated = 'a' if self.animated else ''
 		return '<{0}:{1.name}:{1.id}>'.format(animated, self)
