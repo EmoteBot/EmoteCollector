@@ -24,8 +24,9 @@ import math
 import re
 import time
 import typing
-from typing import Sequence, Union
 import urllib.parse
+from email.message import EmailMessage
+from typing import Sequence, Union
 
 import asyncpg
 import discord
@@ -37,7 +38,8 @@ from . import errors
 
 """Stanislav#0001's user ID
 This is useful to test whether a number is a snowflake:
-if it's greater than this number, it probably is"""
+if it's greater than this number, it probably is
+"""
 SMALLEST_SNOWFLAKE = 21154535154122752
 
 def bytes_to_int(x):
@@ -273,3 +275,10 @@ async def gather_or_cancel(*awaitables, loop=None):
 	except:
 		gather_task.cancel()
 		raise
+
+def parse_header(h):
+	"""cgi.parse_header replacement for versions where cgi is deprecated/removed"""
+	m = EmailMessage()
+	m['content-type'] = h
+	l = m.get_params()
+	return l[0][0], dict(l[1:])
