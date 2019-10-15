@@ -245,13 +245,16 @@ def channel_is_nsfw(channel):
 		not channel  # if not specified, allow NSFW
 		or getattr(channel, 'nsfw', True))  # otherwise, allow NSFW if DMs or the guild channel is NSFW
 
+def apply(f, *args, **kwargs):
+	return f(*args, **kwargs)
+
+def flip(f):
+	def flipped(y, x): return f(x, y)
+	return flipped
+
 def compose(*funcs):
-	@functools.wraps(funcs[0])
-	def f(x):
-		for f in reversed(funcs):
-			x = f(x)
-		return x
-	return f
+	def composed(x): return functools.reduce(flip(apply), reversed(funcs), x)
+	return composed
 
 async def gather_or_cancel(*awaitables, loop=None):
 	"""run the awaitables in the sequence concurrently. If any of them raise an exception,
