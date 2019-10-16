@@ -88,5 +88,9 @@ class BingoDatabase(commands.Cog):
 		board = bingo.EmoteCollectorBingoBoard(value=val)
 		return board.has_won()
 
+	@optional_connection
+	async def delete_user_account(self, user_id):
+		await connection().execute(self.queries.delete_board(), user_id)
+
 def setup(bot):
 	bot.add_cog(BingoDatabase(bot))
