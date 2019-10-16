@@ -104,8 +104,7 @@ class API(commands.Cog):
 
 	async def new_token(self, user_id):
 		secret = secrets.token_bytes()
-		await self.bot.pool.execute("""
-		""", user_id, secret)
+		await self.bot.pool.execute(self.queries.new_token(), user_id, secret)
 		return self.encode_token(user_id, secret)
 
 	async def regenerate_token(self, user_id):
