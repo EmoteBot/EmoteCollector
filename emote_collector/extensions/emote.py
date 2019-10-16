@@ -448,7 +448,7 @@ class Emotes(commands.Cog):
 			message.write(f'{error_message} ({len(arguments)})\n')
 			message.write(' '.join(arguments))
 			message.write('\n\n')
-		return utils.fix_first_line(message.getvalue())
+		return message.getvalue()
 
 	@commands.command(aliases=['mv'])
 	async def rename(self, context, *args):
@@ -984,7 +984,7 @@ class Emotes(commands.Cog):
 			callback=callback,
 			log_usage=log_usage)
 
-		return utils.fix_first_line(extracted.strip()), has_emotes
+		return extracted.strip(), has_emotes
 
 	async def quote_emotes(self, message: discord.Message, content: str = None, *, log_usage=False):
 		"""Parse all emotes (:name: or ;name;) from a message, preserving non-emote text"""

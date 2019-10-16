@@ -62,12 +62,6 @@ async def get_message_by_offset(channel, index: int) -> discord.Message:
 	except discord.NoMoreItems:
 		raise commands.BadArgument(_('Message not found.'))
 
-def fix_first_line(message: str) -> str:
-	"""In compact mode, prevent the first line from being misaligned because of the bot's username"""
-	if '\n' in message:
-		message = '\N{zero width space}\n' + message
-	return message
-
 def format_user(bot, id, *, mention=False):
 	"""Format a user ID for human readable display."""
 	user = bot.get_user(id)

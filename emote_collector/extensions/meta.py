@@ -264,7 +264,7 @@ class Meta(commands.Cog):
 
 		async with context.typing():
 			for cog_name in 'Database', 'Locales', 'API', 'BingoDatabase':
-				await self.bot.cogs[cog_name].delete_user_account(user_id)
+				await self.bot.cogs[cog_name].delete_user_account(context.author.id)
 
 		await status_message.delete()
 		await context.send(_("{context.author.mention} I've deleted your account successfully.").format(**locals()))

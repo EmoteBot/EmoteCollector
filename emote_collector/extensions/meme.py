@@ -14,14 +14,14 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with Emote Collector. If not, see <https://www.gnu.org/licenses/>.
 
-import os.path
+import contextlib
 
 from discord.ext import commands
 
 from .. import BASE_DIR
 from .. import utils
 
-MEMES_FILE = os.path.join(BASE_DIR, 'data', 'memes.py')
+MEMES_FILE = BASE_DIR / 'data' / 'memes.py'
 
 class Meme(commands.Cog):
 	def __init__(self, bot):
@@ -30,11 +30,9 @@ class Meme(commands.Cog):
 
 	@commands.command(hidden=True)
 	async def meme(self, context, *, name):
-		try:
-			await context.send(utils.fix_first_line(self.memes[name]))
-		except KeyError:
-			pass
+		with contextlib.suppress(KeyError):
+			await context.send(self.memes[name])
 
 def setup(bot):
-	if os.path.isfile(MEMES_FILE):
+	if MEMES_FILE.exists():
 		bot.add_cog(Meme(bot))
