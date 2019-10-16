@@ -50,6 +50,7 @@ def Locale(argument):
 class Locales(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
+		self.queries = self.bot.queries('locale.sql')
 
 	@commands.command(aliases=(
 		'languages',  # en_US
@@ -152,85 +153,28 @@ class Locales(commands.Cog):
 		return await self.user_channel_or_guild_locale(user, channel, guild) or i18n.default_locale
 
 	async def user_channel_or_guild_locale(self, user, channel, guild=None):
-		return await self.bot.pool.fetchval("""
-			SELECT COALESCE(
-				(
-					SELECT locale
-					FROM locales
-					WHERE "user" = $1),
-				(
-					SELECT locale
-					FROM locales
-					WHERE channel = $2),
-				(
-					SELECT locale
-					FROM locales
-					WHERE
-						guild = $3
-						AND channel IS NULL
-						AND "user" IS NULL))
-		""", user, channel, guild)
+		return await self.bot.pool.fetchval(self.queries.locale(), user, channel, guild)
 
 	async def channel_or_guild_locale(self, channel):
-		return await self.bot.pool.fetchval("""
-			SELECT COALESCE(
-				(
-					SELECT locale
-					FROM locales
-					WHERE channel = $2),
-				(
-					SELECT locale
-					FROM locales
-					WHERE
-						guild = $1
-						AND channel IS NULL
-						AND "user" IS NULL)
-			)
-		""", channel.guild.id, channel.id)
+		return await self.bot.pool.fetchval(self.queries.channel_or_guild_locale(), channel.guild.id, channel.id)
 
 	async def guild_locale(self, guild):
-		return await self.bot.pool.fetchval("""
-			SELECT locale
-			FROM locales
-			WHERE
-				guild = $1
-				AND channel IS NULL
-				AND "user" IS NULL
-		""", guild)
+		return await self.bot.pool.fetchval(self.queries.guild_locale(), guild)
 
 	async def set_guild_locale(self, guild, locale):
-		# connection/transaction probably isn't necessary for this, right?
-		await self.bot.pool.execute("""
-			DELETE FROM
-			locales
-			WHERE
-				guild = $1
-				AND channel IS NULL
-				AND "user"  IS NULL;
-		""", guild)
-		await self.bot.pool.execute("""
-			INSERT INTO locales (guild, locale)
-			VALUES ($1, $2);
-		""", guild, locale)
+		async with self.bot.pool.acquire() as conn, conn.transaction():
+			# TODO see if this can be done in one statement using upsert
+			await conn.execute(self.queries.delete_guild_locale(), guild)
+			await conn.execute(self.queries.set_guild_locale(), guild, locale)
 
 	async def set_channel_locale(self, guild, channel, locale):
-		await self.bot.pool.execute("""
-			INSERT INTO locales (guild, channel, locale)
-			VALUES ($1, $2, $3)
-			ON CONFLICT (guild, channel) DO UPDATE
-			SET locale = EXCLUDED.locale
-		""", guild, channel, locale)
+		await self.bot.pool.execute(self.queries.update_channel_locale(), guild, channel, locale)
 
 	async def set_user_locale(self, user, locale):
-		await self.bot.pool.execute("""
-			INSERT INTO locales ("user", locale)
-			VALUES ($1, $2)
-			ON CONFLICT ("user") DO UPDATE
-			SET locale = EXCLUDED.locale
-		""", user, locale)
+		await self.bot.pool.execute(self.queries.update_user_locale(), user, locale)
 
 	async def delete_user_account(self, user_id):
-		await self.bot.pool.execute('DELETE FROM locales WHERE "user" = $1', user_id)
+		await self.bot.pool.execute(self.queries.delete_user_locale(), user_id)
 
 def setup(bot):
 	bot.add_cog(Locales(bot))
