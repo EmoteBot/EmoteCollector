@@ -28,6 +28,7 @@ class API(commands.Cog):
 
 	def __init__(self, bot):
 		self.bot = bot
+		self.queries = self.bot.queries('api.sql')
 
 	@staticmethod
 	def any_parent_command_is(command, parent_command):
@@ -94,27 +95,21 @@ class API(commands.Cog):
 		return await self.existing_token(user_id) or await self.new_token(user_id)
 
 	async def delete_user_account(self, user_id):
-		await self.bot.pool.execute('DELETE FROM api_tokens WHERE id = $1', user_id)
+		await self.bot.pool.execute(self.queries.delete_token(), user_id)
 
 	async def existing_token(self, user_id):
-		secret = await self.bot.pool.fetchval("""
-			SELECT secret
-			FROM api_tokens
-			WHERE id = $1
-		""", user_id)
+		secret = await self.bot.pool.fetchval(self.queries.existing_token(), user_id)
 		if secret:
 			return self.encode_token(user_id, secret)
 
 	async def new_token(self, user_id):
 		secret = secrets.token_bytes()
 		await self.bot.pool.execute("""
-			INSERT INTO api_tokens (id, secret)
-			VALUES ($1, $2)
 		""", user_id, secret)
 		return self.encode_token(user_id, secret)
 
 	async def regenerate_token(self, user_id):
-		await self.bot.pool.execute('DELETE FROM api_tokens WHERE id = $1', user_id)
+		await self.bot.pool.execute(self.queries.delete_token(), user_id)
 		return await self.new_token(user_id)
 
 	async def validate_token(self, token, user_id=None):
@@ -128,11 +123,7 @@ class API(commands.Cog):
 			# allow auth with just a secret
 			user_id = token_user_id
 
-		db_secret = await self.bot.pool.fetchval("""
-			SELECT secret
-			FROM api_tokens
-			WHERE id = $1
-		""", user_id)
+		db_secret = await self.bot.pool.fetchval(self.queries.existing_token(), user_id)
 		if db_secret is None:
 			secrets.compare_digest(token, token)
 			return False
