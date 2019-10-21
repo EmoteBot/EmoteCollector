@@ -143,7 +143,7 @@ class Emotes(commands.Cog):
 	async def desync(self, context):
 		"""Gives the difference between emotes in the database and emotes in the backend servers."""
 		backend = {e.id: e for g in self.db.guilds for e in g.emojis}
-		db = {e.id: e async for e in self.db.all_emotes()}
+		db = {e.id: e async for e in self.db.all_emotes(allow_nsfw=True)}
 		# we have to have IDs in order to compute set difference because Emoji.__eq__ checks the class of other,
 		# so a backend emote is not equal to a cached emote with the same ID.
 		non_backend = set(map(db.get, db.keys() - backend.keys()))
