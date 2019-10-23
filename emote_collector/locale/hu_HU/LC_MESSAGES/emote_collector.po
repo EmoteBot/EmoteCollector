@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-10-14 22:07-0500\n"
+"POT-Creation-Date: 2019-10-23 17:07-0500\n"
 "PO-Revision-Date: 2018-08-13 17:05-0500\n"
 "Last-Translator: diniboy <diniboy@protonmail.com>\n"
 "Language-Team: Hungarian\n"
@@ -33,7 +33,7 @@ msgstr ""
 msgid "I'm missing permissions to perform that action."
 msgstr ""
 
-#: emote_collector/extensions/api.py:58
+#: emote_collector/extensions/api.py:59
 #, python-brace-format
 msgid ""
 "I have a RESTful API available. The docs for it are located at {docs_url}."
@@ -41,19 +41,19 @@ msgstr ""
 "A bot rendelkezik egy RESTful API-al. A hozzá csatolt dokumentáció "
 "megtalálható a {docs_url} címen."
 
-#: emote_collector/extensions/api.py:75
+#: emote_collector/extensions/api.py:76
 msgid "Your new API token is:\n"
 msgstr "Az új API kulcsod:\n"
 
-#: emote_collector/extensions/api.py:77
+#: emote_collector/extensions/api.py:78
 msgid "Your API token is:\n"
 msgstr "Az API kulcsod:\n"
 
-#: emote_collector/extensions/api.py:82
+#: emote_collector/extensions/api.py:83
 msgid "Do **not** share it with anyone!"
 msgstr "**Ne** oszd meg senkivel!"
 
-#: emote_collector/extensions/api.py:87
+#: emote_collector/extensions/api.py:88
 msgid "Error: I could not send you your token via DMs."
 msgstr "Hiba: Nem tudtam elküldeni a kulcsod privát üzenetben."
 
@@ -365,18 +365,18 @@ msgstr ""
 msgid "Invalid locale. The valid locales are: {locales}"
 msgstr "Helytelen nyelv. A elérhetőek listája: {locales}"
 
-#: emote_collector/extensions/locale.py:87
+#: emote_collector/extensions/locale.py:88
 #, python-brace-format
 msgid "Your current locale is: {user_locale}"
 msgstr ""
 
-#: emote_collector/extensions/locale.py:92
+#: emote_collector/extensions/locale.py:93
 #, python-brace-format
 msgid "The current locale for that channel is: {channel_or_guild_locale}"
 msgstr ""
 "A jelenleg beállított nyelv ezen csatorna számára: {channel_or_guild_locale}"
 
-#: emote_collector/extensions/locale.py:134
+#: emote_collector/extensions/locale.py:135
 #, python-brace-format
 msgid "The current locale for this server is: {guild_locale}"
 msgstr "A jelenlegi beállított nyelv a szerver számára: {guild_locale}"
@@ -650,7 +650,7 @@ msgid "URL error: server returned error code {status}"
 msgstr "URL hiba: A szerver a következő hibakóddal válaszolt: {status}"
 
 #: emote_collector/utils/errors.py:41
-msgid "The image supplied was not a valid GIF, PNG, or JPG file."
+msgid "The image supplied was not a valid GIF, PNG, JPG, or WEBP file."
 msgstr ""
 
 #: emote_collector/utils/errors.py:46

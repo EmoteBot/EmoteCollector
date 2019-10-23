@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-10-14 22:07-0500\n"
+"POT-Creation-Date: 2019-10-23 17:07-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Capn#0001\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -33,7 +33,7 @@ msgstr ""
 msgid "I'm missing permissions to perform that action."
 msgstr ""
 
-#: emote_collector/extensions/api.py:58
+#: emote_collector/extensions/api.py:59
 #, python-brace-format
 msgid ""
 "I have a RESTful API available. The docs for it are located at {docs_url}."
@@ -41,19 +41,19 @@ msgstr ""
 "Tengo un RESTful API disponible. Los documentos de eso estan localizado a "
 "{docs_url}."
 
-#: emote_collector/extensions/api.py:75
+#: emote_collector/extensions/api.py:76
 msgid "Your new API token is:\n"
 msgstr "Tu clave API nuevo es:\n"
 
-#: emote_collector/extensions/api.py:77
+#: emote_collector/extensions/api.py:78
 msgid "Your API token is:\n"
 msgstr "Tu clave API es:\n"
 
-#: emote_collector/extensions/api.py:82
+#: emote_collector/extensions/api.py:83
 msgid "Do **not** share it with anyone!"
 msgstr "¡**No** lo compartas con nadie!"
 
-#: emote_collector/extensions/api.py:87
+#: emote_collector/extensions/api.py:88
 msgid "Error: I could not send you your token via DMs."
 msgstr "Error: No puedo enviarte tu clave en DMs."
 
@@ -366,17 +366,17 @@ msgstr ""
 msgid "Invalid locale. The valid locales are: {locales}"
 msgstr "Lugar inválido. Los lugares válido son: {locales}"
 
-#: emote_collector/extensions/locale.py:87
+#: emote_collector/extensions/locale.py:88
 #, python-brace-format
 msgid "Your current locale is: {user_locale}"
 msgstr ""
 
-#: emote_collector/extensions/locale.py:92
+#: emote_collector/extensions/locale.py:93
 #, python-brace-format
 msgid "The current locale for that channel is: {channel_or_guild_locale}"
 msgstr "El lugar actuar para ese canal es:{channel_or_guild_locale}"
 
-#: emote_collector/extensions/locale.py:134
+#: emote_collector/extensions/locale.py:135
 #, python-brace-format
 msgid "The current locale for this server is: {guild_locale}"
 msgstr "El lugar actual para este servidor es: {guild_locale}"
@@ -645,7 +645,7 @@ msgid "URL error: server returned error code {status}"
 msgstr "Error de URL: servidor devolva código de error {status}"
 
 #: emote_collector/utils/errors.py:41
-msgid "The image supplied was not a valid GIF, PNG, or JPG file."
+msgid "The image supplied was not a valid GIF, PNG, JPG, or WEBP file."
 msgstr ""
 
 #: emote_collector/utils/errors.py:46

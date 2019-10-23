@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-10-14 22:07-0500\n"
+"POT-Creation-Date: 2019-10-23 17:07-0500\n"
 "PO-Revision-Date: 2019-08-22 11:45+0200\n"
 "Last-Translator: Morgân von Brylân\n"
 "Language-Team: \n"
@@ -35,25 +35,25 @@ msgstr ""
 msgid "I'm missing permissions to perform that action."
 msgstr "Je n'ai pas de permissions suffisantes pour cette action."
 
-#: emote_collector/extensions/api.py:58
+#: emote_collector/extensions/api.py:59
 #, python-brace-format
 msgid ""
 "I have a RESTful API available. The docs for it are located at {docs_url}."
 msgstr "J'ai une API RESTful disponible. Sa documentation est à {docs_url}."
 
-#: emote_collector/extensions/api.py:75
+#: emote_collector/extensions/api.py:76
 msgid "Your new API token is:\n"
 msgstr "Votre nouveau token API est :\n"
 
-#: emote_collector/extensions/api.py:77
+#: emote_collector/extensions/api.py:78
 msgid "Your API token is:\n"
 msgstr "Votre token API est :\n"
 
-#: emote_collector/extensions/api.py:82
+#: emote_collector/extensions/api.py:83
 msgid "Do **not** share it with anyone!"
 msgstr "Ne le partagez **pas** avec n'importe qui !"
 
-#: emote_collector/extensions/api.py:87
+#: emote_collector/extensions/api.py:88
 msgid "Error: I could not send you your token via DMs."
 msgstr "Erreur : Je n'ai pas pu vous envoyer votre token en MP."
 
@@ -381,17 +381,17 @@ msgstr ""
 msgid "Invalid locale. The valid locales are: {locales}"
 msgstr "Langue invalide. Les langues valides sont : {locales}"
 
-#: emote_collector/extensions/locale.py:87
+#: emote_collector/extensions/locale.py:88
 #, python-brace-format
 msgid "Your current locale is: {user_locale}"
 msgstr "Votre langue actuelle est : {user_locale}"
 
-#: emote_collector/extensions/locale.py:92
+#: emote_collector/extensions/locale.py:93
 #, python-brace-format
 msgid "The current locale for that channel is: {channel_or_guild_locale}"
 msgstr "La langue actuelle pour ce salon est : {channel_or_guild_locale}"
 
-#: emote_collector/extensions/locale.py:134
+#: emote_collector/extensions/locale.py:135
 #, python-brace-format
 msgid "The current locale for this server is: {guild_locale}"
 msgstr "La langue actuelle pour ce serveur est : {guild_locale}"
@@ -675,8 +675,8 @@ msgid "URL error: server returned error code {status}"
 msgstr "Erreur d'URL : le serveur a retourné un code d'erreur {status}"
 
 #: emote_collector/utils/errors.py:41
-msgid "The image supplied was not a valid GIF, PNG, or JPG file."
-msgstr "L'image fournie n'était pas un fichier GIF, PNG ou JPG valide."
+msgid "The image supplied was not a valid GIF, PNG, JPG, or WEBP file."
+msgstr ""
 
 #: emote_collector/utils/errors.py:46
 msgid "Error: Retrieving the image took too long."
@@ -785,6 +785,9 @@ msgstr ""
 #: emote_collector/utils/bingo/board.py:140
 msgid "Position may not be the free space."
 msgstr ""
+
+#~ msgid "The image supplied was not a valid GIF, PNG, or JPG file."
+#~ msgstr "L'image fournie n'était pas un fichier GIF, PNG ou JPG valide."
 
 #, python-brace-format
 #~ msgid "`{name}` is NSFW, but this channel is SFW."
