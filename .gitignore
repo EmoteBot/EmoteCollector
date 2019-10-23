@@ -12,6 +12,7 @@ emote_collector/data/memes.py
 
 *.png
 *.gif
+*.webp
 !emote_collector/data/bingo/bingo_board_base.png
 
 dist/

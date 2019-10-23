@@ -34,30 +34,29 @@ else:
 from . import errors
 from . import size
 
-def resize_until_small(image_data: io.BytesIO) -> None:
-	"""If the image_data is bigger than 256KB, resize it until it's not.
+MAX_EMOTE_SIZE = 256 * 1024
 
-	If resizing takes more than 30 seconds, raise asyncio.TimeoutError.
-	"""
-	# It's important that we only attempt to resize the image when we have to,
-	# ie when it exceeds the Discord limit of 256KiB.
-	# Apparently some <256KiB images become larger when we attempt to resize them,
+def resize_until_small(image_data: io.BytesIO) -> None:
+	"""If the image_data is bigger than the maximum allowed by discord, resize it until it's not."""
+	# It's important that we only attempt to resize the image when we have to, ie when it exceeds the Discord limit.
+	# Apparently some small images become larger than the size limit when we attempt to resize them,
 	# so resizing sometimes does more harm than good.
 	max_resolution = 128  # pixels
 	image_size = size(image_data)
-	if image_size <= 256 * 2**10:
+	if image_size <= MAX_EMOTE_SIZE:
 		return
 
 	try:
 		with wand.image.Image(blob=image_data) as original_image:
 			while True:
 				logger.debug('image size too big (%s bytes)', image_size)
-				logger.debug('attempting resize to at most%s*%s pixels', max_resolution, max_resolution)
+				logger.debug('attempting resize to at most%s×%s pixels', max_resolution, max_resolution)
 
 				with original_image.clone() as resized:
+					# resize the image while preserving aspect ratio
 					resized.transform(resize=f'{max_resolution}x{max_resolution}')
 					image_size = len(resized.make_blob())
-					if image_size <= 256 * 2**10 or max_resolution < 32:  # don't resize past 256KiB or 32×32
+					if image_size <= MAX_EMOTE_SIZE or max_resolution < 32:  # don't resize past the max or 32×32
 						image_data.truncate(0)
 						image_data.seek(0)
 						resized.save(file=image_data)
@@ -73,12 +72,12 @@ def is_animated(image_data: bytes):
 	type = mime_type_for_image(image_data)
 	if type == 'image/gif':
 		return True
-	elif type in {'image/png', 'image/jpeg'}:
+	elif type in {'image/png', 'image/jpeg', 'image/webp'}:
 		return False
 	else:
 		raise errors.InvalidImageError
 
-# the fewest bytes needed to identify an image
+"""The fewest bytes needed to identify the type of an image."""
 MINIMUM_BYTES_NEEDED = 12
 
 def mime_type_for_image(data):
@@ -100,8 +99,6 @@ def image_to_base64_url(data):
 
 def main() -> typing.NoReturn:
 	"""resize an image from stdin and write the resized version to stdout."""
-	import sys
-
 	data = io.BytesIO(sys.stdin.buffer.read())
 	try:
 		resize_until_small(data)
@@ -111,11 +108,7 @@ def main() -> typing.NoReturn:
 
 	stdout_write = sys.stdout.buffer.write  # getattr optimization
 
-	while True:
-		buf = data.read(16 * 1024)
-		if not buf:
-			break
-
+	for buf in iter(lambda: data.read(16 * 1024), b''):
 		stdout_write(buf)
 
 	sys.exit(0)

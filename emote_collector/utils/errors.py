@@ -36,9 +36,9 @@ class HTTPException(ConnoisseurError):
 		super().__init__(_('URL error: server returned error code {status}').format(**locals()))
 
 class InvalidImageError(ConnoisseurError):
-	"""The image is not a valid GIF, PNG, or JPG"""
+	"""The image is not a valid GIF, PNG, JPG, or WEBP"""
 	def __init__(self):
-		super().__init__(_('The image supplied was not a valid GIF, PNG, or JPG file.'))
+		super().__init__(_('The image supplied was not a valid GIF, PNG, JPG, or WEBP file.'))
 
 class URLTimeoutError(ConnoisseurError, asyncio.TimeoutError):
 	"""Retrieving the image took too long."""

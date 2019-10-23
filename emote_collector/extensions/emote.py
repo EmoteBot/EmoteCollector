@@ -310,7 +310,7 @@ class Emotes(commands.Cog):
 			response.raise_for_status()
 			# some dumb servers also send '; charset=UTF-8' which we should ignore
 			mimetype, options = utils.parse_header(response.headers.get('Content-Type', ''))
-			if mimetype not in {'image/png', 'image/jpeg', 'image/gif'}:
+			if mimetype not in {'image/png', 'image/jpeg', 'image/gif', 'image/webp'}:
 				raise errors.InvalidImageError
 
 		range_header = f'bytes=0-{image_utils.MINIMUM_BYTES_NEEDED}'
