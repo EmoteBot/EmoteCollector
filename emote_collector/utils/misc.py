@@ -254,14 +254,16 @@ async def gather_or_cancel(*awaitables, loop=None):
 	"""run the awaitables in the sequence concurrently. If any of them raise an exception,
 	propagate the first exception raised and cancel all other awaitables.
 	"""
+	futs = list(map(asyncio.ensure_future, awaitables))
 	gather_task = asyncio.gather(*awaitables, loop=loop)
-	try:
-		return await gather_task
-	except asyncio.CancelledError:
-		raise
-	except:
-		gather_task.cancel()
-		raise
+
+	def cancel_children(_):
+		for fut in futs:
+			fut.cancel()
+		# damn cancel culture killing children
+
+	gather_task.add_done_callback(cancel_children)
+	return await gather_task
 
 def parse_header(h):
 	"""cgi.parse_header replacement for versions where cgi is deprecated/removed"""
