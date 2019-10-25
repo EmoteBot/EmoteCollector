@@ -114,6 +114,9 @@ def main() -> typing.NoReturn:
 	sys.exit(0)
 
 async def resize_in_subprocess(image_data: bytes):
+	if len(image_data) <= MAX_EMOTE_SIZE:
+		return image_data
+
 	proc = await asyncio.create_subprocess_exec(
 		sys.executable, '-m', __name__,
 
