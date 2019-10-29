@@ -121,7 +121,7 @@ class Database(commands.Cog):
 
 		self.logger = ObjectProxy(lambda: bot.cogs['Logger'])
 
-		self.guilds = set()
+		self.guild_ids = set()
 		self.have_guilds = asyncio.Event()
 
 	def _process_decay_config(self):
@@ -150,16 +150,20 @@ class Database(commands.Cog):
 
 		await self.bot.wait_until_ready()
 
-		guilds = {guild for guild in self.bot.guilds if self.is_backend_guild(guild)}
+		guild_ids = {guild.id for guild in self.bot.guilds if self.is_backend_guild(guild)}
 
-		self.guilds.update(guilds)
+		self.guild_ids.update(guild_ids)
 		self.have_guilds.set()
-		await self.bot.pool.executemany(self.queries.add_guild(), ((x.id,) for x in self.guilds))
+		await self.bot.pool.executemany(self.queries.add_guild(), ((id,) for id in self.guild_ids))
 
 		logger.info('In %s backend guilds.', len(self.guilds))
 
 		# allow other cogs that depend on the list of backend guilds to know when they've been found
 		self.bot.dispatch('backend_guild_enumeration', self.guilds)
+
+	@property
+	def guilds(self):
+		return {self.bot.get_guild(id) for id in self.guild_ids}
 
 	def is_backend_guild(self, guild):
 		return guild.owner_id in self.bot.config['backend_user_accounts']

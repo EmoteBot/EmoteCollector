@@ -5,10 +5,10 @@ from ..utils import ObjectProxy
 class Stats(BotBinStats):
 	def __init__(self, bot):
 		super().__init__(bot)
-		self.guilds = ObjectProxy(lambda: bot.cogs['Database'].guilds)
+		self.guild_ids = ObjectProxy(lambda: bot.cogs['Database'].guild_ids)
 
 	async def guild_count(self):
-		return await super().guild_count() - len(self.guilds)
+		return await super().guild_count() - len(self.guild_ids)
 
 def setup(bot):
 	bot.add_cog(Stats(bot))

@@ -30,6 +30,7 @@ logger = logging.getLogger(__name__)
 class Gimme(commands.Cog):
 	def __init__(self, bot):
 		self.bot = bot
+		self.guild_ids = ObjectProxy(lambda: bot.cogs['Database'].guild_ids)
 		self.guilds = ObjectProxy(lambda: bot.cogs['Database'].guilds)
 		self.task = self.bot.loop.create_task(self.delete_backend_guild_messages())
 
@@ -61,7 +62,7 @@ class Gimme(commands.Cog):
 
 	@commands.Cog.listener()
 	async def on_message(self, message):
-		if message.guild in self.guilds:
+		if getattr(message.guild, 'id', None) in self.guild_ids:
 			await asyncio.sleep(5)
 			with contextlib.suppress(discord.HTTPException):
 				await message.delete()
