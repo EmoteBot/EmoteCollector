@@ -30,6 +30,7 @@ import weakref
 import aiohttp
 import asyncpg
 import discord
+import discord.utils
 from discord.ext import commands
 from jishaku.codeblocks import codeblock_converter
 
@@ -274,7 +275,9 @@ class Emotes(commands.Cog):
 	async def add_safe(self, name, url, author_id):
 		"""Try to add an emote. Returns a string that should be sent to the user."""
 		if not re.fullmatch(r'\w{2,32}', name, re.ASCII):
-			return _("{name} is not a valid emote name; only use English letters, numbers and underscores.").format(name=name)
+			return _(
+				'{name} is not a valid emote name; use 2–32 English letters, numbers and underscores.'
+			).format(name=discord.utils.escape_mentions(name))
 		try:
 			emote = await self.add_from_url(name, url, author_id)
 		except discord.HTTPException as ex:

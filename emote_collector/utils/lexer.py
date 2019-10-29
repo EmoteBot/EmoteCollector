@@ -45,7 +45,7 @@ def t_error(t):
 	raise SyntaxError(f'Unknown text "{t.value}"')
 
 # it is required that ply.lex.lex be run in the context of this module
-# so we can't just say "lexer = ply.lex.lex" cause that'll run lex()
+# so we can't just say "new = ply.lex.lex" cause that'll run lex()
 # in the context of the caller's module
 new = lambda: ply.lex.lex()
 
