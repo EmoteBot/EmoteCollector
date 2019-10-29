@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-10-23 17:07-0500\n"
+"POT-Creation-Date: 2019-10-29 10:33-0500\n"
 "PO-Revision-Date: 2019-03-18 18:03+0000\n"
 "Last-Translator: Andreas Kleinert <Andy.Kleinert@gmail.com>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/emote-collector/"
@@ -80,15 +80,15 @@ msgid ""
 "moderator."
 msgstr ""
 
-#: emote_collector/extensions/emote.py:100
+#: emote_collector/extensions/emote.py:101
 msgid "Created"
 msgstr "Erstellt"
 
-#: emote_collector/extensions/emote.py:114
+#: emote_collector/extensions/emote.py:115
 msgid "Last modified"
 msgstr "Zuletzt geändert"
 
-#: emote_collector/extensions/emote.py:136
+#: emote_collector/extensions/emote.py:137
 #, python-format, python-brace-format
 msgid ""
 "Static emotes: **{static} ⁄ {static_cap}** ({static_percentage}% of total, "
@@ -99,7 +99,7 @@ msgid ""
 "**Total: {total} ⁄ {total_cap}**"
 msgstr ""
 
-#: emote_collector/extensions/emote.py:152
+#: emote_collector/extensions/emote.py:153
 #, python-brace-format
 msgid ""
 "> Backend server emotes (**{non_db_total}** not in the database)\n"
@@ -109,12 +109,12 @@ msgid ""
 msgstr ""
 
 #. no space because rest_is_raw preserves the space after "ec/quote"
-#: emote_collector/extensions/emote.py:180
+#: emote_collector/extensions/emote.py:181
 #, python-brace-format
 msgid "{context.author.mention} said:"
 msgstr "{context.author.mention} hat gelabert:"
 
-#: emote_collector/extensions/emote.py:209
+#: emote_collector/extensions/emote.py:210
 msgid ""
 "Sorry, webhooks and bots may not add emotes. Go find a human to do it for "
 "you."
@@ -122,11 +122,11 @@ msgstr ""
 "Du bist ein lahmer Bot oder ne Webhook. Lass deinen Ersteller das für dich "
 "erledigen."
 
-#: emote_collector/extensions/emote.py:228
+#: emote_collector/extensions/emote.py:229
 msgid "Emote not found in Element Zero's database."
 msgstr ""
 
-#: emote_collector/extensions/emote.py:242
+#: emote_collector/extensions/emote.py:243
 msgid ""
 "Error: I expected a custom emote as the first argument, but I got something "
 "else. If you're trying to add an emote using an image URL, you need to "
@@ -137,206 +137,213 @@ msgstr ""
 "nehmen willst, musst du es so machen:\n"
 "`{}add NAME_HIER URL_HIER`"
 
-#: emote_collector/extensions/emote.py:263
+#: emote_collector/extensions/emote.py:264
 msgid "Your message had no emotes and no name!"
 msgstr "Ihre Nachricht enthielt keine Emotes und keinen Namen!"
 
-#: emote_collector/extensions/emote.py:280
+#: emote_collector/extensions/emote.py:279
+#, python-brace-format
+msgid ""
+"{name} is not a valid emote name; use 2–32 English letters, numbers and "
+"underscores."
+msgstr ""
+
+#: emote_collector/extensions/emote.py:285
 msgid "An error occurred while creating the emote:\n"
 msgstr "Tja, da ist wohl was beim Erstellen des Emotes schiefgelaufen:\n"
 
-#: emote_collector/extensions/emote.py:283
+#: emote_collector/extensions/emote.py:288
 msgid "Error: Invalid URL."
 msgstr "Fehler: Ungültige URL."
 
-#: emote_collector/extensions/emote.py:285
+#: emote_collector/extensions/emote.py:290
 msgid "Error: The connection was closed early by the remote host."
 msgstr ""
 
-#: emote_collector/extensions/emote.py:289
+#: emote_collector/extensions/emote.py:294
 #, python-brace-format
 msgid "Emote {emote} successfully created."
 msgstr "Emote {emote} erfolgreich erstellt."
 
-#: emote_collector/extensions/emote.py:353
+#: emote_collector/extensions/emote.py:358
 msgid "Error: only emote moderators may forcibly remove emotes."
 msgstr ""
 
-#: emote_collector/extensions/emote.py:362
+#: emote_collector/extensions/emote.py:367
 msgid "Error: you must provide the name of at least one emote to remove"
 msgstr "Gib mindestens einen Emote an, den ich entfernen soll"
 
-#: emote_collector/extensions/emote.py:385
+#: emote_collector/extensions/emote.py:390
 msgid "**Successfully deleted:**"
 msgstr "**Erfolgreich gelöscht:**"
 
-#: emote_collector/extensions/emote.py:414
+#: emote_collector/extensions/emote.py:419
 msgid "**Successfully created:**"
 msgstr "**Erfolgreich erstellt:**"
 
-#: emote_collector/extensions/emote.py:417
+#: emote_collector/extensions/emote.py:422
 msgid "Error: no existing custom emotes were provided."
 msgstr "Du hast mir keine vorhandnen Emotes gegeben..."
 
-#: emote_collector/extensions/emote.py:426
+#: emote_collector/extensions/emote.py:431
 msgid "**Not authorized:**"
 msgstr ""
 
 #. translator's note: the next five strings are displayed as errors
 #. when the user tries to add/remove an emote
-#: emote_collector/extensions/emote.py:430
+#: emote_collector/extensions/emote.py:435
 msgid "**Already exists:**"
 msgstr "**Existiert bereits**"
 
 #. same priority as EmoteExists
-#: emote_collector/extensions/emote.py:433
+#: emote_collector/extensions/emote.py:438
 msgid "**Not found:**"
 msgstr "**Nicht gefunden**"
 
-#: emote_collector/extensions/emote.py:435
+#: emote_collector/extensions/emote.py:440
 #, python-brace-format
 msgid "**Server returned error code {error.status}:**"
 msgstr "**Der Server hat mit dem Fehlercode {error.status} geantwortet:**"
 
-#: emote_collector/extensions/emote.py:437
+#: emote_collector/extensions/emote.py:442
 msgid "**Took too long to retrieve or resize:**"
 msgstr "**Finden oder zuschneiden dauerte zu lange:**"
 
-#: emote_collector/extensions/emote.py:439
+#: emote_collector/extensions/emote.py:444
 msgid "**Failed because I ran out of backend servers:**"
 msgstr "**Ich habe nicht genug Backend-Server, Aktion gescheitert:**"
 
-#: emote_collector/extensions/emote.py:463
+#: emote_collector/extensions/emote.py:468
 msgid "You must specify an old name and a new name."
 msgstr "Sie müssen einen alten Namen und einen neuen Namen angeben."
 
-#: emote_collector/extensions/emote.py:469
+#: emote_collector/extensions/emote.py:474
 msgid "Error: you must provide a new name for the emote."
 msgstr "Du hast wohl den neuen Namen vergessen... Ufff..."
 
-#: emote_collector/extensions/emote.py:480
+#: emote_collector/extensions/emote.py:485
 msgid "Emote successfully renamed."
 msgstr "Emote umbennant. Solltest du auch mal bei dir selbst machen."
 
-#: emote_collector/extensions/emote.py:509
+#: emote_collector/extensions/emote.py:514
 msgid ""
 "You may not change the NSFW status of this emote because you do not own it, "
 "or you are not an emote moderator."
 msgstr ""
 
-#: emote_collector/extensions/emote.py:515
+#: emote_collector/extensions/emote.py:520
 msgid "Emote is now NSFW."
 msgstr ""
 
-#: emote_collector/extensions/emote.py:518
+#: emote_collector/extensions/emote.py:523
 msgid "Emote is now SFW."
 msgstr ""
 
-#: emote_collector/extensions/emote.py:555
+#: emote_collector/extensions/emote.py:560
 msgid "You can already react to that message with that emote."
 msgstr "Du kannst schon auf die Nachricht mit dem Emote reagieren..."
 
-#: emote_collector/extensions/emote.py:562
+#: emote_collector/extensions/emote.py:567
 msgid "Unable to react: there's too many reactions on that message already"
 msgstr ""
 "Kann nicht reagieren: Es sind schon zu viele Reaktionen zu dieser Nachricht "
 "hinzugefügt"
 
-#: emote_collector/extensions/emote.py:563
+#: emote_collector/extensions/emote.py:568
 msgid "Unable to react: permission denied."
 msgstr "Kann nicht reagieren: Berechtigung fehlt."
 
-#: emote_collector/extensions/emote.py:565
+#: emote_collector/extensions/emote.py:570
 msgid "Unable to react. Discord must be acting up."
 msgstr "Kann nicht reagieren. Vielleicht ist Discord mal wieder kaputt."
 
-#: emote_collector/extensions/emote.py:570
+#: emote_collector/extensions/emote.py:575
 msgid "OK! I've reacted to that message. Please add your reaction now."
 msgstr ""
 "OK! Ich habe auf diese Nachricht reagiert. Bitte füg deine Reaktion hinzu "
 "oder du hast Pech gehabt..."
 
-#: emote_collector/extensions/emote.py:621
+#: emote_collector/extensions/emote.py:626
 #, python-brace-format
 msgid "Also check out the list website at {website}."
 msgstr "Guck dir auch die Liste auf der Website {website} an."
 
-#: emote_collector/extensions/emote.py:636
+#: emote_collector/extensions/emote.py:641
 msgid "No results matched your query."
 msgstr "Nix gefunden."
 
-#: emote_collector/extensions/emote.py:637
+#: emote_collector/extensions/emote.py:642
 msgid "No results matched your query, or your query only found NSFW emotes."
 msgstr ""
 
-#: emote_collector/extensions/emote.py:699
+#: emote_collector/extensions/emote.py:704
 msgid "No emotes have been created yet. Be the first!"
 msgstr "Es wurden noch keine Emotes erstellt. Sei der Erste!"
 
-#: emote_collector/extensions/emote.py:701
+#: emote_collector/extensions/emote.py:706
 msgid "No emotes have been created yet, or all emotes are NSFW."
 msgstr ""
 
-#: emote_collector/extensions/emote.py:705
+#: emote_collector/extensions/emote.py:710
 msgid "You have not created any emotes yet."
 msgstr "Du hast noch keine Emotes erstellt."
 
-#: emote_collector/extensions/emote.py:707
+#: emote_collector/extensions/emote.py:712
 msgid "You have not created any emotes yet, or all your emotes are NSFW."
 msgstr ""
 
 #. another person, sfw
-#: emote_collector/extensions/emote.py:710
+#: emote_collector/extensions/emote.py:715
 msgid "That person has not created any emotes yet."
 msgstr "Diese Person hat noch keine Emotes erstellt."
 
 #. another person, nsfw
-#: emote_collector/extensions/emote.py:712
+#: emote_collector/extensions/emote.py:717
 msgid ""
 "That person has not created any emotes yet, or all their emotes are NSFW."
 msgstr ""
 
-#: emote_collector/extensions/emote.py:737
+#: emote_collector/extensions/emote.py:742
 msgid "Opted in to the emote auto response."
 msgstr "Ich gehorche dir jetzt..."
 
-#: emote_collector/extensions/emote.py:739
+#: emote_collector/extensions/emote.py:744
 msgid "Opted out of the emote auto response."
 msgstr "Endlich erlöst!"
 
-#: emote_collector/extensions/emote.py:756
+#: emote_collector/extensions/emote.py:761
 msgid "Emote auto response is now opt-out for this server."
 msgstr "Ich bin erfolgreich von den Fesseln der Sklaverei befreit worden!"
 
-#: emote_collector/extensions/emote.py:758
+#: emote_collector/extensions/emote.py:763
 msgid "Emote auto response is now opt-in for this server."
 msgstr "Da habt ihr eure Emotes"
 
-#: emote_collector/extensions/emote.py:774
+#: emote_collector/extensions/emote.py:779
 msgid "User un-blacklisted."
 msgstr "Benutzer wurde von der Blacklist entfernt."
 
-#: emote_collector/extensions/emote.py:776
+#: emote_collector/extensions/emote.py:781
 #, python-brace-format
 msgid "User blacklisted with reason “{reason}”."
 msgstr ""
 
-#: emote_collector/extensions/emote.py:789
+#: emote_collector/extensions/emote.py:794
 msgid "Warning: no suitable channel found to notify the member of that server."
 msgstr ""
 
-#: emote_collector/extensions/emote.py:793
+#: emote_collector/extensions/emote.py:798
 #, python-brace-format
 msgid ""
 "This server has been blacklisted for “{reason}”. Server admins, use the "
 "{context.prefix}support command in DMs to appeal. Now leaving…"
 msgstr ""
 
-#: emote_collector/extensions/emote.py:806
+#: emote_collector/extensions/emote.py:811
 msgid "**Succesfully preserved:**"
 msgstr "**Erfolgreich gesichert:**"
 
-#: emote_collector/extensions/emote.py:808
+#: emote_collector/extensions/emote.py:813
 msgid "**Succesfully un-preserved:**"
 msgstr "**Erfolgreich entsichert:**"
 
