@@ -659,7 +659,7 @@ class Emotes(commands.Cog):
 			key=lambda e: (e.name.lower(), e.name, 0 if e.animated else 1),
 		):
 			emotes.append(e)
-			if len(emotes) == 20:
+			if len(emotes) == 10:
 				await context.send(''.join(map(str, emotes)))
 				emotes.clear()
 		if emotes:
