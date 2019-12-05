@@ -58,8 +58,10 @@ class Bingo(commands.Cog):
 
 	@bingo.command()
 	async def unmark(self, context, *positions: str.upper):
-		board = await self.db.unmark(context.author.id, positions)
-		await self.send_board(context, _('Your new bingo board:'), board)
+		async with self.bot.pool.acquire() as conn:
+			connection.set(conn)
+			await self.db.unmark(context.author.id, positions)
+			await self.send_board(context, _('Your new bingo board:'), await self.db.get_board(context.author.id))
 
 	async def send_board(self, context, message, board):
 		if board.is_nsfw() and not getattr(context.channel, 'nsfw', True):
