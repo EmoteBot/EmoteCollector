@@ -58,8 +58,7 @@ class Bingo(commands.Cog):
 
 	@bingo.command()
 	async def unmark(self, context, *positions: str.upper):
-		async with self.bot.pool.acquire() as conn:
-			board = await self.db.unmark(context.author.id, positions, connection=conn)
+		board = await self.db.unmark(context.author.id, positions)
 		await self.send_board(context, _('Your new bingo board:'), board)
 
 	async def send_board(self, context, message, board):

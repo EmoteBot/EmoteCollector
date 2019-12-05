@@ -83,7 +83,7 @@ class BingoDatabase(commands.Cog):
 			await connection().execute(self.queries.delete_board_marks_by_mask(), user_id, mask)
 
 	@optional_connection
-	async def check_win(self, user_id, connection=None):
+	async def check_win(self, user_id):
 		val = await connection().fetchval(self.queries.get_board_value(), user_id)
 		board = bingo.EmoteCollectorBingoBoard(value=val)
 		return board.has_won()
