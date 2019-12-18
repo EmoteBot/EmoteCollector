@@ -180,9 +180,10 @@ class Emotes(commands.Cog):
 			# no space because rest_is_raw preserves the space after "ec/quote"
 			message = _('{context.author.mention} said:').format(**locals()) + message
 
-			# it doesn't matter if they deleted their message before we sent our reply
-			with contextlib.suppress(discord.NotFound):
-				await context.message.delete()
+			# Since delete() with a delay defers execution to a Task, we need not handle HTTPException here.
+			# We delay the deletion to work around a bug in Discord for Android where quickly-deleted messages
+			# persist client-side.
+			await context.message.delete(delay=0.2)
 
 			should_track_reply = False
 
