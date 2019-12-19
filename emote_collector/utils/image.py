@@ -68,14 +68,20 @@ def resize_until_small(image_data: io.BytesIO) -> None:
 		raise errors.InvalidImageError
 
 def is_animated(image_data: bytes):
-	"""Return whether the image data is animated, or raise InvalidImageError if it's not an image."""
+	"""Return whether the image data is animated, or raise InvalidImageError if it's not an image.
+	Note: unlike mime_type_for_image(), this function requires the *entire* image.
+	"""
 	type = mime_type_for_image(image_data)
 	if type == 'image/gif':
-		return True
+		return is_animated_gif(image_data)
 	elif type in {'image/png', 'image/jpeg', 'image/webp'}:
 		return False
 	else:
 		raise errors.InvalidImageError
+
+def is_animated_gif(gif_image: bytes):
+	with wand.image.Image(blob=gif_image) as img:
+		return len(wand.sequence.Sequence(img)) > 1
 
 """The fewest bytes needed to identify the type of an image."""
 MINIMUM_BYTES_NEEDED = 12
