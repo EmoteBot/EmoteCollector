@@ -81,24 +81,29 @@ class DatabaseEmote:
 		# we want to display :grinning:, not 😁
 		return fr'\:{self.name}:'
 
+	def linked_name(self):
+		return f'[{self.escaped_name()}]({self.url})'
+
 	def with_name(self):
 		"""return this emote as a string suitable for displaying in a list form or embed"""
 		return f'{self} {self.escaped_name()}'
 
 	def with_linked_name(self, *, separator='|'):
 		"""return this emote as a string suitable for displaying in a list form or embed"""
-		return f'{self} {separator} [{self.escaped_name()}]({self.url})'
+		return f'{self} {separator} {self.linked_name()}'
 
-	def status(self, *, linked=False):
-		formatted = self.with_linked_name() if linked else self.with_name()
-
+	def status(self):
 		if self.preserve and self.is_nsfw:
-			return _('{emote} (Preserved, NSFW)').format(emote=formatted)
+			return _('(Preserved, NSFW)')
 		if self.preserve and not self.is_nsfw:
-			return _('{emote} (Preserved)').format(emote=formatted)
+			return _('(Preserved)')
 		if not self.preserve and self.is_nsfw:
-			return _('{emote} (NSFW)').format(emote=formatted)
-		return formatted
+			return _('(NSFW)')
+		return ''
+
+	def with_status(self, *, linked=False):
+		formatted = self.with_linked_name() if linked else self.with_name()
+		return f'{formatted} {self.status()}'
 
 	@property
 	def url(self):

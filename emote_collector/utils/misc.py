@@ -260,7 +260,6 @@ async def gather_or_cancel(*awaitables, loop=None):
 	def cancel_children(_):
 		for fut in futs:
 			fut.cancel()
-		# damn cancel culture killing children
 
 	gather_task.add_done_callback(cancel_children)
 	return await gather_task

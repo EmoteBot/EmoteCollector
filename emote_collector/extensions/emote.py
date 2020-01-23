@@ -89,9 +89,10 @@ class Emotes(commands.Cog):
 		The emote must be in the database.
 		"""
 		embed = discord.Embed()
-		embed.url = str(emote.url)
+		embed.url = emote.url
+		embed.set_thumbnail(url=emote.url)
 
-		embed.title = emote.status()
+		embed.title = emote.name
 
 		if emote.description is not None:
 			embed.description = emote.description
@@ -116,7 +117,7 @@ class Emotes(commands.Cog):
 				# hangul filler prevents the embed fields from jamming next to each other
 				value=utils.format_time(emote.modified) + '\N{hangul filler}')
 
-		embed.add_field(name='Usage count', value=await self.db.get_emote_usage(emote))
+		embed.add_field(name=_('Usage count'), value=await self.db.get_emote_usage(emote))
 
 		await context.send(embed=embed)
 
@@ -613,7 +614,7 @@ class Emotes(commands.Cog):
 			args.append(user.id)
 
 		processed = [
-			emote.status(linked=True)
+			emote.with_status(linked=True)
 			async for emote in self.db.all_emotes(*args, allow_nsfw=context.channel)]
 
 		if not processed:
@@ -634,7 +635,7 @@ class Emotes(commands.Cog):
 		"""Search for emotes whose name contains "query"."""
 
 		processed = [
-			emote.status(linked=True)
+			emote.with_status(linked=True)
 			async for emote in self.db.search(query, allow_nsfw=context.channel)]
 
 		if not processed:
