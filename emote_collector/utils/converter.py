@@ -26,6 +26,7 @@ from .errors import EmoteNotFoundError, TooLewdError
 from .. import utils
 from ..extensions.db import DatabaseEmote
 
+
 class _MultiConverter(commands.Converter):
 	def __init__(self, *, converters=None):
 		self.converters = converters
@@ -188,6 +189,11 @@ class Message(commands.Converter):
 		if not sender_permissions.external_emojis or not permissions.external_emojis:
 			raise commands.CheckFailure(_('Unable to react: you and I both need permission to use external emotes.'))
 
+LINKED_EMOTE = (
+	r'(?a)\[(?P<name>\w{2,32})\]\(https://cdn\.discordapp'
+	r'\.com/emojis/(?P<id>\d{17,})\.(?P<extension>\w+)(?:\?v=1)?\)'
+)
+
 class LoggedEmote(commands.Converter):
 	async def convert(self, ctx, argument):
 		message = await commands.converter.MessageConverter().convert(ctx, argument)
@@ -200,14 +206,14 @@ class LoggedEmote(commands.Converter):
 		except IndexError:
 			raise commands.BadArgument(_('No embeds were found in that message.'))
 
-		m = re.match(utils.lexer.t_CUSTOM_EMOTE, embed.description)
+		m = re.match(LINKED_EMOTE, embed.description) or re.match(utils.lexer.t_CUSTOM_EMOTE, embed.description)
 		try:
 			return await ctx.bot.cogs['Database'].get_emote(m['name'])
 		except EmoteNotFoundError:
 			d = m.groupdict()
 			d['nsfw'] = 'MOD_NSFW'
 			d['id'] = int(d['id'])
-			d['animated'] = bool(d['animated'])
+			d['animated'] = d.get('extension') == 'gif' or bool(d.get('animated'))
 			return DatabaseEmote(d)
 
 # because MultiConverter does not support Union
