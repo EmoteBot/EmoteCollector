@@ -83,8 +83,8 @@ class BingoBoard:
 	def skip_free_space(cls, items):
 		"""given a list SQUARES items long, return a list SIZE items long with a blank free space"""
 		# set free space to None
-		items.append(None)
-		items[cls.FREE_SPACE_I], items[-1] = items[-1], items[cls.FREE_SPACE_I]
+		items.append(items[cls.FREE_SPACE_I])
+		items[cls.FREE_SPACE_I] = None
 		return items
 
 	def __str__(self):
