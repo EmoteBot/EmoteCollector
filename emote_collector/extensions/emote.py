@@ -92,7 +92,7 @@ class Emotes(commands.Cog):
 		embed.url = emote.url
 		embed.set_thumbnail(url=emote.url)
 
-		embed.title = emote.name
+		embed.title = f'{emote.name} {emote.status()}'
 
 		if emote.description is not None:
 			embed.description = emote.description
