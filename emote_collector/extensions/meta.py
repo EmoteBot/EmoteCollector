@@ -333,7 +333,8 @@ class Meta(commands.Cog):
 			await context.send(_('This command is temporarily unavailable. Try again later?'))
 			return
 
-		invite = await ch.create_invite(max_age=self.INVITE_DURATION_SECONDS, max_uses=self.MAX_INVITE_USES)
+		reason = f'Created for {context.author} (ID: {context.author.id})'
+		invite = await ch.create_invite(max_age=self.INVITE_DURATION_SECONDS, max_uses=self.MAX_INVITE_USES, reason=reason)
 
 		try:
 			await context.author.send(_('Official support server invite: {invite}').format(invite=invite))
