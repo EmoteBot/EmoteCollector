@@ -328,7 +328,8 @@ class Database(commands.Cog):
 		*,
 		allow_nsfw: AllowNsfwType = False,
 		after: str = None,
-		before: str = None
+		before: str = None,
+		limit: int = 100
 	):
 		if after is not None and before is not None:
 			raise TypeError('only one of after, before may be specified')
@@ -344,6 +345,8 @@ class Database(commands.Cog):
 		if author_id is not None:
 			kwargs['filter_author'] = True
 			args.append(author_id)
+
+		args.append(min(limit, 250))
 
 		results = list(map(DatabaseEmote, await self.bot.pool.fetch(
 			self.queries.all_emotes_keyset(**kwargs),

@@ -102,7 +102,7 @@ WHERE nsfw = ANY ($1)
 	AND author = ${{ argc }}
 	-- :set argc = argc + 1
 -- :endif
-ORDER BY LOWER(name) {{ sort_order }} LIMIT 100
+ORDER BY LOWER(name) {{ sort_order }} LIMIT ${{ argc }}
 -- :endmacro
 
 -- :set emote_usage_history_prelude
