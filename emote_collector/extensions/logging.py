@@ -84,6 +84,17 @@ class Logger(commands.Cog):
 
 		self.configured.set()
 
+	async def can_log(self, *, event, nsfw, channel):
+		"""return whether the given (possible nsfw) event can be logged to the given channel"""
+		await self.configured.wait()
+
+		settings = self.channels[channel]
+		if event not in settings['actions']:
+			return False
+		if nsfw and not settings.get('include_nsfw_emotes', False):
+			return False
+		return True
+
 	async def _log(self, *, event, nsfw, embed) -> typing.List[discord.Message]:
 		await self.configured.wait()  # don't let people bypass logging by taking actions before logging is set up
 
@@ -94,13 +105,11 @@ class Logger(commands.Cog):
 				logging.error(f'Sending a log ({embed}) to {channel!r} failed:')
 				logging.error(utils.format_http_exception(exception))
 
-		coros = []
-		for channel, settings in self.channels.items():
-			if event not in settings['actions']:
-				continue
-			if nsfw and not settings.get('include_nsfw_emotes', False):
-				continue
-			coros.append(send(channel))
+		coros = [
+			send(channel)
+			for channel in self.channels
+			if await self.can_log(event=event, nsfw=nsfw, channel=channel)]
+
 		return [
 			result
 			# ignore all exceptions in sending to any of the channels,

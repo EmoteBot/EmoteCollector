@@ -518,12 +518,24 @@ class Emotes(commands.Cog):
 
 		new_emote = await self.db.toggle_emote_nsfw(emote, by_mod=by_mod)
 		responsible_moderator = context.author if by_mod else None
+
 		if new_emote.is_nsfw:
-			await context.send(_('Emote is now NSFW.'))
-			self.bot.dispatch('emote_nsfw', emote, responsible_moderator)
-			return
-		await context.send(_('Emote is now SFW.'))
-		self.bot.dispatch('emote_sfw', emote, responsible_moderator)
+			log_event = 'nsfw'
+			reply = _('Emote is now NSFW.')
+		else:
+			log_event = 'sfw'
+			reply = _('Emote is now SFW.')
+
+		# we don't need to respond to the user if their action will be logged in the same channel,
+		# because the log message contains all the same info
+		should_send_feedback = not await self.logger.can_log(
+			event=log_event, nsfw=emote.is_nsfw, channel=context.channel)
+		if should_send_feedback:
+			await context.send(reply)
+		else:
+			with contextlib.suppress(discord.HTTPException):
+				await context.message.delete()
+		self.bot.dispatch('emote_' + log_event, emote, responsible_moderator)
 
 	@commands.command()
 	@checks.not_blacklisted()
