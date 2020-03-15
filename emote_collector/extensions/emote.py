@@ -501,7 +501,7 @@ class Emotes(commands.Cog):
 		await self.db.set_emote_description(name, description, context.author.id)
 		await context.try_add_reaction(utils.SUCCESS_EMOJIS[True])
 
-	@commands.command(name='toggle-nsfw', aliases=['nsfw'])
+	@commands.command(name='toggle-nsfw', aliases=['nsfw', 'NSFW'])
 	@checks.not_blacklisted()
 	async def toggle_nsfw(self, context, emote: DatabaseEmoteConverter(check_nsfw=False)):
 		"""Toggles the NSFW status of an emote.
