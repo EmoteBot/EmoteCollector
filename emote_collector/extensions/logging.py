@@ -88,7 +88,11 @@ class Logger(commands.Cog):
 		"""return whether the given (possible nsfw) event can be logged to the given channel"""
 		await self.configured.wait()
 
-		settings = self.channels[channel]
+		try:
+			settings = self.channels[channel]
+		except KeyError:
+			return False
+
 		if event not in settings['actions']:
 			return False
 		if nsfw and not settings.get('include_nsfw_emotes', False):
