@@ -36,6 +36,43 @@ from ..utils.proxy import ObjectProxy
 
 logger = logging.getLogger(__name__)
 
+class PageDirection(enum.Enum):
+	before = -1
+	after = +1
+
+class PageSpecifier:
+	def __init__(self, direction, reference):
+		self.direction = direction
+		self.reference = reference
+
+	def __repr__(self):
+		return f'{type(self).__qualname__}({self.direction!r}, {self.reference!r})'
+
+	def __eq__(self, other):
+		return (
+			isinstance(other, type(self))
+			and self.direction is other.direction
+			and self.reference == other.reference
+		)
+
+	# convenience factories
+
+	@classmethod
+	def first(cls):
+		return cls(PageDirection.after, None)
+
+	@classmethod
+	def last(cls):
+		return cls(PageDirection.before, None)
+
+	@classmethod
+	def after(cls, reference):
+		return cls(PageDirection.after, reference)
+
+	@classmethod
+	def before(cls, reference):
+		return cls(PageDirection.before, reference)
+
 class MessageReplyType(enum.Enum):
 	auto = 'AUTO'
 	quote = 'QUOTE'
@@ -317,41 +354,44 @@ class Database(commands.Cog):
 		If author id is provided, get only emotes from them.
 		"""
 		batch = await self.all_emotes_keyset(author_id, allow_nsfw=allow_nsfw)
+		page = PageSpecifier.first()
 		while batch:
+			page.reference = batch[-1].name
 			for emote in batch:
 				yield emote
-			batch = await self.all_emotes_keyset(author_id, allow_nsfw=allow_nsfw, after=batch[-1].name)
+			batch = await self.all_emotes_keyset(author_id, allow_nsfw=allow_nsfw, page=page)
 
 	async def all_emotes_keyset(
 		self,
 		author_id=None,
 		*,
 		allow_nsfw: AllowNsfwType = False,
-		after: str = None,
-		before: str = None,
-		limit: int = 100
+		page: PageSpecifier = PageSpecifier.first(),
+		limit: int = 100, debug=False
 	):
-		if after is not None and before is not None:
-			raise TypeError('only one of after, before may be specified')
-
 		args = [self.allowed_nsfw_types(allow_nsfw)]
 
-		sort_order = 'DESC' if before is not None else 'ASC'
-		kwargs = {}
-		if after is not None or before is not None:
-			kwargs['sort_order'] = sort_order
-			args.append(after or before)
+		sort_order = 'DESC' if page.direction is PageDirection.before else 'ASC'
+		kwargs = dict(sort_order=sort_order)
+
+		if page.reference is not None:
+			args.append(page.reference)
+		else:
+			kwargs['end'] = True
 
 		if author_id is not None:
 			kwargs['filter_author'] = True
 			args.append(author_id)
 
-		args.append(min(limit, 250))
+		args.append(min(max(limit, 1), 250))
+
+		if debug:
+			return self.queries.all_emotes_keyset(**kwargs), args
 
 		results = list(map(DatabaseEmote, await self.bot.pool.fetch(
 			self.queries.all_emotes_keyset(**kwargs),
 			*args)))
-		if before is not None:
+		if page.direction is PageDirection.before:
 			results.reverse()
 		return results
 

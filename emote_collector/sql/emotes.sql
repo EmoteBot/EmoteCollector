@@ -89,12 +89,12 @@ WHERE invoking_message = $1
 
 --- ITERATORS
 
--- :macro all_emotes_keyset(sort_order, filter_author=False)
+-- :macro all_emotes_keyset(sort_order, filter_author=False, end=False)
 SELECT *
 FROM emotes
 WHERE nsfw = ANY ($1)
 -- :set argc = 2
--- :if sort_order is defined
+-- :if sort_order is defined and not end
 	AND LOWER(name) {{ '>' if sort_order == 'ASC' else '<' }} LOWER(${{ argc }})
 	-- :set argc = argc + 1
 -- :endif
