@@ -32,7 +32,7 @@ def owner_or_permissions(**perms):
 
 def is_moderator():
 	async def predicate(context):
-		db = context.bot.get_cog('Database')
+		db = context.bot.cogs['Database']
 		if not await db.is_moderator(context.author.id):
 			raise commands.CheckFailure(_('You must be an emote moderator to run this command.'))
 		return True
@@ -40,7 +40,7 @@ def is_moderator():
 
 def not_blacklisted():
 	async def predicate(context):
-		db = context.bot.get_cog('Database')
+		db = context.bot.cogs['Database']
 		blacklist_reason = await db.get_user_blacklist(context.author.id)
 		if blacklist_reason is None:
 			return True

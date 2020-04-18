@@ -300,7 +300,7 @@ class Meta(commands.Cog):
 		owner = self.bot.get_user(self.bot.config.get('primary_owner', self.bot.owner_id))
 		embed.set_author(name=str(owner), icon_url=owner.avatar_url)
 
-		embed.add_field(name='Servers', value=await self.bot.get_cog('Stats').guild_count())
+		embed.add_field(name='Servers', value=await self.bot.cogs['Stats'].guild_count())
 
 		cpu_usage = self.process.cpu_percent() / psutil.cpu_count()
 		mem_usage = humanize.naturalsize(self.process.memory_full_info().uss)

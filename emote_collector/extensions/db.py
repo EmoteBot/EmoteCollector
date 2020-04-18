@@ -219,12 +219,12 @@ class Database(commands.Cog):
 		if not role:
 			return
 
-		members = [(member.id,) for member in role.members if not member.bot]
+		members = [member.id for member in role.members if not member.bot]
 		self.moderators.update(members)
 
 		async with self.bot.pool.acquire() as connection, connection.transaction():
 			await connection.execute(self.queries.delete_all_moderators())
-			await connection.copy_records_to_table('moderators', records=members, columns=('id',))
+			await connection.copy_records_to_table('moderators', records=[(id,) for id in members], columns=('id',))
 
 	def _moderator_role(self):
 		guild = self.bot.config['support_server'].get('id')
