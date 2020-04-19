@@ -38,8 +38,6 @@ CREATE TABLE emotes(
 CREATE UNIQUE INDEX emotes_lower_idx ON emotes (LOWER(name));
 CREATE INDEX emotes_name_trgm_idx ON emotes USING GIN (name gin_trgm_ops);
 CREATE INDEX emotes_author_idx ON emotes (author);
-CREATE INDEX emotes_created_idx ON emotes (created);
-CREATE INDEX emotes_nsfw_idx ON emotes (nsfw);
 
 CREATE VIEW guilds AS
 	SELECT
