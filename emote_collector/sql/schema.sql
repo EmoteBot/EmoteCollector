@@ -119,7 +119,6 @@ CREATE TABLE locales(
 		OR "user" IS NOT NULL));
 
 CREATE UNIQUE INDEX locales_guild_channel_uniq_index ON locales (channel, guild);
-CREATE INDEX locales_user_idx ON locales ("user");
 
 --- BINGO
 
