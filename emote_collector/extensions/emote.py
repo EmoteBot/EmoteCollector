@@ -901,14 +901,18 @@ class Emotes(commands.Cog):
 		reply = await self.db.get_reply_message(payload.message_id)
 		type, reply_message_id = reply
 
-		if reply_message_id is None:
-			return
-
-		channel_id = int(payload.data['channel_id'])
+		channel = self.bot.get_channel(payload.channel_id)
 		message = discord.Message(
 			state=self.bot._connection,
-			channel=self.bot.get_channel(channel_id),
+			channel=channel,
 			data=payload.data)
+
+		if reply_message_id is None:
+			if getattr(channel, 'last_message_id', None) == payload.message_id:
+				# allow an edited message to invoke the auto response
+				# only if this is the last message in the channel
+				await self.on_message(message)
+			return
 
 		await self.bot.set_locale(message)
 
