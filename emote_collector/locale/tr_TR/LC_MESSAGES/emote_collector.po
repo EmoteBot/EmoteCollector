@@ -7,85 +7,88 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-04-25 18:15-0500\n"
-"PO-Revision-Date: 2019-08-22 11:52+0200\n"
-"Last-Translator: Morgân von Brylân\n"
+"POT-Creation-Date: 2020-04-25 18:16-0500\n"
+"PO-Revision-Date: 2020-04-25 16:35+0300\n"
+"Last-Translator: \n"
 "Language-Team: \n"
-"Language: fr_FR\n"
+"Language: tr_TR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 2.2.3\n"
-"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Poedit 2.3\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
+# Bu komut özel mesajlarda kullanılamaz.
 #: emote_collector/__init__.py:76
 msgid "This command cannot be used in private messages."
-msgstr "Peut pas faire ça en privé, pignouf"
+msgstr "Bu komut özel mesajlarda kullanılamaz."
 
 #: emote_collector/__init__.py:78
 msgid "Sorry. This command is disabled and cannot be used."
-msgstr "Commande désactivée parce que ta mère"
+msgstr "Bu komut devre dışı bırakılmıştır ve kullanılamaz."
 
 #: emote_collector/__init__.py:106
 msgid "An internal error occurred while trying to run that command."
-msgstr "Ah, j'ai chié dans la colle."
+msgstr "Bu komutu çalıştırırken bir hata oluştu."
 
 #: emote_collector/__init__.py:108
 msgid "I'm missing permissions to perform that action."
-msgstr "Je peux pas faire ça."
+msgstr "Bunu yapabilmek için yeterli yetkim bulunmuyor."
 
 #: emote_collector/extensions/api.py:59
 #, python-brace-format
 msgid ""
 "I have a RESTful API available. The docs for it are located at {docs_url}."
-msgstr "J'ai une API RESTful disponible. Sa documentation est à {docs_url}."
+msgstr ""
+"REST API'm kullanıma açıktır, dokümanları {docs_url}'de bulabilirsiniz."
 
 #: emote_collector/extensions/api.py:76
 msgid "Your new API token is:\n"
-msgstr "Ton  nouveau token API est :\n"
+msgstr "Yeni API anahtarınız:\n"
 
 #: emote_collector/extensions/api.py:78
 msgid "Your API token is:\n"
-msgstr "Ton token API est :\n"
+msgstr "API anahtarınız:\n"
 
 #: emote_collector/extensions/api.py:83
 msgid "Do **not** share it with anyone!"
-msgstr "Le donne **pas** à n'importe qui, patate !"
+msgstr "Bunu kimseyle **paylaşmayın**!"
 
 #: emote_collector/extensions/api.py:88
 msgid "Error: I could not send you your token via DMs."
-msgstr "J'ai pas réussi à t' envoyer ton token en MP."
+msgstr "Hata: Anahtarınızı özel mesajlar yoluyla size yollayamadım."
 
 #: emote_collector/extensions/db.py:134
 msgid "(Preserved, NSFW)"
-msgstr ""
+msgstr "(Yasak, NSFW)"
 
 #: emote_collector/extensions/db.py:136
 msgid "(Preserved)"
-msgstr ""
+msgstr "(Yasak)"
 
 #: emote_collector/extensions/db.py:138
 msgid "(NSFW)"
-msgstr ""
+msgstr "(NSFW)"
 
 #: emote_collector/extensions/db.py:611
 msgid ""
 "You may not set this emote as SFW because it was set NSFW by an emote "
 "moderator."
 msgstr ""
-"Un modo d'émotes a marqué celle-là comme NSFW ton tu peux pas la mettre SFW."
+"Bu emojiyi SFW -herkes için uygun- olarak ayarlayamazsınız çünkü bir "
+"moderatör tarafından NSFW -+18 içerik- olarak işaretlenmiş durumda."
 
 #: emote_collector/extensions/emote.py:102
 msgid "Created"
-msgstr "Créée"
+msgstr "Oluşturuldu"
 
 #: emote_collector/extensions/emote.py:116
 msgid "Last modified"
-msgstr "Dernière modification"
+msgstr "En son düzenlenme"
 
 #: emote_collector/extensions/emote.py:120
 msgid "Usage count"
-msgstr ""
+msgstr "Kullanım sayısı"
 
 #: emote_collector/extensions/emote.py:138
 #, python-format, python-brace-format
@@ -97,12 +100,6 @@ msgid ""
 "NSFW emotes: **{nsfw}** ({nsfw_percentage}% of total)\n"
 "**Total: {total} ⁄ {total_cap}**"
 msgstr ""
-"Émotes statiques : **{static} ⁄ {static_cap}** ({static_percentage}% du "
-"total, rempli à {static_full}%)\n"
-"Émotes animées : **{animated} ⁄ {animated_cap}** ({animated_percentage}% du "
-"total, rempli à {animated_full}%)\n"
-"Émotes NSFW : **{nsfw}** ({nsfw_percentage}% du total)\n"
-"**Total : {total} ⁄ {total_cap}**"
 
 #: emote_collector/extensions/emote.py:154
 #, python-brace-format
@@ -112,23 +109,30 @@ msgid ""
 "> Database emotes (**{non_backend_total}** not in the backend servers)\n"
 "{non_backend_emotes}"
 msgstr ""
+"> Backend sunucu emojileri, toplam (**{non_db_total}** tanesi veritabanında "
+"değil )\n"
+"{non_db_emotes}\n"
+"> Verştabanı emojileri, (**{non_backend_total}** tanesi backend olarak "
+"kaydedilmemiş)\n"
+"{non_backend_emotes}"
 
 #. no space because rest_is_raw preserves the space after "ec/quote"
 #: emote_collector/extensions/emote.py:182
 #, python-brace-format
 msgid "{context.author.mention} said:"
-msgstr "{context.author.mention} a dit :"
+msgstr "{context.author.mention} tarafından söylendi:"
 
 #: emote_collector/extensions/emote.py:212
 msgid ""
 "Sorry, webhooks and bots may not add emotes. Go find a human to do it for "
 "you."
 msgstr ""
-"Va te faire mettre, les webhooks et les bots peuvent pas ajouter d'émotes."
+"Özür dilerim fakat webhooklar veya botlar emoji ekleyemez. Gidin ve bunu "
+"sizin için yapacak bir insan bulun."
 
 #: emote_collector/extensions/emote.py:231
 msgid "Emote not found in Element Zero's database."
-msgstr "Y a pas ça dans la base de données d'Element Zero."
+msgstr "Bu emoji Element Zero veritabanında bulunamadı."
 
 #: emote_collector/extensions/emote.py:245
 msgid ""
@@ -137,14 +141,18 @@ msgid ""
 "provide a name as the first argument, like this:\n"
 "`{}add NAME_HERE URL_HERE`"
 msgstr ""
-"Il me faut une émote custom comme premier paramètre, mais j'ai eu de la "
-"merde. Si tu essayes d'ajouter une émote en utilisant l'adresse d'une image, "
-"donne le nom en premier paramètre, comme ça :\n"
-"`{}add NOM_ICI ADRESSE_ICI`"
+"Error: I expected a custom emote as the first argument, but I got something "
+"else. If you're trying to add an emote using an image URL, you need to "
+"provide a name as the first argument, like this:\n"
+"`{}add NAME_HERE URL_HERE`\n"
+"Hata: İlk argüman olarak bir özel emoji gerekli, fakat farklı bir şey "
+"girdiniz. Eğer bir resim bağlantısı kullanarak emoji eklemek istiyorsanız, "
+"ilk argüman olarak ismini girmelisiniz, bunun gibi:\n"
+"`{}add İSİM URL`"
 
 #: emote_collector/extensions/emote.py:266
 msgid "Your message had no emotes and no name!"
-msgstr "Ton foutu message n'avait ni émote ni nom !"
+msgstr "Mesajınızda ne bir bağlantı, ne de bir isim bulunuyor!"
 
 #: emote_collector/extensions/emote.py:281
 #, python-brace-format
@@ -152,194 +160,202 @@ msgid ""
 "{name} is not a valid emote name; use 2–32 English letters, numbers and "
 "underscores."
 msgstr ""
+"{name} doğru bir emoji ismi değil; 2-32 İngiizce karakter, sayı ve alt tire "
+"kullanınız."
 
 #: emote_collector/extensions/emote.py:287
 msgid "An error occurred while creating the emote:\n"
-msgstr "J'ai fait de la merde en créant l'émote :\n"
+msgstr "Emojiyi oluştururken bir hata oluştu:\n"
 
 #: emote_collector/extensions/emote.py:290
 msgid "Error: Invalid URL."
-msgstr "Erreur : URL toute pétée."
+msgstr "Hata: Geçersiz bağlantı."
 
 #: emote_collector/extensions/emote.py:292
 msgid "Error: The connection was closed early by the remote host."
-msgstr ""
+msgstr "Hata: Bağlantı."
 
 #: emote_collector/extensions/emote.py:296
 #, python-brace-format
 msgid "Emote {emote} successfully created."
-msgstr "Émote {emote} créée."
+msgstr "{emote} emojisi başarıyla oluşturuldu."
 
 #: emote_collector/extensions/emote.py:360
 msgid "Error: only emote moderators may forcibly remove emotes."
-msgstr ""
-"Seuls les modos d'émotes peuvent forcer le retrait d'une émote, et t'en es "
-"pas alors va chier."
+msgstr "Hata: Sadece emoji moderatörleri emojileri silebilir."
 
 #: emote_collector/extensions/emote.py:369
 msgid "Error: you must provide the name of at least one emote to remove"
-msgstr "Donne le nom de l'émote à virer, banane !"
+msgstr "Hata: Silmek için en az bir emojinin ismini belirtmelisiniz"
 
 #: emote_collector/extensions/emote.py:392
 msgid "**Successfully deleted:**"
-msgstr "**Suppression réussie :**"
+msgstr "**Silindi.**"
 
 #: emote_collector/extensions/emote.py:421
 msgid "**Successfully created:**"
-msgstr "**Création réussie :**"
+msgstr "**Oluşturuldu.**"
 
 #: emote_collector/extensions/emote.py:424
 msgid "Error: no existing custom emotes were provided."
-msgstr "Erreur : aucune émote custom existante n'a été fournie."
+msgstr "Hata: Var olan herhangi bir özel emoji belirtilmedi."
 
 #: emote_collector/extensions/emote.py:433
 msgid "**Not authorized:**"
-msgstr ""
+msgstr "**Yetersiz yetki.**"
 
 #. translator's note: the next five strings are displayed as errors
 #. when the user tries to add/remove an emote
 #: emote_collector/extensions/emote.py:437
 msgid "**Already exists:**"
-msgstr "**Existe déjà :**"
+msgstr "**Zaten bulunuyor.**"
 
 #. same priority as EmoteExists
 #: emote_collector/extensions/emote.py:440
 msgid "**Not found:**"
-msgstr "**Non trouvée :**"
+msgstr "**Bulunamadı:**"
 
 #: emote_collector/extensions/emote.py:442
 #, python-brace-format
 msgid "**Server returned error code {error.status}:**"
-msgstr "**Le serveur a retourné une erreur de code {error.status} :**"
+msgstr "**Sunucu {error.status} hata kodunu döndürdü:**"
 
 #: emote_collector/extensions/emote.py:444
 msgid "**Took too long to retrieve or resize:**"
-msgstr "**La récupération ou le redimensionnement a prit trop de temps :**"
+msgstr "**Karşıdan alma veya yeniden boyutlandırma çok uzun sürdü.**"
 
 #: emote_collector/extensions/emote.py:446
 msgid "**Failed because I ran out of backend servers:**"
-msgstr ""
-"**Opération échouée parce que je suis tombé à cours de serveurs backend :**"
+msgstr "**Bir hata oluştu:**"
 
 #: emote_collector/extensions/emote.py:470
 msgid "You must specify an old name and a new name."
-msgstr "Indique l'ancien et le nouveau noms, pignouf !"
+msgstr "Bir eski isim ve yeni isim belirtmelisiniz."
 
 #: emote_collector/extensions/emote.py:476
 msgid "Error: you must provide a new name for the emote."
-msgstr "Il me faut le nom de l'émote, clampin."
+msgstr "Hata: Silmek için en az bir emojinin ismini belirtmelisiniz."
 
 #: emote_collector/extensions/emote.py:487
 msgid "Emote successfully renamed."
-msgstr "Paf, changement de nom accompli"
+msgstr "{emote} emojisi başarıyla oluşturuldu."
 
 #: emote_collector/extensions/emote.py:516
 msgid ""
 "You may not change the NSFW status of this emote because you do not own it, "
 "or you are not an emote moderator."
 msgstr ""
-"Tu peux pas changer le statut NSFW de cette émote car t'es ni son proprio, "
-"ni modo d'émotes."
+"Bu emojinin NSFW durumunu değiştiremezsiniz çünkü sahibi değilsiniz, veya "
+"emojileri yönetme yetkiniz bulunmuyor."
 
 #: emote_collector/extensions/emote.py:524
 msgid "Emote is now NSFW."
-msgstr "Émote marquée comme sexuelle."
+msgstr "Emoji NSFW olarak işaretlendi."
 
 #: emote_collector/extensions/emote.py:527
 msgid "Emote is now SFW."
-msgstr "Émote marquée comme pas sexuelle."
+msgstr "Emoji SFW olarak işaretlendi."
 
 #: emote_collector/extensions/emote.py:574
 msgid "You can already react to that message with that emote."
-msgstr "Tu peux déjà utiliser cette émote, crétin."
+msgstr "Bu mesaja zaten istediğiniz emoji ile tepki verebiliyorsunuz."
 
 #: emote_collector/extensions/emote.py:581
 msgid "Unable to react: there's too many reactions on that message already"
-msgstr ""
-"Peux pas mettre de réaction, il y a déjà trop de merdes sur ce message."
+msgstr "Tepki verilemedi: Bu mesajda çok fazla emoji bulunuyor"
 
 #: emote_collector/extensions/emote.py:582
 msgid "Unable to react: permission denied."
-msgstr "J'peux pas ajouter de réactions."
+msgstr "Tepki verilemedi: Yetki yetersiz."
 
 #: emote_collector/extensions/emote.py:584
 msgid "Unable to react. Discord must be acting up."
-msgstr "Impossible de réagir. Discord fait de la merde."
+msgstr ""
+"Tepki verilemedi: Sorun tespit edilemedi. Yüksek ihtimalle sorunun kaynağı "
+"bot değil."
 
 #: emote_collector/extensions/emote.py:589
 msgid "OK! I've reacted to that message. Please add your reaction now."
-msgstr "C'est bon j'ai mis la réaction, maintenant tu fais pareil."
+msgstr ""
+"Tamamdır, bu mesaja tepki verildi! Tepkinizi eklemeye başlayabilirsiniz."
 
 #: emote_collector/extensions/emote.py:640
 #, python-brace-format
 msgid "Also check out the list website at {website}."
-msgstr "Allez voir ça aussi : {website}"
+msgstr "Sitemizde ({website}) listeyi kontrol etmeyi unutmayınız."
 
 #: emote_collector/extensions/emote.py:655
 msgid "No results matched your query."
-msgstr "Ta requête pue et j'ai rien trouvé."
+msgstr "Aramanıza dair hiçbir sonuç bulunamadı."
 
 #: emote_collector/extensions/emote.py:656
 msgid "No results matched your query, or your query only found NSFW emotes."
 msgstr ""
-"Ta requête pue et rien ne correspond, ou peut-être juste dans les émotes "
-"NSFW."
+"Aramanıza dair hiçbir sonuç bulunamadı, veya sadece NSFW emojileri bulundu."
 
 #: emote_collector/extensions/emote.py:718
 msgid "No emotes have been created yet. Be the first!"
-msgstr "Aucune émote n'a été créée, t'as qu'à t'y mettre !"
+msgstr "Daha önce hiç emoji oluşturulmamış.  İlk emojiyi siz oluşturun!"
 
 #: emote_collector/extensions/emote.py:720
 msgid "No emotes have been created yet, or all emotes are NSFW."
-msgstr "Aucune émote n'a été créée, ou alors juste des qui sont NSFW"
+msgstr ""
+"Daha önce hiç emoji oluşturulmamış, veya tüm emojiler NSFW olarak "
+"işaretlenmiş."
 
 #: emote_collector/extensions/emote.py:724
 msgid "You have not created any emotes yet."
-msgstr "T'as rien foutu encore."
+msgstr "Daha önce hiç emoji oluşturmadınız."
 
 #: emote_collector/extensions/emote.py:726
 msgid "You have not created any emotes yet, or all your emotes are NSFW."
-msgstr "T'as rien foutu, ou alors que des trucs sexuels, puceau va."
+msgstr ""
+"Daha önce hiç emoji oluşturmadınız, veya tüm emojileriniz NSFW olarak "
+"işaretlenmiş."
 
 #. another person, sfw
 #: emote_collector/extensions/emote.py:729
 msgid "That person has not created any emotes yet."
-msgstr "Ce type a rien foutu."
+msgstr "Bu kullanıcı daha önce hiç emoji oluşturmamış."
 
 #. another person, nsfw
 #: emote_collector/extensions/emote.py:731
 msgid ""
 "That person has not created any emotes yet, or all their emotes are NSFW."
-msgstr "Ce type a rien foutu, ou que des trucs NSFW, ce puceau."
+msgstr ""
+"Bu kullanıcı daha önce hiç emoji oluşturmamış, veya tüm emojileri NSFW "
+"olarak işaretlenmiş."
 
 #: emote_collector/extensions/emote.py:756
 msgid "Opted in to the emote auto response."
-msgstr "Réponse auto d'émotes activée."
+msgstr "Emoji oto cevabı için seçildi."
 
 #: emote_collector/extensions/emote.py:758
 msgid "Opted out of the emote auto response."
-msgstr "Réponse auto d'émotes désactivée."
+msgstr "Emoji oto cevabı için kapsam dışı bırakıldı."
 
 #: emote_collector/extensions/emote.py:775
 msgid "Emote auto response is now opt-out for this server."
-msgstr "La réponse auto est maintenant désactivée pour ce serveur."
+msgstr "Emoji oto cevabı bu sunucu için kapatıldı."
 
 #: emote_collector/extensions/emote.py:777
 msgid "Emote auto response is now opt-in for this server."
-msgstr "La réponse auto est maintenant activée pour ce serveur."
+msgstr "Emoji oto cevabı bu sunucu için açıldı."
 
 #: emote_collector/extensions/emote.py:793
 msgid "User un-blacklisted."
-msgstr "Trouduc débloqué."
+msgstr "Kullanıcı kara listeden çıkarıldı."
 
 #: emote_collector/extensions/emote.py:795
 #, python-brace-format
 msgid "User blacklisted with reason “{reason}”."
-msgstr ""
+msgstr "Kullanıcı \"{reason}\" sebebiyle kara listeye alındı."
 
 #: emote_collector/extensions/emote.py:808
 msgid "Warning: no suitable channel found to notify the member of that server."
 msgstr ""
+"Uyarı: Bahsettiğiniz sunucunun kullanıcısını uyarmak için uygun bir kanal "
+"bulunamadı."
 
 #: emote_collector/extensions/emote.py:812
 #, python-brace-format
@@ -347,134 +363,139 @@ msgid ""
 "This server has been blacklisted for “{reason}”. Server admins, use the "
 "{context.prefix}support command in DMs to appeal. Now leaving…"
 msgstr ""
+"Bu sunucu \"{reason}\" sebebiyle kara listeye alındı. Sunucu yöneticileri, "
+"{context.prefix}support  komutunu özel mesajlarda kullanarak af başvurusunda "
+"bulunun. Ayrılıyorum…"
 
 #: emote_collector/extensions/emote.py:825
 msgid "**Succesfully preserved:**"
-msgstr "**Préservée avec succès.**"
+msgstr "**Başarıyla koruma altına alındı:**"
 
 #: emote_collector/extensions/emote.py:827
 msgid "**Succesfully un-preserved:**"
-msgstr "**Dé-préservée avec succès.**"
+msgstr "**Başarıyla korumadan çıkarıldı:**"
 
 #. translator's note: this is sent to the user when the bot tries to send a message larger than ~8MiB
 #: emote_collector/extensions/file_upload_hook.py:39
 msgid "Way too long."
-msgstr "C'est trop long, ducon."
+msgstr "Bir hata oluştu."
 
 #. translator's note: this is sent to the user when the bot tries to send a message >2000 characters
 #. but less than 8MiB
 #: emote_collector/extensions/file_upload_hook.py:44
 msgid "Way too long. Message attached."
-msgstr "C'est trop long, ducon. Message attaché."
+msgstr "Bir hata oluştu."
 
 #: emote_collector/extensions/gimme.py:56
 #, python-brace-format
 msgid "Invite to the server that has {emote}: {invite.url}"
-msgstr "Invitation pour le serveur ayant l'émote {emote} : {invite.url}"
+msgstr "{emote} emojisini bulunduran sunucunun daveti: {invite.url}"
 
 #: emote_collector/extensions/gimme.py:58
 #: emote_collector/extensions/meta.py:344
 msgid "Unable to send invite in DMs. Please allow DMs from server members."
-msgstr "T'as bloqué les MP venant des membres du serveur, pov' tache !"
+msgstr ""
+"Daveti özel mesajlardan gönderemedim. Lütfen sunucu üyelerinden gelecek özel "
+"mesajları açınız."
 
 #. Translator's note: if there's no good translation for "locale",
 #. or it's not a common word in your language, feel free to use "language" instead for this file.
 #: emote_collector/extensions/locale.py:42
 #, python-brace-format
 msgid "Invalid locale. The valid locales are: {locales}"
-msgstr "lol tu sais pas parler ? T'as qu'à parler une de celles-là : {locales}"
+msgstr "Geçersiz 'yerel'. Geçerli 'yerel'ler: {locales}"
 
 #: emote_collector/extensions/locale.py:88
 #, python-brace-format
 msgid "Your current locale is: {user_locale}"
-msgstr "Tu causes comme ça : {user_locale}"
+msgstr "Mevcut yereliniz: {user_locale}"
 
 #: emote_collector/extensions/locale.py:93
 #, python-brace-format
 msgid "The current locale for that channel is: {channel_or_guild_locale}"
-msgstr "Le salon cause ça : {channel_or_guild_locale}"
+msgstr "Bahsettiğiniz kanalın mevcut yereli: {channel_or_guild_locale}"
 
 #: emote_collector/extensions/locale.py:135
 #, python-brace-format
 msgid "The current locale for this server is: {guild_locale}"
-msgstr "Ce serveur cause ça : {guild_locale}"
+msgstr "Bu sunucunun mevcut yereli: {guild_locale}"
 
 #. preserve i18n'd strings which use this var name
 #: emote_collector/extensions/meta.py:47 emote_collector/extensions/meta.py:186
 #, python-brace-format
 msgid "{cog_name} Commands"
-msgstr "{cog_name} Commandes"
+msgstr "{cog_name} Komutları"
 
 #: emote_collector/extensions/meta.py:59
 #, python-brace-format
 msgid "For more help, join the official bot support server: {invite}"
-msgstr "Si tu veux un coup de main t'à qu'à faire chier ceux-là : {invite}"
+msgstr "Daha fazla yardım için, destek sunucumuza katılın: {invite}"
 
 #: emote_collector/extensions/meta.py:60
 msgid "Support"
-msgstr "Support"
+msgstr "Destek"
 
 #: emote_collector/extensions/meta.py:63
 #, python-brace-format
 msgid "Use \"{self.prefix}help command\" for more info on a command."
 msgstr ""
-"Utilisez \"{self.prefix}help commande\" pour plus d'infos sur ladite "
-"commande."
+"Bir komut hakkında daha fazla bilgi için \"{self.prefix}help <komut>\" "
+"komutunu kullanınız."
 
 #: emote_collector/extensions/meta.py:67
 msgid "No help given"
-msgstr "Pas d'aide, dtc"
+msgstr "Herhangi bir açıklama belirtilmemiş"
 
 #: emote_collector/extensions/meta.py:71
 #, python-brace-format
 msgid "Page {page}⁄{self.maximum_pages} ({self.total} commands)"
-msgstr "Page {page}/{self.maximum_pages} ({self.total} commandes)"
+msgstr "Sayfa {page}/{self.maximum_pages} ({self.total} komut)"
 
 #: emote_collector/extensions/meta.py:76
 msgid "Paginator help"
-msgstr "Aide sur le paginateur"
+msgstr "Sayfalama yardımı"
 
 #: emote_collector/extensions/meta.py:77 emote_collector/extensions/meta.py:97
 msgid "Hello! Welcome to the help page."
-msgstr "Salut, c'est l'aide, blabla"
+msgstr "Merhaba! Yardım menüsüne hoş geldiniz."
 
 #: emote_collector/extensions/meta.py:81
 msgid "What are these reactions for?"
-msgstr "C'est pour quoi ces merdes en bas ?"
+msgstr "Bu tepkiler ne için?"
 
 #: emote_collector/extensions/meta.py:84 emote_collector/extensions/meta.py:119
 #: emote_collector/utils/paginator.py:247
 #, python-brace-format
 msgid "We were on page {self.current_page} before this message."
-msgstr "Nous étions sur la page {self.current_page} avant ce message."
+msgstr "Bu mesajdan önce {self.current_page} sayılı sayfadaydık."
 
 #: emote_collector/extensions/meta.py:96
 msgid "Using the bot"
-msgstr "Utilisation du bot"
+msgstr "Botun kullanımı"
 
 #: emote_collector/extensions/meta.py:100
 msgid "How do I use this bot?"
-msgstr "Comment j'utilise ce truc ?"
+msgstr "Bu botu nasıl kullanırım?"
 
 #: emote_collector/extensions/meta.py:100
 msgid "Reading the bot signature is pretty simple."
-msgstr "Lire la signature du bot est plutôt simple."
+msgstr "Botun profiline bakmanız yeterlidir."
 
 #: emote_collector/extensions/meta.py:102
 msgid "argument"
-msgstr "paramètre"
+msgstr "argüman"
 
 #: emote_collector/extensions/meta.py:105
 msgid "This means the argument is __**required**__."
-msgstr "Ça veut dire que ce paramètre est __**requis**__."
+msgstr "Bu argümanın __**gerekli**__ olduğu anlamına geliyor."
 
 #: emote_collector/extensions/meta.py:106
 msgid "This means the argument is __**optional**__."
-msgstr "Ça veut dire que ce paramètre est __**facultatif**__."
+msgstr "Bu argümanın __**opsiyonel**__ olduğu anlamına geliyor."
 
 #: emote_collector/extensions/meta.py:107
 msgid "This means the it can be __**either A or B**__."
-msgstr "Ça veut dire que ce paramètre est __**soit A soit B**__."
+msgstr "Bu __**hem A hem B**__ olabilir anlamına geliyor."
 
 #: emote_collector/extensions/meta.py:110
 msgid ""
@@ -482,180 +503,188 @@ msgid ""
 "Now that you know the basics, it should be noted that...\n"
 "__**You do not type in the brackets!**__"
 msgstr ""
-"Ça veut dire que tu peux mettre plein de paramètres.\n"
-"Bon t'as pigé les bases, t'as juste à retenir qu'y faut\n"
-"__**pas mettre les crochets !**__"
+"Bu birden fazla argüman belirtebileceğiniz anlamına geliyor.\n"
+"Artık temelleri öğrendiğinize göre, şunu söyleyebiliriz:\n"
+"--**Parantez içinde yazmayın!**__"
 
 #: emote_collector/extensions/meta.py:132
 msgid "Shows help about the bot, a command, or a category"
-msgstr "Affiche l'aide sur le bot, une commande ou une catégorie"
+msgstr "Bot, bir komut veya bir kategori hakkında yardım alırsınız"
 
 #. zero width space so that "No Category" gets sorted first
 #: emote_collector/extensions/meta.py:154
 msgid "No Category"
-msgstr "Aucune catégorie"
+msgstr "Kategorilendirilmemiş"
 
 #: emote_collector/extensions/meta.py:196
 msgid "No help given."
-msgstr "Pas d'aide, dtc"
+msgstr "Herhangi bir yardım metni belirtilmemiş."
 
 #: emote_collector/extensions/meta.py:216
 #, python-brace-format
 msgid "Command or category \"{command_name}\" not found."
-msgstr "Y a pas de commande ou catégorie \"{command_name}\""
+msgstr "\"{command_name}\" isminde bir komut veya kategori bulunamadı."
 
 #: emote_collector/extensions/meta.py:220
 #, python-brace-format
 msgid ""
 "Command \"{command.qualified_name}\" has no subcommand named {subcommand}"
-msgstr ""
-"La commande \"{command.qualified_name}\" a pas de sous-commande {subcommand}"
+msgstr "\"{command.qualified_name}\" komutunun {subcommand}"
 
 #: emote_collector/extensions/meta.py:221
 #, python-brace-format
 msgid "Command \"{command.qualified_name}\" has no subcommands."
-msgstr "La commande \"{command.qualified_name}\" a pas de sous-commande."
+msgstr ""
+"\"{command.qualified_name}\" komutunun herhangi bir altkomutu bulunmuyor."
 
 #: emote_collector/extensions/meta.py:254
 msgid "Yes, delete my account."
-msgstr "Ouais, nique mon compte."
+msgstr "Evet, hesabımı sil."
 
 #: emote_collector/extensions/meta.py:256
 #, python-brace-format
 msgid ""
 "Are you sure you want to delete your account? To confirm, please say "
 "“{confirmation_phrase}” exactly."
-msgstr "T'es sûr de ton coup ? Si t'es sûr dis \"{confirmation_phrase}\"."
+msgstr ""
+"Hesabınızı silmek istediğinizden emin misiniz?  Doğrulamak için lütfen tam "
+"\"{confirmation_phrase}\" cümlesini gördüğünüz şekilde yazınız."
 
 #: emote_collector/extensions/meta.py:263
 msgid "Deleting your account…"
-msgstr "Niquage de ton compte…"
+msgstr "Hesabınızı siliyorum…"
 
 #: emote_collector/extensions/meta.py:270
 #, python-brace-format
 msgid "{context.author.mention} I've deleted your account successfully."
-msgstr ""
-"{context.author.mention} J'ai bien niqué ton compte (et il en a redemandé ce "
-"pédé)."
+msgstr "{context.author.mention}, hesabınızı başarıyla sildim."
 
 #: emote_collector/extensions/meta.py:284
 msgid "Confirmation phrase not received in time. Please try again."
-msgstr "T'as pas dit le truc assez vite, t'as gagné le droit de recommencer."
+msgstr "Doğrulama metni gereken zamanında alınamadı, lütfen tekrar deneyiniz."
 
 #: emote_collector/extensions/meta.py:325
 msgid "Could not fetch changes due to memory error. Sorry."
-msgstr "je souviens pas assez bien du coup j'ai rien récupéré."
+msgstr "Hafıza hatası sebebiyle değişikler saptanamadı."
 
 #: emote_collector/extensions/meta.py:333
 msgid "This command is temporarily unavailable. Try again later?"
-msgstr "Cette commande est baisée pour l'instant, réessaye plus tard."
+msgstr ""
+"Bu komut geçici bir süreliğine kullanım dışıdır. Başka bir zaman denemeye ne "
+"dersiniz?"
 
 #: emote_collector/extensions/meta.py:340
 #, python-brace-format
 msgid "Official support server invite: {invite}"
-msgstr "Invitation pour le serveur de support officiel : {invite}"
+msgstr "Destek sunucusu daveti: {invite}"
 
 #: emote_collector/extensions/bingo/commands.py:38
 msgid "You win!"
-msgstr ""
+msgstr "Kazandınız!"
 
 #: emote_collector/extensions/bingo/commands.py:43
 #: emote_collector/extensions/bingo/commands.py:56
 #: emote_collector/extensions/bingo/commands.py:64
 msgid "Your new bingo board:"
-msgstr ""
+msgstr "Yeni tombalanız:"
 
 #: emote_collector/extensions/bingo/commands.py:50
 msgid "You must specify at least one position and emote name."
-msgstr ""
+msgstr "En az bir pozisyon ve emoji ismi girmeniz gerekmektedir."
 
 #: emote_collector/extensions/bingo/commands.py:56
 msgid "You win! Your new bingo board:"
-msgstr ""
+msgstr "Kazandınız! Yeni tombalanız:"
 
 #: emote_collector/extensions/bingo/errors.py:24
 msgid "You do not have a bingo board yet."
-msgstr ""
+msgstr "Henüz bir tombalanız bulunmuyor."
 
 #: emote_collector/extensions/bingo/errors.py:28
 msgid "An NSFW channel is required to display this board."
-msgstr ""
+msgstr "Bu tombalayı göstermek için bir NSFW kanalı gereklidir."
 
 #: emote_collector/utils/checks.py:37
 msgid "You must be an emote moderator to run this command."
-msgstr "T'es pas modo d'émotes alors va chier."
+msgstr ""
+"Bu komutu çalıştırabilmek için emoji moderatörü yetkisine sahip olmanız "
+"gerekmektedir."
 
 #: emote_collector/utils/converter.py:46
 msgid "Not enough arguments."
-msgstr ""
+msgstr "Yeterli argüman bulunmuyor."
 
 #: emote_collector/utils/converter.py:80 emote_collector/utils/converter.py:94
 msgid "Not a valid integer."
-msgstr "C'est pas un entier ça, tu sais plus compte ?"
+msgstr "Bir sayı girmeniz gereklidir."
 
 #: emote_collector/utils/converter.py:88
 msgid "Not a message offset."
-msgstr "Pas un décalage de message."
+msgstr "Bir mesaj girmelisiniz."
 
 #: emote_collector/utils/converter.py:97
 msgid "Not a valid message ID."
-msgstr "Pas un ID de message valide."
+msgstr "Doğru bir mesaj ID'si girmeniz gereklidir."
 
 #: emote_collector/utils/converter.py:108
 msgid "Message not found! Make sure your message ID is correct."
-msgstr "J'ai pas trouvé le message ! T'es même pas foutu de récupérer un ID ?"
+msgstr "Mesaj bulunamadı! Lütfen girdiğiniz ID'nin doğruluğunu kontrol ediniz."
 
 #: emote_collector/utils/converter.py:111
 msgid ""
 "Permission denied! Make sure the bot has permission to read that message."
-msgstr "Je peux pas lire ce truc."
+msgstr ""
+"Yetki yetersiz! Botun bu kanaldaki mesajları okumak için yeterli yetkisi "
+"olduğunundan emin olunuz."
 
 #: emote_collector/utils/converter.py:140
 msgid "Message not found."
-msgstr "J'ai pas trouvé le message."
+msgstr "Mesaj bulunamadı."
 
 #: emote_collector/utils/converter.py:158
 msgid ""
 "Failed to interpret that as a message offset, message ID, or user, or failed "
 "to find a message containing that search keyword."
 msgstr ""
-"Soit c'est ni décalage de message ni un ID, soit j'ai juste pas trouvé ton "
-"mot-clé."
+"Girdiğiniz argümanı herhangi bir mesajda bulamadım ayrıca bir mesaj veya "
+"kullanıcı ID'si değil."
 
 #: emote_collector/utils/converter.py:186
 msgid ""
 "Unable to react: you and I both need permission to read message history."
 msgstr ""
-"J'peux pas réagir, faut qu'on puisse tous les deux lire les vieux messages."
+"Tepki veremedim: İkimizin de 'Mesaj geçmişini oku' yetkisine sahip olmamız "
+"gereklidir."
 
 #: emote_collector/utils/converter.py:188
 msgid "Unable to react: you and I both need permission to add reactions."
-msgstr "J'peux pas réagir parce qu'il faut qu'on puisse tous les deux."
+msgstr ""
+"Tepki veremedim: İkimizin de 'Tepki ekle' yetkisine sahip olmamız gereklidir."
 
 #: emote_collector/utils/converter.py:190
 msgid "Unable to react: you and I both need permission to use external emotes."
 msgstr ""
-"J'peux pas réagir, faut qu'on puisse tous les deux utiliser les émotes "
-"externes."
+"Tepki veremedim: İkimizin de 'Harici emojiler kullan' yetkisine sahip "
+"olmamız gereklidir."
 
 #: emote_collector/utils/converter.py:202
 msgid "That message is not from a log channel."
-msgstr ""
+msgstr "Mesaj bir log kanalına ait değil."
 
 #: emote_collector/utils/converter.py:207
 msgid "No embeds were found in that message."
-msgstr "Y a pas d'embed dans ce message de merde."
+msgstr "Mesajda embed bulunamadı."
 
 #: emote_collector/utils/converter.py:237
 #, python-brace-format
 msgid ""
 "Failed to interpret {argument} as a logged emote message or an emote in my "
 "database."
-msgstr ""
+msgstr "Girdiğiniz {argument} argümanını veritabanımda bulamadım."
 
 #: emote_collector/utils/converter.py:252
 msgid "Server not found."
-msgstr ""
+msgstr "Sunucu bulunamadı."
 
 #: emote_collector/utils/errors.py:29
 #, python-brace-format
@@ -663,170 +692,125 @@ msgid ""
 "Sorry, you have been blacklisted for “{reason}”. To appeal, please join the "
 "support server by running __{prefix}support__."
 msgstr ""
+"Üzgünüm, \"{reason}\" sebebiyle kara listeye alındınız. Af talebinde "
+"bulunmak için lütfen __{prefix}support__ komutunu çalıştırarak destek "
+"sunucusuna katılınız."
 
 #: emote_collector/utils/errors.py:36
 #, python-brace-format
 msgid "URL error: server returned error code {status}"
-msgstr "Erreur d'URL : le serveur a retourné un code d'erreur {status}"
+msgstr "URL hatası: Sunucu {status} hata kodunu döndürdü"
 
 #: emote_collector/utils/errors.py:41
 msgid "The image supplied was not a valid GIF, PNG, JPG, or WEBP file."
-msgstr ""
+msgstr "Girilen fotoğraf bir GIF, PNG, JPG veya WEBP dosyası olmalı."
 
 #: emote_collector/utils/errors.py:46
 msgid "Error: Retrieving the image took too long."
-msgstr "Cette image à la con est trop longue à récupérer."
+msgstr "Hata: Fotoğrafı alma işlemi çok uzun sürdü."
 
 #: emote_collector/utils/errors.py:51
 msgid "Error: Resizing the image took too long."
-msgstr "Cette image à la con est trop longue à redimensionner."
+msgstr "Hata: Fotoğrafı yeniden boyutlandırma işlemi çok uzun sürdü."
 
 #: emote_collector/utils/errors.py:63
 #, python-brace-format
 msgid "An emote called “{name}” already exists in my database."
-msgstr ""
+msgstr "Veritabanımda \"{name}\" isminde bir emoji bulunuyor."
 
 #: emote_collector/utils/errors.py:68
 #, python-brace-format
 msgid "An emote called “{name}” does not exist in my database."
-msgstr ""
+msgstr "Veritabanımda \"{name}\" isminde bir emoji bulunmuyor."
 
 #: emote_collector/utils/errors.py:73
 #, python-brace-format
 msgid "You're not authorized to modify “{name}”."
-msgstr ""
+msgstr "\"{name}\" emojisini düzenlemek için gereken yetkiye sahip değilsiniz."
 
 #: emote_collector/utils/errors.py:81
 #, python-brace-format
 msgid "That description is too long. The limit is {limit}."
-msgstr "Ta description de merde est trop longue. La limite est {limit}."
+msgstr "Açıklama çok uzun. Limit: {limit}."
 
 #: emote_collector/utils/errors.py:89
 msgid "No more room to store emotes."
-msgstr "Plus de place pour stoker les émotes."
+msgstr "Emojileri depolamak için yer kalmadı."
 
 #: emote_collector/utils/errors.py:94
 msgid "Discord seems to be having issues right now, please try again later."
-msgstr "Discord fait de la merde là, revient plus tard."
+msgstr ""
+"Şu anda Discord'da bazı problemler olduğunu görüyorum, lütfen daha sonra "
+"tekrar deneyiniz."
 
 #: emote_collector/utils/errors.py:100
 #, python-brace-format
 msgid "“{name}” is NSFW, but this channel is SFW."
-msgstr ""
+msgstr "\"{name}\" NSFW olarak işaretlenmiş, fakat kanal SFW."
 
 #: emote_collector/utils/paginator.py:106
 msgid "Bot does not have embed links permission."
-msgstr "Je peux pas envoyer de liens."
+msgstr "Botun embed yetkisi bulunmuyor."
 
 #: emote_collector/utils/paginator.py:109
 msgid "Bot cannot send messages."
-msgstr "Je peux pas envoyer de messages, putain !"
+msgstr "Bot mesaj gönderemiyor."
 
 #: emote_collector/utils/paginator.py:114
 msgid "Bot does not have add reactions permission."
-msgstr "Je peux pas mettre de réactions !"
+msgstr "Botun tepki ekleme yetkisi bulunmuyor."
 
 #: emote_collector/utils/paginator.py:117
 msgid "Bot does not have Read Message History permission."
-msgstr "Je peux même pas lire les vieux messages, quel serveur de merde !"
+msgstr "Botun mesaj geçmişini okuma yetkisi bulunmuyor."
 
 #: emote_collector/utils/paginator.py:137
 #: emote_collector/utils/paginator.py:337
 #, python-brace-format
 msgid "Page {page}⁄{self.maximum_pages} ({num_entries} entries)"
-msgstr "Page {page}⁄{self.maximum_pages} ({num_entries} entrées)"
+msgstr "Sayfa {page}/${self.maximum_pages} ({num_entries} girdi)"
 
 #: emote_collector/utils/paginator.py:141
 #: emote_collector/utils/paginator.py:341
 #, python-brace-format
 msgid "Page {page}⁄{self.maximum_pages}"
-msgstr "Page {page}⁄{self.maximum_pages}"
+msgstr "Sayfa {page}/${self.maximum_pages}"
 
 #: emote_collector/utils/paginator.py:147
 msgid "Confused? React with \\N{INFORMATION SOURCE} for more info."
 msgstr ""
-"Si tu es un peu con, réagit avec \\N{INFORMATION SOURCE} pour plus d'infos."
+"Kafanız mı karıştı? Bu mesaja \\N{INFORMATION_SOURCE} ile tepki vererek daha "
+"fazla bilgi alabilirsiniz."
 
 #: emote_collector/utils/paginator.py:206
 msgid "What page do you want to go to?"
-msgstr "On va à quelle page ?"
+msgstr "Hangi sayfaya gitmek istersiniz?"
 
 #: emote_collector/utils/paginator.py:216
 msgid "You took too long."
-msgstr "Putain, t'es lent."
+msgstr "İşlem çok uzun sürdü."
 
 #: emote_collector/utils/paginator.py:225
 #, python-brace-format
 msgid "Invalid page given. ({page}/{self.maximum_pages})"
-msgstr "Donne une vrai page, débile. ({page}/{self.maximum_pages})"
+msgstr "Geçersiz bir sayfa verildi. ({page}/{self.maximum_pages})"
 
 #: emote_collector/utils/paginator.py:237
 msgid "Welcome to the interactive paginator!\n"
-msgstr "C'est le paginateur interactif !\n"
+msgstr "İnteraktif sayfalamaya hoş geldiniz!\n"
 
 #: emote_collector/utils/paginator.py:238
 msgid ""
 "This interactively allows you to see pages of text by navigating with "
 "reactions. They are as follows:\n"
-msgstr "Avec ça tu peux voir des pages et des trucs avec des réactions :\n"
+msgstr ""
+"Mesaja vereceğiniz tepkiler ile interaktif bir şekilde navigasyonu "
+"kullanabilirsiniz:\n"
 
 #: emote_collector/utils/bingo/board.py:70
 msgid "Invalid position."
-msgstr ""
+msgstr "Geçersiz pozisyon."
 
 #: emote_collector/utils/bingo/board.py:140
 msgid "Position may not be the free space."
-msgstr ""
-
-#, python-brace-format
-#~ msgid "{emote} (Preserved, NSFW)"
-#~ msgstr "{emote} (Préservé, NSFW)"
-
-#, python-brace-format
-#~ msgid "{emote} (Preserved)"
-#~ msgstr "{emote} (Préservé)"
-
-#, python-brace-format
-#~ msgid "{emote} (NSFW)"
-#~ msgstr "{emote} (NSFW)"
-
-#~ msgid "The image supplied was not a valid GIF, PNG, or JPG file."
-#~ msgstr "Cette image est pétée."
-
-#, python-brace-format
-#~ msgid "`{name}` is NSFW, but this channel is SFW."
-#~ msgstr "`{name}` est NSFW, mais pas ce salon."
-
-#, python-brace-format
-#~ msgid "User blacklisted with reason \"{reason}\"."
-#~ msgstr "Ce trouduc est bloquée parce que « {reason} »."
-
-#, python-brace-format
-#~ msgid ""
-#~ "Sorry, you have been blacklisted with the reason `{reason}`. To appeal, "
-#~ "please join the support server with `{prefix}support`."
-#~ msgstr ""
-#~ "T'as été bloqué parce que de une t'es qu'un merdeux, de deux `{reason}`. "
-#~ "Si tu veux chouiner t'as qu'à le faire sur le serveur de support avec "
-#~ "`{prefix}support`."
-
-#, python-brace-format
-#~ msgid "An emote called `{name}` already exists in my database."
-#~ msgstr "Y a déjà une émote `{name}` alors trouve un meilleur nom."
-
-#, python-brace-format
-#~ msgid "An emote called `{name}` does not exist in my database."
-#~ msgstr "Y a pas d'émote `{name}`"
-
-#, python-brace-format
-#~ msgid "You're not authorized to modify `{name}`."
-#~ msgstr "Nan tu peux pas toucher à `{name}`, va chier"
-
-#~ msgid "No description was found in that embed."
-#~ msgstr "Cet embed à la con a pas de description !"
-
-#~ msgid "No custom emotes were found in that embed's description."
-#~ msgstr "Y a pas d'émote custom dans c't'embed, tu fais chier !"
-
-#~ msgid "No author IDs were found in that embed."
-#~ msgstr "Pas  ID d'auteur·e dans cet embed !"
+msgstr "Pozisyon, boş bir yerde olmayabilir."

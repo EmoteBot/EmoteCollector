@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-01-23 16:55-0600\n"
+"POT-Creation-Date: 2020-04-25 18:15-0500\n"
 "PO-Revision-Date: 2019-02-23 08:17+0000\n"
 "Last-Translator: Allan Nordhøy <epost@anotheragency.no>\n"
 "Language-Team: Polish <https://hosted.weblate.org/projects/emote-collector/"
@@ -60,19 +60,19 @@ msgstr "**NIE** udostępniaj go nikomu!"
 msgid "Error: I could not send you your token via DMs."
 msgstr "Błąd: Nie mogę ci wysłać twojego znaku przez wiadomość na Discordzie."
 
-#: emote_collector/extensions/db.py:97
+#: emote_collector/extensions/db.py:134
 msgid "(Preserved, NSFW)"
 msgstr ""
 
-#: emote_collector/extensions/db.py:99
+#: emote_collector/extensions/db.py:136
 msgid "(Preserved)"
 msgstr ""
 
-#: emote_collector/extensions/db.py:101
+#: emote_collector/extensions/db.py:138
 msgid "(NSFW)"
 msgstr ""
 
-#: emote_collector/extensions/db.py:568
+#: emote_collector/extensions/db.py:611
 msgid ""
 "You may not set this emote as SFW because it was set NSFW by an emote "
 "moderator."
@@ -235,115 +235,115 @@ msgid ""
 "or you are not an emote moderator."
 msgstr ""
 
-#: emote_collector/extensions/emote.py:522
+#: emote_collector/extensions/emote.py:524
 msgid "Emote is now NSFW."
 msgstr ""
 
-#: emote_collector/extensions/emote.py:525
+#: emote_collector/extensions/emote.py:527
 msgid "Emote is now SFW."
 msgstr ""
 
-#: emote_collector/extensions/emote.py:562
+#: emote_collector/extensions/emote.py:574
 msgid "You can already react to that message with that emote."
 msgstr "Możesz już zareagować do tej wiadomości za pomocą tej emotikony."
 
-#: emote_collector/extensions/emote.py:569
+#: emote_collector/extensions/emote.py:581
 msgid "Unable to react: there's too many reactions on that message already"
 msgstr ""
 
-#: emote_collector/extensions/emote.py:570
+#: emote_collector/extensions/emote.py:582
 msgid "Unable to react: permission denied."
 msgstr "Niezdolny do reakcji: dostęp zabroniony."
 
-#: emote_collector/extensions/emote.py:572
+#: emote_collector/extensions/emote.py:584
 msgid "Unable to react. Discord must be acting up."
 msgstr "Niezdolny do reakcji. Discord musi działać."
 
-#: emote_collector/extensions/emote.py:577
+#: emote_collector/extensions/emote.py:589
 msgid "OK! I've reacted to that message. Please add your reaction now."
 msgstr "OK! Zareagowałem do tej wiadomości. Teraz ty dodaj twoją reakcje."
 
-#: emote_collector/extensions/emote.py:628
+#: emote_collector/extensions/emote.py:640
 #, python-brace-format
 msgid "Also check out the list website at {website}."
 msgstr "Zobacz także liste. Strona {website}"
 
-#: emote_collector/extensions/emote.py:643
+#: emote_collector/extensions/emote.py:655
 msgid "No results matched your query."
 msgstr "Brak wyników pasujących do twojego zapytania."
 
-#: emote_collector/extensions/emote.py:644
+#: emote_collector/extensions/emote.py:656
 msgid "No results matched your query, or your query only found NSFW emotes."
 msgstr ""
 
-#: emote_collector/extensions/emote.py:706
+#: emote_collector/extensions/emote.py:718
 msgid "No emotes have been created yet. Be the first!"
 msgstr "Żadne emotikony nie zostały dodane. Bądź pierwszy!"
 
-#: emote_collector/extensions/emote.py:708
+#: emote_collector/extensions/emote.py:720
 msgid "No emotes have been created yet, or all emotes are NSFW."
 msgstr ""
 
-#: emote_collector/extensions/emote.py:712
+#: emote_collector/extensions/emote.py:724
 msgid "You have not created any emotes yet."
 msgstr "Nie stworzyłeś jeszcze ani jednej emotikony."
 
-#: emote_collector/extensions/emote.py:714
+#: emote_collector/extensions/emote.py:726
 msgid "You have not created any emotes yet, or all your emotes are NSFW."
 msgstr ""
 
 #. another person, sfw
-#: emote_collector/extensions/emote.py:717
+#: emote_collector/extensions/emote.py:729
 msgid "That person has not created any emotes yet."
 msgstr "Ta osoba nie stworzyła jeszcze ani jednej emotikony."
 
 #. another person, nsfw
-#: emote_collector/extensions/emote.py:719
+#: emote_collector/extensions/emote.py:731
 msgid ""
 "That person has not created any emotes yet, or all their emotes are NSFW."
 msgstr ""
 
-#: emote_collector/extensions/emote.py:744
+#: emote_collector/extensions/emote.py:756
 msgid "Opted in to the emote auto response."
 msgstr "Włączono automatyczne odpisywanie na emotikony."
 
-#: emote_collector/extensions/emote.py:746
+#: emote_collector/extensions/emote.py:758
 msgid "Opted out of the emote auto response."
 msgstr "Wyłączono automatyczne odpisywanie na emotikony."
 
-#: emote_collector/extensions/emote.py:763
+#: emote_collector/extensions/emote.py:775
 msgid "Emote auto response is now opt-out for this server."
 msgstr "Automatyczna reakcja na emotikony jest wyłączona na tym serwerze."
 
-#: emote_collector/extensions/emote.py:765
+#: emote_collector/extensions/emote.py:777
 msgid "Emote auto response is now opt-in for this server."
 msgstr "Automatyczna reakcja na emotikony jest włączona na tym serwerze."
 
-#: emote_collector/extensions/emote.py:781
+#: emote_collector/extensions/emote.py:793
 msgid "User un-blacklisted."
 msgstr "Użytownik usunięty z czarnej listy."
 
-#: emote_collector/extensions/emote.py:783
+#: emote_collector/extensions/emote.py:795
 #, python-brace-format
 msgid "User blacklisted with reason “{reason}”."
 msgstr ""
 
-#: emote_collector/extensions/emote.py:796
+#: emote_collector/extensions/emote.py:808
 msgid "Warning: no suitable channel found to notify the member of that server."
 msgstr ""
 
-#: emote_collector/extensions/emote.py:800
+#: emote_collector/extensions/emote.py:812
 #, python-brace-format
 msgid ""
 "This server has been blacklisted for “{reason}”. Server admins, use the "
 "{context.prefix}support command in DMs to appeal. Now leaving…"
 msgstr ""
 
-#: emote_collector/extensions/emote.py:813
+#: emote_collector/extensions/emote.py:825
 msgid "**Succesfully preserved:**"
 msgstr "**Pomyślnie zachowane:**"
 
-#: emote_collector/extensions/emote.py:815
+#: emote_collector/extensions/emote.py:827
 msgid "**Succesfully un-preserved:**"
 msgstr "**Pomyślnie nie zachowane:**"
 
@@ -364,7 +364,7 @@ msgid "Invite to the server that has {emote}: {invite.url}"
 msgstr "Zaproszenie do tego serwera posiada {emote}: {invite.url}"
 
 #: emote_collector/extensions/gimme.py:58
-#: emote_collector/extensions/meta.py:343
+#: emote_collector/extensions/meta.py:344
 msgid "Unable to send invite in DMs. Please allow DMs from server members."
 msgstr ""
 "Niezdolny do wysłania zaproszenia w wiadomości na Discordzie. Prosze "
@@ -541,7 +541,7 @@ msgstr "Nie można pobrać zmian z powodu błędu pamięci. Przepraszam."
 msgid "This command is temporarily unavailable. Try again later?"
 msgstr ""
 
-#: emote_collector/extensions/meta.py:339
+#: emote_collector/extensions/meta.py:340
 #, python-brace-format
 msgid "Official support server invite: {invite}"
 msgstr ""
@@ -576,38 +576,38 @@ msgstr ""
 msgid "You must be an emote moderator to run this command."
 msgstr ""
 
-#: emote_collector/utils/converter.py:45
+#: emote_collector/utils/converter.py:46
 msgid "Not enough arguments."
 msgstr ""
 
-#: emote_collector/utils/converter.py:79 emote_collector/utils/converter.py:93
+#: emote_collector/utils/converter.py:80 emote_collector/utils/converter.py:94
 msgid "Not a valid integer."
 msgstr "Nieprawidłowa liczba."
 
-#: emote_collector/utils/converter.py:87
+#: emote_collector/utils/converter.py:88
 msgid "Not a message offset."
 msgstr "Brak przesunięcia wiadomości."
 
-#: emote_collector/utils/converter.py:96
+#: emote_collector/utils/converter.py:97
 msgid "Not a valid message ID."
 msgstr "Nieprawidłowe ID wiadomości."
 
-#: emote_collector/utils/converter.py:107
+#: emote_collector/utils/converter.py:108
 msgid "Message not found! Make sure your message ID is correct."
 msgstr "Wiadomość nie znaleziona! Sprawdź czy ID wiadomości jest poprawne."
 
-#: emote_collector/utils/converter.py:110
+#: emote_collector/utils/converter.py:111
 msgid ""
 "Permission denied! Make sure the bot has permission to read that message."
 msgstr ""
 "Dostęp zabroniony! Sprawdź czy aby napewno bot ma permisje do przeczytania "
 "tej wiadomości."
 
-#: emote_collector/utils/converter.py:139
+#: emote_collector/utils/converter.py:140
 msgid "Message not found."
 msgstr "Wiadomość nie znaleziona."
 
-#: emote_collector/utils/converter.py:157
+#: emote_collector/utils/converter.py:158
 msgid ""
 "Failed to interpret that as a message offset, message ID, or user, or failed "
 "to find a message containing that search keyword."
@@ -616,40 +616,40 @@ msgstr ""
 "lub użytkownika lub nie udało się znaleźć wiadomości zawierającej słowo "
 "kluczowe wyszukiwania."
 
-#: emote_collector/utils/converter.py:185
+#: emote_collector/utils/converter.py:186
 msgid ""
 "Unable to react: you and I both need permission to read message history."
 msgstr ""
 "Niezdolny do reakcji: ty i ja musimy posiadać permisję aby czytać historię "
 "wiadomości."
 
-#: emote_collector/utils/converter.py:187
+#: emote_collector/utils/converter.py:188
 msgid "Unable to react: you and I both need permission to add reactions."
 msgstr ""
 "Niezdolny do reakcji: ty i ja musimy posiadać permisję aby dodawać reakcję."
 
-#: emote_collector/utils/converter.py:189
+#: emote_collector/utils/converter.py:190
 msgid "Unable to react: you and I both need permission to use external emotes."
 msgstr ""
 "Niezdolny do reakcji: ty i ja musimy posiadać permisję aby używać zewnętrzne "
 "emotikony."
 
-#: emote_collector/utils/converter.py:196
+#: emote_collector/utils/converter.py:202
 msgid "That message is not from a log channel."
 msgstr ""
 
-#: emote_collector/utils/converter.py:201
+#: emote_collector/utils/converter.py:207
 msgid "No embeds were found in that message."
 msgstr "W wiadomości nie znaleziono żadnych osadzeń."
 
-#: emote_collector/utils/converter.py:231
+#: emote_collector/utils/converter.py:237
 #, python-brace-format
 msgid ""
 "Failed to interpret {argument} as a logged emote message or an emote in my "
 "database."
 msgstr ""
 
-#: emote_collector/utils/converter.py:246
+#: emote_collector/utils/converter.py:252
 msgid "Server not found."
 msgstr ""
 
