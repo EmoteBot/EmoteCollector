@@ -774,13 +774,13 @@ msgstr "Botun mesaj geçmişini okuma yetkisi bulunmuyor."
 #: emote_collector/utils/paginator.py:337
 #, python-brace-format
 msgid "Page {page}⁄{self.maximum_pages} ({num_entries} entries)"
-msgstr "Sayfa {page}/${self.maximum_pages} ({num_entries} girdi)"
+msgstr "Sayfa {page}/{self.maximum_pages} ({num_entries} girdi)"
 
 #: emote_collector/utils/paginator.py:141
 #: emote_collector/utils/paginator.py:341
 #, python-brace-format
 msgid "Page {page}⁄{self.maximum_pages}"
-msgstr "Sayfa {page}/${self.maximum_pages}"
+msgstr "Sayfa {page}/{self.maximum_pages}"
 
 #: emote_collector/utils/paginator.py:147
 msgid "Confused? React with \\N{INFORMATION SOURCE} for more info."
