@@ -19,6 +19,7 @@ import base64
 import contextlib
 import io
 import logging
+import signal
 import sys
 import typing
 
@@ -133,7 +134,7 @@ async def resize_in_subprocess(image_data: bytes):
 	try:
 		image_data, err = await asyncio.wait_for(proc.communicate(image_data), timeout=30)
 	except asyncio.TimeoutError:
-		proc.kill()
+		proc.send_signal(signal.SIGINT)
 		raise errors.ImageResizeTimeoutError
 	else:
 		if proc.returncode == 2:
