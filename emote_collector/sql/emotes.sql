@@ -29,23 +29,6 @@ DELETE FROM _guilds
 WHERE id = $1
 -- :endmacro
 
--- :macro delete_all_moderators()
-DELETE FROM moderators
--- :endmacro
-
--- :macro add_moderator()
--- params: moderator_id
-INSERT INTO moderators (id)
-VALUES ($1)
-ON CONFLICT (id) DO NOTHING
--- :endmacro
-
--- :macro delete_moderator()
--- params: moderator_id
-DELETE FROM moderators
-WHERE id = $1
--- :endmacro
-
 --- INFORMATIONAL
 
 -- :macro free_guild(animated)

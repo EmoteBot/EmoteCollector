@@ -158,7 +158,7 @@ class Database(commands.Cog):
 
 		self.tasks = [
 			self.bot.loop.create_task(meth()) for meth in (
-				self.find_backend_guilds, self.update_moderator_list, self.leave_blacklisted_guilds)]
+				self.find_backend_guilds, self.leave_blacklisted_guilds)]
 		self.tasks.append(self.decay_loop.start())
 
 		self.logger = ObjectProxy(lambda: bot.cogs['Logger'])
@@ -210,38 +210,6 @@ class Database(commands.Cog):
 	def is_backend_guild(self, guild):
 		return guild.owner_id in self.bot.config['backend_user_accounts']
 
-	async def update_moderator_list(self):
-		self.moderators = set()
-
-		await self.bot.wait_until_ready()
-
-		role = self._moderator_role()
-		if not role:
-			return
-
-		members = [member.id for member in role.members if not member.bot]
-		self.moderators.update(members)
-
-		async with self.bot.pool.acquire() as connection, connection.transaction():
-			await connection.execute(self.queries.delete_all_moderators())
-			await connection.copy_records_to_table('moderators', records=[(id,) for id in members], columns=('id',))
-
-	def _moderator_role(self):
-		guild = self.bot.config['support_server'].get('id')
-		if not guild:
-			return
-
-		guild = self.bot.get_guild(guild)
-		if not guild:
-			return
-
-		role = self.bot.config['support_server'].get('moderator_role_id')
-		if not role:
-			return
-
-		role = guild.get_role(role)
-		return role
-
 	async def leave_blacklisted_guilds(self):
 		await self.bot.wait_until_ready()
 		async for guild in self.blacklisted_guilds():
@@ -273,22 +241,6 @@ class Database(commands.Cog):
 			self.bot.dispatch('backend_guild_join', guild)
 		elif await self.get_guild_blacklist(guild.id):
 			await guild.leave()
-
-	@commands.Cog.listener()
-	async def on_member_update(self, before, after):
-		if before.guild.id != self.bot.config['support_server'].get('id') or after.bot:
-			return
-
-		mod_role = self._moderator_role()
-		if not mod_role:
-			return
-
-		if mod_role in before.roles and mod_role not in after.roles:
-			self.moderators.discard(after)
-			await self.bot.pool.execute(self.queries.delete_moderator(), after.id)
-		elif mod_role not in before.roles and mod_role in after.roles:
-			self.moderators.add(after)
-			await self.bot.pool.execute(self.queries.add_moderator(), after.id)
 
 	## Informational
 
@@ -472,8 +424,7 @@ class Database(commands.Cog):
 		# check the set first to avoid a query
 		# but also check the database in case we don't have access to the websocket and therefore the client cache
 		return (
-			user_id in self.moderators
-			or await self.bot.is_owner(discord.Object(user_id))
+			await self.bot.is_owner(discord.Object(user_id))
 			or await self.bot.pool.fetchval('SELECT true FROM moderators WHERE id = $1', user_id))
 
 	async def is_owner(self, emote, user_id, *, force=False):

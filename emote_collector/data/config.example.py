@@ -34,7 +34,6 @@
 		# where should users be invited to when they need help? the bot must have Create Instant Invites permission
 		# for this channel
 		'invite_channel_id': None,  # if set to None, the ec/support command will be disabled
-		'moderator_role_id': None,  # users with this role will be allowed to modify or remove other people's emotes
 	},
 
 	# a user ID of someone to send logs to
