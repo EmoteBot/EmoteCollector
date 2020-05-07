@@ -94,9 +94,6 @@ CREATE TABLE guild_opt(
 
 CREATE INDEX blacklisted_guild_idx ON guild_opt (id) WHERE blacklist_reason IS NOT NULL;
 
-CREATE TABLE moderators(
-	id BIGINT PRIMARY KEY);
-
 CREATE TABLE api_tokens(
 	id BIGINT PRIMARY KEY,
 	secret BYTEA NOT NULL);
