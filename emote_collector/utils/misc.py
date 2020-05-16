@@ -59,7 +59,7 @@ async def get_message_by_offset(channel, index: int) -> discord.Message:
 	"""
 	try:
 		return (await channel.history(limit=abs(index)).flatten())[-1]
-	except discord.NoMoreItems:
+	except (discord.NoMoreItems, IndexError):
 		raise commands.BadArgument(_('Message not found.'))
 
 def format_user(bot, id, *, mention=False):
