@@ -640,6 +640,10 @@ class Emotes(commands.Cog):
 			paginator.text_message = _('Also check out the list website at {website}.').format(
 				website=f'{self.bot.config["website"]}/list{end_path}')
 
+		if not context.permissions_for(context.me).external_emojis:
+			await context.send(_(
+				"""Warning: I don't have the "Use External Emojis" permission. """
+				'No images will be displayed in the list.'))
 		await paginator.begin()
 
 	@commands.command(aliases=['find'])
