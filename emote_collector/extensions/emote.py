@@ -119,6 +119,7 @@ class Emotes(commands.Cog):
 
 		embed.add_field(name=_('Usage count'), value=await self.db.get_emote_usage(emote))
 
+		await self.warn_if_no_external_emojis_permission(context)
 		await context.send(embed=embed)
 
 	@commands.command(aliases=['count'])
@@ -640,10 +641,7 @@ class Emotes(commands.Cog):
 			paginator.text_message = _('Also check out the list website at {website}.').format(
 				website=f'{self.bot.config["website"]}/list{end_path}')
 
-		if not context.channel.permissions_for(context.me).external_emojis:
-			await context.send(_(
-				"""Warning: I don't have the "Use External Emojis" permission. """
-				'No images will be displayed in the list.'))
+		await self.warn_if_no_external_emojis_permission(context)
 		await paginator.begin()
 
 	@commands.command(aliases=['find'])
@@ -661,6 +659,7 @@ class Emotes(commands.Cog):
 
 		paginator = Pages(context, entries=processed)
 		self.paginators.add(paginator)
+		await self.warn_if_no_external_emojis_permission(context)
 		await paginator.begin()
 
 	@commands.command(name='cache-search')
@@ -671,6 +670,8 @@ class Emotes(commands.Cog):
 		This is useful for gauging the nsfw threshold for a certain kind of emote or seeing if an emote should be
 		preserved based on its name.
 		"""
+		await self.warn_if_no_external_emojis_permission(context)
+
 		emotes = []
 		for e in sorted(
 			(e for e in self.bot.emojis if e.is_usable() and query.search(e.name)),
@@ -710,7 +711,15 @@ class Emotes(commands.Cog):
 
 		paginator = Pages(context, entries=processed)
 		self.paginators.add(paginator)
+		await self.warn_if_no_external_emojis_permission(context)
 		await paginator.begin()
+
+	@staticmethod
+	async def warn_if_no_external_emojis_permission(context):
+		if not context.channel.permissions_for(context.me).external_emojis:
+			await context.send(_(
+				"""Warning: I don't have the "Use External Emojis" permission. """
+				'No emote images will be displayed.'))
 
 	@staticmethod
 	def no_emotes_found_error(context, user):
