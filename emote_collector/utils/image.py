@@ -90,7 +90,7 @@ MINIMUM_BYTES_NEEDED = 12
 def mime_type_for_image(data):
 	if data.startswith(b'\x89PNG\r\n\x1a\n'):
 		return 'image/png'
-	if data.startswith(b'\xFF\xD8') and data[6:10] in (b'JFIF', b'Exif'):
+	if data.startswith(b'\xFF\xD8\xFF') or data[6:10] in (b'JFIF', b'Exif'):
 		return 'image/jpeg'
 	if data.startswith((b'GIF87a', b'GIF89a')):
 		return 'image/gif'
