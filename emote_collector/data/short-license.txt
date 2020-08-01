@@ -1,1 +1,1 @@
-AGPLv3: https://github.com/EmoteCollector/bot/blob/master/LICENSE.md
+AGPLv3: https://github.com/EmoteBot/EmoteCollector/blob/master/LICENSE.md
