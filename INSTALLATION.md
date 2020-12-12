@@ -5,7 +5,7 @@ I can think of two reasons you'd want to install this bot:
 1. You have to test some changes you made.
 2. You want to run a copy of the bot for yourself.
 
-If you do 2), please rename the bot and change the icon.
+If you do 2), please rename the bot and change the icon. Also, please do not run this bot for public use. I implore you to enable the "private bot" option in the developer panel.
 
 ## Prerequisites
 
