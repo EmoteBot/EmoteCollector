@@ -26,6 +26,7 @@ import pygit2
 import psutil
 from discord.ext import commands
 
+from .. import utils
 from ..utils import asyncexecutor
 from ..utils.paginator import Pages, CannotPaginate
 
