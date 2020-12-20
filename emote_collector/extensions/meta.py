@@ -399,7 +399,7 @@ class Meta(commands.Cog):
 				source_url = 'https://github.com/Gorialis/jishaku'
 				at = self._pkg_version('jishaku')
 			elif module.startswith('bot_bin'):
-				source_url = 'https://github.com/bmintz/bot-bin'
+				source_url = 'https://github.com/iomintz/bot-bin'
 				at = self._bot_bin_revision()
 
 			location = module.replace('.', '/') + '.py'

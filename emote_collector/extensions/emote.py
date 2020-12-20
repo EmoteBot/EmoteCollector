@@ -541,7 +541,7 @@ class Emotes(commands.Cog):
 	@commands.command()
 	@checks.not_blacklisted()
 	async def react(self, context, emote, *, message: utils.converter.Message = None):
-		"""Add a reaction to a message. Sad reacts only please.
+		"""Add a reaction to a message.
 
 		To specify the message, provide a keyword to search for, a message ID, or an offset.
 		If you don't specify a message, the last message sent in this channel will be chosen.
