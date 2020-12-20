@@ -193,7 +193,7 @@ class Emotes(commands.Cog):
 		if should_track_reply:
 			await self.db.add_reply_message(context.message.id, MessageReplyType.quote, reply.id)
 
-	@commands.command(aliases=['create'], usage='[name] <image URL or custom emote>')
+	@commands.command(aliases=['create'], usage='[name] <image URL or custom emote>', enabled=False)
 	@checks.not_blacklisted()
 	async def add(self, context, *args):
 		"""Add a new emote to the bot.
@@ -218,7 +218,7 @@ class Emotes(commands.Cog):
 			message = await self.add_safe(name.strip(':;'), url, context.message.author.id)
 		await context.send(message)
 
-	@commands.command(name='add-from-e0', aliases=['addfrome0'])
+	@commands.command(name='add-from-e0', aliases=['addfrome0'], enabled=False)
 	@checks.not_blacklisted()
 	async def add_from_e0(self, context, name):
 		"""Copy an emote from an archive of Element Zero's emote database.
@@ -397,7 +397,7 @@ class Emotes(commands.Cog):
 		message = self._format_errors(messages)
 		await context.send(message)
 
-	@commands.command(name='steal-these', hidden=True)
+	@commands.command(name='steal-these', hidden=True, enabled=False)
 	@checks.not_blacklisted()
 	async def steal_these(self, context, *emotes):
 		"""Steal a bunch of custom emotes."""
@@ -743,7 +743,7 @@ class Emotes(commands.Cog):
 		else:  # another person, nsfw
 			return _('That person has not created any emotes yet, or all their emotes are NSFW.')
 
-	@commands.command()
+	@commands.command(enabled=False)
 	async def recover(self, context, emote: LoggedEmote):
 		"""Recovers a decayed or removed emote from a log channel.
 

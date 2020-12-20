@@ -75,11 +75,7 @@ class EmoteCollector(Bot):
 		if isinstance(error, commands.NoPrivateMessage):
 			await context.author.send(_('This command cannot be used in private messages.'))
 		elif isinstance(error, commands.DisabledCommand):
-			message = _('Sorry. This command is disabled and cannot be used.')
-			try:
-				await context.author.send(message)
-			except discord.Forbidden:
-				await context.send(message)
+			await context.send(_('Sorry. This command is disabled and cannot be used.'))
 		elif isinstance(error, commands.NotOwner):
 			logger.error('%s tried to run %s but is not the owner', context.author, context.command.name)
 			with contextlib.suppress(discord.HTTPException):
